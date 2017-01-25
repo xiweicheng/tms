@@ -1,43 +1,44 @@
 # TMS
-团队协作管理系统(http://192.168.7.253:7990/projects/STEP/repos/tms/browse)
+> TMS是团队协作web系统(响应式界面设计,移动端适配).
 
-# DEMO访问
-http://translation-test.sh1.newtouch.com/admin/login
+## 具有以下功能:
+- 团队协作沟通功能(类似于[slack](https://slack.com/) [bearychat](https://bearychat.com/))
+- 国际化翻译管理.
+- 博客
 
-# 使用技术
-视图UI: http://semantic-ui.com/  
-模板引擎: http://www.thymeleaf.org/  
-后台MVC: http://projects.spring.io/spring-boot/  
-数据持久化: http://projects.spring.io/spring-data-jpa/  
-安全认证: http://projects.spring.io/spring-security/  
-数据库: mysql  
-JDK: jdk8  
+### 沟通功能
+- 频道(组团沟通)
+- 私聊(一对一)
+- markdown语法支持(内容排版不再单调)
+- @消息 收藏消息 富文本消息目录
+- 剪贴板上传图片, 拖拽文件上传(就是这么便捷)
+- 邮件通知 桌面通知(不用担心错过什么)
+- 热键支持(鼠标点多了也累不是)
+- 更多贴心便捷操作等你发现
 
-# DOC
-https://github.com/thymeleaf/thymeleaf-extras-springsecurity  
-http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/  
-http://docs.spring.io/spring-data/jpa/docs/1.10.1.RELEASE/reference/html/  
-http://www.thymeleaf.org/doc/tutorials/2.1/usingthymeleaf.html  
-https://github.com/NextStepWebs/simplemde-markdown-editor  
-https://github.com/flesler/jquery.scrollTo  
-http://fancyapps.com/fancybox/  
-http://www.dropzonejs.com/  
-https://github.com/daneden/animate.css  
-https://github.com/IanLunn/Hover  
+整体简洁的界面
+![c863082f-2ecb-436c-98d6-3b60f9a1a281.png](http://xiweicheng.com/upload/img/0/c863082f-2ecb-436c-98d6-3b60f9a1a281.png)
+便捷的消息输入
+![65b1fcc3-cbe8-4919-a162-431a40e7b56e.png](http://xiweicheng.com/upload/img/0/65b1fcc3-cbe8-4919-a162-431a40e7b56e.png)
+适配移动端
+![e73a2675-b3bf-4ee8-8195-efc0c72644c6.png](http://xiweicheng.com/upload/img/0/e73a2675-b3bf-4ee8-8195-efc0c72644c6.png)
 
-# 开发工具
-sts: http://spring.io/tools/sts/  
-sublime text3: http://www.sublimetext.com/3  
+#### 国际化翻译管理
+**包括以下核心功能模块**
+- 翻译项目管理
+- 翻译语言管理
+- 翻译导入导出
+- 翻译管理
 
-# 开发配置
-修改配置文件(数据库相关): src/main/resources/application-dev.properties  
-spring.datasource.url=  
-spring.datasource.username=  
-spring.datasource.password=  
+翻译工作主面板
+![27938a3b-48a9-4929-aefb-8eda5741c629.png](http://xiweicheng.com/upload/img/0/27938a3b-48a9-4929-aefb-8eda5741c629.png)
 
-# 内置用户
-super/88888888 角色:超级管理员  
-admin/88888888 角色:管理员  
-user/88888888 角色:普通用户  
+针对翻译沟通和查看变更动态
+![019d85e5-8c96-4c6b-b092-92c04396b8fc.png](http://xiweicheng.com/upload/img/0/019d85e5-8c96-4c6b-b092-92c04396b8fc.png)
 
- 
+#### 其他功能
+- 系统设置
+- 用户管理
+
+#### 许可(license)
+MIT
