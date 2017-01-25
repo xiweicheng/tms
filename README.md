@@ -36,6 +36,10 @@
 针对翻译沟通和查看变更动态
 ![019d85e5-8c96-4c6b-b092-92c04396b8fc.png](http://xiweicheng.com/upload/img/0/019d85e5-8c96-4c6b-b092-92c04396b8fc.png)
 
+#### 博客
+可以将沟通消息转为博文  
+![e3a783dc-63d7-431c-89b7-512d08e2eabe.png](http://xiweicheng.com/upload/img/0/e3a783dc-63d7-431c-89b7-512d08e2eabe.png)
+
 #### 其他功能
 - 系统设置
 - 用户管理
