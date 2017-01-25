@@ -16,11 +16,11 @@
 - 热键支持(鼠标点多了也累不是)
 - 更多贴心便捷操作等你发现
 
-整体简洁的界面
+整体简洁的界面  
 ![c863082f-2ecb-436c-98d6-3b60f9a1a281.png](http://xiweicheng.com/upload/img/0/c863082f-2ecb-436c-98d6-3b60f9a1a281.png)
-便捷的消息输入
+便捷的消息输入  
 ![65b1fcc3-cbe8-4919-a162-431a40e7b56e.png](http://xiweicheng.com/upload/img/0/65b1fcc3-cbe8-4919-a162-431a40e7b56e.png)
-适配移动端
+适配移动端  
 ![e73a2675-b3bf-4ee8-8195-efc0c72644c6.png](http://xiweicheng.com/upload/img/0/e73a2675-b3bf-4ee8-8195-efc0c72644c6.png)
 
 #### 国际化翻译管理
