@@ -1,0 +1,33 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<title>TMS-测试页面</title>
+</head>
+
+<body>
+	<div class="pusher ad-index-content">
+		<div class="ad-index-container" style="padding-top: 200px; max-width: 600px; margin-left: auto; margin-right: auto;">
+			<div id="context">
+				<h2 class="ui red header">
+					<i class="warning sign icon"></i>
+					<div class="content" th:text="${title}">哎呀，出现错误了！</div>
+				</h2>
+				<div class="ui icon red message">
+					<i class="info circle icon"></i>
+					<div class="content">
+						<div class="header" th:text="${header}">错误消息！</div>
+						<p th:text="${message}">权限不足或者系统错误！</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

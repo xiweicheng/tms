@@ -1,0 +1,221 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" href="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS-翻译导入</title>
+    <link rel="icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../../static/lib/semantic/semantic.min.css" />
+    <link rel="stylesheet" th:href="@{/lib/toastr/toastr.css}" href="../../static/lib/toastr/toastr.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/md-github.css}" href="../../static/admin/css/md-github.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+    <script th:replace="admin/template :: baiduTongji"></script>
+</head>
+
+<body>
+    <div th:replace="admin/index :: sidebar-menu"></div>
+    <div th:replace="admin/index :: top-fixed-menu"></div>
+    <div class="pusher ad-index-content">
+        <div class="ad-index-container">
+            <div th:replace="admin/index :: rail-menu"></div>
+            <div id="context">
+                <div style="height:70px;"></div>
+                <div th:replace="admin/template :: ad-page-header ('导入导出', 'import')"></div>
+                <div class="ui attached segment">
+                    选择项目:
+                    <div class="ui selection dropdown dd-project">
+                        <input type="hidden" name="project" th:value="${projectId}" value="1">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">项目</div>
+                        <div class="menu" th:remove="all-but-first">
+                            <!--/*/
+                            <a th:each="p : ${projects}" class="item" th:href="@{/admin/import(projectId=${p.id})}" th:title="${p.description}" th:attr="data-value=${p.id}" th:text="${p.name}">STEP</a>
+                            /*/-->
+                            <a class="item" data-value="1">STEP</a>
+                            <a class="item" data-value="2">WORK</a>
+                            <a class="item" data-value="3">CONSOLE</a>
+                        </div>
+                    </div>
+                    选择语言:
+                    <div class="ui selection compact dropdown dd-language">
+                        <input type="hidden" name="language" th:value="${languages[0].id}" value="1">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">语言</div>
+                        <div class="menu" th:remove="all-but-first">
+                            <!--/*/
+                            <div th:each="l : ${languages}" class="item" th:title="${l.description}" th:attr="data-value=${l.id}" th:text="${l.description + '[' + l.name + ']'}">中文[zh]</div>
+                            /*/-->
+                            <div class="item" data-value="1">中文[zh]</div>
+                            <div class="item" data-value="2">日语[jp]</div>
+                            <div class="item" data-value="3">英语[en]</div>
+                        </div>
+                    </div>
+                    选择格式:
+                    <div class="ui selection compact dropdown dd-type">
+                        <input type="hidden" name="type" value="1">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">格式</div>
+                        <div class="menu">
+                            <div class="item" data-value="1">JSON</div>
+                            <div class="item" data-value="2">Property</div>
+                        </div>
+                    </div>
+                    <div sec:authorize="hasRole('ROLE_ADMIN')" class="ui primary compact button btn-import">导入</div>
+                    <div class="ui primary compact button btn-export">导出</div>
+                    <div class="ui form segment">
+                        <div class="field">
+                            <textarea class="ta-content" name="content" rows="18"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui bottom attached icon message">
+                    <i class="warning circle icon"></i>
+                    <div class="content">
+                        <div class="header">
+                            操作结果
+                        </div>
+                        <p class="msg-content"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="admin/template :: ad-handle-confirm"></div>
+    <div th:replace="admin/template :: ad-import-confirm"></div>
+    <div th:replace="admin/template :: ad-delete-confirm"></div>
+    <div th:include="admin/template :: ad-page-common"></div>
+    <div th:replace="admin/template :: ad-page-dimmer"></div>
+    <!--     
+    <script type="text/javascript" th:src="@{/lib/jquery-1.11.1.min.js}" src="../../static/lib/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/semantic/semantic.min.js}" src="../../static/lib/semantic/semantic.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/jquery.tablesort.min.js}" src="../../static/lib/jquery.tablesort.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/url.min.js}" src="../../static/lib/url.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/toastr/toastr.js}" src="../../static/lib/toastr/toastr.js"></script>
+    <script type="text/javascript" th:src="@{/lib/showdown.min.js}" src="../../static/lib/showdown.min.js"></script>
+    -->
+    <script type="text/javascript" th:src="@{/admin/js/deps-base.js}" src="../../static/admin/js/deps-base.js"></script>
+    <script type="text/javascript" th:src="@{/admin/js/admin.js}" src="../../static/admin/js/admin.js"></script>
+    <script type="text/javascript">
+    jQuery(function($) {
+        $('table').tablesort().data('tablesort');
+        $('.ui.dropdown').dropdown();
+        $('.ad-import-confirm .dd-mailUsers').dropdown({
+            forceSelection: false
+        });
+
+        $('.ui.dropdown.dd-labels').dropdown({
+            allowAdditions: true,
+            forceSelection: false
+        });
+
+        $('.ui.checkbox.ck-selectAll').checkbox({
+            onChecked: function() {
+                var $dd = $('.ad-import-confirm .dd-mailUsers');
+                var alls = [];
+                $dd.find('.menu .item').each(function(index, el) {
+                    alls.push($(el).attr('data-value'));
+                });
+
+                $dd.dropdown('set selected', alls);
+            },
+            onUnchecked: function() {
+                $('.ad-import-confirm .dd-mailUsers').dropdown('clear');
+            }
+        });
+
+        var baseURL = Utils.getBaseURL(); //url('protocol') + '://' + url('hostname') + ':' + url('port') + '/';
+
+        $('.btn-import').click(function(event) {
+
+            $('.ad-import-confirm').modal({
+                autofocus: false,
+                onShow: function() {
+                    // $(this).find('.ui.form').form('clear');
+                    $(this).find('.lbl-project').text($('.dd-project').dropdown('get text'));
+                    $(this).find('.lbl-language').text($('.dd-language').dropdown('get text'));
+                },
+                onApprove: function() {
+                    var $md = $(this);
+                    var projectId = $('.dd-project').dropdown('get value');
+                    var languageId = $('.dd-language').dropdown('get value');
+                    var type = $('.dd-type').dropdown('get value');
+                    var content = $('.ta-content').val();
+                    var data = Utils.formData('.ad-import-confirm .ui.form');
+                    var observers = $md.find('.dd-mailUsers').dropdown('get value');
+
+                    if (content) {
+                        if (type == 1) { // JSON
+                            try {
+                                $.parseJSON(content);
+                            } catch (e) {
+                                toastr.error('导入JSON内容格式错误!');
+                                return;
+                            }
+                        }
+
+                        $('.btn-import, .btn-export').addClass('disabled');
+                        $.post('admin/import/save', {
+                            projectId: projectId,
+                            languageId: languageId,
+                            type: type,
+                            labels: data.labels,
+                            observers: observers,
+                            baseURL: baseURL,
+                            content: content
+                        }, function(data, textStatus, xhr) {
+                            $('.btn-import, .btn-export').removeClass('disabled');
+                            if (data.success) {
+                                $('.msg-content').html(data.data);
+                                toastr.success('导入成功!');
+                            } else {
+                                toastr.error('导入失败!');
+                            }
+                        });
+                    }
+                }
+            }).modal('show');
+
+        });
+
+        $('.btn-export').click(function(event) {
+
+            $('.ad-handle-confirm').modal({
+                onApprove: function() {
+                    var projectId = $('.dd-project').dropdown('get value');
+                    var languageId = $('.dd-language').dropdown('get value');
+                    var type = $('.dd-type').dropdown('get value');
+
+                    $('.btn-import, .btn-export').addClass('disabled');
+                    $.post('admin/import/export', {
+                        projectId: projectId,
+                        languageId: languageId,
+                        type: type
+                    }, function(data, textStatus, xhr) {
+                        $('.btn-import, .btn-export').removeClass('disabled');
+                        if (data.success) {
+                            if (type == 1) {
+                                $('.ta-content').val(JSON.stringify($.parseJSON(data.data), null, 4));
+                            } else {
+                                $('.ta-content').val(data.data);
+                            }
+                            $('.msg-content').text("导出总数: " + data.msgs[0]);
+                            toastr.success('导出成功!');
+                        } else {
+                            toastr.error('导出失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+
+        });
+
+    });
+    </script>
+</body>
+
+</html>

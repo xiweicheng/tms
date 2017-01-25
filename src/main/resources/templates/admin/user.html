@@ -1,0 +1,526 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" href="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS-用户管理</title>
+    <link rel="icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../../static/lib/semantic/semantic.min.css" />
+    <link rel="stylesheet" th:href="@{/lib/toastr/toastr.css}" href="../../static/lib/toastr/toastr.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/md-github.css}" href="../../static/admin/css/md-github.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/simplemde/simplemde.min.css}" href="../../static/lib/simplemde/simplemde.min.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/awesome/css/font-awesome.min.css}" href="../../static/lib/awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+    <script th:replace="admin/template :: baiduTongji"></script>
+</head>
+
+<body>
+    <div th:replace="admin/index :: sidebar-menu"></div>
+    <div th:replace="admin/index :: top-fixed-menu"></div>
+    <div class="pusher ad-index-content">
+        <div class="ad-index-container">
+            <div th:replace="admin/index :: rail-menu"></div>
+            <div id="context">
+                <div style="height:70px;"></div>
+                <div th:replace="admin/template :: ad-page-header ('用户管理', 'user')"></div>
+                <div class="ui attached segment" sec:authorize="hasRole('ROLE_ADMIN')">
+                    <div class="ui primary compact button btn-add">添加</div>
+                </div>
+                <!-- <div style="max-height: 450px; overflow-y: auto;"> -->
+                <table class="ui sortable celled striped compact table segment table-user">
+                    <thead>
+                        <th>用户名</th>
+                        <th>姓名</th>
+                        <th>邮箱</th>
+                        <th>角色</th>
+                        <th>创建时间</th>
+                        <th>登录时间</th>
+                        <th>登录次数</th>
+                        <th>登录IP</th>
+                        <th>状态</th>
+                        <th sec:authorize="hasRole('ROLE_ADMIN')">处理</th>
+                    </thead>
+                    <tbody th:remove="all-but-first">
+                        <tr th:each="user : ${users}" th:attr="data-id=${user.username}">
+                            <td class="pp" th:title="${#strings.isEmpty(user.name) ? user.name : ''}" th:text="${user.username}">username</td>
+                            <td th:text="${user.name}">管理员</td>
+                            <td th:text="${user.mails}">test@test.com</td>
+                            <td>
+                                <div th:if="${not #sets.isEmpty(user.authorities)}" th:each="auth: ${user.authorities}" class="ui small basic label user-role" th:text="${auth}"></div>
+                            </td>
+                            <td class="timeago" th:title="${#calendars.format(user.createDate,'yyyy/MM/dd HH:mm:ss')}" th:text="${#calendars.format(user.createDate,'yyyy/MM/dd HH:mm:ss')}">2015/05/12 12:00:00</td>
+                            <td class="timeago" th:title="${user.lastLoginDate != null ? #calendars.format(user.lastLoginDate,'yyyy/MM/dd HH:mm:ss') : ''}" th:text="${user.lastLoginDate != null ? #calendars.format(user.lastLoginDate,'yyyy/MM/dd HH:mm:ss') : ''}">2015/05/12 12:00:00</td>
+                            <td th:text="${user.loginCount}">1</td>
+                            <td th:text="${user.loginRemoteAddress}">0.0.0.0</td>
+                            <td class="user-status" th:if="${user.enabled}">
+                                <div class="ui green small tag label">开启</div>
+                            </td>
+                            <td class="user-status" th:if="${not user.enabled}">
+                                <div class="ui yellow small tag label">停用</div>
+                            </td>
+                            <td sec:authorize="hasRole('ROLE_ADMIN')">
+                                <div class="ui top right pointing dropdown dd-actions" th:if="${((#authorization.expression('hasRole(''ROLE_ADMIN'')') and !#sets.contains(user.authorities, 'ROLE_ADMIN')) or #authorization.expression('hasRole(''ROLE_SUPER'')')) and (user.username != loginUser.username)}">
+                                    <div class="text">操作</div>
+                                    <i class="dropdown icon"></i>
+                                    <div class="menu">
+                                        <!-- if is super role, super admin can mgr not super admin and user role -->
+                                        <div th:if="${#authorization.expression('hasRole(''ROLE_SUPER'')') and !#sets.contains(user.authorities, 'ROLE_SUPER') and user.enabled}" class="item lhjz-btn-disable">停用</div>
+                                        <div th:if="${#authorization.expression('hasRole(''ROLE_SUPER'')') and !#sets.contains(user.authorities, 'ROLE_SUPER') and not user.enabled}" class="item lhjz-btn-enable">开启</div>
+                                        <div th:if="${#authorization.expression('hasRole(''ROLE_SUPER'')') and !#sets.contains(user.authorities, 'ROLE_SUPER')}" class="item lhjz-btn-edit">编辑</div>
+                                        <div th:if="${#authorization.expression('hasRole(''ROLE_SUPER'')') and !#sets.contains(user.authorities, 'ROLE_SUPER')}" class="item lhjz-btn-del">删除</div>
+                                        <!-- if is not super but admin(only can see this page, so no need judge is admin role) role, admin can only mgr user role -->
+                                        <div th:if="${!#authorization.expression('hasRole(''ROLE_SUPER'')') and #sets.size(user.authorities) == 1 and user.enabled}" class="item lhjz-btn-disable">停用</div>
+                                        <div th:if="${!#authorization.expression('hasRole(''ROLE_SUPER'')') and #sets.size(user.authorities) == 1 and not user.enabled}" class="item lhjz-btn-enable">开启</div>
+                                        <div th:if="${!#authorization.expression('hasRole(''ROLE_SUPER'')') and #sets.size(user.authorities) == 1}" class="item lhjz-btn-edit">编辑</div>
+                                        <!-- <div th:if="${!#authorization.expression('hasRole(''ROLE_SUPER'')') and #sets.size(user.authorities) == 1}" class="ui compact tiny red button lhjz-btn-del">删除</div> -->
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- </div> -->
+                <div class="ui styled fluid accordion">
+                    <div class="title">
+                        <i class="dropdown icon"></i> 用户组管理
+                    </div>
+                    <div class="content">
+                        <div class="ui segment" sec:authorize="hasRole('ROLE_ADMIN')">
+                            <div class="ui blue button btn-add-group">添加</div>
+                        </div>
+                        <table class="ui sortable celled striped compact table segment table-user-group">
+                            <thead>
+                                <th>组名</th>
+                                <th>成员</th>
+                                <!-- <th>角色</th> -->
+                                <th>创建时间</th>
+                                <th>状态</th>
+                                <th sec:authorize="hasRole('ROLE_ADMIN')">处理</th>
+                            </thead>
+                            <tbody th:remove="all-but-first">
+                                <tr th:each="g : ${groups}" th:attr="data-id=${g.id}">
+                                    <td class="groupName" th:title="${g.groupName}" th:text="${g.groupName}">groupName</td>
+                                    <td>
+                                        <div class="ui basic label mapping-user" th:each="m : ${g.groupMembers}" th:title="${m.username}" th:text="${m.username}"></div>
+                                    </td>
+                                    <td th:text="${#calendars.format(g.createDate,'yyyy/MM/dd HH:mm:ss')}">2015/05/12 12:00:00</td>
+                                    <td th:text="${g.status}"></td>
+                                    <td sec:authorize="hasRole('ROLE_ADMIN')">
+                                        <div class="ui compact tiny primary button btn-edit-group">编辑</div>
+                                        <div class="ui compact tiny red button btn-del-group">删除</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="title" th:if="${#authorization.expression('hasRole(''ROLE_SUPER'')')}">
+                        <i class="dropdown icon"></i> 批量创建用户
+                    </div>
+                    <div class="content" th:if="${#authorization.expression('hasRole(''ROLE_SUPER'')')}">
+                        <div class="ui segment">
+                            <div class="ui blue button btn-batchCreate">批量创建用户</div>
+                        </div>
+                        <div class="ui segment form">
+                            <div class="field">
+                                <textarea name="userinfos" placeholder="格式: username,password,role,name,mail,enabled 多条换行" cols="20" rows="10"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="title" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <i class="dropdown icon"></i> 群发邮件消息
+                    </div>
+                    <div class="content sg-batchMail" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <div class="ui segment">
+                            <div class="ui multiple search selection dropdown dd-mailUsers">
+                                <input name="users" type="hidden" value="">
+                                <i class="dropdown icon"></i>
+                                <div class="default text">用户</div>
+                                <div class="menu">
+                                    <div th:each="u : ${users}" class="item" th:if="${u.enabled}" th:attr="data-value=${u.username}" th:title="${u.username + (#strings.isEmpty(u.name) ? '' : '[' + u.name + ']')}" th:text="${(#strings.isEmpty(u.name) ? u.username : u.name)}"></div>
+                                </div>
+                            </div>
+                            <div class="ui checkbox ck-selectAll">
+                                <input type="checkbox" name="all">
+                                <label>全员发送</label>
+                            </div>
+                            <div class="ui blue button btn-batchMail">群发邮件消息</div>
+                        </div>
+                        <div class="ui segment form">
+                            <div class="field">
+                                <label>标题:</label>
+                                <input type="text" name="title" th:value="${'TMS翻译协作系统公告'}" value="TMS翻译协作系统公告" />
+                            </div>
+                            <div class="field markdown-body">
+                                <label>内容:</label>
+                                <textarea class="ta-md" name="content" rows="10"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="admin/template :: ad-handle-confirm"></div>
+    <div th:replace="admin/template :: ad-delete-confirm"></div>
+    <div th:replace="admin/template :: ad-user-add"></div>
+    <div th:replace="admin/template :: ad-user-edit"></div>
+    <div th:replace="admin/template :: ad-user-group-add"></div>
+    <div th:replace="admin/template :: ad-user-group-edit"></div>
+    <div th:include="admin/template :: ad-page-common"></div>
+    <div th:replace="admin/template :: ad-page-dimmer"></div>
+    <input type="hidden" th:each="u : ${users}" data-group="users" th:name="${u.username}" th:value="${u.name}" />
+    <!-- 
+    <script type="text/javascript" th:src="@{/lib/jquery-1.11.1.min.js}" src="../../static/lib/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/semantic/semantic.min.js}" src="../../static/lib/semantic/semantic.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/jquery.tablesort.min.js}" src="../../static/lib/jquery.tablesort.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/url.min.js}" src="../../static/lib/url.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/toastr/toastr.js}" src="../../static/lib/toastr/toastr.js"></script>
+    <script type="text/javascript" th:src="@{/lib/showdown.min.js}" src="../../static/lib/showdown.min.js"></script>
+     -->
+    <script type="text/javascript" th:src="@{/admin/js/deps-base.js}" src="../../static/admin/js/deps-base.js"></script>
+    <script type="text/javascript" th:src="@{/lib/simplemde/simplemde.min.js}" src="../../static/lib/simplemde/simplemde.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/jquery.timeago.min.js}" src="../../static/lib/jquery.timeago.min.js"></script>
+    <script type="text/javascript" th:src="@{/admin/js/admin.js}" src="../../static/admin/js/admin.js"></script>
+    <script type="text/javascript">
+    jQuery(function($) {
+        $('table').tablesort().data('tablesort');
+        $('.ui.checkbox').checkbox();
+        $('.pp').popup();
+        $('.ui.dropdown.dd-mailUsers').dropdown({
+            forceSelection: false
+        });
+        $('.ui.dropdown.dd-group-member').dropdown({
+            forceSelection: false
+        });
+        $('.ui.accordion').accordion();
+        $('.ui.dropdown.dd-actions').dropdown({
+            action: 'hide'
+        });
+
+        jQuery(".timeago").timeago();
+
+        // --------------------------------------------------------------------------------- username mapping to name start
+        Utils.showMappedTxt('.mapping-user');
+        // --------------------------------------------------------------------------------- username mapping to name end
+
+
+        // -------------------------------------------------------------user group start
+        $('.btn-add-group').click(function(event) {
+            $('.ad-user-group-add').modal({
+                onApprove: function() {
+                    $.post('admin/user/createGroup', {
+                        baseURL: baseURL,
+                        groupName: $(this).find('input[name="groupName"]').val()
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            toastr.success('操作成功!');
+                            window.location.reload();
+                        } else {
+                            toastr.error(data.data, '操作失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+        });
+
+        $('.table-user-group').on('click', '.btn-del-group', function(event) {
+            event.preventDefault();
+            $btn = $(this);
+
+            $('.ad-handle-confirm').modal({
+                onApprove: function() {
+                    $.post('admin/user/deleteGroup', {
+                        baseURL: baseURL,
+                        groupId: $btn.closest('tr').attr('data-id')
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            toastr.success('操作成功!');
+                            $btn.closest('tr').remove();
+                        } else {
+                            toastr.error(data.data, '操作失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+        });
+
+        $('.table-user-group').on('click', '.btn-edit-group', function(event) {
+            event.preventDefault();
+            $btn = $(this);
+
+            $.get('/admin/user/groupMemembers', {
+                groupId: $btn.closest('tr').attr('data-id')
+            }, function(data, textStatus, xhr) {
+                if (data.success) {
+                    $('.ad-user-group-edit').modal({
+                        onShow: function() {
+                            var gms = data.data;
+                            var gmArr = [];
+                            $.each(gms, function(index, gm) {
+                                gmArr.push(gm.username);
+                            });
+                            $(this).find('.dd-group-member').dropdown('clear').dropdown('set selected', gmArr);
+                            $(this).find('.ui.message span').text($btn.closest('tr').find('td.groupName').text());
+                        },
+                        onApprove: function() {
+                            var $md = $(this);
+                            $.post('admin/user/updateGroupMembers', {
+                                baseURL: baseURL,
+                                groupId: $btn.closest('tr').attr('data-id'),
+                                usernames: $md.find('.dd-group-member').dropdown('get value')
+                            }, function(data, textStatus, xhr) {
+                                if (data.success) {
+                                    toastr.success('操作成功!');
+                                    window.location.reload();
+                                } else {
+                                    toastr.error(data.data, '操作失败!');
+                                }
+                            });
+                        }
+                    }).modal('show');
+                } else {
+                    toastr.error(data.data, '操作失败!');
+                }
+            });
+
+        });
+
+        // -------------------------------------------------------------user group end
+
+        var simplemde = null;
+        if ($(".ta-md").size() > 0) {
+            simplemde = new SimpleMDE({
+                element: $(".ta-md")[0],
+                autoDownloadFontAwesome: false,
+                autosave: {
+                    enabled: true,
+                    delay: 5000,
+                    uniqueId: "user-batch-mail"
+                }
+            });
+        }
+
+        $('.ui.checkbox.ck-selectAll').checkbox({
+            onChecked: function() {
+                var $dd = $('.sg-batchMail .dd-mailUsers');
+                var alls = [];
+                $dd.find('.menu .item').each(function(index, el) {
+                    alls.push($(el).attr('data-value'));
+                });
+
+                $('.sg-batchMail .dd-mailUsers').dropdown('set selected', alls);
+            },
+            onUnchecked: function() {
+                $('.sg-batchMail .dd-mailUsers').dropdown('clear');
+            }
+        });
+        $('.user-role').each(function(index, el) {
+            if ($(el).text() == 'ROLE_ADMIN') {
+                $(el).text('管理员').addClass('green');
+            } else if ($(el).text() == 'ROLE_USER') {
+                $(el).text('普通用户');
+                $(el).prependTo($(el).parent('td'));
+            } else if ($(el).text() == 'ROLE_SUPER') {
+                $(el).text('系统管理员').addClass('black');
+                $(el).appendTo($(el).parent('td'));
+            }
+        });
+
+        var baseURL = Utils.getBaseURL(); //url('protocol') + '://' + url('hostname') + ':' + url('port') + '/';
+        $('.btn-batchCreate').click(function(event) {
+            $('.ad-handle-confirm').modal({
+                onApprove: function() {
+                    $.post('admin/user/batchCreate', {
+                        baseURL: baseURL,
+                        data: $('textarea[name="userinfos"]').val()
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            toastr.success('操作成功!');
+                        } else {
+                            toastr.error('操作失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+        });
+
+        $('.btn-batchMail').click(function(event) {
+            $('.ad-handle-confirm').modal({
+                onApprove: function() {
+
+                    if (!$.trim(simplemde.value())) {
+                        toastr.error('邮件内容不能为空!');
+                        return;
+                    }
+
+                    var html = $('<div class="markdown-body"/>').html('<style>.markdown-body{font-size:14px;line-height:1.6}.markdown-body>:first-child{margin-top:0!important}.markdown-body>:last-child{margin-bottom:0!important}.markdown-body a.absent{color:#C00}.markdown-body a.anchor{bottom:0;cursor:pointer;display:block;left:0;margin-left:-30px;padding-left:30px;position:absolute;top:0}.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6{cursor:text;font-weight:700;margin:20px 0 10px;padding:0;position:relative}.markdown-body h1 .mini-icon-link,.markdown-body h2 .mini-icon-link,.markdown-body h3 .mini-icon-link,.markdown-body h4 .mini-icon-link,.markdown-body h5 .mini-icon-link,.markdown-body h6 .mini-icon-link{color:#000;display:none}.markdown-body h1:hover a.anchor,.markdown-body h2:hover a.anchor,.markdown-body h3:hover a.anchor,.markdown-body h4:hover a.anchor,.markdown-body h5:hover a.anchor,.markdown-body h6:hover a.anchor{line-height:1;margin-left:-22px;padding-left:0;text-decoration:none;top:15%}.markdown-body h1:hover a.anchor .mini-icon-link,.markdown-body h2:hover a.anchor .mini-icon-link,.markdown-body h3:hover a.anchor .mini-icon-link,.markdown-body h4:hover a.anchor .mini-icon-link,.markdown-body h5:hover a.anchor .mini-icon-link,.markdown-body h6:hover a.anchor .mini-icon-link{display:inline-block}.markdown-body hr:after,.markdown-body hr:before{display:table;content:""}.markdown-body h1 code,.markdown-body h1 tt,.markdown-body h2 code,.markdown-body h2 tt,.markdown-body h3 code,.markdown-body h3 tt,.markdown-body h4 code,.markdown-body h4 tt,.markdown-body h5 code,.markdown-body h5 tt,.markdown-body h6 code,.markdown-body h6 tt{font-size:inherit}.markdown-body h1{color:#000;font-size:28px}.markdown-body h2{border-bottom:1px solid #CCC;color:#000;font-size:24px}.markdown-body h3{font-size:18px}.markdown-body h4{font-size:16px}.markdown-body h5{font-size:14px}.markdown-body h6{color:#777;font-size:14px}.markdown-body blockquote,.markdown-body dl,.markdown-body ol,.markdown-body p,.markdown-body pre,.markdown-body table,.markdown-body ul{margin:15px 0}.markdown-body hr{overflow:hidden;background:#e7e7e7;height:4px;padding:0;margin:16px 0;border:0;-moz-box-sizing:content-box;box-sizing:content-box}.markdown-body h1+p,.markdown-body h2+p,.markdown-body h3+p,.markdown-body h4+p,.markdown-body h5+p,.markdown-body h6+p,.markdown-body ol li>:first-child,.markdown-body ul li>:first-child{margin-top:0}.markdown-body hr:after{clear:both}.markdown-body a:first-child h1,.markdown-body a:first-child h2,.markdown-body a:first-child h3,.markdown-body a:first-child h4,.markdown-body a:first-child h5,.markdown-body a:first-child h6,.markdown-body>h1:first-child,.markdown-body>h1:first-child+h2,.markdown-body>h2:first-child,.markdown-body>h3:first-child,.markdown-body>h4:first-child,.markdown-body>h5:first-child,.markdown-body>h6:first-child{margin-top:0;padding-top:0}.markdown-body li p.first{display:inline-block}.markdown-body ol,.markdown-body ul{padding-left:30px}.markdown-body ol.no-list,.markdown-body ul.no-list{list-style-type:none;padding:0}.markdown-body ol ol,.markdown-body ol ul,.markdown-body ul ol,.markdown-body ul ul{margin-bottom:0}.markdown-body dl{padding:0}.markdown-body dl dt{font-size:14px;font-style:italic;font-weight:700;margin:15px 0 5px;padding:0}.markdown-body dl dt:first-child{padding:0}.markdown-body dl dt>:first-child{margin-top:0}.markdown-body dl dt>:last-child{margin-bottom:0}.markdown-body dl dd{margin:0 0 15px;padding:0 15px}.markdown-body blockquote>:first-child,.markdown-body dl dd>:first-child{margin-top:0}.markdown-body blockquote>:last-child,.markdown-body dl dd>:last-child{margin-bottom:0}.markdown-body blockquote{border-left:4px solid #DDD;color:#777;padding:0 15px}.markdown-body table th{font-weight:700}.markdown-body table td,.markdown-body table th{border:1px solid #CCC;padding:6px 13px}.markdown-body table tr{background-color:#FFF;border-top:1px solid #CCC}.markdown-body table tr:nth-child(2n){background-color:#F8F8F8}.markdown-body img{max-width:100%}.markdown-body span.frame{display:block;overflow:hidden}.markdown-body span.frame>span{border:1px solid #DDD;display:block;float:left;margin:13px 0 0;overflow:hidden;padding:7px;width:auto}.markdown-body span.frame span img{display:block;float:left}.markdown-body span.frame span span{clear:both;color:#333;display:block;padding:5px 0 0}.markdown-body span.align-center{clear:both;display:block;overflow:hidden}.markdown-body span.align-center>span{display:block;margin:13px auto 0;overflow:hidden;text-align:center}.markdown-body span.align-center span img{margin:0 auto;text-align:center}.markdown-body span.align-right{clear:both;display:block;overflow:hidden}.markdown-body span.align-right>span{display:block;margin:13px 0 0;overflow:hidden;text-align:right}.markdown-body span.align-right span img{margin:0;text-align:right}.markdown-body span.float-left{display:block;float:left;margin-right:13px;overflow:hidden}.markdown-body span.float-left span{margin:13px 0 0}.markdown-body span.float-right{display:block;float:right;margin-left:13px;overflow:hidden}.markdown-body span.float-right>span{display:block;margin:13px auto 0;overflow:hidden;text-align:right}.markdown-body code,.markdown-body tt{background-color:#F8F8F8;border:1px solid #EAEAEA;border-radius:3px;margin:0 2px;padding:0 5px;white-space:nowrap}.markdown-body pre>code{background:none;border:none;margin:0;padding:0;white-space:pre}.markdown-body .highlight pre,.markdown-body pre{background-color:#F8F8F8;border:1px solid #CCC;border-radius:3px;font-size:13px;line-height:19px;overflow:auto;padding:6px 10px}.markdown-body pre code,.markdown-body pre tt{background-color:transparent;border:none}</style>' + simplemde.markdown(simplemde.value())).wrap('<div/>').parent().html();
+                    $.post('admin/user/batchMail', {
+                        baseURL: baseURL,
+                        users: $('.sg-batchMail .dd-mailUsers').dropdown('get value'),
+                        title: $('.sg-batchMail input[name="title"]').val(),
+                        content: html //Utils.md2html($('.sg-batchMail textarea[name="content"]').val())
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            toastr.success('操作成功!');
+                        } else {
+                            toastr.error(data.data, '操作失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+        });
+
+        $('.btn-add').click(function(event) {
+
+            $('.ad-user-add').find('input[name="username"]').val('');
+            $('.ui.checkbox.chk-user').checkbox('check');
+
+            $('.ad-user-add').modal({
+                onApprove: function() {
+                    $.post('admin/user/save', {
+                        username: $('.ad-user-add').find('input[name="username"]').val(),
+                        name: $('.ad-user-add').find('input[name="name"]').val(),
+                        mail: $('.ad-user-add').find('input[name="mail"]').val(),
+                        password: '88888888',
+                        enabled: true,
+                        baseURL: baseURL,
+                        role: $('.ad-user-add').find('input:radio:checked').val()
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            toastr.success('添加成功!');
+                            window.location.reload();
+                        } else {
+                            toastr.error(data.data, '添加失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+        });
+
+        $('.table-user').on('click', '.lhjz-btn-disable', function(event) {
+            var $btn = $(this);
+
+            $('.ad-handle-confirm').modal({
+                onApprove: function() {
+                    $.post('admin/user/update', {
+                        username: $btn.closest('tr').attr('data-id'),
+                        enabled: false
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            $btn.closest('.menu').prepend('<div class="item lhjz-btn-enable">开启</div>');
+                            $btn.closest('tr').find('td.user-status').empty().append('<div class="ui yellow small tag label">停用</div>');
+                            $btn.remove();
+                            toastr.success('停用操作成功!');
+                        } else {
+                            toastr.error(data.data, '停用操作失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+        });
+        $('.table-user').on('click', '.lhjz-btn-enable', function(event) {
+            var $btn = $(this);
+
+            $('.ad-handle-confirm').modal({
+                onApprove: function() {
+                    $.post('admin/user/update', {
+                        username: $btn.closest('tr').attr('data-id'),
+                        enabled: true
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            $btn.closest('.menu').prepend('<div class="item lhjz-btn-disable">停用</div>');
+                            $btn.closest('tr').find('td.user-status').empty().append('<div class="ui green small tag label">开启</div>')
+                            $btn.remove();
+                            toastr.success('开启操作成功!');
+                        } else {
+                            toastr.error(data.data, '开启操作失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+        });
+        $('.table-user').on('click', '.lhjz-btn-del', function(event) {
+            var $btn = $(this);
+
+            $('.ad-delete-confirm').modal({
+                onApprove: function() {
+                    $.post('admin/user/delete', {
+                        username: $btn.closest('tr').attr('data-id')
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            $btn.closest('tr').remove();
+                            toastr.success('用户删除成功!');
+                        } else {
+                            toastr.error(data.data, '用户删除失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+        });
+        $('.table-user').on('click', '.lhjz-btn-edit', function(event) {
+            var $btn = $(this);
+
+            $.get('admin/user/get', {
+                username: $btn.closest('tr').attr('data-id')
+            }, function(data) {
+
+                if (data.success) {
+
+                    $('.ad-user-edit').find('.user-username').text($btn.closest('tr').attr('data-id'));
+                    $('.ad-user-edit').find('input[name="password"]').val('');
+                    $('.ad-user-edit').find('input[name="mail"]').val(data.data.mails);
+                    $('.ad-user-edit').find('input[name="name"]').val(data.data.name);
+
+                    var authArr = data.data.authorities;
+                    var isAdmin = false;
+                    $.each(authArr, function(index, val) {
+                        if (val.id.authority == 'ROLE_ADMIN') {
+                            isAdmin = true;
+                            return false;
+                        }
+                    });
+
+                    if (($('.ad-user-edit').find('input:radio')) && isAdmin) {
+                        $('.ad-user-edit .chk-admin').checkbox('set checked');
+                    } else {
+                        $('.ad-user-edit .chk-user').checkbox('set checked');
+                    }
+
+                    $('.ad-user-edit').modal({
+                        onApprove: function() {
+                            var $role = $('.ad-user-edit').find('input:radio:checked');
+                            var data = {
+                                username: $btn.closest('tr').attr('data-id'),
+                                password: $('.ad-user-edit').find('input[name="password"]').val(),
+                                name: $('.ad-user-edit').find('input[name="name"]').val(),
+                                mail: $('.ad-user-edit').find('input[name="mail"]').val()
+                            };
+                            if ($role) {
+                                data.role = $role.val();
+                            }
+                            $.post('admin/user/update', data, function(data, textStatus, xhr) {
+                                if (data.success) {
+                                    toastr.success('用户信息修改成功!');
+                                    window.location.reload();
+                                } else {
+                                    toastr.error(data.data, '用户信息修改失败!');
+                                }
+                            });
+                        }
+                    }).modal('show');
+                } else {
+                    toastr.error(data.data, "获取用户信息失败!");
+                }
+            });
+
+        });
+    });
+    </script>
+</body>
+
+</html>

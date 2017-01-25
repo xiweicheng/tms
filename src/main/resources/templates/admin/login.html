@@ -1,0 +1,115 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" href="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS-登录</title>
+    <link rel="icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../../static/lib/semantic/semantic.min.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+    <style>
+    body {
+        background-color: #5a3636;
+    }
+    
+    h2 {
+        color: rgba(197, 164, 164, 0.8)!important;
+    }
+    
+    .ui.form {
+        background-color: #353131;
+    }
+    
+    .ui.error.message {
+        background-color: #5a3636;
+    }
+    
+    .ui.error.message .header {
+        color: #e0b4b4;
+    }
+    
+    .ui.checkbox label {
+        color: #ad8b8b;
+    }
+    
+    .ui.checkbox input:focus~label {
+        color: #ad8b8b;
+    }
+    
+    .ui.checkbox label:hover {
+        color: #ad8b8b;
+    }
+    
+    .ui.button {
+        background-color: #5a3636;
+        color: #ad8b75;
+    }
+    </style>
+    <script th:replace="admin/template :: baiduTongji"></script>
+</head>
+
+<body>
+    <div class="admin login">
+        <h2 class="ui center aligned icon header">
+            <i class="circular users icon"></i> 用户登录
+        </h2>
+        <form th:action="@{/admin/signin}" action="" method="post">
+            <div class="ui error form segment">
+                <div class="ui error message" th:if="${param.error}">
+                    <div class="header">用户名密码错误!</div>
+                </div>
+                <div class="ui error message" th:if="${param.logout}">
+                    <div class="header">您已经退出登录!</div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="user icon"></i>
+                        <input type="text" th:value="${param.containsKey('username') ? param.username[0] : ''}" id="username" name="username" placeholder="用户名" />
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="lock icon"></i>
+                        <input type="password" th:value="${param.containsKey('password') ? param.password[0] : ''}" id="password" name="password" placeholder="密码" />
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" name="remember-me" />
+                        <label>记住我在此计算机的登录(2周)</label>
+                    </div>
+                </div>
+                <div class="ui center aligned header">
+                    <button type="submit" class="ui submit fluid button">登录</button>
+                </div>
+                <div style="text-align: center; font-size:12px;">
+                    <a href="/page/index.html#/pwd-reset">忘记密码</a> &nbsp;&nbsp;
+                    <a href="/page/index.html#/register">注册用户</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!--     
+    <script type="text/javascript" th:src="@{/lib/jquery-1.11.1.min.js}" src="../../static/lib/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/url.min.js}" src="../../static/lib/url.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/semantic/semantic.min.js}" src="../../static/lib/semantic/semantic.min.js"></script>
+     -->
+    <script type="text/javascript" th:src="@{/admin/js/deps-base.js}" src="../../static/admin/js/deps-base.js"></script>
+    <script>
+    jQuery(document).ready(function($) {
+
+        $('.ui.checkbox').checkbox();
+
+        if (url('?username') && url('?password')) {
+            $('form').submit();
+        }
+    });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" href="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS-建议反馈</title>
+    <link rel="icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../../static/lib/semantic/semantic.min.css" />
+    <link rel="stylesheet" th:href="@{/lib/toastr/toastr.css}" href="../../static/lib/toastr/toastr.css" />
+    <script th:replace="admin/template :: baiduTongji"></script>
+</head>
+
+<body>
+    <div th:replace="admin/index :: sidebar-menu"></div>
+    <div th:replace="admin/index :: top-fixed-menu"></div>
+    <div class="pusher ad-index-content">
+        <div class="ad-index-container">
+            <div th:replace="admin/index :: rail-menu"></div>
+            <div id="context">
+                <div style="height:70px;"></div>
+                <h2 class="ui header">
+                <i class="info circle icon"></i>
+                <div class="content">
+                    建议反馈
+                </div>
+                </h2>
+                <form class="ui reply form">
+                    <div class="field">
+                        <div class="ui input">
+                            <input type="text" name="name" placeholder="反馈标题" th:value="${#httpServletRequest.getParameter('name')}">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <textarea name="content" placeholder="反馈内容"></textarea>
+                    </div>
+                    <input type="hidden" name="url" value="" th:value="${#httpServletRequest.getParameter('url')}" />
+                    <div class="ui blue labeled submit icon button">
+                        <i class="icon send"></i> 提交
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div th:include="admin/template :: ad-page-common"></div>
+    <!-- 
+    <script type="text/javascript" th:src="@{/lib/jquery-1.11.1.min.js}" src="../../static/lib/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/url.min.js}" src="../../static/lib/url.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/semantic/semantic.min.js}" src="../../static/lib/semantic/semantic.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/toastr/toastr.js}" src="../../static/lib/toastr/toastr.js"></script>
+    -->
+    <script type="text/javascript" th:src="@{/admin/js/deps-base.js}" src="../../static/admin/js/deps-base.js"></script>
+    <script type="text/javascript" th:src="@{/admin/js/admin.js}" src="../../static/admin/js/admin.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+    jQuery(function($) {
+
+        var baseURL = Utils.getBaseURL(); // url('protocol') + '://' + url('hostname') + ':' + url('port') + '/';
+
+        $('textarea[name="content"]').keyup(function(event) {
+            var $ta = $(this);
+            if (event.ctrlKey && event.keyCode == 13) {
+                $.post('/admin/feedback/save', {
+                    name: $ta.closest('form').find('input[name="name"]').val(),
+                    url: $ta.closest('form').find(':hidden[name="url"]').val(),
+                    baseURL: baseURL,
+                    content: $ta.closest('form').find('textarea[name="content"]').val().replace(/\n/g, '<br/>')
+                }, function(data, textStatus, xhr) {
+                    if (data.success) {
+                        $ta.val('');
+                        toastr.success("反馈提交成功！");
+                    } else {
+                        toastr.error(data.data, "反馈提交失败！");
+                    }
+                });
+            }
+        });
+
+        // feedback handler
+        $('.submit.button').api({
+            action: 'saveFeedback',
+            method: 'post',
+            //stateContext: '.ad-img-cards',
+            data: {
+                /*[+ [[${_csrf != null ? _csrf.parameterName : ''}]] : [[${_csrf != null ? _csrf.token : ''}]] +]*/
+            },
+            beforeSend: function(settings) {
+                //settings.urlData = {};
+                $.extend(settings.data, {
+                    name: $(this).parent().find('input[name="name"]').val(),
+                    url: $(this).parent().find(':hidden[name="url"]').val(),
+                    baseURL: baseURL,
+                    content: $(this).parent().find('textarea[name="content"]').val().replace(/\n/g, '<br/>')
+                });
+                return settings;
+            },
+            onSuccess: function(resp, elem) {
+                $('textarea[name="content"]').val('');
+                toastr['success']("反馈提交成功！");
+            },
+            onFailure: function(resp, elem) {
+                toastr['error'](resp.data, "反馈提交失败！");
+            },
+            onError: function(errMsg, elem) {
+                toastr['error'](errMsg, "操作失败");
+            },
+            onAbort: function(errMsg, elem) {
+                toastr['error'](errMsg, "操作失败");
+            },
+            onComplete: function(resp, elem) {}
+        });
+    });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" href="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS-测试页面</title>
+    <link rel="icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../../static/lib/semantic/semantic.min.css" />
+    <link rel="stylesheet" th:href="@{/lib/toastr/toastr.css}" href="../../static/lib/toastr/toastr.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+</head>
+
+<body>
+    <div class="ui segment">
+        <div class="ui warning message">新添加的用户默认密码为 888888 并且是禁用状态,需要单独开启后才能使用.</div>
+        <div class="ui form">
+            <div class="field">
+                <label>用户名:</label>
+                <input type="text" placeholder="用户名">
+            </div>
+            <div class="field">
+                <label>密码:</label>
+                <input type="text" placeholder="密码" value="888888" readonly>
+            </div>
+            <div class="inline field">
+                <label>角色:</label>
+                <div class="ui radio checkbox">
+                    <input type="radio" name="role" checked>
+                    <label>管理员</label>
+                </div>
+                <div class="ui radio checkbox">
+                    <input type="radio" name="role">
+                    <label>普通用户</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui segment">
+        <h2 class="ui header">
+                <i class="info circle icon"></i>
+                <div class="content">
+                    在线诊断症状反馈
+                </div>
+                </h2>
+        <form class="ui reply form">
+            <div class="inline field">
+                <label>反馈对象:</label>
+                <div class="ui black label">xiweicheng@yeah.net</div>
+                <div class="ui icon compact small button btn-diagnose-detail">
+                    <i class="angle double down icon"></i>
+                </div>
+                <div class="ui popup">
+                    <div class="ui segment" style="max-height:200px; overflow:auto;">
+                        <h3 class="ui header">症状描述</h3>
+                        <p>症状内容</p>
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <textarea name="content" placeholder="反馈内容"></textarea>
+            </div>
+            <input type="hidden" name="url" value="" th:value="${#httpServletRequest.getParameter('url')}" />
+            <div class="ui blue labeled submit icon button">
+                <i class="icon edit"></i> 提交
+            </div>
+        </form>
+    </div>
+    <div class="ui segment">
+        <div class="ui button">Show fluid popup</div>
+        <div class="ui fluid popup">
+            <div class="ui segment" style="max-height:200px; overflow:auto;">
+                <h3 class="ui header"><span>fdgsdfgsd</span><div class="sub header">sdsdsd</div></h3>
+                <p>dfdsgfsdfgsdgfdgsdfgsdfgsdfgsdfgsdfgsd
+                    <br/>
+                </p>
+                <p>dfdsgfsdfgsdgfdgsdfgsdfgsdfgsdfgsdfgsd
+                    <br/>
+                </p>
+                <p>dfdsgfsdfgsdgfdgsdfgsdfgsdfgsdfgsdfgsd
+                    <br/>
+                </p>
+                <p>dfdsgfsdfgsdgfdgsdfgsdfgsdfgsdfgsdfgsd
+                    <br/>
+                </p>
+                <p>dfdsgfsdfgsdgfdgsdfgsdfgsdfgsdfgsdfgsd
+                    <br/>
+                </p>
+                <p>dfdsgfsdfgsdgfdgsdfgsdfgsdfgsdfgsdfgsd
+                    <br/>
+                </p>
+                <p>dfdsgfsdfgsdgfdgsdfgsdfgsdfgsdfgsdfgsd
+                    <br/>
+                </p>
+                <p>dfdsgfsdfgsdgfdgsdfgsdfgsdfgsdfgsdfgsd
+                    <br/>
+                </p>
+                <p>dfdsgfsdfgsdgfdgsdfgsdfgsdfgsdfgsdfgsd
+                    <br/>
+                </p>
+                <p>dfdsgfsdfgsdgfdgsdfgsdfgsdfgsdfgsdfgsd
+                    <br/>
+                </p>
+                <p>dfdsgfsdfgsdgfdgsdfgsdfgsdfgsdfgsdfgsd
+                    <br/>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="ui form segment">
+        <div class="field">
+            <label>标题</label>
+            <input type="text" placeholder="动态标题">
+        </div>
+        <div class="field">
+            <label>描述</label>
+            <textarea placeholder="动态描述"></textarea>
+        </div>
+        <div class="field">
+            <label>链接</label>
+            <div class="ui selection dropdown">
+                <div class="default text">动态详细链接</div>
+                <i class="dropdown icon"></i>
+                <input type="hidden" name="link">
+                <div class="menu">
+                    <div class="item" data-value="1">文章1</div>
+                    <div class="item" data-value="2">文章2</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="ui compact unstackable striped definition table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>文章名</th>
+                <th>发布日期</th>
+                <th>发布者</th>
+            </tr>
+        </thead>
+        <tbody style="max-height:200px;overflow:auto;">
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>John Lilki</td>
+                <td>September 14, 2013</td>
+                <td>jhlilk22@yahoo.com</td>
+            </tr>
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>Jamie Harington</td>
+                <td>January 11, 2014</td>
+                <td>jamieharingonton@yahoo.com</td>
+            </tr>
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>Jamie Harington</td>
+                <td>January 11, 2014</td>
+                <td>jamieharingonton@yahoo.com</td>
+            </tr>
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>Jamie Harington</td>
+                <td>January 11, 2014</td>
+                <td>jamieharingonton@yahoo.com</td>
+            </tr>
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>Jamie Harington</td>
+                <td>January 11, 2014</td>
+                <td>jamieharingonton@yahoo.com</td>
+            </tr>
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>Jamie Harington</td>
+                <td>January 11, 2014</td>
+                <td>jamieharingonton@yahoo.com</td>
+            </tr>
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>Jamie Harington</td>
+                <td>January 11, 2014</td>
+                <td>jamieharingonton@yahoo.com</td>
+            </tr>
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>Jamie Harington</td>
+                <td>January 11, 2014</td>
+                <td>jamieharingonton@yahoo.com</td>
+            </tr>
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>Jamie Harington</td>
+                <td>January 11, 2014</td>
+                <td>jamieharingonton@yahoo.com</td>
+            </tr>
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>Jamie Harington</td>
+                <td>January 11, 2014</td>
+                <td>jamieharingonton@yahoo.com</td>
+            </tr>
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>Jamie Harington</td>
+                <td>January 11, 2014</td>
+                <td>jamieharingonton@yahoo.com</td>
+            </tr>
+            <tr>
+                <td class="collapsing">
+                    <div class="ui checkbox">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </td>
+                <td>Jamie Harington</td>
+                <td>January 11, 2014</td>
+                <td>jamieharingonton@yahoo.com</td>
+            </tr>
+        </tbody>
+    </table>
+    <script type="text/javascript" th:src="@{/lib/jquery-1.11.1.min.js}" src="../../static/lib/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/jquery.tmpl.min.js}" src="../../static/lib/jquery.tmpl.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/semantic/semantic.min.js}" src="../../static/lib/semantic/semantic.min.js"></script>
+    <script th:src="@{/lib/toastr/toastr.js}" src="../../static/lib/toastr/toastr.js"></script>
+    <script type="text/javascript" th:src="@{/admin/js/admin.js}" src="../../static/admin/js/admin.js"></script>
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+        // $('.ui.button')
+        //     .popup({
+        //         inline: true,
+        //         hoverable: true,
+        //         position: 'bottom left',
+        //         delay: {
+        //             show: 300,
+        //             hide: 800
+        //         }
+        //     });
+
+        $('.btn-diagnose-detail')
+            .popup({
+                //inline: true,
+                hoverable: true,
+                position: 'bottom left',
+                delay: {
+                    show: 300,
+                    hide: 800
+                }
+            });
+    });
+    </script>
+</body>
+
+</html>

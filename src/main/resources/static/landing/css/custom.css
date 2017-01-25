@@ -1,0 +1,203 @@
+body {
+    padding-top: 50px;
+}
+
+.lhjz-footer {
+    background-color: #000;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.lhjz-navbar {
+    width: 100%;
+    z-index: 25;
+    position: relative;
+}
+
+#footer h3 {
+    font-size: 17px;
+}
+
+#footer ul {
+    padding-left: 0px;
+}
+
+#footer ul li {
+    list-style-type: none;
+}
+
+.lhjz-jumbotron {
+    margin-top: 20px;
+}
+
+.lhjz-body {
+    padding-top: 50px;
+}
+
+.lhjz-map {
+    display: block;
+    width: 100% \9;
+    max-width: 100%;
+    height: auto;
+    border-style: dashed;
+    border-width: 1px;
+}
+
+.lhjz-row1 {
+    background-color: #FFFFFF;
+}
+
+.lhjz-row2 {
+    background-color: #F7F7F7;
+}
+
+.lhjz-margin-top20 {
+    margin-top: 20px;
+}
+
+.lhjz-icon {
+    width: 14px;
+    height: 16px;
+    position: relative;
+    top: 1px;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.lhjz-icon-qq {
+    background-image: url('../img/icon/qq.png');
+}
+
+.lhjz-icon-bus {
+    background-image: url('../img/icon/bus.png');
+}
+
+.lhjz-contact > div {
+    margin-top: 5px;
+}
+
+.lhjz-contact-item-name {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+}
+
+.lhjz-container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.lhjz-content {
+    margin-top: 0px;
+    margin-bottom: 60px;
+}
+
+.thumbnail:hover {
+    border-color: #4089ca;
+}
+
+.lhjz-media-div {
+    float: left;
+    padding-right: 10px;
+}
+
+.lhjz-media-img {
+    max-width: 200px;
+}
+
+.lhjz-logo-img {
+    width: 20px;
+    height: 20px;
+    float: left;
+    margin-right: 5px;
+}
+
+.lhjz-job table {
+    margin-bottom: 0px;
+}
+
+.lhjz-job .desc {
+    margin-top: 10px;
+    border-bottom-color: #DDDDDD;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    padding-bottom: 5px;
+    margin-bottom: 8px;
+}
+
+.lhjz-job .desc p {
+    padding-top: 5px;
+}
+
+.lhjz-job .desc .title {
+    border-bottom-color: #DDDDDD;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    padding-bottom: 8px;
+}
+
+.lhjz-job .tag {
+    border-bottom-color: #DDDDDD;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    padding-bottom: 8px;
+}
+
+.lhjz-job .panel:hover {
+    border-color: #4089ca;
+}
+
+.lhzj-news-content {
+    word-wrap: break-word;
+    overflow-y: hidden;
+}
+
+.lhzj-thumbnail {
+    height: 300px;
+    overflow: hidden;
+}
+
+.lhjz-news-title {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.lhjz-article-body {
+    margin-top: 30px;
+}
+
+.margin-top-15{
+    margin-top: 15px;
+}
+
+.padding-top-15{
+    margin-top: 15px;
+}
+
+#common-feedback-content{
+    min-height: 150px;
+}
+
+/* start <landing/job.html> */
+
+#dropzone {
+    max-width: 500px;
+    margin: auto;
+}
+
+.dropzone {
+    border: 2px dashed #0087F7;
+    border-radius: 5px;
+    background: white;
+}
+
+.dropzone .dz-message {
+    font-weight: 400;
+    font-size: x-large;
+}
+/* end <landing/job.html> */

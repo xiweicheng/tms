@@ -1,0 +1,42 @@
+<!-- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport"
+	content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<title>TinyBox2 - JavaScript Modal Windows</title>
+<link rel="stylesheet" href="css/style.css" />
+<script type="text/javascript" src="tinybox.js"></script>
+</head>
+<body>
+	<ul>
+		<li
+			onclick="TINY.box.show({html:'This is a warning!',animate:false,close:false,boxid:'error',top:5})">No
+			Animation, No Close Button, Auto Width/Height, Custom Styling</li>
+		<li
+			onclick="TINY.box.show({url:'/test/test1.do',post:'id=16',width:200,height:100,opacity:20,topsplit:3})">Ajax
+			Post, Fixed Width/Height, Light Mask, Custom Vertical Split</li>
+		<li
+			onclick="TINY.box.show({html:'The entry has been updated successfully!',animate:false,close:false,mask:false,boxid:'success',autohide:2,top:-14,left:-17})">Custom
+			Position, No Mask, Auto-Hide</li>
+		<li
+			onclick="TINY.box.show({iframe:'http://www.baidu.com/',boxid:'frameless',width:750,height:450,fixed:false,maskid:'bluemask',maskopacity:40,closejs:function(){closeJS()}})">iFrame,
+			Blue Mask, Absolute Position, Frameless, Close Callback</li>
+		<li
+			onclick="TINY.box.show({url:'advanced.html',width:300,height:150})">Ajax,
+			Advanced Functions</li>
+		<li
+			onclick="TINY.box.show({image:'images/rhino.jpg',boxid:'frameless',animate:true,openjs:function(){openJS()}})">Image,
+			Load Callback</li>
+	</ul>
+	<script type="text/javascript">
+		function openJS() {
+			alert('loaded')
+		}
+		function closeJS() {
+			alert('closed')
+		}
+	</script>
+</body>
+</html> -->

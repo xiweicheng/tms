@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS - 翻译导入</title>
+</head>
+
+<body style="background-color: rgb(255, 255, 255); box-sizing: border-box; color: rgb(51, 51, 51); display: block; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; margin-top: 0px;">
+    <div style="box-sizing: border-box; color: rgb(51, 51, 51); display: block; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; padding-left: 15px; padding-right: 15px;">
+        <div style="box-sizing: border-box; padding-bottom: 9px; margin: 40px 0px 0px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(238, 238, 238); color: rgb(51, 51, 51); font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 20px;">
+            <h3 style="box-sizing: border-box; font-family: inherit; font-weight: 500; line-height: 1.1; color: inherit; margin-top: 20px; margin-bottom: 10px; font-size: 24px;">翻译导入</h3></div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="box-sizing: border-box; max-width: 100%; margin-bottom: 20px; color: rgb(51, 51, 51); font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 20px;">
+            <thead style="box-sizing: border-box;">
+                <tr style="box-sizing: border-box; background-color: rgb(249, 249, 249);">
+                    <th style="min-width: 80px; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 0px; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: rgb(221, 221, 221);">翻译链接:</th>
+                    <th style="text-align: left; word-break: break-word; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 0px; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: rgb(221, 221, 221);"><a th:href="${href}" th:text="${href}" href="http://localhost/admin/translate?projectId=1&id=1">http://localhost/admin/translate?projectId=1&id=1</a></th>
+                </tr>
+            </thead>
+            <tbody style="box-sizing: border-box;">
+                <tr style="box-sizing: border-box;">
+                    <th style="min-width: 80px; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);">导入用户:</th>
+                    <td style="word-break: break-word; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);">
+                        <span th:text="${user.username + ((not #strings.isEmpty(user.name)) ? '[' + user.name + ']' : '')}">test (测试用户)</span>
+                        <a th:if="${user.mails}" th:href="${'mailto:' + user.mails}" th:text="${'[' + user.mails + ']'}">[test@test.com]</a>
+                    </td>
+                </tr>
+                <tr style="box-sizing: border-box; background-color: rgb(249, 249, 249);">
+                    <th style="min-width: 80px; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);">导入日期:</th>
+                    <td th:text="${#dates.format(importDate,'yyyy/MM/dd HH:mm:ss')}" style="word-break: break-word; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);"></td>
+                </tr>
+                <tr style="box-sizing: border-box;">
+                    <th style="min-width: 80px; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);">导入翻译:</th>
+                    <td style="word-break: break-word; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);"></td>
+                </tr>
+                <tr style="box-sizing: border-box;">
+                    <td colspan="2" style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);">
+                        <div style="box-sizing: border-box; padding: 15px; margin-bottom: 20px; border: 1px solid rgb(188, 232, 241); border-radius: 4px; color: rgb(49, 112, 143); background-color: rgb(217, 237, 247);" th:utext="${body}">Spring + Hibernate 常常被称为 Java Web 应用人气最旺的框架组合。而在 JCP 通过的 Web Beans JSR ，却欲将JSF + EJB + JPA 、来自 JBoss Seam（Spring 除外）的一些组件和EJB 3（能够提供有基本拦截和依赖注入功能的简化 Session Bean框架）的一个 Web 组合进行标准化。Spring 2.0 为 JPA 提供了完整的 EJB容器契约，允许 JPA在任何环境内可以在 Spring 管理的服务层使用（包括 Spring 的所有DI 和 AOP增强）。同时，关于下一个Web应用组合会是 EJB、Spring + Hibernate 还是 Spring + JPA 的论战，早已充斥于耳。</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

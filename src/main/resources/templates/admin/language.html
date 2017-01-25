@@ -1,0 +1,202 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" href="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS-语言管理</title>
+    <link rel="icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../../static/lib/semantic/semantic.min.css" />
+    <link rel="stylesheet" th:href="@{/lib/toastr/toastr.css}" href="../../static/lib/toastr/toastr.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/md-github.css}" href="../../static/admin/css/md-github.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+    <script th:replace="admin/template :: baiduTongji"></script>
+</head>
+
+<body>
+    <div th:replace="admin/index :: sidebar-menu"></div>
+    <div th:replace="admin/index :: top-fixed-menu"></div>
+    <div class="pusher ad-index-content">
+        <div class="ad-index-container">
+            <div th:replace="admin/index :: rail-menu"></div>
+            <div id="context">
+                <div style="height:70px;"></div>
+                <div th:replace="admin/template :: ad-page-header ('语言管理', 'language')"></div>
+                <div class="ui attached segment">
+                    <div sec:authorize="hasRole('ROLE_ADMIN')" class="ui primary compact button btn-add">添加</div>
+                    <table class="ui small sortable celled striped compact table segment tb-language">
+                        <thead>
+                            <th class="">名称</th>
+                            <th class="">描述</th>
+                            <th class="">创建用户</th>
+                            <th class="">创建时间</th>
+                            <th class="">状态</th>
+                            <th class="" sec:authorize="hasRole('ROLE_ADMIN')">处理</th>
+                        </thead>
+                        <tbody th:remove="all-but-first">
+                            <!--/*/
+                                <tr th:each="l : ${languages}" th:attr="data-id=${l.id}">
+                                    <td th:text="${l.name}">app.name</td>
+                                    <td th:text="${l.description}">app.name</td>
+                                    <td th:text="${l.creator}"></td>
+                                    <td th:text="${#calendars.format(l.createDate,'yyyy/MM/dd HH:mm:ss')}">2016/05/10 12:00:00</td>
+                                    <td th:text="${l.status}">New</td>
+                                    <td sec:authorize="hasRole('ROLE_ADMIN')">
+                                        <div class="ui dropdown dd-actions" th:if="${#strings.equals(l.creator, user.username) or #authorization.expression('hasRole(''ROLE_SUPER'')')}">
+                                            <div class="text">操作</div>
+                                            <i class="dropdown icon"></i>
+                                            <div class="menu">
+                                                <div class="item ddmi-edit">编辑</div>
+                                                <div sec:authorize="hasRole('ROLE_ADMIN')" class="item ddmi-delete">删除</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                /*/-->
+                            <tr>
+                                <td>app.name</td>
+                                <td>应用名称</td>
+                                <td>
+                                    <div class="ui basic blue label pp" title="项目主语言"><i class="world icon"></i><span>中文</span>
+                                        <div class="detail">zh</div>
+                                    </div>
+                                    <div class="ui basic label"><span>日语</span>
+                                        <div class="detail">jp</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span>admin(管理员)</span><a href="mailto:admin@test.com">[admin@test.com]</a>
+                                </td>
+                                <td>2016/05/10 12:00:00</td>
+                                <td>New</td>
+                                <td>
+                                    <div class="ui dropdown">
+                                        <div class="text">操作</div>
+                                        <i class="dropdown icon"></i>
+                                        <div class="menu">
+                                            <div class="item ddmi-edit">编辑</div>
+                                            <div sec:authorize="hasRole('ROLE_ADMIN')" class="item ddmi-delete">删除</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <!-- <tfoot>
+                            <tr>
+                                <td colspan="6">
+                                </td>
+                            </tr>
+                        </tfoot> -->
+                    </table>
+                    <!-- </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="admin/template :: ad-language-add"></div>
+    <div th:replace="admin/template :: ad-language-edit"></div>
+    <div th:replace="admin/template :: ad-handle-confirm"></div>
+    <div th:replace="admin/template :: ad-delete-confirm"></div>
+    <div th:include="admin/template :: ad-page-common"></div>
+    <div th:replace="admin/template :: ad-page-dimmer"></div>
+    <input type="hidden" name="user.username" th:value="${user.username}" />
+    <!-- 
+    <script type="text/javascript" th:src="@{/lib/jquery-1.11.1.min.js}" src="../../static/lib/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/semantic/semantic.min.js}" src="../../static/lib/semantic/semantic.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/jquery.tablesort.min.js}" src="../../static/lib/jquery.tablesort.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/toastr/toastr.js}" src="../../static/lib/toastr/toastr.js"></script>
+    <script type="text/javascript" th:src="@{/lib/showdown.min.js}" src="../../static/lib/showdown.min.js"></script>
+    -->
+    <script type="text/javascript" th:src="@{/admin/js/deps-base.js}" src="../../static/admin/js/deps-base.js"></script>
+    <script type="text/javascript" th:src="@{/admin/js/admin.js}" src="../../static/admin/js/admin.js"></script>
+    <script type="text/javascript">
+    jQuery(function($) {
+        $('table').tablesort().data('tablesort');
+        $('.ui.dropdown').dropdown();
+        $('.pp').popup();
+        $('.ui.dropdown.dd-actions').dropdown({
+            action: 'hide'
+        });
+
+        $('.btn-add').click(function(event) {
+
+            $('.ad-language-add').modal({
+                onShow: function() {
+                    $(this).find('.ui.form').form('clear');
+                },
+                onApprove: function() {
+                    var data = Utils.formData('.ad-language-add .ui.form');
+                    $.post('admin/language/create', data, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            toastr.success("添加成功！");
+                            window.location.reload();
+                        } else {
+                            toastr.error(data.data, '添加失败！');
+                        }
+                    });
+                }
+            }).modal('show');
+
+        });
+
+        $('.tb-language').on('click', '.ddmi-delete', function(event) {
+            $btn = $(this);
+
+            $('.ad-delete-confirm').modal({
+                onApprove: function() {
+                    $.post('admin/language/delete', {
+                        id: $btn.closest('tr').attr('data-id')
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            $btn.closest('tr').remove();
+                            toastr.success('删除成功!');
+                        } else {
+                            toastr.error(data.data, '删除失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+        });
+
+        $('.tb-language').on('click', '.ddmi-edit', function(event) {
+            $btn = $(this);
+
+            $.get('admin/language/get', {
+                id: $btn.closest('tr').attr('data-id')
+            }, function(data) {
+                if (data.success) {
+                    $('.ad-language-edit').modal({
+                        onShow: function() {
+                            $(this).find('.ui.form').form('clear');
+                            $(this).find('input[name="name"]').val(data.data.name);
+                            $(this).find('textarea[name="desc"]').val(data.data.description);
+                        },
+                        onApprove: function() {
+                            var data = Utils.formData('.ad-language-edit .ui.form');
+                            data.id = $btn.closest('tr').attr('data-id');
+                            $.post('admin/language/update', data,
+                                function(data, textStatus, xhr) {
+                                    if (data.success) {
+                                        toastr.success('更新成功!');
+                                        window.location.reload();
+                                    } else {
+                                        toastr.error(data.data, '更新失败!');
+                                    }
+                                });
+                        }
+                    }).modal('show');
+                } else {
+                    toastr.error('获取语言失败!');
+                }
+            });
+
+        });
+    });
+    </script>
+</body>
+
+</html>

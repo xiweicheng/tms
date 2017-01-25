@@ -1,0 +1,875 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" href="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS-翻译管理</title>
+    <link rel="icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../../static/lib/semantic/semantic.min.css" />
+    <link rel="stylesheet" th:href="@{/lib/toastr/toastr.css}" href="../../static/lib/toastr/toastr.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/md-github.css}" href="../../static/admin/css/md-github.css" />
+    <!-- <link rel="stylesheet" type="text/css" th:href="@{/lib/simplemde/simplemde.min.css}" href="../../static/lib/simplemde/simplemde.min.css" /> -->
+    <!-- <link rel="stylesheet" type="text/css" th:href="@{/lib/awesome/css/font-awesome.min.css}" href="../../static/lib/awesome/css/font-awesome.min.css" /> -->
+    <!-- <link rel="stylesheet" type="text/css" th:href="@{/lib/dropzone/basic.min.css}" href="../../static/lib/dropzone/basic.min.css" /> -->
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/fancybox/jquery.fancybox.min.css}" href="../../static/lib/fancybox/jquery.fancybox.min.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+    <style>
+    body,
+    html {
+        /* height: auto; */
+    }
+    
+    .CodeMirror,
+    .CodeMirror-scroll {
+        min-height: 150px;
+    }
+    
+    .box-shadow-input {
+        -webkit-box-shadow: 0 0 5px 1px #0CC!important;
+        -moz-box-shadow: 0 0 5px 1px #0CC!important;
+        box-shadow: 0 0 5px 1px #0CC!important;
+    }
+    
+    .fd-language textarea,
+    .td-labels .ui.dropdown,
+    .td-watchers .ui.dropdown {
+        border-color: transparent!important;
+        background-color: transparent!important;
+        padding: 0!important;
+        margin-top: 5px!important;
+        border-radius: 0!important;
+    }
+    
+    .ui.label.lbl-creator,
+    .ui.label.lbl-updater {
+        padding: .35714286em .71428571em;
+        margin: .21428571em .28571429rem .21428571em 0;
+        box-shadow: 0 0 0 1px rgba(34, 36, 38, .15) inset;
+    }
+    
+    .ad-hidden {
+        display: none;
+    }
+    
+    .btn-delete-file {
+        position: absolute;
+        z-index: 100;
+        top: -0.5em;
+        left: 130%;
+        margin: 0 0 0 -1.5em!important;
+    }
+    
+    @media only screen and (max-width: 767px) {
+        .hide-mobile {
+            display: none!important;
+        }
+        .pp-translate-history {
+            /*max-width: 315px!important;*/
+        }
+        .pp-translate-file {}
+    }
+    </style>
+    <script th:replace="admin/template :: baiduTongji"></script>
+</head>
+
+<body>
+    <div th:replace="admin/index :: sidebar-menu"></div>
+    <div th:replace="admin/index :: top-fixed-menu"></div>
+    <div class="pusher ad-index-content">
+        <div class="ad-index-container">
+            <div th:replace="admin/index :: rail-menu"></div>
+            <div id="context">
+                <div style="height:70px;"></div>
+                <div th:replace="admin/template :: ad-page-header ('翻译管理', 'translate')"></div>
+                <div class="ui attached segment">
+                    <div class="ui label">项目:</div>
+                    <div class="ui selection dropdown dd-project">
+                        <input type="hidden" name="project" th:value="${projectId}" value="1">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">项目</div>
+                        <div class="menu">
+                            <a class="item" th:href="@{/admin/translate(projectId=${'-1'}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:title="${'全部项目'}" data-value="-1">全部项目</a>
+                            <!--/*/
+                            <a th:each="p : ${projects}" class="item" th:href="@{/admin/translate(projectId=${p.id}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:title="${p.description}" th:attr="data-value=${p.id}" th:text="${p.name}">STEP</a>
+                            /*/-->
+                            <!--/*-->
+                            <a class="item" data-value="1">STEP</a>
+                            <a class="item" data-value="2">WORK</a>
+                            <a class="item" data-value="3">CONSOLE</a>
+                            <!--*/-->
+                        </div>
+                    </div>
+                    <div class="ui primary compact button btn-add">添加</div>
+                    <div class="ui label">筛选:</div>
+                    <div class="ui compact basic buttons">
+                        <div class="ui floating dropdown search button dd-creators" th:style="${(param.containsKey('creator') and (not #strings.isEmpty(param.creator[0]))) ? 'background: rgba(0,0,0,.05) !important;' : ''}" th:title="翻译创建者">
+                            <input type="hidden" th:value="${param.containsKey('creator') ? param.creator[0] : ''}" />
+                            <span class="text">创建者</span>
+                            <div class="menu">
+                                <a th:href="@{/admin/translate(projectId=${projectId}, creator=${user.username})}" class="item" th:title="${user.name != null ? user.name : user.username}" th:attr="data-value=${user.username}" th:utext="${'当前用户'}">当前用户</a>
+                                <div class="divider"></div>
+                                <div class="header">
+                                    <i class="users icon"></i>其他创建者
+                                </div>
+                                <a th:each="u : ${users}" th:if="${u.enabled and (u.username != user.username)}" th:href="@{/admin/translate(projectId=${projectId}, creator=${u.username})}" class="item" th:title="${(not #strings.isEmpty(u.name)) ? u.name : u.username}" th:attr="data-value=${u.username}" th:text="${(not #strings.isEmpty(u.name)) ? u.name : u.username}"></a>
+                            </div>
+                        </div>
+                        <a title="新创建的" th:href="@{/admin/translate(projectId=${projectId}, status=${'New'})}" th:classappend="${(param.containsKey('status') and (#strings.equals('New', param.status[0]))) ? 'active' : ''}" class="ui button btn-filter-new">新建</a>
+                        <a title="更新过的" th:href="@{/admin/translate(projectId=${projectId}, status=${'Updated'})}" th:classappend="${(param.containsKey('status') and (#strings.equals('Updated', param.status[0]))) ? 'active' : ''}" class="ui button btn-filter-updated">更新</a>
+                        <a title="全部翻译" th:href="@{/admin/translate(projectId=${projectId})}" th:classappend="${((not param.containsKey('creator')) and (not param.containsKey('status')) and (not param.containsKey('languageId')) and (not param.containsKey('search')) and (not param.containsKey('id'))) ? 'active' : ''}" class="ui button btn-filter-all">全部</a>
+                    </div>
+                    &nbsp;&nbsp;
+                    <!-- <div class="ui label">过滤:</div> -->
+                    <div class="ui selection dropdown dd-languages">
+                        <input type="hidden" name="language" th:value="${param.containsKey('languageId') ? param.languageId[0] : ''}" value="1">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">未翻译语言</div>
+                        <div class="menu" th:remove="all-but-first">
+                            <!--/*/
+                            <a th:each="l : ${languages}" class="item" th:href="@{/admin/translate(projectId=${projectId}, languageId=${l.id})}" th:title="${l.description}" th:attr="data-value=${l.id}" th:text="${l.description}">中文</a>
+                            /*/-->
+                            <a class="item" data-value="1">中文</a>
+                            <a class="item" data-value="2">英语</a>
+                            <a class="item" data-value="3">日语</a>
+                        </div>
+                    </div>
+                    <!-- <div class="ui icon input inp-search">
+                        <input type="text" th:value="${param.containsKey('search') ? param.search[0] : ''}" placeholder="查找...">
+                        <i class="circular search link icon"></i>
+                    </div> -->
+                    <div class="ui search sh-search" style="float:right;">
+                        <div class="ui icon input inp-search">
+                            <input class="prompt" th:value="${param.containsKey('search') ? param.search[0] : ''}" type="text" placeholder="查找...">
+                            <i class="search link icon"></i>
+                        </div>
+                        <div class="results"></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+                <!-- <div style="max-height: 450px; overflow-y: auto; margin-bottom: 5px; border-bottom: 1px #DEDEDE solid;"> -->
+                <table class="ui small sortable celled striped compact table segment tb-translate">
+                    <thead>
+                        <th th:if="${projectId == -1}" class="one wide">项目</th>
+                        <th th:classappend="${(projectId == -1) ? 'two' : 'three'}" class="wide">名称</th>
+                        <!-- <th class="three wide">描述</th> -->
+                        <th class="four wide">翻译</th>
+                        <th class="three wide">标签</th>
+                        <th class="one wide">创建时间</th>
+                        <th class="three wide">参与者</th>
+                        <th class="one wide">状态</th>
+                        <th class="one wide">处理</th>
+                    </thead>
+                    <tbody th:remove="all-but-first">
+                        <!--/*/
+                            <tr th:each="t : ${page.content}" th:attr="data-id=${t.id}">
+                                <td th:if="${projectId == -1}" th:title="${t.project.description}" th:text="${t.project.name}">project.name</td>
+                                <td
+                                    <div th:title="${t.key}" class="ui fluid transparent input input-key">
+                                      <input type="text" th:value="${t.key}" placeholder="">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="files-container" th:classappend="${#sets.isEmpty(t.files) ? 'ad-hidden' : ''}" style="height:20px;">
+                                        <i class="file image outline icon pp-files" style="float:right;"></i>
+                                        <div class="ui flowing popup transition hidden pp-translate-file" style="width: 315px;">
+                                            <h3 class="ui dividing header">翻译项截图</h3>
+                                            <div class="ui tiny images" style="max-height: 211px; overflow-y: auto; padding-top: 10px; padding-right: 13px;">
+                                                <a th:each="f : ${t.files}" th:attr="data-id=${f.id}, rel=${'fancybox-group-' + t.id}" th:href="${f.path + f.uuidName}" class="ui bordered image fancybox-image">
+                                                  <i class="remove circle link big red icon btn-delete-file"></i>
+                                                  <img th:src="${#strings.replace(f.path,'/0/','/120/') + f.uuidName}" />
+                                                </a>    
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ui form fm-language">
+                                        <div style="position: relative;" class="inline field fd-language" th:each="item : ${t.translateItems}" th:attr="data-language=${item.language.id}">
+                                            <label th:title="${'提示:输入文本框可以直接粘贴图片'}" th:text="${item.language.description} + ':'">中文:</label>
+                                            <textarea class="ta-translteItem" th:attr="data-id=${item.id}" th:title="${item.content}" name="zh" th:name="${item.language.name}" rows="1" th:placeholder="${item.language.description}" th:text="${item.content}">测试</textarea>
+                                            <i style="position: absolute; right: 0px; top: 20px;" class="history link icon pp-history" th:unless="${#sets.isEmpty(item.translateItemHistories)}"></i>
+                                            <div class="ui flowing popup transition hidden pp-translate-history" style="width: 315px;" th:unless="${#sets.isEmpty(item.translateItemHistories)}">
+                                                <h3 class="ui dividing header">翻译更新历史<span th:text="${' (共: ' + #sets.size(item.translateItemHistories) + ' 条)'}"></span></h3>
+                                                <div class="ui comments" style="max-height: 300px; overflow-y: auto;">
+                                                    <div class="comment" th:each="h : ${item.translateItemHistories}">
+                                                        <a class="avatar">
+                                                            <i class="history icon"></i>
+                                                        </a>
+                                                        <div class="content">
+                                                            <div class="author" th:text="${h.itemCreator}">Matt</div>
+                                                            <div class="metadata">
+                                                                <span class="date timeago" th:title="${#calendars.format(h.itemCreateDate,'yyyy/MM/dd HH:mm:ss')}" th:text="${#calendars.format(h.itemCreateDate,'yyyy/MM/dd HH:mm:ss')}">Today at 5:42PM</span>
+                                                            </div>
+                                                        <div class="text " th:text="${h.itemContent} ">
+                                                          How artistic!
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="td-labels">
+                                    <input type="hidden" th:each="l : ${t.labels}" th:name="${l.name}" th:value="${l.id}">
+                                    <div class="ui fluid multiple search selection dropdown dd-row-labels">
+                                        <input name="labels" type="hidden">
+                                        <div class="default text">标签</div>
+                                        <div class="menu">
+                                            <div th:each="lbl : ${labels}" class="item" th:attr="data-value=${lbl}" th:text="${lbl}"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="word-break: break-word;" class="timeago" th:title="${#calendars.format(t.createDate,'yyyy/MM/dd HH:mm:ss')}" th:text="${#calendars.format(t.createDate,'yyyy/MM/dd HH:mm:ss')}">2016/05/10 12:00:00</td>
+                                <td class="td-watchers">
+                                    <div>
+                                        <div class="ui sub header" style="margin-top:10px; display: inline-block;">创建者:</div>
+                                        <a title="点击和创建者沟通" th:href="@{/admin/dynamic(at=${t.creator}, translateId=${t.id})}" class="ui label lbl-creator mapping-user" th:text="${t.creator}"></a>
+                                    </div>                                    
+                                    <div th:unless="${t.updater == null}">
+                                        <div class="ui sub header" style="margin-top:10px; display: inline-block;">更新者:</div>
+                                        <a title="点击和更新者沟通" th:href="@{/admin/dynamic(at=${t.updater}, translateId=${t.id})}" class="ui label lbl-updater mapping-user" th:text="${t.updater}"></a>
+                                    </div>
+                                    <div class="ui sub header" style="margin-top:10px;">关注者:</div>
+                                    <input type="hidden" th:each="w : ${t.watchers}" th:name="${w.username}" th:value="${w.username}">
+                                    <div title="点击和关注者沟通" class="ui fluid multiple search selection dropdown dd-row-watchers">
+                                        <input name="watchers" type="hidden">
+                                        <div class="default text">关注者</div>
+                                        <div class="menu">
+                                            <div th:each="u : ${users}" class="item" th:if="${u.enabled}" th:attr="data-value=${u.username}" th:title="${u.username}" th:text="${((not #strings.isEmpty(u.name)) ? u.name : u.username)}"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span th:text="${t.status}" th:title="${#strings.equals('New', t.status) ? '创建于: ' + #calendars.format(t.createDate,'yyyy/MM/dd HH:mm:ss') : '更新于: ' + #calendars.format(t.updateDate,'yyyy/MM/dd HH:mm:ss')}">待翻译</span></td>
+                                <td>
+                                    <input type="hidden" th:each="w : ${t.project.watchers}" th:name="${w.username}" th:value="${w.username}">
+                                    <input type="hidden" th:name="${t.creator}" th:value="${t.creator}">
+                                    <input type="hidden" th:name="${user.username}" th:value="${user.username}">
+                                    <div class="ui top right pointing dropdown dd-actions">
+                                        <div class="text">操作</div>
+                                        <i class="dropdown icon"></i>
+                                        <div class="menu">
+                                            <div class="item ddmi-edit">编辑</div>
+                                            <a class="item" th:href="@{/admin/dynamic(at=${t.creator + (#strings.isEmpty(t.updater) ?  '' :  (',' + t.updater))}, translateId=${t.id})}">沟通</a>
+                                            <div class="item btn-share" th:attr="data-clipboard-text=${#httpServletRequest.getRequestURL() + '?id=' + t.id}">分享</div>
+                                            <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') or (t.creator == user.username)}" class="item ddmi-delete">删除</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            /*/-->
+                        <tr>
+                            <td>app.name</td>
+                            <td>应用名称</td>
+                            <td>
+                                <textarea rows="1">测试</textarea>
+                            </td>
+                            <td>
+                                <textarea rows="1">test</textarea>
+                            </td>
+                            <td>2016/05/10 12:00:00</td>
+                            <td>待翻译</td>
+                            <td>
+                                <div class="ui dropdown">
+                                    <div class="text">操作</div>
+                                    <i class="dropdown icon"></i>
+                                    <div class="menu">
+                                        <div class="item">删除</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- </div> -->
+                <!-- <div class="ui segment"> -->
+                <div class="ui basic label">
+                    共计:
+                    <div class="detail" th:text="${page.totalPages + '页/' + page.totalElements + '条'}">214</div>
+                </div>
+                <div class="ui basic label">
+                    当前:
+                    <div class="detail" th:text="${'第' + (page.number + 1) + '页/共' + page.numberOfElements + '条'}">214</div>
+                </div>
+                <div class="ui right floated pagination small menu" th:if="${page.totalPages > 0}">
+                    <a class="item" th:if="${(page.totalPages > 0) and (not page.first)}" th:href="@{/admin/translate(projectId=${projectId}, page=0, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}">首页</a>
+                    <a title="上一页" th:if="${not page.first}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number - 1}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" class="icon item popup">
+                        <i class="left chevron icon"></i>
+                    </a>
+                    <a class="item hide-mobile" th:if="${page.number > 1}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number - 2}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:text="${page.number - 1}"></a>
+                    <a class="item" th:if="${not page.first}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number - 1}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:text="${page.number}"></a>
+                    <a class="item active" th:if="${page.totalPages > 0}" th:href="'javascript:void(0);'" th:text="${page.number + 1}"></a>
+                    <a class="item" th:if="${not page.last}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number + 1}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:text="${page.number + 2}"></a>
+                    <a class="item hide-mobile" th:if="${page.number < page.totalPages - 2}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number + 2}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:text="${page.number + 3}"></a>
+                    <a title="下一页" th:if="${not page.last}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number + 1}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" class="icon item popup">
+                        <i class="right chevron icon"></i>
+                    </a>
+                    <a class="item" th:if="${(page.totalPages > 0) and (not page.last)}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.totalPages - 1}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}">末页</a>
+                </div>
+                <!-- </div> -->
+            </div>
+        </div>
+    </div>
+    <div th:replace="admin/template :: ad-handle-confirm"></div>
+    <div th:replace="admin/template :: ad-delete-confirm"></div>
+    <div th:replace="admin/template :: ad-translate-add"></div>
+    <div th:replace="admin/template :: ad-translate-edit"></div>
+    <div th:replace="admin/template :: ad-translate-mail"></div>
+    <div th:include="admin/template :: ad-page-common"></div>
+    <div th:replace="admin/template :: ad-page-dimmer"></div>
+    <input type="hidden" name="page.number" th:value="${page.number}" />
+    <input type="hidden" name="page.size" th:value="${page.size}" />
+    <input type="hidden" name="projectId" th:value="${projectId}" />
+    <input type="hidden" name="project.languageId" th:value="${project != null ? project.language.id : ''}" />
+    <input type="hidden" th:each="u : ${users}" data-group="users" th:name="${u.username}" th:value="${u.name}" />
+    <!-- 
+    <script type="text/javascript" th:src="@{/lib/jquery-1.11.1.min.js}" src="../../static/lib/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/semantic/semantic.min.js}" src="../../static/lib/semantic/semantic.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/jquery.tablesort.min.js}" src="../../static/lib/jquery.tablesort.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/url.min.js}" src="../../static/lib/url.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/toastr/toastr.js}" src="../../static/lib/toastr/toastr.js"></script>
+    <script type="text/javascript" th:src="@{/lib/showdown.min.js}" src="../../static/lib/showdown.min.js"></script>
+     -->
+    <script type="text/javascript" th:src="@{/admin/js/deps-base.js}" src="../../static/admin/js/deps-base.js"></script>
+    <script type="text/javascript" th:src="@{/lib/paste.min.js}" src="../../static/lib/paste.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/scrollTo/jquery.scrollTo.min.js}" src="../../static/lib/scrollTo/jquery.scrollTo.min.js"></script>
+    <!-- <script type="text/javascript" th:src="@{/lib/dropzone/dropzone.min.js}" src="../../static/lib/dropzone/dropzone.min.js"></script> -->
+    <script type="text/javascript" th:src="@{/lib/fancybox/jquery.fancybox.pack.js}" src="../../static/lib/fancybox/jquery.fancybox.pack.js"></script>
+    <script type="text/javascript" th:src="@{/lib/autosize.min.js}" src="../../static/lib/autosize.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/jquery.timeago.min.js}" src="../../static/lib/jquery.timeago.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/clipboard.min.js}" src="../../static/lib/clipboard.min.js"></script>
+    <script type="text/javascript" th:src="@{/admin/js/admin.js}" src="../../static/admin/js/admin.js"></script>
+    <script type="text/javascript">
+    jQuery(function($) {
+
+        jQuery('.timeago').timeago();
+        $(".fancybox-image").fancybox({
+            loop: false
+        });
+
+        // --------------------------------------------------------------------------------- username mapping to name start
+        Utils.showMappedTxt('.mapping-user');
+        // --------------------------------------------------------------------------------- username mapping to name end
+
+        var clipboard = new Clipboard('.btn-share');
+
+        clipboard.on('success', function(e) {
+            var $btn = $(e.trigger);
+            var msg = $btn.hasClass('btn-share') ? '分享链接复制到剪贴板成功!' : '内容复制到剪贴板成功!';
+            toastr.success(msg);
+        });
+
+        clipboard.on('error', function(e) {
+            toastr.success('复制到剪贴板失败!');
+        });
+
+        // ---------------------------------------------------------------------------------clipboard paste image start
+        function pasteImage(evt, data) {
+            var $txt = $(evt.currentTarget);
+            var tid = $txt.closest('tr').attr('data-id');
+
+            $.post('/admin/translate/base64', {
+                id: tid,
+                dataURL: data.dataURL,
+                type: data.blob.type
+            }, function(data, textStatus, xhr) {
+                if (data.success) {
+                    // console.log(data);
+                    $imgs = $txt.closest('td').find('.files-container').removeClass('ad-hidden').find('.images');
+
+                    var $img = $('<a rel="" href="" class="ui bordered image fancybox-image"><i class="remove circle link big red icon btn-delete-file"></i><img src=""></a>')
+                        .attr('rel', 'fancybox-group-' + tid)
+                        .attr('data-id', data.data.id)
+                        .attr('href', data.data.path + data.data.uuidName);
+
+                    $img.find('img').attr('src', data.data.path.replace('/0/', '/120/') + data.data.uuidName);
+
+                    $imgs.append($img);
+
+                    toastr.success('上传图片成功!');
+                }
+            });
+        }
+
+        $('.tb-translate .pp-translate-file').pastableNonInputable().on('pasteImage', pasteImage).on('pasteImageError', function(ev, data) {
+            toastr.error(data.message, '剪贴板粘贴图片错误!');
+        }).on('mouseover', function(event) {
+            event.preventDefault();
+            $(this).click();
+        });;
+
+        $('.tb-translate .fm-language textarea').pastableTextarea().on('pasteImage', pasteImage).on('pasteImageError', function(ev, data) {
+            toastr.error(data.message, '剪贴板粘贴图片错误!');
+        });
+        // ---------------------------------------------------------------------------------clipboard paste image end
+
+        $('body').on('click', '.btn-delete-file', function(event) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            $btn = $(this);
+            $.post('/admin/translate/deleteFile', {
+                fileId: $btn.closest('.image').attr('data-id')
+            }, function(data, textStatus, xhr) {
+                if (data.success) {
+                    $imgs = $btn.closest('.images').find('.image');
+                    if ($imgs.size() == 1) {
+                        $btn.closest('.files-container').addClass('ad-hidden');
+                    }
+                    $btn.closest('.image').remove();
+
+                    toastr.success('图片删除成功!');
+                } else {
+                    toastr.error('图片删除失败!');
+                }
+            });
+        });
+
+        /**
+         * 精简URI(将查询参数值为空的参数移除掉)
+         * @param  {[DOM]} el [<a/> DOM]
+         */
+        function uriSimple(el) {
+            var queryObj = url('?', $(el).attr('href'));
+            if (queryObj) {
+                var params = [];
+                $.each(queryObj, function(name, val) {
+                    val && params.push(name + '=' + val);
+                });
+                var query = params.join('&');
+                $(el).attr('href', url('path') + (query ? '?' : '') + query);
+            }
+        }
+
+        $('table').tablesort().data('tablesort');
+        $('.ui.checkbox').checkbox();
+        $('.ui.dropdown').dropdown();
+        // 解决翻译历史popup部分不能初始化问题.
+        setTimeout(function() {
+            $('.pp-history, .pp-files').popup({
+                on: 'click',
+                inline: true,
+                hoverable: true,
+                // position: 'bottom left',
+                delay: {
+                    show: 300,
+                    hide: 800
+                }
+            });
+        }, 0);
+
+        $('.ui.dropdown.dd-actions').dropdown({
+            action: 'hide'
+        });
+        $('.ui.dropdown.dd-tags').dropdown({
+            allowAdditions: true,
+            forceSelection: false
+        });
+        $('.ui.dropdown.dd-creators').dropdown({
+            forceSelection: false,
+            onChange: function(value, text, $choice) {
+                window.location.href = $choice.attr('href');
+            }
+        });
+
+        $('.dd-project .menu a.item, .ui.pagination.menu a.item').each(function(index, el) {
+            uriSimple(el);
+        });
+
+        var source = [];
+        if (localStorage) {
+            var v = localStorage.getItem('admin/translate:search');
+            source = v ? $.parseJSON(v) : [];
+        }
+
+        $('.ui.search.sh-search').search({
+            source: source,
+            onSelect: function(result, response) {
+                searchHandler();
+            },
+            onResults: function() {
+                $(this).search('hide results');
+            }
+        });
+
+        autosize($('.tb-translate textarea'));
+
+        var baseURL = Utils.getBaseURL(); //url('protocol') + '://' + url('hostname') + ':' + url('port') + '/';
+
+        $('.ui.dropdown.dd-row-labels').each(function(index, el) {
+            var $dd = $(this);
+            var lbls = [];
+            $dd.siblings('input:hidden[name]').each(function(index, el) {
+                lbls.push($(el).attr('name'));
+            });
+            $dd.dropdown({
+                allowAdditions: true,
+                forceSelection: false
+            }).dropdown('set selected', lbls).dropdown({
+                allowAdditions: true,
+                forceSelection: false,
+                onAdd: function(addedValue, addedText, $addedChoice) {
+                    $.post('admin/translate/addTag', {
+                        baseURL: baseURL,
+                        id: $dd.closest('tr').attr('data-id'),
+                        tag: addedValue
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            $dd.closest('td').prepend($('<input type="hidden">').attr('name', data.data.name).val(data.data.id));
+                            toastr.success('添加成功!');
+                        } else {
+                            $dd.dropdown('remove selected', addedValue);
+                            toastr.error(data.data, '添加失败!');
+                        }
+                    });
+                },
+                onLabelRemove: function(value) {
+                    var $h = $dd.siblings('input:hidden[name="' + value + '"]');
+                    $.post('admin/translate/deleteTag', {
+                        id: $h.val(),
+                        baseURL: baseURL
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            $h.remove();
+                            toastr.success('删除成功!');
+                        } else {
+                            $dd.dropdown('set selected', value);
+                            toastr.error(data.data, '删除失败!');
+                        }
+                    });
+                }
+            });
+        });
+
+        $('.tb-translate .input-key').hover(function() {
+            $(this).addClass('box-shadow-input');
+        }, function() {
+            $(this).removeClass('box-shadow-input');
+        }).find('input').focusout(function(event) {
+            keyHandler(this);
+        }).keyup(function(event) {
+            if (event.keyCode == 13) {
+                keyHandler(this);
+            }
+        });
+
+        $('.tb-translate .fd-language textarea').hover(function() {
+            $(this).addClass('box-shadow-input');
+        }, function() {
+            $(this).removeClass('box-shadow-input');
+        });
+
+        $('.tb-translate .td-labels .ui.dropdown, .tb-translate .td-watchers .ui.dropdown').hover(function() {
+            $(this).addClass('box-shadow-input');
+        }, function() {
+            $(this).removeClass('box-shadow-input');
+        });
+
+        function keyHandler(_this) {
+            var $input = $(_this);
+            if ($input.parent('.ui.input').attr('title') != $input.val()) {
+                $.post('admin/translate/updateKey', {
+                    baseURL: baseURL,
+                    id: $input.closest('tr').attr('data-id'),
+                    key: $input.val()
+                }, function(data, textStatus, xhr) {
+                    if (data.success) {
+                        $input.parent('.ui.input').attr('title', $input.val());
+                        toastr.success('更新成功!');
+                    } else {
+                        $input.val($input.parent('.ui.input').attr('title'));
+                        toastr.error('更新失败!');
+                    }
+                });
+            }
+        }
+
+        $('body').on('click', '.ui.dropdown.dd-row-labels .ui.label', function(event) {
+            if (url('?projectId')) {
+                window.location.href = url('path') + '?projectId=' + url('?projectId') + '&search=' + $(this).text();
+            } else {
+                window.location.href = url('path') + '?search=' + $(this).text();
+            }
+        });
+
+        $('body').on('click', '.ui.dropdown.dd-row-watchers .ui.label', function(event) {
+            window.location.href = 'admin/dynamic?at=' + $(this).attr('data-value') + '&translateId=' + $(this).closest('tr').attr('data-id');
+        });
+
+        $('.ui.dropdown.dd-row-watchers').each(function(index, el) {
+            var $dd = $(this);
+            var usernames = [];
+            $dd.siblings('input:hidden[name]').each(function(index, el) {
+                usernames.push($(el).attr('name'));
+            });
+            $dd.dropdown('set selected', usernames).dropdown({
+                forceSelection: false,
+                onAdd: function(addedValue, addedText, $addedChoice) {
+                    $.post('admin/translate/addWatcher', {
+                        baseURL: baseURL,
+                        id: $dd.closest('tr').attr('data-id'),
+                        username: addedValue
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            $dd.closest('td').prepend($('<input type="hidden">').attr('name', data.data.username).val(data.data.username));
+                            toastr.success('添加成功!');
+                        } else {
+                            $dd.dropdown('remove selected', addedValue);
+                            toastr.error(data.data, '添加失败!');
+                        }
+                    });
+                },
+                onLabelRemove: function(value) {
+                    var $h = $dd.siblings('input:hidden[name="' + value + '"]');
+                    $.post('admin/translate/deleteWatcher', {
+                        id: $dd.closest('tr').attr('data-id'),
+                        username: $h.val(),
+                        baseURL: baseURL
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            $h.remove();
+                            toastr.success('删除成功!');
+                        } else {
+                            $dd.dropdown('set selected', value);
+                            toastr.error(data.data, '删除失败!');
+                        }
+                    });
+                }
+            });
+        });
+
+        $(".ui.form").append($('<input name="baseURL" type="hidden" value="">').val(baseURL));
+
+        var projectLanguageId = $('input:hidden[name="project.languageId"]').val();
+        $('.tb-translate .fm-language').each(function(index, el) {
+            $fm = $(this);
+            $fm.find('.fd-language').each(function(index, el) {
+                var lngId = $(this).attr('data-language');
+                if (lngId == projectLanguageId) {
+                    $fm.prepend($(this));
+                    return false;
+                }
+            });
+        });
+
+        function searchHandler() {
+            var search = $('.inp-search > input').val();
+            // 保存检索值
+            var isExists = false;
+            $.each(source, function(index, val) {
+                if (val.title == search) {
+                    isExists = true;
+                    return false;
+                }
+            });
+            if (!isExists) {
+                source.splice(0, 0, {
+                    title: search
+                });
+            }
+            localStorage && localStorage.setItem('admin/translate:search', JSON.stringify(source));
+
+            var number = $('input:hidden[name="page.number"]').val();
+            var size = $('input:hidden[name="page.size"]').val();
+            var projectId = $('input:hidden[name="projectId"]').val();
+            if (search) {
+                window.location.href = "/admin/translate?projectId=" + projectId + "&search=" + search;
+            } else {
+                window.location.href = "/admin/translate?projectId=" + projectId;
+            }
+        }
+
+        $('.inp-search > input').keyup(function(event) {
+            if (event.keyCode == 13) {
+                searchHandler();
+            }
+        });
+
+        $('.inp-search > i').click(function(event) {
+            searchHandler();
+        });
+
+        $('.btn-add').click(function(event) {
+
+            $('.ad-translate-add').modal({
+                onShow: function() {
+                    $(this).find('.dd-tags').dropdown('clear');
+                    var $dd = $('.dd-select-project');
+                    if (!$dd.dropdown('get value')) {
+                        var $items = $dd.find('.menu .item');
+                        if ($items.size() > 0) {
+                            $dd.dropdown('set selected', $items.attr('data-value'));
+                        }
+                    }
+                },
+                onApprove: function() {
+                    var pid = '';
+                    var $dd = $('.dd-select-project');
+
+                    if ($dd.size() == 1) {
+                        pid = $dd.dropdown('get value');
+                    } else {
+                        pid = $('.dd-project').dropdown('get value');
+                    }
+
+                    if (!pid || pid == -1) {
+                        toastr.error('请选择项目!');
+                        return;
+                    }
+                    var data = Utils.formData('.ad-translate-add .ui.form');
+                    data.projectId = pid;
+                    data.content = JSON.stringify(data);
+                    if (!data.key) {
+                        data.key = "todo.key.id" + (new Date()).getTime();
+                    }
+                    $.post('admin/translate/save', data,
+                        function(data, textStatus, xhr) {
+                            if (data.success) {
+                                toastr.success('添加成功!');
+                                window.location.reload();
+                            } else {
+                                toastr.error(data.data, '添加失败!');
+                            }
+                        });
+                }
+            }).modal('show');
+        });
+
+        $('.tb-translate').on('click', '.ddmi-delete', function(event) {
+            var $btn = $(this);
+
+            $('.ad-delete-confirm').modal({
+                onApprove: function() {
+                    $.post('admin/translate/delete', {
+                        id: $btn.closest('tr').attr('data-id'),
+                        baseURL: baseURL
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            $btn.closest('tr').remove();
+                            toastr.success('删除成功!');
+                        } else {
+                            toastr.error('删除失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+        });
+
+        $('.tb-translate').on('click', '.ddmi-edit', function(event) {
+            var $btn = $(this);
+
+            $.get('admin/translate/getById', {
+                id: $btn.closest('tr').attr('data-id')
+            }, function(data) {
+                if (data.success) {
+                    $('.ad-translate-edit').modal({
+                        onShow: function() {
+                            var modal = this;
+                            var $tags = $(this).find('dd-tags');
+                            $(this).find('input[name="key"]').val(data.data.key);
+                            // $(this).find('textarea[name="desc"]').val(data.data.description);
+
+                            $(this).find('.dd-tags').dropdown('clear')
+                            var tags = [];
+                            $.each(data.data.labels, function(index, val) {
+                                tags.push(val.name);
+
+                                var exist = false;
+                                $tags.find('.menu').children('.item').each(function(index, el) {
+                                    if ($(el).attr('data-value') == val.name) {
+                                        exist = true;
+                                        return false;
+                                    }
+                                });
+
+                                if (!exist) {
+                                    $item = $('<div class="item" data-value="dfs">dfs</div>').attr('data-value', val.name).text(val.name);
+                                    $tags.find('.menu').append($item);
+                                }
+                            });
+                            $(this).find('input[name="tags"]').val(tags.join(','));
+                            $(this).find('.dd-tags').dropdown({
+                                allowAdditions: true,
+                                forceSelection: false
+                            });
+                            var translateItems = data.data.translateItems;
+                            if ($.isArray(translateItems)) {
+                                $.each(translateItems, function(index, val) {
+                                    $(modal).find('textarea[name=' + val.language.name + ']').val(val.content);
+                                });
+                            }
+                        },
+                        onApprove: function() {
+                            var data = Utils.formData('.ad-translate-edit .ui.form');
+                            data.id = $btn.closest('tr').attr('data-id');
+                            data.content = JSON.stringify(data);
+                            $.post('admin/translate/update2', data, function(data, textStatus, xhr) {
+                                if (data.success) {
+                                    toastr.success('更新成功!');
+                                    window.location.reload();
+                                } else {
+                                    toastr.error('更新失败!');
+                                }
+                            });
+                        }
+                    }).modal('show');
+                }
+            });
+
+        });
+
+        $('.ui.checkbox.ck-selectAll').checkbox({
+            onChecked: function() {
+                var $dd = $('.ad-translate-mail .dd-mailUsers');
+                var alls = [];
+                $dd.find('.menu .item').each(function(index, el) {
+                    alls.push($(el).attr('data-value'));
+                });
+
+                $dd.dropdown('set selected', alls);
+            },
+            onUnchecked: function() {
+                $('.ad-translate-mail .dd-mailUsers').dropdown('clear');
+            }
+        });
+
+        function updateHandler($ta) {
+
+            if (typeof($ta.attr('title')) == "undefined" && !$ta.val()) {
+                return;
+            }
+
+            if ($ta.val() == $ta.attr('title')) {
+                return;
+            }
+
+            $.post('admin/translate/update', {
+                id: $ta.attr('data-id'),
+                baseURL: baseURL,
+                content: $ta.val()
+            }, function(data, textStatus, xhr) {
+                if (data.success) {
+                    $ta.attr('title', $ta.val());
+                    toastr.success('更新成功!');
+                } else {
+                    toastr.error('更新失败!');
+                }
+            });
+        }
+
+        $('textarea.ta-translteItem').blur(function(event) {
+            var $ta = $(this);
+            updateHandler($ta);
+        }).keyup(function(event) {
+            var $ta = $(this);
+            if (event.ctrlKey && event.keyCode == 13) {
+                updateHandler($ta);
+            }
+        });
+
+    });
+    </script>
+</body>
+
+</html>

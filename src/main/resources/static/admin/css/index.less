@@ -1,0 +1,357 @@
+body,
+html {
+    height: auto;
+}
+
+.main.container {
+    margin: auto;
+    width: 690px;
+    padding: 2em 0em 0em;
+    position: relative;
+}
+
+.ad-index-content {
+    padding-right: 0;
+}
+
+.chat {
+    margin-right: 40px;
+}
+
+.ui.minimal.comments {
+    margin: auto;
+}
+
+.avatar.ui.mini.circular.image {
+    cursor: pointer;
+}
+
+.ui.comments .comment:hover,
+.ui.comments .comment.marked {
+    background-color: #F3F3F3;
+    -webkit-box-shadow: 0 0 5px 1px #0CC!important;
+    -moz-box-shadow: 0 0 5px 1px #0CC!important;
+    box-shadow: 0 0 5px 1px #0CC!important;
+}
+
+.ui.comments .comment .text {
+    margin-top: 0.5em;
+}
+
+.ui.feed>.event>.content .summary {
+    /*font-size: 0.9em;*/
+}
+
+.ui.comments .comment .text span.at-user,
+.pp-translate .ui.items>.item>.content>.description .at-user {
+    cursor: pointer;
+}
+
+.ui.comments .comment a.author {
+    color: #4183c4;
+}
+
+.ui.comments .comment {
+    padding-right: 7px;
+    padding-bottom: 1px;
+    margin-top: 0;
+}
+
+.chat .comments .comment .content .actions .dd-more-actions .menu > .edit,
+.chat .comments .comment .content .actions .dd-more-actions .menu > .delete {
+    display: none;
+}
+
+.ui.vertical.icon.buttons.btns-scroll {
+    position: fixed;
+    right: 0;
+    top: 300px;
+    background-color: transparent;
+    z-index: 1;
+}
+
+.ui.vertical.icon.buttons.btns-scroll .button {
+    border-radius: 10em!important;
+    background-color: rgba(224, 225, 226, 0.54);
+}
+
+.ui.vertical.icon.buttons.btns-scroll .button:hover {
+    background-color: rgba(224, 225, 226, 1);
+}
+
+
+/* 翻译popup样式 start*/
+
+.pp-translate .meta {
+    border-top: 1px lightgray solid;
+    border-bottom: 1px lightgray solid;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.pp-translate .extra {
+    border-top: 1px lightgray solid;
+}
+
+.pp-translate .description {
+    border-bottom: 1px lightgray solid;
+    padding-bottom: 5px;
+}
+
+
+/* 翻译popup样式 end */
+
+.btn-custom-chat-refresh {
+    position: fixed;
+    top: 65px;
+    right: 0;
+    z-index: 1;
+    margin-right: 0!important;
+}
+
+.btn-chat-dir {
+    display: none;
+    position: fixed;
+    top: 151px;
+    right: 0;
+    z-index: 1;
+    margin-right: 0!important;
+}
+
+.ui.segment.wiki-dir {
+    display: none;
+    position: fixed;
+    top: 137px;
+    right: 0;
+    overflow: auto;
+    /* width: 329px; */
+    height: 430px;
+    text-align: left;
+    @media only screen and (max-width: 767px) {
+        left: 20px!important;
+    }
+}
+
+a.item.wiki-dir-item {
+    font-weight: normal;
+}
+
+.btn-wiki-dir-lock {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+
+/* chat msg search start */
+
+.chat-search {
+    position: fixed;
+    top: 15px;
+    right: 0;
+    z-index: 1;
+}
+
+.ui.search.sh-search {
+    /* display: none; */
+}
+
+.ui.circular.icon.button.btn-chat-search {
+    margin-right: 0px;
+}
+
+.ui.icon.btn-search.circular.button {
+    margin-right: 0;
+}
+
+.list-chat-search-results {
+    min-width: 390px;
+}
+
+
+/* chat msg search end */
+
+#nprogress .bar {
+    top: 1px;
+}
+
+
+/* Remove these to get rid of the spinner */
+
+#nprogress .spinner {
+    top: 5px;
+}
+
+.ad-index-container {
+    margin-left: 0;
+}
+
+.wiki-reply {
+    display: none;
+    margin-bottom: 35px;
+}
+
+.ui.button.btn-chat-s2h {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 200px;
+    background-color: rgba(224, 225, 226, 0.54);
+    z-index: 1;
+}
+
+.ui.button.btn-chat-s2b {
+    display: none;
+    position: fixed;
+    left: 200px;
+    top: 238px;
+    background-color: rgba(224, 225, 226, 0.54);
+    z-index: 1;
+}
+
+.ui.button.btn-chat-s2b:hover,
+.ui.button.btn-chat-s2h:hover {
+    background-color: rgba(224, 225, 226, 1);
+}
+
+
+/* Mobile */
+
+@media only screen and (max-width: 767px) {
+    .chat {
+        margin-right: 0;
+    }
+    .ui.comments .comment>.avatar~.content {
+        margin-left: 0;
+    }
+    .avatar.ui.mini.circular.image {
+        display: none;
+    }
+    .ui.comments .comment {
+        padding-left: 7px;
+    }
+}
+
+
+/* Tablet */
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {}
+
+
+/* Mobile & Tablet */
+
+@media only screen and (max-width: 991px) {}
+
+.cbutton {
+    position: relative;
+}
+
+.cbutton::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -7px 0 0 -7px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    content: '';
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* Novak */
+
+.cbutton--effect-novak::after {
+    background: rgba(111, 148, 182, 0.25);
+}
+
+.cbutton--effect-novak.cbutton--click::after {
+    -webkit-animation: anim-effect-novak 0.5s forwards;
+    animation: anim-effect-novak 0.5s forwards;
+}
+
+@-webkit-keyframes anim-effect-novak {
+    0% {
+        opacity: 1;
+        -webkit-transform: scale3d(0.1, 0.1, 1);
+        transform: scale3d(0.1, 0.1, 1);
+    }
+    100% {
+        opacity: 0;
+        -webkit-transform: scale3d(8, 8, 1);
+        transform: scale3d(30, 30, 1);
+    }
+}
+
+@keyframes anim-effect-novak {
+    0% {
+        opacity: 1;
+        -webkit-transform: scale3d(0.1, 0.1, 1);
+        transform: scale3d(0.1, 0.1, 1);
+    }
+    100% {
+        opacity: 0;
+        -webkit-transform: scale3d(8, 8, 1);
+        transform: scale3d(30, 30, 1);
+    }
+}
+
+.topbar {
+    position: absolute;
+    width: 100%;
+    padding-right: 40px;
+}
+
+.topbar a {
+    float: right;
+    margin-left: 10px;
+}
+
+.tms-wiki-dir {
+    position: fixed;
+    top: 22px;
+    left: 20px;
+    overflow-y: auto;
+    height: calc(~"100vh - 40px");
+    width: 280px;
+    &.ui.link.list {
+        > .item {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            position: relative;
+        }
+        > .active.item {
+            background-color: #f3f3f3;
+        }
+    }
+    > .item {
+        .content {
+            & > a {
+                display: block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                // max-width: 240px;
+                max-width: 233px;
+            }
+            .description {
+                font-size: 12px;
+                margin-top: 5px;
+                color: #999999;
+            }
+        }
+        .actions {
+            display: none;
+            position: absolute;
+            top: 25px;
+            left: 5px;
+        }
+        &:hover .actions {
+            display: inline-block;
+        }
+    }
+    @media only screen and (max-width: 991px) {
+        display: none!important;
+    }
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" href="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS-错误页面</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../../static/lib/semantic/semantic.min.css" />
+    <script type="text/javascript" th:src="@{/lib/jquery-1.11.1.min.js}" src="../../static/lib/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/semantic/semantic.min.js}" src="../../static/lib/semantic/semantic.min.js"></script>
+    <script th:replace="admin/template :: baiduTongji"></script>
+</head>
+
+<body>
+    <div class="pusher ad-index-content">
+        <div class="ad-index-container" style="padding-top:200px; max-width:600px; margin-left:auto; margin-right:auto;">
+            <div id="context">
+                <h2 class="ui red header">
+                <i class="warning sign icon"></i>
+                <div class="content">
+                    哎呀，出现错误了！
+                </div>
+                </h2>
+                <div class="ui icon red message">
+                    <i class="info circle icon"></i>
+                    <div class="content">
+                        <div class="header">
+                            错误消息！
+                        </div>
+                        <p>权限不足或者系统错误！</p>
+                    </div>
+                </div>
+                <div class="ui center aligned basic segment">
+                    <a class="ui positive button" th:href="@{/admin/login}" href="#">返回登录页面</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

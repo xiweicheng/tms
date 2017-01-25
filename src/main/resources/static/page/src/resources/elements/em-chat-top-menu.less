@@ -1,0 +1,75 @@
+.tms-em-chat-top-menu {
+    &.ui.top.menu {
+        padding-left: 220px;
+        height: 60px;
+        @media only screen and (max-width: 767px) {
+            .tms-chat-at.tms-hide {
+                display: none;
+            }
+        }
+        .item.tms-item:before {
+            display: none;
+        }
+        .right.menu {
+            .item.tms-item {
+                padding-left: 0;
+                padding-right: 5px;
+                @media only screen and (max-width: 767px) {
+                    &.tms-hide {
+                        display: none;
+                    }
+                }
+                button {
+                    .ui.floating.label {
+                        top: 0;
+                        right: 0;
+                        left: auto;
+                    }
+                }
+            }
+            .ui.search {
+                input {
+                    width: 100px;
+                    transition: width .15s ease-out 0s;
+                }
+                i.remove.icon {
+                    display: none;
+                    position: absolute;
+                    right: 0;
+                    left: auto;
+                }
+            }
+        }
+        @media only screen and (max-width: 767px) {
+            padding-left: 0;
+        }
+        .ui.basic.button {
+            box-shadow: none;
+        }
+    }
+    > .tms-chat-at {
+        &.ui.dropdown {
+            @media only screen and (max-width: 767px) {
+                > .text {
+                    display: none;
+                }
+                > .dropdown.icon {
+                    margin-left: 6px;
+                    margin-right: 6px;
+                }
+            }
+            .menu {
+                > .header {
+                    i.plus.icon {
+                        position: absolute;
+                        right: 5px;
+                        top: 7px;
+                    }
+                }
+                >.item .icon {
+                    margin-right: 4px!important;
+                }
+            }
+        }
+    }
+}

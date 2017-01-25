@@ -1,0 +1,745 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" href="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS博客</title>
+    <link rel="icon" th:href="@{/favicon.ico}" href="../static/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../static/lib/semantic/semantic.min.css" />
+    <link rel="stylesheet" th:href="@{/lib/toastr/toastr.css}" href="../static/lib/toastr/toastr.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/md-github.css}" href="../static/admin/css/md-github.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/highlight/styles/github.css}" href="../static/lib/highlight/styles/github.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/fancybox/jquery.fancybox.min.css}" href="../static/lib/fancybox/jquery.fancybox.min.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/admin.css}" href="../static/admin/css/admin.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/index.css}" href="../static/admin/css/index.css" />
+    <script th:replace="admin/template :: baiduTongji"></script>
+</head>
+
+<body>
+    <div class="pusher ad-index-content" style="padding-top: 0; padding-bottom: 0;">
+        <div class="ad-index-container">
+            <div id="context">
+                <div v-cloak class="ui celled link list tms-wiki-dir">
+                    <h4 class="ui header">最新博文 <span style="font-size: 13px; color: #999999;">({{ filterWikis.length }}篇)</span> <i v-if="!1" class="filter link icon" style="display: inline-block; font-size: 16px; padding-top: 0px; color: #5791cb; margin-top: -6px;"></i></h4>
+                    <div class="ui mini icon input" style="margin-bottom: 5px;">
+                        <input type="text" v-model="filter" placeholder="过滤查找...">
+                        <i @click="clearFilterHandler" v-show="filter" class="circular remove link icon"></i>
+                    </div>
+                    <div v-for="item in filterWikis" v-bind:class="{ active: item.id == activeId }" class="item">
+                        <i class="file text outline icon"></i>
+                        <div class="content">
+                            <a class="header" :title="item.title" :href="'/?id=' + item.id">{{ item.title }}</a>
+                            <div class="description">
+                                <i class="wait icon"></i>
+                                <span>{{ item.creator.name ? item.creator.name : item.creator.username}}</span> 发布于 {{ item.createDate | timeago }}.
+                            </div>
+                            <div v-if="item.labels && item.labels.length > 0" style="margin-top: 5px;">
+                                <i class="tags icon" style="font-size: 12px;"></i>
+                                <div class="ui mini labels" style="display: inline-block;">
+                                    <div v-for="lbl in item.labels" class="ui basic label" style="padding: 3px; color: #999999; font-weight: normal;">
+                                        {{ lbl.name }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <i title="博文修改" v-if="username == item.creator.username" @click="editHandler(item)" class="edit icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="main ui container">
+                    <div class="topbar">
+                        <a th:if="${user == null}" th:href="@{/login}">登录</a>
+                        <a th:if="${user != null}" class="ad-index-logout" style="cursor: pointer;">
+                            <i class="sign out icon" style="margin-right: 0px;"></i>
+                            <span>退出 </span>
+                            <form class="hidden" th:action="@{/admin/logout}" action="" method="post"></form>
+                        </a>
+                        <a th:if="${user != null}" th:href="@{/admin/dynamic(scroll=${'1'})}">
+                            <i class="user icon" style="margin-right: 0px;"></i>
+                            <span th:text="${#strings.isEmpty(user.name) ? user.username : user.name}">Admin</span>
+                        </a>
+                        <a th:if="${user == null}" href="/page/index.html#/register">注册</a>
+                    </div>
+                    <div class="chat">
+                        <div class="ui minimal comments" style="display:none;">
+                            <h3 class="ui dividing header">TMS博文</h3>
+                            <button th:unless="${chats.first}" class="fluid ui button btn-chat-pre-more">加载更多</button>
+                            <div class="animated bounceInLeft comment" th:each="c : ${chats}" th:classappend="${(param.containsKey('id') and #strings.equals(param.id[0], c.id)) ? 'marked' : ''}" th:attr="data-id=${c.id}">
+                                <a class="avatar ui mini circular image" style="width: 35px; height: 35px; font-size: 35px; background-color: rgba(150, 178, 183, 0.4); text-align: center;">
+                                    <span style="display: inline-block; height: 35px; line-height: 35px; vertical-align: top;" th:if="${not #strings.isEmpty(c.creator.name)}" th:text="${#strings.toUpperCase(#strings.substring(c.creator.name,#strings.length(c.creator.name) - 1,#strings.length(c.creator.name)))}">管理员</span>
+                                    <img th:if="${#strings.isEmpty(c.creator.name)}" th:src="@{/img/head.png}" src="../static/img/head.png">
+                                </a>
+                                <div class="content">
+                                    <a class="author" th:attr="data-value=${c.creator.username}" th:text="${#strings.isEmpty(c.creator.name) ? c.creator.username : c.creator.name}">Matt</a>
+                                    <div class="metadata">
+                                        <span class="date timeago" th:title="${c.createDate}" th:text="${#calendars.format(c.createDate,'yyyy/MM/dd HH:mm:ss')}">Today at 5:42PM</span>
+                                        <div class="rating">
+                                            <i style="cursor: pointer;" title="赞一下" class="cbutton cbutton--effect-novak thumbs outline up icon" data-type="zan" data-label="赞"></i> <span th:unless="${c.voteZanCnt == null}" th:text="${c.voteZanCnt + ' 赞'}">5 赞</span>
+                                        </div>
+                                        <div class="rating">
+                                            <i style="cursor: pointer;" title="踩一下" class="cbutton cbutton--effect-novak thumbs outline down icon" data-type="cai" data-label="踩"></i> <span th:unless="${c.voteCaiCnt == null}" th:text="${c.voteCaiCnt + ' 踩'}">5 踩</span>
+                                        </div>
+                                    </div>
+                                    <div class="text markdown-body" th:attr="data-content=${c.content}" th:text="${c.content}">
+                                        How artistic!
+                                    </div>
+                                    <div class="actions">
+                                        <a class="reply">评论</a>
+                                        <a class="btn-read">阅读</a>
+                                        <a class="btn-edit" th:if="${user != null and (c.creator.username == user.username)}" target="_blank" th:href="@{/admin/dynamic(id=${c.id})}">编辑</a>
+                                        <div class="ui top right pointing dropdown dd-more-actions">
+                                            <a class="text" style="margin: 0;">更多</a>
+                                            <i class="dropdown icon" style="margin-left: 0px; margin-right: 5px;"></i>
+                                            <div class="menu">
+                                                <div th:if="${user != null and (c.creator.username == user.username)}" class="item btn-del">删除</div>
+                                                <div class="item btn-copy" th:attr="data-clipboard-text=${c.content}">复制</div>
+                                                <div class="item btn-share" th:attr="data-clipboard-text=${#httpServletRequest.getRequestURL() + '?id=' + c.id}">分享</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="animated zoomIn ui form wiki-reply">
+                                    <div class="field">
+                                        <textarea name="content" rows="2"></textarea>
+                                        <div class="ui right floated buttons">
+                                            <button class="ui button btn-cancel">取消</button>
+                                            <button class="ui positive button btn-ok">确定</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button th:unless="${chats.last}" class="fluid ui button btn-chat-next-more">加载更多</button>
+                            <form class="ui reply form fm-reply"></form>
+                        </div>
+                        <div class="ui circular icon button btn-chat-s2h" title="滚动至消息头"> <i class="chevron up icon"></i> </div>
+                        <div class="ui circular icon button btn-chat-s2b" title="滚动至下个消息头"> <i class="chevron down icon"></i> </div>
+                        <div class="ui vertical circular icon buttons btns-scroll btn-ctrl">
+                            <div class="ui circular icon button btn-scroll-up" title="滚动至顶部">
+                                <i class="arrow up icon"></i>
+                            </div>
+                            <div class="ui circular icon button btn-scroll-down" title="滚动至底部">
+                                <i class="arrow down icon"></i>
+                            </div>
+                        </div>
+                        <!-- 沟通消息检索 -->
+                        <div class="chat-search btn-ctrl">
+                            <div class="ui search">
+                                <div class="ui circular icon button btn-search" title="博文检索">
+                                    <input style="display: none;" class="prompt" th:value="${param.containsKey('search') ? param.search[0] : ''}" type="text" placeholder="查找...">
+                                    <i class="search link icon"></i>
+                                </div>
+                                <div class="results"></div>
+                            </div>
+                        </div>
+                        <div class="ui circular icon button btn-chat-dir btn-ctrl">
+                            <i class="content icon"></i>
+                            <div class="wiki-dir ui segment">
+                                <i class="circular unlock alternate tiny icon btn-wiki-dir-lock"></i>
+                                <div class="wiki-dir-tree" style="margin-top: 10px;"></div>
+                            </div>
+                        </div>
+                        <a th:href="@{/(scroll=${'t'})}" title="刷新博文" class="pp-not ui black circular icon button btn-custom-chat-refresh btn-ctrl">
+                            <i class="refresh icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- popup container start -->
+    <div class="ui flowing popup top left transition hidden pp-wiki"></div>
+    <!-- popup container end -->
+    <div th:replace="admin/template :: ad-handle-confirm"></div>
+    <div th:replace="admin/template :: ad-delete-confirm"></div>
+    <div th:replace="admin/template :: ad-comment-page-dimmer"></div>
+    <div th:replace="admin/template :: ad-msg-as-wiki-edit"></div>
+    <div th:replace="admin/template :: wikiMoreTpl"></div>
+    <div th:replace="admin/template :: chatMsgPpTpl"></div>
+    <input type="hidden" name="page.number" th:value="${chats.number}" />
+    <input type="hidden" name="page.number.next" th:value="${chats.number + 1}" />
+    <input type="hidden" name="page.number.pre" th:value="${chats.number - 1}" />
+    <input type="hidden" name="page.size" th:value="${chats.size}" />
+    <input type="hidden" name="param.id" th:value="${param.containsKey('id') ? param.id[0] : ''}" />
+    <input type="hidden" name="param.search" th:value="${param.containsKey('search') ? param.search[0] : ''}" />
+    <input type="hidden" name="user.username" th:value="${user != null ? user.username : ''}" />
+    <script type="text/javascript" th:src="@{/admin/js/deps-base.js}" src="../static/admin/js/deps-base.js"></script>
+    <script type="text/javascript" th:src="@{/admin/js/deps-dynamic.js}" src="../static/admin/js/deps-dynamic.js"></script>
+    <script type="text/javascript" th:src="@{/lib/jquery.timeago.min.js}" src="../static/lib/jquery.timeago.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/clipboard.min.js}" src="../static/lib/clipboard.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/marked.min.js}" src="../static/lib/marked.min.js"></script>
+    <script type="text/javascript" th:src="@{/admin/js/admin.js}" src="../static/admin/js/admin.js"></script>
+    <script type="text/javascript">
+    jQuery(function($) {
+
+        jQuery(".timeago").timeago();
+
+        var clipboard = new Clipboard('.btn-share, .btn-copy');
+
+        clipboard.on('success', function(e) {
+            var $btn = $(e.trigger);
+            var msg = $btn.hasClass('btn-share') ? '分享链接复制到剪贴板成功!' : '沟通内容复制到剪贴板成功!';
+            toastr.success(msg);
+        });
+
+        clipboard.on('error', function(e) {
+            toastr.success('复制到剪贴板失败!');
+        });
+
+        $('.btn-ctrl').css({
+            right: ($(window).width() - $('.ui.container').width()) / 2 + 2 - 10
+        });
+
+        $('.btns-scroll').css({
+            top: ($(window).height() - $('.btns-scroll').height()) / 2
+        });
+
+        $('.wiki-dir').css({
+            left: $('.btn-chat-dir').css('left')
+        });
+
+        $(window).resize(function(event) {
+            $('.btn-ctrl').css({
+                right: ($(window).width() - $('.ui.container').width()) / 2 + 2 - 10
+            });
+            $('.btns-scroll').css({
+                top: ($(window).height() - $('.btns-scroll').height()) / 2
+            });
+            $('.btn-chat-s2h').css('left', ($(window).width() - $('.main.container').width()) / 2 + 5);
+            $('.btn-chat-s2b').css('left', ($(window).width() - $('.main.container').width()) / 2 + 5);
+            $('.wiki-dir').css({
+                left: $('.btn-chat-dir').css('left')
+            });
+        });
+
+        // Set options
+        marked && marked.setOptions({
+            breaks: true,
+            highlight: function(code) {
+                return window.hljs.highlightAuto(code).value;
+            }
+        });
+
+        // ------------------------------------------------------------------------------------- fancybox image start
+
+        $('body').on('click', '.chat .comments .comment .content .text.markdown-body img', function(event) {
+            event.preventDefault();
+            $img = $(this);
+            var imgArr = [];
+            var $imgs = $img.closest('.text.markdown-body').find('img').each(function(index, img) {
+                imgArr.push({
+                    href: $(img).attr('src'),
+                    title: $(img).attr('alt')
+                });
+            });
+            var index = $imgs.index($img);
+            $.fancybox.open(imgArr, {
+                loop: false,
+                index: index
+            });
+        });
+
+        // ------------------------------------------------------------------------------------- fancybox image end
+
+
+        // ------------------------------------------------------------------------------------- rating start
+
+        $('body').on('click', '.chat .comments .comment .content .rating i.outline.icon', function(event) {
+            event.preventDefault();
+            $icon = $(this).removeClass('outline');
+            $span = $icon.parent().children('span');
+
+            var chatHtml = $icon.closest('.comment').find('.content .text.markdown-body').html();
+            var html = $('<div class="markdown-body"/>').html('<style>.markdown-body{font-size:14px;line-height:1.6}.markdown-body>:first-child{margin-top:0!important}.markdown-body>:last-child{margin-bottom:0!important}.markdown-body a.absent{color:#C00}.markdown-body a.anchor{bottom:0;cursor:pointer;display:block;left:0;margin-left:-30px;padding-left:30px;position:absolute;top:0}.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6{cursor:text;font-weight:700;margin:20px 0 10px;padding:0;position:relative}.markdown-body h1 .mini-icon-link,.markdown-body h2 .mini-icon-link,.markdown-body h3 .mini-icon-link,.markdown-body h4 .mini-icon-link,.markdown-body h5 .mini-icon-link,.markdown-body h6 .mini-icon-link{color:#000;display:none}.markdown-body h1:hover a.anchor,.markdown-body h2:hover a.anchor,.markdown-body h3:hover a.anchor,.markdown-body h4:hover a.anchor,.markdown-body h5:hover a.anchor,.markdown-body h6:hover a.anchor{line-height:1;margin-left:-22px;padding-left:0;text-decoration:none;top:15%}.markdown-body h1:hover a.anchor .mini-icon-link,.markdown-body h2:hover a.anchor .mini-icon-link,.markdown-body h3:hover a.anchor .mini-icon-link,.markdown-body h4:hover a.anchor .mini-icon-link,.markdown-body h5:hover a.anchor .mini-icon-link,.markdown-body h6:hover a.anchor .mini-icon-link{display:inline-block}.markdown-body hr:after,.markdown-body hr:before{display:table;content:""}.markdown-body h1 code,.markdown-body h1 tt,.markdown-body h2 code,.markdown-body h2 tt,.markdown-body h3 code,.markdown-body h3 tt,.markdown-body h4 code,.markdown-body h4 tt,.markdown-body h5 code,.markdown-body h5 tt,.markdown-body h6 code,.markdown-body h6 tt{font-size:inherit}.markdown-body h1{color:#000;font-size:28px}.markdown-body h2{border-bottom:1px solid #CCC;color:#000;font-size:24px}.markdown-body h3{font-size:18px}.markdown-body h4{font-size:16px}.markdown-body h5{font-size:14px}.markdown-body h6{color:#777;font-size:14px}.markdown-body blockquote,.markdown-body dl,.markdown-body ol,.markdown-body p,.markdown-body pre,.markdown-body table,.markdown-body ul{margin:15px 0}.markdown-body hr{overflow:hidden;background:#e7e7e7;height:4px;padding:0;margin:16px 0;border:0;-moz-box-sizing:content-box;box-sizing:content-box}.markdown-body h1+p,.markdown-body h2+p,.markdown-body h3+p,.markdown-body h4+p,.markdown-body h5+p,.markdown-body h6+p,.markdown-body ol li>:first-child,.markdown-body ul li>:first-child{margin-top:0}.markdown-body hr:after{clear:both}.markdown-body a:first-child h1,.markdown-body a:first-child h2,.markdown-body a:first-child h3,.markdown-body a:first-child h4,.markdown-body a:first-child h5,.markdown-body a:first-child h6,.markdown-body>h1:first-child,.markdown-body>h1:first-child+h2,.markdown-body>h2:first-child,.markdown-body>h3:first-child,.markdown-body>h4:first-child,.markdown-body>h5:first-child,.markdown-body>h6:first-child{margin-top:0;padding-top:0}.markdown-body li p.first{display:inline-block}.markdown-body ol,.markdown-body ul{padding-left:30px}.markdown-body ol.no-list,.markdown-body ul.no-list{list-style-type:none;padding:0}.markdown-body ol ol,.markdown-body ol ul,.markdown-body ul ol,.markdown-body ul ul{margin-bottom:0}.markdown-body dl{padding:0}.markdown-body dl dt{font-size:14px;font-style:italic;font-weight:700;margin:15px 0 5px;padding:0}.markdown-body dl dt:first-child{padding:0}.markdown-body dl dt>:first-child{margin-top:0}.markdown-body dl dt>:last-child{margin-bottom:0}.markdown-body dl dd{margin:0 0 15px;padding:0 15px}.markdown-body blockquote>:first-child,.markdown-body dl dd>:first-child{margin-top:0}.markdown-body blockquote>:last-child,.markdown-body dl dd>:last-child{margin-bottom:0}.markdown-body blockquote{border-left:4px solid #DDD;color:#777;padding:0 15px}.markdown-body table th{font-weight:700}.markdown-body table td,.markdown-body table th{border:1px solid #CCC;padding:6px 13px}.markdown-body table tr{background-color:#FFF;border-top:1px solid #CCC}.markdown-body table tr:nth-child(2n){background-color:#F8F8F8}.markdown-body img{max-width:100%}.markdown-body span.frame{display:block;overflow:hidden}.markdown-body span.frame>span{border:1px solid #DDD;display:block;float:left;margin:13px 0 0;overflow:hidden;padding:7px;width:auto}.markdown-body span.frame span img{display:block;float:left}.markdown-body span.frame span span{clear:both;color:#333;display:block;padding:5px 0 0}.markdown-body span.align-center{clear:both;display:block;overflow:hidden}.markdown-body span.align-center>span{display:block;margin:13px auto 0;overflow:hidden;text-align:center}.markdown-body span.align-center span img{margin:0 auto;text-align:center}.markdown-body span.align-right{clear:both;display:block;overflow:hidden}.markdown-body span.align-right>span{display:block;margin:13px 0 0;overflow:hidden;text-align:right}.markdown-body span.align-right span img{margin:0;text-align:right}.markdown-body span.float-left{display:block;float:left;margin-right:13px;overflow:hidden}.markdown-body span.float-left span{margin:13px 0 0}.markdown-body span.float-right{display:block;float:right;margin-left:13px;overflow:hidden}.markdown-body span.float-right>span{display:block;margin:13px auto 0;overflow:hidden;text-align:right}.markdown-body code,.markdown-body tt{background-color:#F8F8F8;border:1px solid #EAEAEA;border-radius:3px;margin:0 2px;padding:0 5px;white-space:nowrap}.markdown-body pre>code{background:none;border:none;margin:0;padding:0;white-space:pre}.markdown-body .highlight pre,.markdown-body pre{background-color:#F8F8F8;border:1px solid #CCC;border-radius:3px;font-size:13px;line-height:19px;overflow:auto;padding:6px 10px}.markdown-body pre code,.markdown-body pre tt{background-color:transparent;border:none}</style>' + chatHtml).wrap('<div/>').parent().html();
+
+            $.post('/free/wiki/vote', {
+                baseURL: baseURL,
+                id: $icon.closest('.comment').attr('data-id'),
+                type: $icon.attr('data-type'),
+                contentHtml: html
+            }, function(data, textStatus, xhr) {
+                if (data.success) {
+                    if ($span.size() == 0) {
+                        $span = $('<span>1 ' + $icon.attr('data-label') + '</span>');
+                        $icon.parent().append($span);
+                    } else {
+                        var oArr = $span.text().split(' ');
+                        $span.text((parseInt(oArr[0]) + 1) + ' ' + oArr[1]);
+                    }
+                } else {
+                    toastr.error(data.data, "投票失败!");
+                }
+            });
+        });
+
+        // ------------------------------------------------------------------------------------- rating end
+
+        // ------------------------------------------------------------------------------------- chat search start
+        $('.chat-search').hover(function() {
+            $(this).find('input').show();
+            $(this).find('.btn-search').removeClass('circular button').addClass('input');
+            $(this).find('input').focus();
+        }, function() {
+            $(this).find('input').hide();
+            $(this).find('.btn-search').removeClass('input').addClass('circular button');
+        });
+        var source = [];
+        if (localStorage) {
+            var v = localStorage.getItem('free/wiki:search');
+            source = v ? $.parseJSON(v) : [];
+        }
+        $('.chat-search .ui.search').search({
+            source: source,
+            onSelect: function(result, response) {
+                searchHandler();
+            },
+            onResults: function() {
+                $(this).search('hide results');
+            }
+        });
+
+        // 检索前检查
+        function searchPreCheck() {
+            var search = $('.chat-search .ui.search input').val();
+
+            if (!search) {
+                return false;
+            }
+            if (search.length < 2) {
+                toastr.error('检索条件不能少于2位字符!');
+                return false;
+            }
+            // 保存检索值
+            var isExists = false;
+            $.each(source, function(index, val) {
+                if (val.title == search) {
+                    isExists = true;
+                    return false;
+                }
+            });
+            if (!isExists) {
+                source.splice(0, 0, {
+                    title: search
+                });
+                $('.chat-search .ui.search').search({
+                    source: source
+                });
+            }
+            localStorage && localStorage.setItem('free/wiki:search', JSON.stringify(source));
+            return true;
+        }
+
+        function searchHandler() {
+            if (searchPreCheck()) {
+                window.location.href = '/?search=' + $('.chat-search .ui.search input').val();
+            }
+        }
+
+        $('.btn-search i.icon').click(function(event) {
+            var $input = $('.chat-search .ui.search input');
+            if (!$input.val()) {
+                $input.focus();
+            } else {
+                searchHandler();
+            }
+        });
+
+        $('.chat-search .ui.search input').keyup(function(event) {
+            if (event.keyCode == 13) {
+                searchHandler();
+            }
+        });
+
+        // ------------------------------------------------------------------------------------- chat search end
+
+        $('.ui.dropdown').dropdown();
+        $('.ui.dropdown.dd-more-actions').dropdown({
+            action: 'hide'
+        });
+        $('.ui.dropdown.dd-labels').dropdown({
+            allowAdditions: true,
+            forceSelection: false
+        });
+        $('.pp').popup();
+
+        var baseURL = Utils.getBaseURL();
+        // 是否第一次调用s2b函数
+        var isS2bFirst = true;
+
+        // ============================================================================ @chat markdown to html start
+
+        var $textMds = $('.comments .content .text.markdown-body');
+        $textMds.each(function(index, el) {
+            var html = marked($(el).attr('data-content'));
+            $(el).html(html);
+        });
+
+        $('.ui.comments').show();
+
+        // ============================================================================ @chat markdown to html end
+
+        // ============================================================================ url? start
+
+        if (url('?scroll') == 't') {
+            s2t();
+        }
+        if (url('?scroll') == 'b') {
+            s2b();
+        }
+
+        if (url('?id')) {
+            s2m(); // 滚动到标记沟通消息处
+        }
+
+        // ============================================================================ url? end
+
+        $('.btn-scroll-up').click(function(event) {
+            s2t();
+        });
+
+        $('.btn-scroll-down').click(function(event) {
+            s2b();
+        });
+
+        // 滚动到标记处
+        function s2m() {
+
+            Utils.imgLoaded($('.chat .ui.comments .comment .text img'), function() {
+                $('html, body, .ad-index-content').scrollTo($(".comments .comment.marked"), 300, {
+                    offset: -50
+                });
+            });
+        }
+
+        // 滚动到标记处
+        function s2mk($p) {
+
+            Utils.imgLoaded($('.chat .ui.comments .comment .text img'), function() {
+                $('html, body, .ad-index-content').scrollTo($p ? $p : $(".marker").first().removeClass('marker'), 300, {
+                    offset: -50
+                });
+            });
+        }
+
+        // 滚动到顶部
+        function s2t() {
+            $('html, body, .ad-index-content').scrollTo(0, 300);
+        }
+
+        // 滚动到底部
+        function s2b() {
+
+            if (isS2bFirst) { // 解决页面首次加载, 有图片加载比较慢导致没有滚动到顶部问题.
+                isS2bFirst = false;
+                Utils.imgLoaded($('.chat .ui.comments .comment .text img'), function() {
+                    $('html, body, .ad-index-content').scrollTo({
+                        left: 0,
+                        top: "100%"
+                    }, 300);
+                });
+            } else {
+                $('html, body, .ad-index-content').scrollTo({
+                    left: 0,
+                    top: "100%"
+                }, 300);
+            }
+        }
+
+        /**
+         * chat 内容转换
+         * @param  {[type]} chats 沟通消息数组
+         * @return {[type]}       返回模板编译后的jquery dom
+         */
+        function convertChat(chats, markId) {
+            var loginUsername = $('input:hidden[name="user.username"]').val();
+            $.each(chats, function(index, chat) {
+                chat.contentMd = marked(chat.content);
+                chat.marked = (chat.id == markId) ? 'marked' : '';
+                chat.marker = (index == 0) ? 'marker' : '';
+                chat.zanCount = (chat.voteZan) ? chat.voteZan.split(',').length : 0;
+                chat.caiCount = (chat.voteCai) ? chat.voteCai.split(',').length : 0;
+                chat.textShare = baseURL + 'admin/dynamic?id=' + chat.id;
+                chat.isNotWiki = (chat.type != "Wiki");
+                if (chat.creator.name) {
+                    chat.creator.iconName = chat.creator.name.substr(chat.creator.name.length - 1).toUpperCase();
+                }
+                if (loginUsername == chat.creator.username) {
+                    chat.actions = true;
+                }
+                var d = new Date(chat.createDate);
+                chat.createDateFormat = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+            });
+            var $more = $("#wikiMoreTpl").tmpl(chats);
+            $more.find('.ui.dropdown.dd-more-actions').dropdown({
+                action: 'hide'
+            });
+
+            return $more;
+        }
+
+        $('body').on('click', '.comments .actions a.reply', function(event) {
+            event.preventDefault();
+            $btn = $(this);
+            var id = $btn.closest('.comment').attr('data-id');
+            var $reply = $btn.closest('.comment').find('.wiki-reply').addClass('marker');
+            $reply.show();
+            $reply.find('textarea').focus();
+            s2mk();
+
+        });
+
+        $('body').on('click', '.wiki-reply .btn-cancel', function(event) {
+            event.preventDefault();
+            $cancel = $(this);
+            $cancel.closest('.wiki-reply').hide();
+            $cancel.closest('.comment').addClass('marker');
+            $ta = $cancel.closest('.wiki-reply').find('textarea');
+            $ta.val('');
+            s2mk();
+        });
+
+        $('body').on('click', '.wiki-reply .btn-ok', function(event) {
+            event.preventDefault();
+            $ok = $(this);
+            $ta = $ok.closest('.wiki-reply').find('textarea');
+
+            if (!$.trim($ta.val())) {
+                toastr.error('回复内容不能为空!');
+                return;
+            }
+
+            $.post('/free/wiki/reply', {
+                baseURL: baseURL,
+                id: $ok.closest('.comment').attr('data-id'),
+                content: $ta.val()
+            }, function(data, textStatus, xhr) {
+                if (data.success) {
+                    $ok.closest('.wiki-reply').hide();
+                    $ok.closest('.comment').addClass('marker');
+                    $ta = $ok.closest('.wiki-reply').find('textarea');
+                    $ta.val('');
+                    s2mk();
+                    toastr.success('提交成功,谢谢您的回复!');
+                } else {
+                    toastr.error(data.data, '提交失败!');
+                }
+            });
+        });
+
+        $('body').on('click', '.btn-chat-pre-more', function(event) {
+            event.preventDefault();
+
+            $btn = $(this);
+
+            $.get('/free/wiki/more', {
+                search: $('input:hidden[name="param.search"]').val(),
+                page: $('input:hidden[name="page.number.pre"]').val(),
+                size: $('input:hidden[name="page.size"]').val()
+            }, function(data) {
+                if (data.success) {
+
+                    if (data.data.content.length == 0) {
+                        toastr.warning('没有更多数据了!');
+                        return;
+                    }
+
+                    $('input:hidden[name="page.number.pre"]').val(data.data.number - 1);
+                    $('input:hidden[name="page.size"]').val(data.data.size);
+
+                    var $more = convertChat(data.data.content);
+
+                    $more.insertAfter($('.btn-chat-pre-more'));
+                    jQuery(".timeago").timeago();
+                    data.data.first && $btn.remove();
+                    toastr.success('加载成功!');
+                } else {
+                    toastr.error(data.data, '加载失败!');
+                }
+            });
+        });
+
+        $('body').on('click', '.btn-chat-next-more', function(event) {
+            event.preventDefault();
+
+            $btn = $(this);
+
+            $.get('/free/wiki/more', {
+                search: $('input:hidden[name="param.search"]').val(),
+                page: $('input:hidden[name="page.number.next"]').val(),
+                size: $('input:hidden[name="page.size"]').val()
+            }, function(data) {
+                if (data.success) {
+
+                    if (data.data.content.length == 0) {
+                        toastr.warning('没有更多数据了!');
+                        return;
+                    }
+
+                    $('input:hidden[name="page.number.next"]').val(data.data.number + 1);
+                    $('input:hidden[name="page.size"]').val(data.data.size);
+
+                    var $more = convertChat(data.data.content);
+                    $more.insertBefore($('.btn-chat-next-more'));
+
+                    s2mk();
+
+                    jQuery(".timeago").timeago();
+
+                    data.data.last && $btn.remove();
+                    toastr.success('加载成功!');
+                } else {
+                    toastr.error(data.data, '加载失败!');
+                }
+            });
+        });
+
+        function commentRead($comment) {
+            var $md = $comment.find('.content .markdown-body');
+            $('.ad-comment-page-dimmer')
+                .show()
+                .find('.container').css({
+                    'height': $(window).height(),
+                    'align-items': $md.height() < $(window).height() ? 'center' : 'inherit'
+                })
+                .find('.text')
+                .empty()
+                .append($md.clone());
+
+            $('.ad-comment-page-dimmer').addClass('dimmer').dimmer({
+                onShow: function() {
+                    $('body').addClass('blurring');
+                },
+                onHide: function() {
+                    $('body').removeClass('blurring');
+                    $('.ad-comment-page-dimmer').removeClass('dimmer').hide();
+                }
+            }).dimmer('show');
+        }
+
+        // $('body').on('dblclick', '.chat .comments .comment', function(event) {
+        //     event.preventDefault();
+        //     commentRead($(this));
+        // });
+        $('body').on('click', '.ad-comment-page-dimmer .container', function(event) {
+            if (event.target == event.currentTarget) {
+                $(this).closest('.page.dimmer').dimmer('hide');
+            }
+        });
+
+        //-----------------------------------------------------------chat comment more-actions start
+        $('body').on('click', '.chat .comments .comment .actions .btn-read', function(event) {
+            event.preventDefault();
+            commentRead($(this).closest('.comment'));
+        });
+        $('body').on('click', '.chat .comments .comment .actions .btn-del', function(event) {
+            event.preventDefault();
+            var $c = $(this).closest('.comment');
+
+            $('.ad-delete-confirm').modal({
+                onApprove: function() {
+                    $.post('/admin/chat/deleteWiki', {
+                        id: $c.attr('data-id')
+                    }, function(data, textStatus, xhr) {
+                        if (data.success) {
+                            $c.remove();
+                            toastr.success('博文删除成功!');
+                        } else {
+                            toastr.error(data.data, '博文删除失败!');
+                        }
+                    });
+                }
+            }).modal('show');
+
+        });
+        //-----------------------------------------------------------chat comment more-actions end
+
+        $('body').on('click', '.cbutton', function(event) {
+            event.preventDefault();
+            $btn = $(this);
+            $btn.addClass('cbutton--click');
+            setTimeout(function() {
+                $btn.removeClass('cbutton--click');
+            }, 500);
+        });
+
+        // -------------------------------------------------------------------------------- 滚动至消息头 start
+
+        $('.btn-chat-s2h').click(function() {
+            var $btn = $(this);
+            s2mk($btn.data('target'));
+        }).css('left', ($(window).width() - $('.main.container').width()) / 2 + 5);
+
+        $('.btn-chat-s2b').click(function() {
+            var $t = $('.btn-chat-s2h').data('target');
+            $('.btn-chat-s2h').data('target', $t.next());
+            s2mk($('.btn-chat-s2h').data('target'));
+        }).css('left', ($(window).width() - $('.main.container').width()) / 2 + 5);
+
+        $('body').on('mouseenter', '.chat .comment', function(event) {
+            event.preventDefault();
+            var $header = $(event.target).closest('.comment').find('.content a.author');
+            if ($header.size() > 0) {
+                $('.btn-chat-s2h').data('target', $header.closest('.comment'));
+                if (!Utils.isElementInViewport($header)) {
+                    $('.btn-chat-s2h').show();
+                    $('.btn-chat-s2b').show();
+                }
+            }
+
+            $('.wiki-dir .wiki-dir-tree').empty().append(Utils.dir($(this)));
+            if ($('.wiki-dir a.wiki-dir-item').size() == 0) {
+                $('.btn-chat-dir').hide();
+            } else {
+                $('.btn-chat-dir').show();
+            }
+        });
+
+        $('.chat').mouseleave(function(event) {
+            $('.btn-chat-s2h').removeData('target').hide();
+            $('.btn-chat-s2b').hide();
+        });
+
+        $(window).scroll(function(event) {
+            var $t = $('.btn-chat-s2h').data('target');
+            var $header = $t && $t.find('.content a.author');
+            if ($header && $header.size() > 0 && !Utils.isElementInViewport($header)) {
+                $('.btn-chat-s2h').show();
+                $('.btn-chat-s2b').show();
+            } else {
+                $('.btn-chat-s2h').hide();
+                $('.btn-chat-s2b').hide();
+            }
+        });
+
+        // -------------------------------------------------------------------------------- 滚动至消息头 end
+
+        // -------------------------------------------------------------------------------- wiki dir start
+
+        $('body').on('click', '.wiki-dir-item', function(event) {
+            event.preventDefault();
+            s2mk($('#' + $(this).attr('data-id')));
+        });
+        $('.btn-chat-dir').hover(function() {
+            $('.wiki-dir').show();
+        }, function() {
+            if (!$('.btn-wiki-dir-lock').hasClass('lock')) {
+                $('.wiki-dir').hide();
+            }
+        });
+        $('.btn-wiki-dir-lock').click(function(event) {
+            $(this).toggleClass('lock unlock alternate');
+        });
+        // -------------------------------------------------------------------------------- wiki dir end
+    });
+    </script>
+    <!-- <script src="https://unpkg.com/vue/dist/vue.js"></script> -->
+    <script type="text/javascript" th:src="@{/lib/vue/vue.min.js}" src="../static/lib/vue/vue.min.js"></script>
+    <script type="text/javascript" th:src="@{/admin/vuejs/index.js}" src="../static/admin/vuejs/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" href="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS-主页</title>
+    <link rel="icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../../static/lib/semantic/semantic.min.css" />
+    <link rel="stylesheet" th:href="@{/lib/toastr/toastr.css}" href="../../static/lib/toastr/toastr.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/md-github.css}" href="../../static/admin/css/md-github.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+    <style>
+    .ui.reveal {
+        margin: auto;
+        width: 133px;
+    }
+    </style>
+    <script th:replace="admin/template :: baiduTongji"></script>
+</head>
+
+<body class="admin-index">
+    <div th:with="uri=${#httpServletRequest.requestURI}" th:fragment="sidebar-menu" class="ui left thin vertical inverted labeled icon sidebar menu ad-index-menu">
+        <a th:classappend="(${#strings.contains(uri, '/admin/index')} or ${#strings.endsWith(uri,'/admin/')} or ${#strings.endsWith(uri,'/admin')}) ? 'active' : ''" class="item" th:href="@{/admin}" href="index.html"> <i class="home icon"></i> 主页
+        </a>
+        <a th:classappend="${#strings.contains(uri, '/admin/dynamic')} ? 'active' : ''" class="item mi-dynamic" th:href="@{/admin/dynamic}" href="dynamic.html"> <i class="at icon"></i> 沟通动态
+        </a>
+        <a class="item" target="_blank" th:href="${'/page/index.html#/chat/@' + #authentication.name}" href="/page/index.html#/chat/@admin"> <i class="chat icon"></i> 沟通频道
+        </a>
+        <a th:classappend="${#strings.contains(uri, '/admin/translate')} ? 'active' : ''" class="item mi-translate" th:href="@{/admin/translate}" href="translate.html"> <i class="world icon"></i> 翻译管理
+        </a>
+        <a th:classappend="${#strings.contains(uri, '/admin/import')} ? 'active' : ''" class="item mi-import" th:href="@{/admin/import}" href="import.html"> <i class="retweet icon"></i> 导入导出
+        </a>
+        <a th:classappend="${#strings.contains(uri, '/admin/project')} ? 'active' : ''" class="item" th:href="@{/admin/project}" href="project.html"> <i class="suitcase icon"></i> 项目管理
+        </a>
+        <a th:classappend="${#strings.contains(uri, '/admin/language')} ? 'active' : ''" class="item" th:href="@{/admin/language}" href="language.html"> <i class="flag icon"></i> 语言管理
+        </a>
+        <a th:classappend="${#strings.contains(uri, '/admin/user')} ? 'active' : ''" class="item" th:href="@{/admin/user}" href="user.html"> <i class="user icon"></i> 用户管理
+        </a>
+        <a sec:authorize="hasRole('ROLE_SUPER')" th:classappend="${#strings.contains(uri, '/admin/setting')} ? 'active' : ''" class="item" th:href="@{/admin/setting}" href="setting.html"> <i class="settings icon"></i> 系统设置
+        </a>
+    </div>
+    <div th:fragment="top-fixed-menu" style="z-index:1992;" class="ui fixed inverted main menu">
+        <a class="item ad-index-btn-menu">
+            <i class="content icon"></i> 菜单
+        </a>
+        <a class="title item" th:href="@{/}" href="index.html">
+            <b>TMS博文</b>
+        </a>
+        <div class="right menu">
+            <div class="item link ad-item-feedback">
+                <div class="" th:attrappend="data-url=${#httpServletRequest.requestURI}">反馈 </div>
+                <form class="hidden" th:action="@{/admin/feedback}" action="" method="post">
+                    <input type="hidden" name="url" value="" th:value="${#httpServletRequest.requestURI}" />
+                    <input type="hidden" name="name" value="" />
+                </form>
+            </div>
+            <div class="ui floating top right pointing dropdown link item dd-top-menu-user">
+                <i class="user icon"></i>
+                <span class="ad-index-user-username" th:text="${#authentication != null ? #authentication.name : ''}">admin</span>
+                <div class="menu">
+                    <div class="header">选择操作</div>
+                    <div class="item ad-index-user-edit" th:attr="data-id=${#authentication != null ? #authentication.name : ''}">
+                        <i class="edit icon"></i>
+                        <span>修改 </span>
+                    </div>
+                    <div class="item ad-index-logout">
+                        <i class="sign out icon"></i>
+                        <span>退出 </span>
+                        <form class="hidden" th:action="@{/admin/logout}" action="" method="post"></form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pusher ad-index-content">
+        <div class="ad-index-container">
+            <div th:fragment="rail-menu" class="ui dividing close left rail ad-index-rail" style="width:133px; min-height:450px; z-index:1;padding-top:70px;">
+                <div th:with="uri=${#httpServletRequest.requestURI}" class="ui vertical pointing inverted menu" style="width: 9rem !important; position: fixed;">
+                    <a th:classappend="(${#strings.contains(uri, '/admin/index')} or ${#strings.endsWith(uri,'/admin/')} or ${#strings.endsWith(uri,'/admin')}) ? 'active' : ''" class="item" th:href="@{/admin}" href="index.html">
+                        <i class="home icon"></i> 主页
+                    </a>
+                    <a th:classappend="${#strings.contains(uri, '/admin/dynamic')} ? 'active' : ''" class="item mi-dynamic" th:href="@{/admin/dynamic}" href="dynamic.html">
+                        <i class="at icon"></i> 沟通动态
+                    </a>
+                    <a class="item" target="_blank" th:href="${'/page/index.html#/chat/@' + #authentication.name}" href="/page/index.html#/chat/@admin">
+                        <i class="chat icon"></i> 沟通频道
+                    </a>
+                    <a th:classappend="${#strings.contains(uri, '/admin/translate')} ? 'active' : ''" class="item mi-translate" th:href="@{/admin/translate}" href="translate.html">
+                        <i class="world icon"></i> 翻译管理
+                    </a>
+                    <a th:classappend="${#strings.contains(uri, '/admin/import')} ? 'active' : ''" class="item mi-import" th:href="@{/admin/import}" href="import.html">
+                        <i class="retweet icon"></i> 导入导出
+                    </a>
+                    <a th:classappend="${#strings.contains(uri, '/admin/project')} ? 'active' : ''" class="item" th:href="@{/admin/project}" href="project.html">
+                        <i class="suitcase icon"></i> 项目管理
+                    </a>
+                    <a th:classappend="${#strings.contains(uri, '/admin/language')} ? 'active' : ''" class="item" th:href="@{/admin/language}" href="language.html">
+                        <i class="flag icon"></i> 语言管理
+                    </a>
+                    <a th:classappend="${#strings.contains(uri, '/admin/user')} ? 'active' : ''" class="item" th:href="@{/admin/user}" href="user.html">
+                        <i class="user icon"></i> 用户管理
+                    </a>
+                    <a sec:authorize="hasRole('ROLE_SUPER')" th:classappend="${#strings.contains(uri, '/admin/setting')} ? 'active' : ''" class="item" th:href="@{/admin/setting}" href="setting.html">
+                        <i class="settings icon"></i> 系统设置
+                    </a>
+                    <div class="item">
+                        <i class="linkify icon"></i> 系统外链
+                        <div class="menu tms-sys-links">
+                            <!-- <a target="_blank" class="item" href="http://220.248.17.34:7991/">JIRA</a>
+                            <a target="_blank" class="item" href="http://220.248.17.34:7992/">Confluence</a>
+                            <a target="_blank" class="item" href="http://220.248.17.34:7990/">Stash</a>
+                            <a target="_blank" class="item" href="http://220.248.17.34:8073/">Jenkins</a>
+                            <a target="_blank" class="item" href="http://220.248.17.34:8063/">Console(测试)</a>
+                            <a target="_blank" class="item" href="http://x-console-test.sh1.newtouch.com/">Console(开发)</a> -->
+                            <!-- <a target="_blank" class="item" href="https://www.draw.io/">绘图(draw)</a> -->
+                            <!-- <a target="_blank" class="item" href="https://www.processon.com/i/57ac7a10e4b09150b0fc8e21">绘图(processon)</a> -->
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="ui sticky ad-index-sticky">
+                </div> -->
+            </div>
+            <div id="context">
+                <div style="height:70px;"></div>
+                <!-- <div th:replace="admin/template :: ad-page-header ('门户主页', 'index')"></div> -->
+                <h2 class="ui center aligned icon header">
+                  <i class="circular users icon"></i>
+                  欢迎使用TMS团队协作系统!
+                </h2>
+                <div class="ui container five column stackable centered grid" style="margin-top:50px;">
+                    <div class="aligined centered column">
+                        <div class="ui move reveal">
+                            <div class="visible content centered">
+                                <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
+                                  <i class="circular suitcase icon"></i>
+                                  项目
+                                </h2>
+                            </div>
+                            <div class="hidden content">
+                                <a th:href="@{/admin/project}" class="ui inverted link circular segment" style="width:133px; height:133px;">
+                                    <h2 class="ui inverted header">
+                                        总数:
+                                        <div class="sub header" th:text="${cntProject}">99</div>
+                                    </h2>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="aligined centered column">
+                        <div class="ui move up reveal">
+                            <div class="visible content">
+                                <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
+                                  <i class="circular user icon"></i>
+                                  用户
+                                </h2>
+                            </div>
+                            <div class="hidden content">
+                                <a th:href="@{/admin/user}" class="ui inverted circular segment" style="width:133px; height:133px;">
+                                    <h2 class="ui inverted header">
+                                        总数:
+                                        <div class="sub header" th:text="${cntUser}">99</div>
+                                    </h2>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="aligined centered column">
+                        <div class="ui move down reveal">
+                            <div class="visible content">
+                                <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
+                                  <i class="circular at icon"></i>
+                                  沟通
+                                </h2>
+                            </div>
+                            <div class="hidden content">
+                                <a th:href="@{/admin/dynamic}" class="ui inverted circular segment" style="width:133px; height:133px;">
+                                    <h2 class="ui inverted header">
+                                        总数:
+                                        <div class="sub header" th:text="${cntChat}">99</div>
+                                    </h2>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="aligined centered column">
+                        <div class="ui move up reveal">
+                            <div class="visible content">
+                                <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
+                                  <i class="circular flag icon"></i>
+                                  语言
+                                </h2>
+                            </div>
+                            <div class="hidden content">
+                                <a th:href="@{/admin/language}" class="ui inverted circular segment" style="width:133px; height:133px;">
+                                    <h2 class="ui inverted header">
+                                        总数:
+                                        <div class="sub header" th:text="${cntLanguage}">99</div>
+                                    </h2>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="aligined centered column">
+                        <div class="ui fade rotate reveal">
+                            <div class="visible content">
+                                <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
+                                  <i class="circular world icon"></i>
+                                  翻译
+                                </h2>
+                            </div>
+                            <div class="hidden content">
+                                <a th:href="@{/admin/translate}" class="ui inverted circular segment" style="width:133px; height:133px;">
+                                    <h2 class="ui inverted header">
+                                        总数:
+                                        <div class="sub header" th:text="${cntTranslate}">99</div>
+                                    </h2>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="admin/template :: ad-delete-confirm"></div>
+    <div th:include="admin/template :: ad-page-common"></div>
+    <div th:replace="admin/template :: ad-page-dimmer"></div>
+    <!-- script -->
+    <!--     
+    <script type="text/javascript" th:src="@{/lib/jquery-1.11.1.min.js}" src="../../static/lib/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/semantic/semantic.min.js}" src="../../static/lib/semantic/semantic.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/showdown.min.js}" src="../../static/lib/showdown.min.js"></script>
+    <script type="text/javascript" th:src="@{/lib/toastr/toastr.js}" src="../../static/lib/toastr/toastr.js"></script>
+     -->
+    <script type="text/javascript" th:src="@{/admin/js/deps-base.js}" src="../../static/admin/js/deps-base.js"></script>
+    <script type="text/javascript" th:src="@{/admin/js/admin.js}" src="../../static/admin/js/admin.js"></script>
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+
+    });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS - 沟通动态消息</title>
+</head>
+
+<body style="background-color: rgb(255, 255, 255); box-sizing: border-box; color: rgb(51, 51, 51); display: block; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; margin-top: 0px;">
+    <div style="box-sizing: border-box; color: rgb(51, 51, 51); display: block; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; padding-left: 15px; padding-right: 15px;">
+        <div style="box-sizing: border-box; padding-bottom: 9px; margin: 40px 0px 0px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(238, 238, 238); color: rgb(51, 51, 51); font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 20px;">
+            <h3 style="box-sizing: border-box; font-family: inherit; font-weight: 500; line-height: 1.1; color: inherit; margin-top: 20px; margin-bottom: 10px; font-size: 24px;">系统消息</h3></div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="box-sizing: border-box; max-width: 100%; margin-bottom: 20px; color: rgb(51, 51, 51); font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 20px;">
+            <thead style="box-sizing: border-box;">
+                <tr style="box-sizing: border-box; background-color: rgb(249, 249, 249);">
+                    <th style="min-width: 80px; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 0px; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: rgb(221, 221, 221);">消息链接:</th>
+                    <th style="text-align: left; word-break: break-word; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 0px; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: rgb(221, 221, 221);"><a th:href="${href}" th:text="${href}" href="http://localhost/">http://localhost</a></th>
+                </tr>
+            </thead>
+            <tbody style="box-sizing: border-box;">
+                <tr style="box-sizing: border-box;">
+                    <th style="min-width:80px; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);">发送日期:</th>
+                    <td th:text="${#dates.format(date,'yyyy/MM/dd HH:mm:ss')}" style="word-break: break-word; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);">2015/06/14 14:00:00</td>
+                </tr>
+                <tr style="box-sizing: border-box; background-color: rgb(249, 249, 249);">
+                    <th style="min-width:80px; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);">发送用户:</th>
+                    <td style="word-break: break-word; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);">
+                        <span th:text="${user.username + ((not #strings.isEmpty(user.name)) ? '[' + user.name + ']' : '')}">test (测试用户)</span>
+                        <a th:if="${user.mails}" th:href="${'mailto:' + user.mails}" th:text="${'[' + user.mails + ']'}">[test@test.com]</a>
+                    </td>
+                </tr>
+                <tr style="box-sizing: border-box;">
+                    <th style="min-width:80px; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);">通知内容:</th>
+                    <td style="word-break: break-word; box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);" th:text="${title}">消息标题</td>
+                </tr>
+                <tr style="box-sizing: border-box;">
+                    <td colspan="2" style="box-sizing: border-box; padding: 8px; line-height: 1.42857143; vertical-align: middle; border-top-width: 1px; border-top-style: solid; border-top-color: rgb(221, 221, 221);">
+                        <div style="box-sizing: border-box; padding: 15px; margin-bottom: 20px; border: 1px solid rgb(188, 232, 241); border-radius: 4px; color: rgb(49, 112, 143); background-color: rgb(217, 237, 247);" th:utext="${content}">界面布局乱掉了! 颈椎病会引发的病症主要有哪些呢？伴随着颈椎病的发生，大部分会出现一些并发症。患者千万不要以为略微疼痛是小事，忍忍就过去，要知道，疼痛之后可能失明或瘫痪。专家介绍，颈椎病本身而言就是错综复杂的，不光会引起颈肩部的一些症状，还可能引起一些其它疾病的。这些看似与颈椎病绝不相关，实则都是由于颈椎病所引起的并发症，到底颈椎病所引起的并发症都有哪些呢？</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

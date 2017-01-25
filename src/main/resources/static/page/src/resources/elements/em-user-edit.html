@@ -1,0 +1,28 @@
+<template>
+    <require from="./em-user-edit.css"></require>
+    <em-modal classes="small em-user-edit-modal" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)" confirm-label="更新">
+        <div slot="header">个人信息编辑</div>
+        <div slot="content" class="tms-em-user-edit">
+            <div ref="frm" class="ui form">
+                <div class="ui form" with.bind="user">
+                    <div class="inline field">
+                        <label>用户名:</label>
+                        <div class="ui basic label user-username">${username}</div>
+                    </div>
+                    <div class="inline field">
+                        <label>密码:</label>
+                        <input name="password" value.bind="password" placeholder="密码" type="text">
+                    </div>
+                    <div class="required inline field">
+                        <label>姓名:</label>
+                        <input name="name" value.bind="name" placeholder="姓名" type="text">
+                    </div>
+                    <div class="required inline field">
+                        <label>邮箱:</label>
+                        <input name="mail" value.bind="mails" placeholder="邮箱" type="text">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </em-modal>
+</template>

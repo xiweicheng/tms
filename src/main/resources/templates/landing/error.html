@@ -1,0 +1,44 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <link rel="icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <title>TMS - 错误页面</title>
+    <!-- Bootstrap core CSS -->
+    <link th:href="@{/lib/bootstrap/css/bootstrap.min.css}" href="../../static/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link th:href="@{/lib/scrollup/css/themes/image.css}" href="../../static/lib/scrollup/css/themes/image.css" rel="stylesheet" type="text/css" />
+    <!-- Add custom CSS here -->
+    <link th:href="@{/landing/css/custom.css}" href="../../static/landing/css/custom.css" rel="stylesheet" />
+    <!-- JavaScript -->
+    <script th:src="@{/lib/jquery-1.11.1.min.js}" src="../../static/lib/jquery-1.11.1.min.js" charset="utf-8"></script>
+    <script th:src="@{/lib/bootstrap/js/bootstrap.min.js}" src="../../static/lib/bootstrap/js/bootstrap.min.js" charset="utf-8"></script>
+    <script th:src="@{/lib/scrollup/js/jquery.scrollUp.min.js}" src="../../static/lib/scrollup/js/jquery.scrollUp.min.js" charset="utf-8"></script>
+    <script th:src="@{/landing/js/custom.js}" src="../../static/landing/js/custom.js" charset="utf-8"></script>
+</head>
+
+<body>
+    <div th:replace="landing/index :: header"></div>
+    <div class="container lhjz-content">
+        <div class="panel panel-default lhjz-article-body">
+            <div class="panel-heading">
+                <h3 class="panel-title">错误信息</h3>
+            </div>
+            <div class="panel-body">
+                <div class="alert alert-danger">
+                    <strong>哎呀,出错了!</strong>
+                    <p th:text="${error.message}">错误信息!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="landing/index :: footer"></div>
+    <div th:include="landing/template :: page-common"></div>
+</body>
+
+</html>

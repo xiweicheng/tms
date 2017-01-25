@@ -1,0 +1,99 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" href="">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>TMS-系统设置</title>
+    <link rel="icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../../static/lib/semantic/semantic.min.css" />
+    <link rel="stylesheet" th:href="@{/lib/toastr/toastr.css}" href="../../static/lib/toastr/toastr.css" />
+    <script th:replace="admin/template :: baiduTongji"></script>
+</head>
+
+<body>
+    <div th:replace="admin/index :: sidebar-menu"></div>
+    <div th:replace="admin/index :: top-fixed-menu"></div>
+    <div class="pusher ad-index-content">
+        <div class="ad-index-container">
+            <div th:replace="admin/index :: rail-menu"></div>
+            <div id="context">
+                <div style="height:70px;"></div>
+                <div class="ui celled grid" style="margin-top: 0;">
+                    <div class="three wide column">
+                        <div class="ui fluid vertical pointing menu">
+                            <a class="active item"><i class="mail icon"></i> 邮箱服务设置</a>
+                        </div>
+                    </div>
+                    <div class="thirteen wide stretched column">
+                        <div class="ui basic segment">
+                            <div class="ui form fm-mail-setting">
+                                <div class="required field">
+                                    <label>主机</label>
+                                    <input type="text" name="host" th:value="${mail.host}" />
+                                </div>
+                                <div class="required field">
+                                    <label>端口</label>
+                                    <input type="text" name="port" th:value="${mail.port}" />
+                                </div>
+                                <div class="required field">
+                                    <label>用户名</label>
+                                    <input type="text" name="username" th:value="${mail.username}" />
+                                </div>
+                                <div class="required field">
+                                    <label>密码</label>
+                                    <input type="password" name="password" th:value="${mail.password}" />
+                                </div>
+                                <div class="field">
+                                    <label>测试邮箱</label>
+                                    <input type="text" name="addr" />
+                                </div>
+                                <div class="ui button btn-test-setting">发送测试邮件</div>
+                                <div class="ui blue submit button btn-save-setting">
+                                    保存
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:include="admin/template :: ad-page-common"></div>
+    <script type="text/javascript" th:src="@{/admin/js/deps-base.js}" src="../../static/admin/js/deps-base.js"></script>
+    <script type="text/javascript" th:src="@{/admin/js/admin.js}" src="../../static/admin/js/admin.js"></script>
+    <script type="text/javascript">
+    jQuery(function($) {
+
+        var baseURL = Utils.getBaseURL();
+
+        $('.button.btn-test-setting').click(function(event) {
+            $.post('admin/setting/mail/test', Utils.formData('.ui.form.fm-mail-setting'), function(data, textStatus, xhr) {
+                if (data.success) {
+                    toastr.success('测试邮件发送成功!');
+                } else {
+                    toastr.error(data.data, '测试邮件发送失败!');
+                }
+            });
+        });
+
+        $('.button.btn-save-setting').click(function(event) {
+            $.post('admin/setting/mail/createOrUpdate', Utils.formData('.ui.form.fm-mail-setting'), function(data, textStatus, xhr) {
+                if (data.success) {
+                    toastr.success('保存成功!');
+                } else {
+                    toastr.error(data.data, '保存失败!');
+                }
+            });
+        });
+
+    });
+    </script>
+</body>
+
+</html>
