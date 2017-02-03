@@ -44,15 +44,15 @@ public class MailSender {
 
 	@Value("${lhjz.mail.to.addresses}")
 	private String toAddrArr;
-	@Value("${lhjz.mail.server.host}")
+	@Value("${spring.mail.host}")
 	private String serverHost;
-	@Value("${lhjz.mail.server.port}")
+	@Value("${spring.mail.port}")
 	private String serverPort;
-	@Value("${lhjz.mail.sender.username}")
+	@Value("${spring.mail.username}")
 	private String username;
-	@Value("${lhjz.mail.sender.password}")
+	@Value("${spring.mail.password}")
 	private String password;
-	@Value("${lhjz.mail.sender.from.address}")
+	@Value("${spring.mail.username}")
 	private String fromAddr;
 
 	/**

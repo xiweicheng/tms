@@ -9,7 +9,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
-import org.testng.annotations.Test;
 
 import com.lhjz.portal.Application;
 
@@ -19,7 +18,7 @@ public class MailSenderTest extends AbstractTestNGSpringContextTests {
 	@Autowired
 	MailSender mailSender;
 
-	@Test
+	// @Test
 	public void sendHtml() throws MessagingException {
 
 		SimpleMailMessage message = new SimpleMailMessage();

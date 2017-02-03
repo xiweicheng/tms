@@ -57,9 +57,6 @@ public class FeedbackController extends BaseController {
 	@Autowired
 	MailSender2 mailSender;
 
-	@Value("${lhjz.mail.switch}")
-	private String mailSwitch;
-
 	@Value("${lhjz.mail.to.addresses}")
 	private String toAddrArr;
 
