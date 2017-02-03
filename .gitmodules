@@ -1,4 +1,4 @@
 [submodule "src/main/resources/static/page"]
 	path = src/main/resources/static/page
-	url = http://xiweicheng@220.248.17.34:7990/scm/step/tms-sub-page.git
+	url = https://github.com/xiweicheng/tms-frontend.git
 	branch = master
