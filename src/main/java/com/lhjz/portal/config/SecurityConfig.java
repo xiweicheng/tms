@@ -4,6 +4,8 @@
 package com.lhjz.portal.config;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.servlet.ServletException;
@@ -36,7 +38,9 @@ import com.lhjz.portal.component.AjaxAwareLoginUrlAuthenticationEntryPoint;
 import com.lhjz.portal.component.AjaxSimpleUrlAuthenticationFailureHandler;
 import com.lhjz.portal.component.AjaxSimpleUrlLogoutSuccessHandler;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.util.JsonUtil;
 import com.lhjz.portal.util.WebUtil;
 
 /**
@@ -231,14 +235,10 @@ public class SecurityConfig {
 				Authentication authentication) throws IOException, ServletException {
 
 			UserDetails uds = (UserDetails) authentication.getPrincipal();
-			// WebAuthenticationDetails wauth = (WebAuthenticationDetails)
-			// authentication
-			// .getDetails();
 
 			User loginUser = userRepository.findOne(uds.getUsername());
 			if (loginUser != null) {
 				loginUser.setLastLoginDate(new Date());
-				// loginUser.setLoginRemoteAddress(wauth.getRemoteAddress());
 				loginUser.setLoginRemoteAddress(WebUtil.getIpAddr(request));
 
 				long loginCount = loginUser.getLoginCount();
@@ -246,11 +246,21 @@ public class SecurityConfig {
 
 				userRepository.saveAndFlush(loginUser);
 			}
+			
+			if (Arrays.asList("XMLHttpRequest|fetch".split("\\|")).contains(request.getHeader("X-Requested-With"))) {
+				this.clearAuthenticationAttributes(request);
+				// 对于ajax请求不重定向
+				response.setContentType("application/json");
+				try (PrintWriter writer = response.getWriter();) {
+					writer.print(JsonUtil.toJson(RespBody.succeed()));
+					writer.flush();
+				}
+			} else {
+				this.setDefaultTargetUrl("/admin");
+				this.setAlwaysUseDefaultTargetUrl(false);
 
-			this.setDefaultTargetUrl("/admin");
-			this.setAlwaysUseDefaultTargetUrl(false);
-
-			super.onAuthenticationSuccess(request, response, authentication);
+				super.onAuthenticationSuccess(request, response, authentication);
+			}
 
 		}
 
