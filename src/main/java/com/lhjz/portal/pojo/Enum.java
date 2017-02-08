@@ -64,4 +64,8 @@ public class Enum {
 	public static enum SettingType {
 		Mail;
 	}
+	
+	public static enum ToType {
+		Channel, User;
+	}
 }

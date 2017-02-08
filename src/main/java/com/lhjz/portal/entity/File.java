@@ -26,6 +26,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.pojo.Enum.FileType;
 import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.pojo.Enum.ToType;
 
 /**
  * 
@@ -52,6 +53,11 @@ public class File implements Serializable {
 	private String username;
 	@NotBlank
 	private String path;
+	
+	@Enumerated(EnumType.STRING)
+	private ToType toType;
+	
+	private String toId;
 
 	@Enumerated(EnumType.STRING)
 	private FileType type;
@@ -135,6 +141,22 @@ public class File implements Serializable {
 		this.path = path;
 	}
 
+	public ToType getToType() {
+		return toType;
+	}
+
+	public void setToType(ToType toType) {
+		this.toType = toType;
+	}
+
+	public String getToId() {
+		return toId;
+	}
+
+	public void setToId(String toId) {
+		this.toId = toId;
+	}
+
 	public FileType getType() {
 		return type;
 	}
@@ -153,10 +175,9 @@ public class File implements Serializable {
 
 	@Override
 	public String toString() {
-		return "File [id=" + id + ", name=" + name + ", uuidName=" + uuidName
-				+ ", username=" + username + ", path=" + path + ", type="
-				+ type + ", status=" + status + ", createDate=" + createDate
-				+ ", version=" + version + "]";
+		return "File [id=" + id + ", name=" + name + ", uuidName=" + uuidName + ", username=" + username + ", path="
+				+ path + ", toType=" + toType + ", toId=" + toId + ", type=" + type + ", status=" + status
+				+ ", createDate=" + createDate + ", version=" + version + "]";
 	}
 
 }

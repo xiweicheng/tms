@@ -44,6 +44,7 @@ import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.FileType;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
+import com.lhjz.portal.pojo.Enum.ToType;
 import com.lhjz.portal.pojo.FileForm;
 import com.lhjz.portal.repository.FileRepository;
 import com.lhjz.portal.util.FileUtil;
@@ -139,7 +140,8 @@ public class FileController extends BaseController {
 	@RequestMapping(value = "upload", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody upload(HttpServletRequest request,
-			HttpServletResponse response, Model model, Locale locale,
+			@RequestParam(value="toType", required = false) String toType, // Channel | User
+			@RequestParam(value="toId", required = false) String toId, // channelId | username
 			@RequestParam("file") MultipartFile[] files) {
 
 		logger.debug("upload file start...");
@@ -223,6 +225,12 @@ public class FileController extends BaseController {
 				file2.setUuidName(uuidName);
 				file2.setPath(path2);
 				file2.setType(fileType);
+				
+				if(StringUtil.isNotEmpty(toType)) {
+					file2.setToType(ToType.valueOf(toType));
+					file2.setToId(toId);
+				}
+				
 				saveFiles.add(fileRepository.save(file2));
 
 				log(Action.Upload, Target.File, file2.getId());
@@ -241,6 +249,8 @@ public class FileController extends BaseController {
 	@RequestMapping(value = "base64", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody base64(HttpServletRequest request,
+			@RequestParam(value="toType", required = false) String toType, // Channel | User
+			@RequestParam(value="toId", required = false) String toId, // channelId | username
 			@RequestParam("dataURL") String dataURL,
 			@RequestParam("type") String type) {
 
@@ -303,6 +313,12 @@ public class FileController extends BaseController {
 			file2.setUsername(WebUtil.getUsername());
 			file2.setUuidName(uuidName);
 			file2.setPath(storePath + sizeOriginal + "/");
+			
+			if(StringUtil.isNotEmpty(toType)) {
+				file2.setToType(ToType.valueOf(toType));
+				file2.setToId(toId);
+			}
+			
 			com.lhjz.portal.entity.File file = fileRepository.save(file2);
 
 			log(Action.Upload, Target.File, file2.getId());

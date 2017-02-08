@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 
 import com.lhjz.portal.pojo.Enum.Prop;
 import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.pojo.Enum.ToType;
 
 public class CommonUtilTest {
 
@@ -74,6 +75,15 @@ public class CommonUtilTest {
 	public void split() {
 		System.out.println(Arrays.asList("XMLHttpRequest|fetch".split("\\|"))
 				.contains("fetch"));
+	}
+	
+	@Test
+	public void toType() {
+		System.out.println(ToType.valueOf("Channel"));
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(ToType.valueOf("Channel"));
 	}
 
 	// public static void main(String[] args) {
