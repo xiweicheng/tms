@@ -313,6 +313,7 @@ public class FileController extends BaseController {
 			file2.setUsername(WebUtil.getUsername());
 			file2.setUuidName(uuidName);
 			file2.setPath(storePath + sizeOriginal + "/");
+			file2.setType(FileType.Image);
 			
 			if(StringUtil.isNotEmpty(toType)) {
 				file2.setToType(ToType.valueOf(toType));
