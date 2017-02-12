@@ -421,7 +421,7 @@ public class FileController extends BaseController {
 
 	@RequestMapping(value = "listByChannel", method = RequestMethod.GET)
 	@ResponseBody
-	public RespBody listByChannel(@RequestParam("name") String name, @RequestParam("name") String type,
+	public RespBody listByChannel(@RequestParam("name") String name, @RequestParam("type") String type,
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
@@ -433,7 +433,7 @@ public class FileController extends BaseController {
 
 	@RequestMapping(value = "listByUser", method = RequestMethod.GET)
 	@ResponseBody
-	public RespBody listByUser(@RequestParam("name") String name, @RequestParam("name") String type,
+	public RespBody listByUser(@RequestParam("name") String name, @RequestParam("type") String type,
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
