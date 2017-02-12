@@ -26,6 +26,10 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -413,5 +417,29 @@ public class FileController extends BaseController {
 				bos.close();
 			}
 		}
+	}
+
+	@RequestMapping(value = "listByChannel", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody listByChannel(@RequestParam("name") String name, @RequestParam("name") String type,
+			@RequestParam(value = "search", defaultValue = "") String search,
+			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
+
+		Page<com.lhjz.portal.entity.File> files = fileRepository.findByToTypeAndToIdAndTypeAndNameContaining(
+				ToType.Channel, name, FileType.valueOf(type), search, pageable);
+
+		return RespBody.succeed(files);
+	}
+
+	@RequestMapping(value = "listByUser", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody listByUser(@RequestParam("name") String name, @RequestParam("name") String type,
+			@RequestParam(value = "search", defaultValue = "") String search,
+			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
+
+		Page<com.lhjz.portal.entity.File> files = fileRepository.findByToTypeAndUsernameAndToIdAndTypeAndNameContaining(
+				ToType.User, WebUtil.getUsername(), name, FileType.valueOf(type), search, pageable);
+
+		return RespBody.succeed(files);
 	}
 }
