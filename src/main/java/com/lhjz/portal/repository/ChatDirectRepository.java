@@ -74,4 +74,8 @@ public interface ChatDirectRepository extends JpaRepository<ChatDirect, Long> {
 	// 其他人 -> 我 & 我 -> 其他人
 	@Query(value = "SELECT COUNT(*) FROM `chat_direct` WHERE ((creator = ?1) OR (chat_to = ?1)) AND content LIKE ?2", nativeQuery = true)
 	long countAboutMe(User user, String search);
+	
+	@Query(value = "SELECT * FROM chat_direct WHERE creator = ?1 AND content LIKE ?2", nativeQuery = true)
+	List<ChatDirect> queryByCreatorAndContentLike(String creator, String contentLike);
+	
 }
