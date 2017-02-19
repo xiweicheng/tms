@@ -72,4 +72,16 @@ public class Enum {
 	public static enum LinkType {
 		Channel, User, App;
 	}
+	
+	public static enum ScheduleType {
+		Task, Meeting;
+	}
+	
+	public static enum SchedulePriority {
+		High, Middle, Low;
+	}
+	
+	public static enum ScheduleKnowStatus {
+		Yes, No;
+	}
 }

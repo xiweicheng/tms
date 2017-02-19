@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.Chat;
 import com.lhjz.portal.entity.Project;
+import com.lhjz.portal.entity.Schedule;
 import com.lhjz.portal.entity.Translate;
 import com.lhjz.portal.pojo.Enum.Status;
 
@@ -105,6 +106,11 @@ public class User implements java.io.Serializable, Comparable<User> {
 	@ManyToMany
 	@JoinTable(name = "member_channel", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "channel_id") })
 	private Set<Channel> joinChannels = new HashSet<Channel>();
+	
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "actor_schedule", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "schedule_id") })
+	private Set<Schedule> actSchedules = new HashSet<Schedule>();
 
 	public User() {
 	}
@@ -281,6 +287,14 @@ public class User implements java.io.Serializable, Comparable<User> {
 
 	public void setJoinChannels(Set<Channel> joinChannels) {
 		this.joinChannels = joinChannels;
+	}
+
+	public Set<Schedule> getActSchedules() {
+		return actSchedules;
+	}
+
+	public void setActSchedules(Set<Schedule> actSchedules) {
+		this.actSchedules = actSchedules;
 	}
 
 	@Override
