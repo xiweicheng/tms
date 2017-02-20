@@ -72,13 +72,24 @@ public class ScheduleController extends BaseController {
 		schedule.setTitle(scheduleForm.getTitle());
 		schedule.setDescription(scheduleForm.getDescription());
 		schedule.setPlace(scheduleForm.getPlace());
-		schedule.setChannel(channelRepository.findOne(scheduleForm.getChannelId()));
+
+		if (scheduleForm.getChannelId() != null) {
+			schedule.setChannel(channelRepository.findOne(scheduleForm.getChannelId()));
+		}
+
 		schedule.setStartDate(scheduleForm.getStartDate());
 		schedule.setEndDate(scheduleForm.getEndDate());
-		schedule.setPriority(SchedulePriority.valueOf(scheduleForm.getPriority()));
+
+		if (StringUtil.isNotEmpty(scheduleForm.getPriority())) {
+			schedule.setPriority(SchedulePriority.valueOf(scheduleForm.getPriority()));
+		}
+
 		schedule.setPrivated(scheduleForm.getPrivated());
 		schedule.setRemind(scheduleForm.getRemind());
-		schedule.setType(ScheduleType.valueOf(scheduleForm.getType()));
+
+		if (StringUtil.isNotEmpty(scheduleForm.getType())) {
+			schedule.setType(ScheduleType.valueOf(scheduleForm.getType()));
+		}
 
 		Schedule schedule2 = scheduleRepository.saveAndFlush(schedule);
 

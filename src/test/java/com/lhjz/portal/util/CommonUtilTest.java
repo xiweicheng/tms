@@ -8,6 +8,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.lhjz.portal.pojo.Enum.Prop;
+import com.lhjz.portal.pojo.Enum.SchedulePriority;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.ToType;
 
@@ -84,6 +85,7 @@ public class CommonUtilTest {
 	
 	public static void main(String[] args) {
 		System.out.println(ToType.valueOf("Channel"));
+		System.out.println(SchedulePriority.Middle.name());
 	}
 
 	// public static void main(String[] args) {

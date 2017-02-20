@@ -4,6 +4,9 @@ import java.util.Date;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.lhjz.portal.pojo.Enum.SchedulePriority;
+import com.lhjz.portal.pojo.Enum.ScheduleType;
+
 public class ScheduleForm {
 
 	@NotBlank(message = "计划内容不能为空！")
@@ -11,12 +14,12 @@ public class ScheduleForm {
 	private String description;
 	private String place;
 	private Boolean privated = Boolean.FALSE;
-	private String type;
-	private String priority;
+	private String type = ScheduleType.Task.name();
+	private String priority = SchedulePriority.Middle.name();
 	private Long channelId;
 	private Date startDate;
 	private Date endDate;
-	private Long remind; // 单位:分钟
+	private Long remind = 10L; // 单位:分钟
 	private String actors;
 
 	public String getTitle() {
