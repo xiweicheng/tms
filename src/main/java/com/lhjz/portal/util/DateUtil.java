@@ -73,6 +73,10 @@ public final class DateUtil {
 	 * @return
 	 */
 	public static String format(Date date, String format) {
+		
+		if(date == null) {
+			return DateUtil.EMPTY;
+		}
 
 		dateFormat.applyPattern(format);
 

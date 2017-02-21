@@ -3,7 +3,9 @@
  */
 package com.lhjz.portal.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,6 +26,7 @@ import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender2;
 import com.lhjz.portal.entity.Schedule;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.SchedulePriority;
 import com.lhjz.portal.pojo.Enum.ScheduleType;
@@ -32,7 +35,11 @@ import com.lhjz.portal.pojo.ScheduleForm;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ScheduleRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.util.DateUtil;
+import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
+import com.lhjz.portal.util.TemplateUtil;
+import com.lhjz.portal.util.ThreadUtil;
 
 /**
  * 
@@ -61,7 +68,7 @@ public class ScheduleController extends BaseController {
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody create(@Valid ScheduleForm scheduleForm, BindingResult bindingResult) {
+	public RespBody create(@RequestParam("basePath") final String basePath, @Valid ScheduleForm scheduleForm, BindingResult bindingResult) {
 
 		if (bindingResult.hasErrors()) {
 			return RespBody.failed(bindingResult.getAllErrors().stream().map(err -> err.getDefaultMessage())
@@ -93,16 +100,41 @@ public class ScheduleController extends BaseController {
 
 		Schedule schedule2 = scheduleRepository.saveAndFlush(schedule);
 
+		final Mail mail = Mail.instance();
 		String[] actors = scheduleForm.getActors().split(",");
+		List<String> names = new ArrayList<>();
 		Stream.of(actors).forEach((actor) -> {
 			User user = userRepository.findOne(actor);
 			user.getActSchedules().add(schedule2);
 
 			User user2 = userRepository.saveAndFlush(user);
 			schedule2.getActors().add(user2);
+			
+			mail.addUsers(user);
+			names.add(StringUtil.isNotEmpty(user2.getName()) ? user2.getName() : user2.getUsername());
 		});
 
-		// TODO 向参与者邮件提醒
+		final User loginUser = getLoginUser();
+		final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule.getStartDate(), DateUtil.FORMAT1) + " - "
+				+ DateUtil.format(schedule.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
+				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + schedule.getTitle() + "</p>";
+
+		ThreadUtil.exec(() -> {
+
+			try {
+				Thread.sleep(3000);
+				mailSender.sendHtml(
+						String.format("TMS-日程创建消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", basePath, "title", "下面创建的日程的参与者中有你", "content", html)),
+						mail.get());
+				logger.info("日程创建邮件发送成功！");
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("日程创建邮件发送失败！");
+			}
+
+		});
 
 		return RespBody.succeed(schedule2);
 	}
@@ -130,13 +162,11 @@ public class ScheduleController extends BaseController {
 
 	@RequestMapping(value = "update", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody update(@RequestParam("id") Long id, @RequestParam(value = "title", required = false) String title,
+	public RespBody update(@RequestParam("basePath") final String basePath, @RequestParam("id") Long id, 
+			@RequestParam(value = "title", required = false) String title,
 			@RequestParam(value = "desc", required = false) String desc,
 			@RequestParam(value = "place", required = false) String place,
-			@RequestParam(value = "startDate", required = false) Date startDate,
-			@RequestParam(value = "endDate", required = false) Date endDate,
 			@RequestParam(value = "priority", required = false) String priority,
-			@RequestParam(value = "remind", required = false) Long remind,
 			@RequestParam(value = "privated", required = false) Boolean privated) {
 
 		Schedule schedule = scheduleRepository.findOne(id);
@@ -145,36 +175,81 @@ public class ScheduleController extends BaseController {
 			return RespBody.failed("您没有权限修改该计划!");
 		}
 
-		if (StringUtil.isNotEmpty(title)) {
+		boolean updated = false;
+
+		if (StringUtil.isNotEmpty(title) && !title.equals(schedule.getTitle())) {
 			schedule.setTitle(title);
+			updated = true;
 		}
 
-		if (desc != null) {
+		if (desc != null && !desc.equals(schedule.getDescription())) {
 			schedule.setDescription(desc);
+			updated = true;
 		}
 
-		if (place != null) {
+		if (place != null && !place.equals(schedule.getPlace())) {
 			schedule.setPlace(place);
+			updated = true;
 		}
 
-		if (StringUtil.isNotEmpty(priority)) {
+		if (StringUtil.isNotEmpty(priority) && !priority.equals(schedule.getPriority().name())) {
 			schedule.setPriority(SchedulePriority.valueOf(priority));
+			updated = true;
 		}
 
-		if (privated != null) {
+		if (privated != null && !privated.equals(schedule.getPrivated())) {
 			schedule.setPrivated(privated);
+			updated = true;
 		}
 
 		Schedule schedule2 = scheduleRepository.saveAndFlush(schedule);
 
-		// TODO 向参与者邮件提醒
+		if (updated) {
+			final Mail mail = Mail.instance();
+			List<String> names = new ArrayList<>();
+			schedule2.getActors().stream().forEach((actor) -> {
+				mail.addUsers(actor);
+				names.add(StringUtil.isNotEmpty(actor.getName()) ? actor.getName() : actor.getUsername());
+			});
+
+			final User loginUser = getLoginUser();
+			final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule2.getStartDate(), DateUtil.FORMAT1) + " - "
+					+ DateUtil.format(schedule2.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
+					+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + schedule2.getTitle() + "</p>";
+
+			ThreadUtil.exec(() -> {
+
+				try {
+					Thread.sleep(3000);
+					mailSender.sendHtml(String.format("TMS-日程更新消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", basePath, "title", "下面你参与的日程有更新", "content", html)),
+							mail.get());
+					logger.info("日程更新邮件发送成功！");
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("日程更新邮件发送失败！");
+				}
+
+			});
+		}
 
 		return RespBody.succeed(schedule2);
+	}
+	
+	private boolean isDateEql(Date d1, Date d2) {
+
+		if (d1 == null) {
+			return d1 == d2;
+		} else {
+			return d1.equals(d2);
+		}
 	}
 
 	@RequestMapping(value = "updateStartEndDate", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody updateStartEndDate(@RequestParam("id") Long id,
+	public RespBody updateStartEndDate(@RequestParam("basePath") final String basePath, 
+			@RequestParam("id") Long id,
 			@RequestParam(value = "startDate", required = false) Date startDate,
 			@RequestParam(value = "endDate", required = false) Date endDate) {
 
@@ -184,19 +259,56 @@ public class ScheduleController extends BaseController {
 			return RespBody.failed("您没有权限修改该计划!");
 		}
 
-		schedule.setStartDate(startDate);
-		schedule.setEndDate(endDate);
+		boolean updated = false;
+
+		if (!isDateEql(schedule.getStartDate(), startDate)) {
+			schedule.setStartDate(startDate);
+			updated = true;
+		}
+
+		if (!isDateEql(schedule.getEndDate(), endDate)) {
+			schedule.setEndDate(endDate);
+			updated = true;
+		}
 
 		Schedule schedule2 = scheduleRepository.saveAndFlush(schedule);
 
-		// TODO 向参与者邮件提醒
+		if (updated) {
+			final Mail mail = Mail.instance();
+			List<String> names = new ArrayList<>();
+			schedule2.getActors().stream().forEach((actor) -> {
+				mail.addUsers(actor);
+				names.add(StringUtil.isNotEmpty(actor.getName()) ? actor.getName() : actor.getUsername());
+			});
+
+			final User loginUser = getLoginUser();
+			final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule2.getStartDate(), DateUtil.FORMAT1) + " - "
+					+ DateUtil.format(schedule2.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
+					+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + schedule2.getTitle() + "</p>";
+
+			ThreadUtil.exec(() -> {
+
+				try {
+					Thread.sleep(3000);
+					mailSender.sendHtml(String.format("TMS-日程更新消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", basePath, "title", "下面你参与的日程有更新", "content", html)),
+							mail.get());
+					logger.info("日程更新邮件发送成功！");
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("日程更新邮件发送失败！");
+				}
+
+			});
+		}
 
 		return RespBody.succeed(schedule2);
 	}
 
 	@RequestMapping(value = "updateRemind", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody updateRemind(@RequestParam("id") Long id,
+	public RespBody updateRemind(@RequestParam("basePath") final String basePath, @RequestParam("id") Long id,
 			@RequestParam(value = "remind", required = false) Long remind) {
 
 		Schedule schedule = scheduleRepository.findOne(id);
@@ -216,7 +328,8 @@ public class ScheduleController extends BaseController {
 
 	@RequestMapping(value = "addActors", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody addActors(@RequestParam("id") Long id, @RequestParam("actors") String actors) {
+	public RespBody addActors(@RequestParam("basePath") final String basePath, 
+			@RequestParam("id") Long id, @RequestParam("actors") String actors) {
 
 		Schedule schedule = scheduleRepository.findOne(id);
 
@@ -224,6 +337,7 @@ public class ScheduleController extends BaseController {
 			return RespBody.failed("您没有权限修改该计划!");
 		}
 
+		final Mail mail = Mail.instance();
 		Stream.of(actors.split(",")).forEach((actor) -> {
 			User user = userRepository.findOne(actor);
 
@@ -232,16 +346,41 @@ public class ScheduleController extends BaseController {
 			User user2 = userRepository.saveAndFlush(user);
 
 			schedule.getActors().add(user2);
+			mail.addUsers(user);
 		});
 
-		// TODO 向参与者邮件提醒
+		List<String> names = new ArrayList<>();
+		schedule.getActors().stream().forEach((actor) -> {
+			names.add(StringUtil.isNotEmpty(actor.getName()) ? actor.getName() : actor.getUsername());
+		});
+
+		final User loginUser = getLoginUser();
+		final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule.getStartDate(), DateUtil.FORMAT1) + " - "
+				+ DateUtil.format(schedule.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
+				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + schedule.getTitle() + "</p>";
+
+		ThreadUtil.exec(() -> {
+
+			try {
+				Thread.sleep(3000);
+				mailSender.sendHtml(String.format("TMS-日程添加参与者消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", basePath, "title", "下面日程的参与者中加入了你", "content", html)),
+						mail.get());
+				logger.info("日程邮件发送成功！");
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("日程邮件发送失败！");
+			}
+
+		});
 
 		return RespBody.succeed(schedule);
 	}
 
 	@RequestMapping(value = "removeActors", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody removeActors(@RequestParam("id") Long id, @RequestParam("actors") String actors) {
+	public RespBody removeActors(@RequestParam("basePath") final String basePath, @RequestParam("id") Long id, @RequestParam("actors") String actors) {
 
 		Schedule schedule = scheduleRepository.findOne(id);
 
@@ -249,6 +388,7 @@ public class ScheduleController extends BaseController {
 			return RespBody.failed("您没有权限修改该计划!");
 		}
 
+		final Mail mail = Mail.instance();
 		Stream.of(actors.split(",")).forEach((actor) -> {
 			User user = userRepository.findOne(actor);
 
@@ -257,16 +397,42 @@ public class ScheduleController extends BaseController {
 			User user2 = userRepository.saveAndFlush(user);
 
 			schedule.getActors().remove(user2);
+			mail.addUsers(user);
 		});
 
-		// TODO 向参与者邮件提醒
+		List<String> names = new ArrayList<>();
+		schedule.getActors().stream().forEach((actor) -> {
+			names.add(StringUtil.isNotEmpty(actor.getName()) ? actor.getName() : actor.getUsername());
+		});
+
+		final User loginUser = getLoginUser();
+		final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule.getStartDate(), DateUtil.FORMAT1) + " - "
+				+ DateUtil.format(schedule.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
+				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + schedule.getTitle() + "</p>";
+
+		ThreadUtil.exec(() -> {
+
+			try {
+				Thread.sleep(3000);
+				mailSender.sendHtml(String.format("TMS-日程移除参与者消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", basePath, "title", "下面日程将你从参与者中移除", "content", html)),
+						mail.get());
+				logger.info("日程邮件发送成功！");
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("日程邮件发送失败！");
+			}
+
+		});
 
 		return RespBody.succeed(schedule);
 	}
 
 	@RequestMapping(value = "delete", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody delete(@RequestParam("id") Long id) {
+	public RespBody delete(@RequestParam("basePath") final String basePath, 
+			@RequestParam("id") Long id) {
 
 		Schedule schedule = scheduleRepository.findOne(id);
 
@@ -278,7 +444,33 @@ public class ScheduleController extends BaseController {
 
 		scheduleRepository.saveAndFlush(schedule);
 
-		// TODO 向参与者邮件提醒
+		final Mail mail = Mail.instance();
+		List<String> names = new ArrayList<>();
+		schedule.getActors().stream().forEach((actor) -> {
+			mail.addUsers(actor);
+			names.add(StringUtil.isNotEmpty(actor.getName()) ? actor.getName() : actor.getUsername());
+		});
+
+		final User loginUser = getLoginUser();
+		final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule.getStartDate(), DateUtil.FORMAT1) + " - "
+				+ DateUtil.format(schedule.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
+				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + schedule.getTitle() + "</p>";
+
+		ThreadUtil.exec(() -> {
+
+			try {
+				Thread.sleep(3000);
+				mailSender.sendHtml(String.format("TMS-日程删除消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", basePath, "title", "下面日程被取消并且删除", "content", html)),
+						mail.get());
+				logger.info("日程邮件发送成功！");
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("日程邮件发送失败！");
+			}
+
+		});
 
 		return RespBody.succeed(id);
 	}
