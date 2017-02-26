@@ -43,6 +43,7 @@ import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatAtRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
+import com.lhjz.portal.repository.ScheduleRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
@@ -78,6 +79,9 @@ public class ChatChannelController extends BaseController {
 
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	ScheduleRepository scheduleRepository;
 
 	@Autowired
 	MailSender2 mailSender;
@@ -605,7 +609,9 @@ public class ChatChannelController extends BaseController {
 				
 		long cntAtUserNew = chatAtRepository.countChatChannelAtUserNew(WebUtil
 				.getUsername());
+		
+		long countMyRecentSchedule = scheduleRepository.countRecentScheduleByUser(WebUtil.getUsername());
 
-		return RespBody.succeed(new Poll(channelId, lastChatChannelId, isAt, cnt, cntAtUserNew));
+		return RespBody.succeed(new Poll(channelId, lastChatChannelId, isAt, cnt, cntAtUserNew, countMyRecentSchedule));
 	}
 }

@@ -10,18 +10,20 @@ public class Poll implements Serializable {
 	private Boolean isAt;
 	private Long countRecent;
 	private Long countAt;
+	private Long countMyRecentSchedule;
 
 	public Poll() {
 		super();
 	}
 
-	public Poll(Long channelId, Long lastChatChannelId, Boolean isAt, Long countRecent, Long countAt) {
+	public Poll(Long channelId, Long lastChatChannelId, Boolean isAt, Long countRecent, Long countAt, Long countMyRecentSchedule) {
 		super();
 		this.channelId = channelId;
 		this.lastChatChannelId = lastChatChannelId;
 		this.isAt = isAt;
 		this.countRecent = countRecent;
 		this.countAt = countAt;
+		this.countMyRecentSchedule = countMyRecentSchedule;
 	}
 
 	public Long getChannelId() {
@@ -63,5 +65,14 @@ public class Poll implements Serializable {
 	public void setCountAt(Long countAt) {
 		this.countAt = countAt;
 	}
+
+	public Long getCountMyRecentSchedule() {
+		return countMyRecentSchedule;
+	}
+
+	public void setCountMyRecentSchedule(Long countMyRecentSchedule) {
+		this.countMyRecentSchedule = countMyRecentSchedule;
+	}
+	
 
 }
