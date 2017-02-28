@@ -125,13 +125,13 @@ public class SecurityConfig {
 
 			// @formatter:off
 			http
-				.antMatcher("/admin/**")
-					.authorizeRequests()
-				.anyRequest()
+				.authorizeRequests()
+				.antMatchers("/admin/**", "/api/**")
 					.authenticated()
 				.and()
 					.exceptionHandling()
 					.authenticationEntryPoint(authenticationEntryPoint())
+				.and().httpBasic()
 				.and()
 					.formLogin()
 					.loginPage("/admin/login")

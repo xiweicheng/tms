@@ -22,4 +22,6 @@ public interface ChannelRepository extends JpaRepository<Channel, Long> {
 	@Query(value = "SELECT channel.* FROM channel INNER JOIN chat_channel ON channel.id = chat_channel.channel WHERE content LIKE ?1", nativeQuery = true)
 	List<Channel> queryChannelByContentLike(String conentLike);
 	
+	Channel findOneByName(String name);
+	
 }
