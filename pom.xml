@@ -163,6 +163,11 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+		    <groupId>io.github.gitbucket</groupId>
+		    <artifactId>markedj</artifactId>
+		    <version>1.0.9</version>
+		</dependency>
 	</dependencies>
 
 	<build>
