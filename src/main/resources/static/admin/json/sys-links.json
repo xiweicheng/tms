@@ -1,15 +1,15 @@
 {
     "links": [{
         "title": "JIRA",
-        "href": "http://220.248.17.34:7991/",
+        "href": "http://jira00.sh1.newtouch.com/",
         "disabled": false
     }, {
         "title": "Confluence",
-        "href": "http://220.248.17.34:7992/",
+        "href": "http://wiki00.sh1.newtouch.com/",
         "disabled": false
     }, {
         "title": "Stash",
-        "href": "http://220.248.17.34:7990/",
+        "href": "http://stash0.sh1.newtouch.com/",
         "disabled": false
     }, {
         "title": "Jenkins",
@@ -22,7 +22,7 @@
     }, {
         "title": "Console(开发)",
         "href": "http://220.248.17.34:8063/",
-        "disabled": false
+        "disabled": true
     }, {
         "title": "Console(测试)",
         "href": "http://hd3.console.newtouchwork.com/",
