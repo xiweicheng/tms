@@ -140,16 +140,16 @@ jQuery(function($) {
 
     // 初始化系统外链
     if ($('.tms-sys-links').size() === 1) {
-        $.get('/admin/json/sys-links.json', function(data) {
-            $.each(data.links, function(index, item) {
-                if (!item.disabled) {
+        $.get('/admin/link/listByApp', (data) => {
+            if (data.success) {
+                $.each(data.data, function(index, item) {
                     var $item = $('<a target="_blank" class="item"></a>')
                         .attr('href', item.href)
                         .html(item.title);
 
                     $('.tms-sys-links').append($item);
-                }
-            });
+                });
+            }
         });
     }
 

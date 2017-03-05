@@ -60,11 +60,12 @@
                             <span>退出 </span>
                             <form class="hidden" th:action="@{/admin/logout}" action="" method="post"></form>
                         </a>
-                        <a th:if="${user != null}" th:href="@{/admin/dynamic(scroll=${'1'})}">
+                        <a th:if="${user != null}" th:href="@{/admin}">
                             <i class="user icon" style="margin-right: 0px;"></i>
                             <span th:text="${#strings.isEmpty(user.name) ? user.username : user.name}">Admin</span>
                         </a>
                         <a th:if="${user == null}" href="/page/index.html#/register">注册</a>
+                        <a th:href="@{/page/index.html}"><i class="talk icon"></i>沟通</a>
                     </div>
                     <div class="chat">
                         <div class="ui minimal comments" style="display:none;">
