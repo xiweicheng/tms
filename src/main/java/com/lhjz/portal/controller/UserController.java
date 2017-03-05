@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -82,6 +83,9 @@ public class UserController extends BaseController {
 
 	@Autowired
 	GroupMemberRepository groupMemberRepository;
+	
+	@Value("${tms.base.url}")
+	private String baseUrl;
 
 	String loginAction = "admin/login";
 
@@ -159,7 +163,7 @@ public class UserController extends BaseController {
 							TemplateUtil.process("templates/mail/user-create",
 									MapUtil.objArr2Map("user", userForm2,
 											"userRole", userRole, "href", href,
-											"loginUrl", loginUrl)),
+											"loginUrl", loginUrl, "baseUrl", baseUrl)),
 							mail.get());
 					logger.info("创建用户邮件发送成功！");
 				} catch (Exception e) {
