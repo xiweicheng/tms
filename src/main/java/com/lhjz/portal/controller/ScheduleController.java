@@ -117,7 +117,7 @@ public class ScheduleController extends BaseController {
 		final User loginUser = getLoginUser();
 		final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule.getStartDate(), DateUtil.FORMAT1) + " - "
 				+ DateUtil.format(schedule.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
-				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + StringUtil.nl2br(schedule.getTitle()) + "</p>";
+				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> <br/>" + StringUtil.nl2br(schedule.getTitle()) + "</p>";
 
 		ThreadUtil.exec(() -> {
 
@@ -215,7 +215,7 @@ public class ScheduleController extends BaseController {
 			final User loginUser = getLoginUser();
 			final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule2.getStartDate(), DateUtil.FORMAT1) + " - "
 					+ DateUtil.format(schedule2.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
-					+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + StringUtil.nl2br(schedule2.getTitle()) + "</p>";
+					+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> <br/>" + StringUtil.nl2br(schedule2.getTitle()) + "</p>";
 
 			ThreadUtil.exec(() -> {
 
@@ -284,7 +284,7 @@ public class ScheduleController extends BaseController {
 			final User loginUser = getLoginUser();
 			final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule2.getStartDate(), DateUtil.FORMAT1) + " - "
 					+ DateUtil.format(schedule2.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
-					+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + StringUtil.nl2br(schedule2.getTitle()) + "</p>";
+					+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> <br/>" + StringUtil.nl2br(schedule2.getTitle()) + "</p>";
 
 			ThreadUtil.exec(() -> {
 
@@ -357,7 +357,7 @@ public class ScheduleController extends BaseController {
 		final User loginUser = getLoginUser();
 		final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule.getStartDate(), DateUtil.FORMAT1) + " - "
 				+ DateUtil.format(schedule.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
-				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + StringUtil.nl2br(schedule.getTitle()) + "</p>";
+				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> <br/>" + StringUtil.nl2br(schedule.getTitle()) + "</p>";
 
 		ThreadUtil.exec(() -> {
 
@@ -408,7 +408,7 @@ public class ScheduleController extends BaseController {
 		final User loginUser = getLoginUser();
 		final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule.getStartDate(), DateUtil.FORMAT1) + " - "
 				+ DateUtil.format(schedule.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
-				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + StringUtil.nl2br(schedule.getTitle()) + "</p>";
+				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> <br/>" + StringUtil.nl2br(schedule.getTitle()) + "</p>";
 
 		ThreadUtil.exec(() -> {
 
@@ -454,7 +454,7 @@ public class ScheduleController extends BaseController {
 		final User loginUser = getLoginUser();
 		final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule.getStartDate(), DateUtil.FORMAT1) + " - "
 				+ DateUtil.format(schedule.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
-				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> " + StringUtil.nl2br(schedule.getTitle()) + "</p>";
+				+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> <br/>" + StringUtil.nl2br(schedule.getTitle()) + "</p>";
 
 		ThreadUtil.exec(() -> {
 
