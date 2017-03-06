@@ -539,5 +539,13 @@ public final class StringUtil {
 		sb.append("</div>");
 		return sb.toString();
 	}
+	
+	public static String nl2br(String content) {
+		if(StringUtil.isNotEmpty(content)) {
+			return content.replaceAll("\n", "<br/>");
+		}
+		
+		return content;
+	}
 
 }

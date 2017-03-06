@@ -83,6 +83,12 @@ public class CommonUtilTest {
 		System.out.println(ToType.valueOf("Channel"));
 	}
 	
+	@Test
+	public void newLine() {
+		System.out.println("11111\r\n22222\r\n33333");
+		System.out.println("11111\r\n22222\r\n33333".replaceAll("\n", "<br/>"));
+	}
+	
 	public static void main(String[] args) {
 		System.out.println(ToType.valueOf("Channel"));
 		System.out.println(SchedulePriority.Middle.name());
