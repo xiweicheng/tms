@@ -202,9 +202,8 @@ public class ScheduleController extends BaseController {
 			updated = true;
 		}
 
-		Schedule schedule2 = scheduleRepository.saveAndFlush(schedule);
-
 		if (updated) {
+			Schedule schedule2 = scheduleRepository.saveAndFlush(schedule);
 			final Mail mail = Mail.instance();
 			List<String> names = new ArrayList<>();
 			schedule2.getActors().stream().forEach((actor) -> {
@@ -232,9 +231,74 @@ public class ScheduleController extends BaseController {
 				}
 
 			});
+			return RespBody.succeed(schedule2);
+		}
+		return RespBody.failed("无变更内容!");
+	}
+	
+	@RequestMapping(value = "update2", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody update2(@RequestParam("basePath") final String basePath, @RequestParam("id") Long id, 
+			@RequestParam(value = "title", required = false) String title,
+			@RequestParam(value = "startDate", required = false) Date startDate,
+			@RequestParam(value = "endDate", required = false) Date endDate) {
+		
+		Schedule schedule = scheduleRepository.findOne(id);
+		
+		if (!isSuperOrCreator(schedule.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限修改该计划!");
+		}
+		
+		boolean updated = false;
+		
+		if (StringUtil.isNotEmpty(title) && !title.equals(schedule.getTitle())) {
+			schedule.setTitle(title);
+			updated = true;
+		}
+		
+		if (!isDateEql(schedule.getStartDate(), startDate)) {
+			schedule.setStartDate(startDate);
+			updated = true;
 		}
 
-		return RespBody.succeed(schedule2);
+		if (!isDateEql(schedule.getEndDate(), endDate)) {
+			schedule.setEndDate(endDate);
+			updated = true;
+		}
+		
+		if (updated) {
+			Schedule schedule2 = scheduleRepository.saveAndFlush(schedule);
+			final Mail mail = Mail.instance();
+			List<String> names = new ArrayList<>();
+			schedule2.getActors().stream().forEach((actor) -> {
+				mail.addUsers(actor);
+				names.add(StringUtil.isNotEmpty(actor.getName()) ? actor.getName() : actor.getUsername());
+			});
+			
+			final User loginUser = getLoginUser();
+			final String html = "<p><b>起止时间:</b> " + DateUtil.format(schedule2.getStartDate(), DateUtil.FORMAT1) + " - "
+					+ DateUtil.format(schedule2.getEndDate(), DateUtil.FORMAT1) + "<hr/>" + "<b>参与者:</b> "
+					+ StringUtil.join(",", names) + "<hr/>" + "<b>日程内容:</b> <br/>" + StringUtil.nl2br(schedule2.getTitle()) + "</p>";
+			
+			ThreadUtil.exec(() -> {
+				
+				try {
+					Thread.sleep(3000);
+					mailSender.sendHtml(String.format("TMS-日程更新消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", basePath, "title", "下面你参与的日程有更新", "content", html)),
+							mail.get());
+					logger.info("日程更新邮件发送成功！");
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("日程更新邮件发送失败！");
+				}
+				
+			});
+			return RespBody.succeed(schedule2);
+		}
+		
+		return RespBody.failed("无变更内容!");
 	}
 	
 	private boolean isDateEql(Date d1, Date d2) {
@@ -271,9 +335,8 @@ public class ScheduleController extends BaseController {
 			updated = true;
 		}
 
-		Schedule schedule2 = scheduleRepository.saveAndFlush(schedule);
-
 		if (updated) {
+			Schedule schedule2 = scheduleRepository.saveAndFlush(schedule);
 			final Mail mail = Mail.instance();
 			List<String> names = new ArrayList<>();
 			schedule2.getActors().stream().forEach((actor) -> {
@@ -301,9 +364,9 @@ public class ScheduleController extends BaseController {
 				}
 
 			});
+			return RespBody.succeed(schedule2);
 		}
-
-		return RespBody.succeed(schedule2);
+		return RespBody.failed("无变更内容!");
 	}
 
 	@RequestMapping(value = "updateRemind", method = RequestMethod.POST)
