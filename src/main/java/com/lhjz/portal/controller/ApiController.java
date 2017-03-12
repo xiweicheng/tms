@@ -64,7 +64,7 @@ public class ApiController extends BaseController {
 
 	@RequestMapping(value = "channel/jenkins/send", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody create(@RequestParam("channel") String channel,
+	public RespBody sendChannelJenkinsMsg(@RequestParam("channel") String channel,
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
 			@RequestBody String reqBody) {
@@ -127,6 +127,59 @@ public class ApiController extends BaseController {
 			});
 		}
 
+		return RespBody.succeed();
+	}
+	
+	@RequestMapping(value = "channel/send", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody sendChannelMsg(@RequestParam("channel") String channel,
+			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
+			@RequestBody String reqBody) {
+		
+		Channel channel2 = channelRepository.findOneByName(channel);
+		if (channel2 == null) {
+			return RespBody.failed("发送消息目的频道不存在!");
+		}
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append("## 来自第三方应用推送的消息").append(SysConstant.NEW_LINE);
+		sb.append("> **消息内容:** ").append(SysConstant.NEW_LINE);
+		sb.append("```").append(SysConstant.NEW_LINE);
+		sb.append(reqBody);
+		sb.append("```").append(SysConstant.NEW_LINE);
+		
+		ChatChannel chatChannel = new ChatChannel();
+		chatChannel.setChannel(channel2);
+		chatChannel.setContent(sb.toString());
+		
+		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
+		
+		if (mail) {
+			final Mail mail2 = Mail.instance();
+			final User loginUser = getLoginUser();
+			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
+			channel2.getMembers().forEach(item -> mail2.addUsers(item));
+			
+			final String html = StringUtil.md2Html(sb.toString());
+			
+			ThreadUtil.exec(() -> {
+				
+				try {
+					Thread.sleep(3000);
+					mailSender.sendHtml(
+							String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
+							mail2.get());
+					logger.info("沟通频道来自第三方应用推送的消息邮件发送成功！");
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("沟通频道来自第三方应用推送的消息邮件发送失败！");
+				}
+				
+			});
+		}
+		
 		return RespBody.succeed();
 	}
 
