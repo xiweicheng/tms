@@ -25,6 +25,10 @@ public class Enum {
 		Wiki, Msg;
 	}
 	
+	public static enum BlogType {
+		Team, Own;
+	}
+	
 	public static enum ChannelType {
 		Common;
 	}
@@ -66,7 +70,7 @@ public class Enum {
 	}
 	
 	public static enum ToType {
-		Channel, User;
+		Channel, User, Blog;
 	}
 	
 	public static enum LinkType {

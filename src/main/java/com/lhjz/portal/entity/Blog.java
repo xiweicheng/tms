@@ -26,7 +26,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.lhjz.portal.entity.security.User;
-import com.lhjz.portal.pojo.Enum.ChatType;
+import com.lhjz.portal.pojo.Enum.BlogType;
 import com.lhjz.portal.pojo.Enum.Status;
 
 /**
@@ -81,7 +81,7 @@ public class Blog implements Serializable {
 
 	@Enumerated(EnumType.STRING)
 	@Column
-	private ChatType type = ChatType.Msg;
+	private BlogType type = BlogType.Own;
 
 	@Column(length = 16777216)
 	private String voteZan;
@@ -128,7 +128,7 @@ public class Blog implements Serializable {
 		return title;
 	}
 
-	public ChatType getType() {
+	public BlogType getType() {
 		return type;
 	}
 
@@ -192,7 +192,7 @@ public class Blog implements Serializable {
 		this.title = title;
 	}
 
-	public void setType(ChatType type) {
+	public void setType(BlogType type) {
 		this.type = type;
 	}
 
