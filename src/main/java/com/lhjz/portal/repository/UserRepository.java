@@ -27,5 +27,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 	List<User> findByMails(String mail);
 
 	User findOneByResetPwdToken(String token);
+	
+	List<User> findTop6ByUsernameContainingAndEnabledTrue(String username);
 
 }

@@ -6,7 +6,9 @@ package com.lhjz.portal.controller;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender2;
 import com.lhjz.portal.entity.Blog;
+import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
@@ -33,6 +36,7 @@ import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
 import com.lhjz.portal.repository.BlogRepository;
+import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
@@ -56,6 +60,9 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	BlogRepository blogRepository;
+
+	@Autowired
+	ChannelRepository channelRepository;
 
 	@Autowired
 	UserRepository userRepository;
@@ -258,6 +265,17 @@ public class BlogController extends BaseController {
 
 		Blog blog = blogRepository.findOne(id);
 
+		if (blog == null || Status.Deleted.equals(blog.getStatus())) {
+			return RespBody.failed("博文消息不存在或者已经被删除!");
+		}
+
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			// TODO 权限可见用户判断
+			if (blog.getPrivated()) {
+				return RespBody.failed("您没有权限查看该博文!");
+			}
+		}
+
 		return RespBody.succeed(blog);
 	}
 
@@ -384,6 +402,75 @@ public class BlogController extends BaseController {
 		log(Action.Vote, Target.ChatChannel, blog.getId(), blog2);
 
 		return RespBody.succeed(blog2);
+	}
+
+	@RequestMapping(value = "share/to/search", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody searchShareTo(@RequestParam("search") String search) {
+
+		if (StringUtil.isEmpty(search)) {
+			return RespBody.failed("检索条件不能为空!");
+		}
+
+		Map<String, Object> map = new HashMap<>();
+
+		List<User> users = userRepository.findTop6ByUsernameContainingAndEnabledTrue(search);
+		List<Channel> channels = channelRepository.findTop6ByNameContainingAndStatusNot(search, Status.Deleted);
+
+		map.put("users", users);
+		map.put("channels", channels);
+
+		return RespBody.succeed(map);
+	}
+
+	@RequestMapping(value = "share", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody share(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
+			@RequestParam("html") String html, @RequestParam(value = "desc", required = false) String desc,
+			@RequestParam(value = "users", required = false) String users,
+			@RequestParam(value = "channels", required = false) String channels) {
+
+		final User loginUser = getLoginUser();
+
+		final String href = basePath + "#/blog/" + id;
+		final String html2 = html;
+		final String title = StringUtil.isNotEmpty(desc) ? desc : "下面的博文有分享到你";
+
+		Mail mail = Mail.instance();
+		if (StringUtil.isNotEmpty(users)) {
+			Stream.of(users.split(",")).forEach(username -> {
+				User user = getUser(username);
+				mail.addUsers(user);
+			});
+		}
+		if (StringUtil.isNotEmpty(channels)) {
+			Stream.of(channels.split(",")).forEach(name -> {
+				Channel channel = channelRepository.findOneByName(name);
+				if (channel != null) {
+					channel.getMembers().forEach(user -> {
+						mail.addUsers(user);
+					});
+				}
+			});
+		}
+
+		ThreadUtil.exec(() -> {
+
+			try {
+				Thread.sleep(3000);
+				mailSender
+						.sendHtml(String.format("TMS-博文分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+								TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user",
+										loginUser, "date", new Date(), "href", href, "title", title, "content", html2)),
+								mail.get());
+				logger.info("博文分享邮件发送成功！");
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("博文分享邮件发送失败！");
+			}
+
+		});
+		return RespBody.succeed();
 	}
 
 }
