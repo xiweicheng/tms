@@ -497,8 +497,10 @@ public class BlogController extends BaseController {
 		final User loginUser = getLoginUser();
 
 		final String href = basePath + "#/blog/" + id + "?cid=" + comment2.getId();
+		
+		Blog blog = blogRepository.findOne(id);
 
-		Mail mail = Mail.instance().addUsers(loginUser);
+		Mail mail = Mail.instance().addUsers(blog.getCreator());
 		if (StringUtil.isNotEmpty(users)) {
 			Stream.of(users.split(",")).forEach(username -> {
 				User user = getUser(username);
@@ -522,6 +524,68 @@ public class BlogController extends BaseController {
 
 		});
 
+		return RespBody.succeed(comment2);
+	}
+	
+	@RequestMapping(value = "comment/update", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody updateComment(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
+			@RequestParam("cid") Long cid,
+			@RequestParam("version") Long version,
+			@RequestParam("content") String content, @RequestParam("contentHtml") final String contentHtml,
+			@RequestParam("diff") final String diff,
+			@RequestParam(value = "users", required = false) String users) {
+		
+		// TODO 博文权限判断
+		
+		Comment comment = commentRepository.findOne(cid);
+		
+		if(comment == null) {
+			return RespBody.failed("修改博文评论不存在,可能已经被删除!");
+		}
+		
+		if (!isSuperOrCreator(comment.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限编辑该博文评论!");
+		}
+		
+		if (comment.getVersion() != version.longValue()) {
+			return RespBody.failed("该博文评论已经被其他人更新,请刷新页面重新编辑提交!");
+		}
+		
+		comment.setContent(content);
+		
+		Comment comment2 = commentRepository.saveAndFlush(comment);
+		
+		final User loginUser = getLoginUser();
+		
+		final String href = basePath + "#/blog/" + id + "?cid=" + comment2.getId();
+		
+		Blog blog = blogRepository.findOne(id);
+
+		Mail mail = Mail.instance().addUsers(blog.getCreator());
+		if (StringUtil.isNotEmpty(users)) {
+			Stream.of(users.split(",")).forEach(username -> {
+				User user = getUser(username);
+				mail.addUsers(user);
+			});
+		}
+		
+		ThreadUtil.exec(() -> {
+			
+			try {
+				Thread.sleep(3000);
+				mailSender.sendHtml(String.format("TMS-博文评论更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", "下面更新博文评论涉及到你", "content", contentHtml)),
+						mail.get());
+				logger.info("博文评论更新邮件发送成功！");
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("博文评论更新邮件发送失败！");
+			}
+			
+		});
+		
 		return RespBody.succeed(comment2);
 	}
 
