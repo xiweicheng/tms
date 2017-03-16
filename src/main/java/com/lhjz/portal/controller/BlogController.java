@@ -496,7 +496,7 @@ public class BlogController extends BaseController {
 
 		final User loginUser = getLoginUser();
 
-		final String href = basePath + "#/blog/" + id;
+		final String href = basePath + "#/blog/" + id + "?cid=" + comment2.getId();
 
 		Mail mail = Mail.instance().addUsers(loginUser);
 		if (StringUtil.isNotEmpty(users)) {
@@ -525,9 +525,9 @@ public class BlogController extends BaseController {
 		return RespBody.succeed(comment2);
 	}
 
-	@RequestMapping(value = "comment/list", method = RequestMethod.GET)
+	@RequestMapping(value = "comment/query", method = RequestMethod.GET)
 	@ResponseBody
-	public RespBody createComment(@RequestParam("id") Long id,
+	public RespBody queryComment(@RequestParam("id") Long id,
 			@PageableDefault(sort = { "id" }, direction = Direction.ASC) Pageable pageable) {
 
 		// TODO 博文权限判断
