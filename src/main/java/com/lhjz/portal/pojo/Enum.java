@@ -34,7 +34,7 @@ public class Enum {
 	}
 	
 	public static enum CommentType {
-		Reply;
+		Reply, Blog;
 	}
 	
 	public static enum Prop {

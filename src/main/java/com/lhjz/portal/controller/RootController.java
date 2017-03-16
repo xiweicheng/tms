@@ -41,7 +41,6 @@ import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.ChatType;
 import com.lhjz.portal.pojo.Enum.CommentType;
-import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
 import com.lhjz.portal.repository.ChatRepository;
@@ -184,9 +183,6 @@ public class RootController extends BaseController {
 		Comment comment = new Comment();
 		comment.setContent(content);
 		comment.setTargetId(String.valueOf(id));
-		comment.setCreateDate(new Date());
-		comment.setCreator(user);
-		comment.setStatus(Status.New);
 		comment.setType(CommentType.Reply);
 
 		Comment comment2 = commentRepository.saveAndFlush(comment);

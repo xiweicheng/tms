@@ -28,15 +28,18 @@ import com.lhjz.portal.component.MailSender2;
 import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
+import com.lhjz.portal.entity.Comment;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
+import com.lhjz.portal.pojo.Enum.CommentType;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
 import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.ChannelRepository;
+import com.lhjz.portal.repository.CommentRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
@@ -66,6 +69,9 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	UserRepository userRepository;
+
+	@Autowired
+	CommentRepository commentRepository;
 
 	@Autowired
 	MailSender2 mailSender;
@@ -471,6 +477,93 @@ public class BlogController extends BaseController {
 
 		});
 		return RespBody.succeed();
+	}
+
+	@RequestMapping(value = "comment/create", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody createComment(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
+			@RequestParam("content") String content, @RequestParam("contentHtml") final String contentHtml,
+			@RequestParam(value = "users", required = false) String users) {
+
+		// TODO 博文权限判断
+		
+		Comment comment = new Comment();
+		comment.setContent(content);
+		comment.setTargetId(String.valueOf(id));
+		comment.setType(CommentType.Blog);
+
+		Comment comment2 = commentRepository.saveAndFlush(comment);
+
+		final User loginUser = getLoginUser();
+
+		final String href = basePath + "#/blog/" + id;
+
+		Mail mail = Mail.instance().addUsers(loginUser);
+		if (StringUtil.isNotEmpty(users)) {
+			Stream.of(users.split(",")).forEach(username -> {
+				User user = getUser(username);
+				mail.addUsers(user);
+			});
+		}
+
+		ThreadUtil.exec(() -> {
+
+			try {
+				Thread.sleep(3000);
+				mailSender.sendHtml(String.format("TMS-博文评论_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", "下面博文评论涉及到你", "content", contentHtml)),
+						mail.get());
+				logger.info("博文评论邮件发送成功！");
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("博文评论邮件发送失败！");
+			}
+
+		});
+
+		return RespBody.succeed(comment2);
+	}
+
+	@RequestMapping(value = "comment/list", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody createComment(@RequestParam("id") Long id,
+			@PageableDefault(sort = { "id" }, direction = Direction.ASC) Pageable pageable) {
+
+		// TODO 博文权限判断
+		
+		Page<Comment> page = commentRepository.findByTargetIdAndStatusNot(String.valueOf(id), Status.Deleted, pageable);
+
+		return RespBody.succeed(page);
+	}
+
+	@RequestMapping(value = "comment/remove", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody removeComment(@RequestParam("cid") Long cid) {
+
+		Comment comment = commentRepository.findOne(cid);
+		if (comment != null) {
+
+			if (!isSuperOrCreator(comment.getCreator().getUsername())) {
+				return RespBody.failed("您没有权限删除该博文评论!");
+			}
+
+			comment.setStatus(Status.Deleted);
+			commentRepository.saveAndFlush(comment);
+		}
+
+		return RespBody.succeed(cid);
+	}
+
+	@RequestMapping(value = "comment/get", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody getComment(@RequestParam("cid") Long cid) {
+
+		Comment comment = commentRepository.findOne(cid);
+		
+		// TODO 博文权限判断
+
+		return RespBody.succeed(comment);
 	}
 
 }

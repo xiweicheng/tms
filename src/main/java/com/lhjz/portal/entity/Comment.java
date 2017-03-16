@@ -8,6 +8,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -17,6 +18,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
+
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.CommentType;
@@ -30,6 +37,7 @@ import com.lhjz.portal.pojo.Enum.Status;
  * 
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Comment implements Serializable {
 
 	private static final long serialVersionUID = -1213448577430547620L;
@@ -55,10 +63,12 @@ public class Comment implements Serializable {
 
 	@ManyToOne
 	@JoinColumn(name = "creator")
+	@CreatedBy
 	private User creator;
 
 	@ManyToOne
 	@JoinColumn(name = "updater")
+	@LastModifiedBy
 	private User updater;
 
 	@Enumerated(EnumType.STRING)
@@ -67,12 +77,14 @@ public class Comment implements Serializable {
 
 	@Enumerated(EnumType.STRING)
 	@Column
-	private CommentType type = CommentType.Reply;
+	private CommentType type = CommentType.Blog;
 
 	@Temporal(TemporalType.TIMESTAMP)
+	@CreatedDate
 	private Date createDate = new Date();
 
 	@Temporal(TemporalType.TIMESTAMP)
+	@LastModifiedDate
 	private Date updateDate;
 
 	@Version
