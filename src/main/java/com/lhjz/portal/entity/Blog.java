@@ -92,6 +92,10 @@ public class Blog implements Serializable {
 	private Integer voteZanCnt;
 
 	private Integer voteCaiCnt;
+	
+	@ManyToOne
+	@JoinColumn(name = "space")
+	private Space space;
 
 	@Version
 	private long version;
@@ -222,6 +226,14 @@ public class Blog implements Serializable {
 
 	public void setVoteZanCnt(Integer voteZanCnt) {
 		this.voteZanCnt = voteZanCnt;
+	}
+
+	public Space getSpace() {
+		return space;
+	}
+
+	public void setSpace(Space space) {
+		this.space = space;
 	}
 
 	@Override

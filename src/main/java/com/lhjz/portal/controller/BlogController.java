@@ -27,8 +27,8 @@ import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender2;
 import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.entity.Channel;
-import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.Comment;
+import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
@@ -40,6 +40,7 @@ import com.lhjz.portal.pojo.Enum.VoteType;
 import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.CommentRepository;
+import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
@@ -65,6 +66,9 @@ public class BlogController extends BaseController {
 	BlogRepository blogRepository;
 
 	@Autowired
+	SpaceRepository spaceRepository;
+
+	@Autowired
 	ChannelRepository channelRepository;
 
 	@Autowired
@@ -79,6 +83,8 @@ public class BlogController extends BaseController {
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody create(@RequestParam("url") String url,
+			@RequestParam(value = "spaceId", required = false) Long spaceId,
+			@RequestParam(value = "privated", required = false) Boolean privated,
 			@RequestParam(value = "usernames", required = false) String usernames, @RequestParam("title") String title,
 			@RequestParam("content") String content, @RequestParam("contentHtml") String contentHtml) {
 
@@ -93,6 +99,18 @@ public class BlogController extends BaseController {
 		Blog blog = new Blog();
 		blog.setTitle(title);
 		blog.setContent(content);
+
+		if (spaceId != null) {
+			Space space = spaceRepository.findOne(spaceId);
+			if (space == null) {
+				return RespBody.failed("指定空间不存在!");
+			}
+			blog.setSpace(space);
+		}
+
+		if (privated != null) {
+			blog.setPrivated(privated);
+		}
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 
@@ -140,7 +158,8 @@ public class BlogController extends BaseController {
 	@ResponseBody
 	public RespBody list(@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
-		Page<ChatChannel> page = blogRepository.findByStatusNot(Status.Deleted, pageable);
+		// TODO 过滤不可见博文
+		Page<Blog> page = blogRepository.findByStatusNot(Status.Deleted, pageable);
 
 		return RespBody.succeed(page);
 	}
@@ -294,7 +313,7 @@ public class BlogController extends BaseController {
 			return RespBody.failed("检索条件不能为空!");
 		}
 
-		Page<ChatChannel> page = blogRepository.findByTitleContainingOrContentContaining(search, search, pageable);
+		Page<Blog> page = blogRepository.findByTitleContainingOrContentContaining(search, search, pageable);
 
 		return RespBody.succeed(page);
 	}
@@ -486,7 +505,7 @@ public class BlogController extends BaseController {
 			@RequestParam(value = "users", required = false) String users) {
 
 		// TODO 博文权限判断
-		
+
 		Comment comment = new Comment();
 		comment.setContent(content);
 		comment.setTargetId(String.valueOf(id));
@@ -497,7 +516,7 @@ public class BlogController extends BaseController {
 		final User loginUser = getLoginUser();
 
 		final String href = basePath + "#/blog/" + id + "?cid=" + comment2.getId();
-		
+
 		Blog blog = blogRepository.findOne(id);
 
 		Mail mail = Mail.instance().addUsers(blog.getCreator());
@@ -526,40 +545,38 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(comment2);
 	}
-	
+
 	@RequestMapping(value = "comment/update", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody updateComment(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
-			@RequestParam("cid") Long cid,
-			@RequestParam("version") Long version,
+			@RequestParam("cid") Long cid, @RequestParam("version") Long version,
 			@RequestParam("content") String content, @RequestParam("contentHtml") final String contentHtml,
-			@RequestParam("diff") final String diff,
-			@RequestParam(value = "users", required = false) String users) {
-		
+			@RequestParam("diff") final String diff, @RequestParam(value = "users", required = false) String users) {
+
 		// TODO 博文权限判断
-		
+
 		Comment comment = commentRepository.findOne(cid);
-		
-		if(comment == null) {
+
+		if (comment == null) {
 			return RespBody.failed("修改博文评论不存在,可能已经被删除!");
 		}
-		
+
 		if (!isSuperOrCreator(comment.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限编辑该博文评论!");
 		}
-		
+
 		if (comment.getVersion() != version.longValue()) {
 			return RespBody.failed("该博文评论已经被其他人更新,请刷新页面重新编辑提交!");
 		}
-		
+
 		comment.setContent(content);
-		
+
 		Comment comment2 = commentRepository.saveAndFlush(comment);
-		
+
 		final User loginUser = getLoginUser();
-		
+
 		final String href = basePath + "#/blog/" + id + "?cid=" + comment2.getId();
-		
+
 		Blog blog = blogRepository.findOne(id);
 
 		Mail mail = Mail.instance().addUsers(blog.getCreator());
@@ -569,9 +586,9 @@ public class BlogController extends BaseController {
 				mail.addUsers(user);
 			});
 		}
-		
+
 		ThreadUtil.exec(() -> {
-			
+
 			try {
 				Thread.sleep(3000);
 				mailSender.sendHtml(String.format("TMS-博文评论更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
@@ -583,9 +600,9 @@ public class BlogController extends BaseController {
 				e.printStackTrace();
 				logger.error("博文评论更新邮件发送失败！");
 			}
-			
+
 		});
-		
+
 		return RespBody.succeed(comment2);
 	}
 
@@ -595,7 +612,7 @@ public class BlogController extends BaseController {
 			@PageableDefault(sort = { "id" }, direction = Direction.ASC) Pageable pageable) {
 
 		// TODO 博文权限判断
-		
+
 		Page<Comment> page = commentRepository.findByTargetIdAndStatusNot(String.valueOf(id), Status.Deleted, pageable);
 
 		return RespBody.succeed(page);
@@ -624,10 +641,29 @@ public class BlogController extends BaseController {
 	public RespBody getComment(@RequestParam("cid") Long cid) {
 
 		Comment comment = commentRepository.findOne(cid);
-		
+
 		// TODO 博文权限判断
 
 		return RespBody.succeed(comment);
+	}
+
+	@RequestMapping(value = "space/update", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody updateSpace(@RequestParam("id") Long id, @RequestParam("sid") Long sid) {
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限修改该博文从属空间!");
+		}
+
+		Space space = spaceRepository.findOne(sid);
+
+		blog.setSpace(space);
+
+		Blog blog2 = blogRepository.saveAndFlush(blog);
+
+		return RespBody.succeed(blog2);
 	}
 
 }

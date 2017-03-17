@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.lhjz.portal.entity.Blog;
-import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.pojo.Enum.Status;
 
 /**
@@ -20,7 +19,7 @@ import com.lhjz.portal.pojo.Enum.Status;
  */
 public interface BlogRepository extends JpaRepository<Blog, Long> {
 
-	Page<ChatChannel> findByStatusNot(Status status, Pageable pageable);
+	Page<Blog> findByStatusNot(Status status, Pageable pageable);
 
-	Page<ChatChannel> findByTitleContainingOrContentContaining(String searchT, String searchC, Pageable pageable);
+	Page<Blog> findByTitleContainingOrContentContaining(String searchT, String searchC, Pageable pageable);
 }
