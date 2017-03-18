@@ -69,6 +69,13 @@ public class BlogHistory implements Serializable {
 	@LastModifiedDate
 	private Date updateDate;
 
+	@ManyToOne
+	@JoinColumn(name = "blogUpdater")
+	private User blogUpdater;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date blogUpdateDate;
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Status status = Status.New;
@@ -160,11 +167,28 @@ public class BlogHistory implements Serializable {
 		this.title = title;
 	}
 
+	public User getBlogUpdater() {
+		return blogUpdater;
+	}
+
+	public void setBlogUpdater(User blogUpdater) {
+		this.blogUpdater = blogUpdater;
+	}
+
+	public Date getBlogUpdateDate() {
+		return blogUpdateDate;
+	}
+
+	public void setBlogUpdateDate(Date blogUpdateDate) {
+		this.blogUpdateDate = blogUpdateDate;
+	}
+
 	@Override
 	public String toString() {
 		return "BlogHistory [id=" + id + ", title=" + title + ", content=" + content + ", creator=" + creator
-				+ ", updater=" + updater + ", createDate=" + createDate + ", updateDate=" + updateDate + ", status="
-				+ status + ", blog=" + blog + ", version=" + version + "]";
+				+ ", updater=" + updater + ", createDate=" + createDate + ", updateDate=" + updateDate
+				+ ", blogUpdater=" + blogUpdater + ", blogUpdateDate=" + blogUpdateDate + ", status=" + status
+				+ ", blog=" + blog + ", version=" + version + "]";
 	}
 
 }
