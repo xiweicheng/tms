@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -354,6 +355,13 @@ public class BlogController extends BaseController {
 
 		return isExits;
 	}
+	
+	private String calcVoters(String voters) {
+		
+		List<String> list = Stream.of(voters.split(",")).filter(v -> !v.equals(WebUtil.getUsername())).collect(Collectors.toList());
+		
+		return StringUtil.join(",", list);
+	}
 
 	@RequestMapping(value = "vote", method = RequestMethod.POST)
 	@ResponseBody
@@ -390,20 +398,14 @@ public class BlogController extends BaseController {
 			}
 
 		} else {
-			String voteCai = blog.getVoteCai();
-			if (isVoterExists(voteCai)) {
-				return RespBody.failed("您已经投票[踩]过！");
-			} else {
-				blog.setVoteCai(voteCai == null ? loginUsername : voteCai + ',' + loginUsername);
-
-				Integer voteCaiCnt = blog.getVoteCaiCnt();
-				if (voteCaiCnt == null) {
-					voteCaiCnt = 0;
-				}
-				blog.setVoteCaiCnt(++voteCaiCnt);
-
+			String voteZan = blog.getVoteZan();
+			if (isVoterExists(voteZan)) {
+				blog.setVoteZan(this.calcVoters(voteZan));
+				Integer voteZanCnt = blog.getVoteZanCnt();
+				blog.setVoteZanCnt(voteZanCnt == null ? 0 : voteZanCnt - 1);
+				
 				blog2 = blogRepository.saveAndFlush(blog);
-				title = loginUser.getName() + "[" + loginUsername + "]踩了你的博文消息!";
+				return RespBody.succeed(blog2);
 			}
 		}
 
@@ -428,7 +430,7 @@ public class BlogController extends BaseController {
 
 		});
 
-		log(Action.Vote, Target.ChatChannel, blog.getId(), blog2);
+		log(Action.Vote, Target.Blog, blog.getId(), blog2);
 
 		return RespBody.succeed(blog2);
 	}
