@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender2;
 import com.lhjz.portal.entity.Blog;
+import com.lhjz.portal.entity.BlogHistory;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.Comment;
 import com.lhjz.portal.entity.Space;
@@ -38,6 +39,7 @@ import com.lhjz.portal.pojo.Enum.CommentType;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
+import com.lhjz.portal.repository.BlogHistoryRepository;
 import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.CommentRepository;
@@ -65,6 +67,9 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	BlogRepository blogRepository;
+
+	@Autowired
+	BlogHistoryRepository blogHistoryRepository;
 
 	@Autowired
 	SpaceRepository spaceRepository;
@@ -211,12 +216,18 @@ public class BlogController extends BaseController {
 		}
 
 		if (isUpdated) {
+
+			BlogHistory blogHistory = new BlogHistory();
+			blogHistory.setBlog(blog);
+			blogHistory.setTitle(blog.getTitle());
+			blogHistory.setContent(blog.getContent());
+
+			blogHistoryRepository.saveAndFlush(blogHistory);
+
 			blog.setTitle(title);
 			blog.setContent(content);
 
 			Blog blog2 = blogRepository.saveAndFlush(blog);
-
-			// TODO version control
 
 			final User loginUser = getLoginUser();
 			final String href = url + "/#/blog/" + blog2.getId();
@@ -355,11 +366,12 @@ public class BlogController extends BaseController {
 
 		return isExits;
 	}
-	
+
 	private String calcVoters(String voters) {
-		
-		List<String> list = Stream.of(voters.split(",")).filter(v -> !v.equals(WebUtil.getUsername())).collect(Collectors.toList());
-		
+
+		List<String> list = Stream.of(voters.split(",")).filter(v -> !v.equals(WebUtil.getUsername()))
+				.collect(Collectors.toList());
+
 		return StringUtil.join(",", list);
 	}
 
@@ -403,7 +415,7 @@ public class BlogController extends BaseController {
 				blog.setVoteZan(this.calcVoters(voteZan));
 				Integer voteZanCnt = blog.getVoteZanCnt();
 				blog.setVoteZanCnt(voteZanCnt == null ? 0 : voteZanCnt - 1);
-				
+
 				blog2 = blogRepository.saveAndFlush(blog);
 				return RespBody.succeed(blog2);
 			}
@@ -683,6 +695,79 @@ public class BlogController extends BaseController {
 		}
 
 		blog.setPrivated(privated);
+
+		Blog blog2 = blogRepository.saveAndFlush(blog);
+
+		return RespBody.succeed(blog2);
+	}
+
+	@RequestMapping(value = "history/list", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody listHistory(@RequestParam("id") Long id) {
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (!isSuperOrCreator(blog.getCreator().getUsername()) && blog.getPrivated()) {
+			return RespBody.failed("您没有权限查看该博文可历史!");
+		}
+
+		List<BlogHistory> blogHistories = blogHistoryRepository.findByBlogAndStatusNot(blog, Status.Deleted);
+
+		return RespBody.succeed(blogHistories);
+	}
+
+	@RequestMapping(value = "history/get", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody getHistory(@RequestParam("hid") Long hid) {
+
+		BlogHistory blogHistory = blogHistoryRepository.findOne(hid);
+		Blog blog = blogHistory.getBlog();
+
+		if (!isSuperOrCreator(blog.getCreator().getUsername()) && blog.getPrivated()) {
+			return RespBody.failed("您没有权限查看该博文可历史!");
+		}
+
+		return RespBody.succeed(blogHistory);
+	}
+
+	@RequestMapping(value = "history/remove", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody removeHistory(@RequestParam("hid") Long hid) {
+
+		BlogHistory blogHistory = blogHistoryRepository.findOne(hid);
+		Blog blog = blogHistory.getBlog();
+
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限删除该博文历史!");
+		}
+
+		blogHistory.setStatus(Status.Deleted);
+
+		blogHistoryRepository.saveAndFlush(blogHistory);
+
+		return RespBody.succeed(hid);
+	}
+
+	@RequestMapping(value = "history/restore", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody restoreHistory(@RequestParam("hid") Long hid) {
+
+		BlogHistory blogHistory = blogHistoryRepository.findOne(hid);
+		Blog blog = blogHistory.getBlog();
+
+		Boolean isOpenEdit = blog.getOpenEdit() == null ? false : blog.getOpenEdit();
+		if (!isSuperOrCreator(blog.getCreator().getUsername()) && !isOpenEdit) {
+			return RespBody.failed("您没有权限还原该博文历史!");
+		}
+
+		BlogHistory blogHistory2 = new BlogHistory();
+		blogHistory2.setBlog(blog);
+		blogHistory2.setTitle(blog.getTitle());
+		blogHistory2.setContent(blog.getContent());
+
+		blogHistoryRepository.saveAndFlush(blogHistory2);
+
+		blog.setContent(blogHistory.getContent());
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 
