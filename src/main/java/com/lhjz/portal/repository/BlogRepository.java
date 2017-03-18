@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.lhjz.portal.entity.Blog;
+import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
 
 /**
@@ -22,4 +23,6 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	Page<Blog> findByStatusNot(Status status, Pageable pageable);
 
 	Page<Blog> findByTitleContainingOrContentContaining(String searchT, String searchC, Pageable pageable);
+	
+	Page<Blog> findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status status, User creator, Status status2, Pageable pageable);
 }

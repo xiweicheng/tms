@@ -159,7 +159,11 @@ public class BlogController extends BaseController {
 	public RespBody list(@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
 		// TODO 过滤不可见博文
-		Page<Blog> page = blogRepository.findByStatusNot(Status.Deleted, pageable);
+		// Page<Blog> page = blogRepository.findByStatusNot(Status.Deleted,
+		// pageable);
+		Page<Blog> page = blogRepository.findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status.Deleted,
+				getLoginUser(), Status.Deleted, pageable);
+		page.forEach(b -> b.setContent(null));
 
 		return RespBody.succeed(page);
 	}
@@ -647,9 +651,9 @@ public class BlogController extends BaseController {
 		return RespBody.succeed(comment);
 	}
 
-	@RequestMapping(value = "space/update", method = RequestMethod.GET)
+	@RequestMapping(value = "space/update", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody updateSpace(@RequestParam("id") Long id, @RequestParam("sid") Long sid) {
+	public RespBody updateSpace(@RequestParam("id") Long id, @RequestParam(value = "sid", required = false) Long sid) {
 
 		Blog blog = blogRepository.findOne(id);
 
@@ -657,9 +661,26 @@ public class BlogController extends BaseController {
 			return RespBody.failed("您没有权限修改该博文从属空间!");
 		}
 
-		Space space = spaceRepository.findOne(sid);
+		Space space = sid != null ? spaceRepository.findOne(sid) : null;
 
 		blog.setSpace(space);
+
+		Blog blog2 = blogRepository.saveAndFlush(blog);
+
+		return RespBody.succeed(blog2);
+	}
+
+	@RequestMapping(value = "privated/update", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody updatePrivated(@RequestParam("id") Long id, @RequestParam("privated") Boolean privated) {
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限修改该博文可见性!");
+		}
+
+		blog.setPrivated(privated);
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 
