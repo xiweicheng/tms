@@ -766,7 +766,8 @@ public class BlogController extends BaseController {
 		blogHistory2.setContent(blog.getContent());
 
 		blogHistoryRepository.saveAndFlush(blogHistory2);
-
+		
+		blog.setTitle(blogHistory.getTitle());
 		blog.setContent(blogHistory.getContent());
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
