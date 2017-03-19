@@ -697,6 +697,9 @@ public class BlogController extends BaseController {
 		}
 
 		blog.setPrivated(privated);
+		if (privated) {
+			blog.setOpenEdit(false);
+		}
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 
@@ -770,7 +773,7 @@ public class BlogController extends BaseController {
 		blogHistory2.setBlogUpdateDate(blog.getUpdateDate());
 
 		blogHistoryRepository.saveAndFlush(blogHistory2);
-		
+
 		blog.setTitle(blogHistory.getTitle());
 		blog.setContent(blogHistory.getContent());
 
