@@ -1,10 +1,14 @@
 package com.lhjz.portal.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import io.github.gitbucket.markedj.Marked;
 import io.github.gitbucket.markedj.Options;
@@ -547,5 +551,21 @@ public final class StringUtil {
 		
 		return content;
 	}
-
+	
+	public static String encodingFileName(String fileName) {
+		String returnFileName = "";
+		try {
+			returnFileName = URLEncoder.encode(fileName, "UTF-8");
+			returnFileName = StringUtils.replace(returnFileName, "+", "%20");
+			if (returnFileName.length() > 100) {
+				returnFileName = new String(fileName.getBytes("GBK"),
+						"ISO8859-1");
+				returnFileName = StringUtils.replace(returnFileName, " ",
+						"%20");
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return returnFileName;
+	}
 }

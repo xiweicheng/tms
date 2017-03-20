@@ -3,6 +3,13 @@
  */
 package com.lhjz.portal.controller;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,14 +18,20 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -64,6 +77,9 @@ import com.lhjz.portal.util.WebUtil;
 public class BlogController extends BaseController {
 
 	static Logger logger = LoggerFactory.getLogger(BlogController.class);
+	
+	@Value("${tms.blog.upload.path}")
+	private String uploadPath;
 
 	@Autowired
 	BlogRepository blogRepository;
@@ -780,6 +796,111 @@ public class BlogController extends BaseController {
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 
 		return RespBody.succeed(blog2);
+	}
+	
+
+	@RequestMapping(value = "download/{id}", method = RequestMethod.GET)
+	public void download(HttpServletRequest request,
+			HttpServletResponse response, @PathVariable Long id, @RequestParam(value = "type", defaultValue = "pdf") String type)
+			throws Exception {
+
+		logger.debug("download blog start...");
+		
+		Blog blog = blogRepository.findOne(id);
+
+		if (blog == null) {
+			try {
+				response.sendError(404, "下载博文不存在!");
+				return;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		// 获取网站部署路径(通过ServletContext对象)，用于确定下载文件位置，从而实现下载
+		String path = WebUtil.getRealPath(request);
+		
+		String blogUpdateDate = DateUtil.format(blog.getUpdateDate(), DateUtil.FORMAT9);
+		
+		String mdFileName = blog.getId() + "_" + blogUpdateDate + ".md";
+		String pdfFileName = blog.getId() + "_" + blogUpdateDate + ".pdf";
+		
+		String mdFilePath = path + uploadPath + mdFileName;
+		String pdfFilePath = path + uploadPath + pdfFileName;
+		
+		File fileMd = new File(mdFilePath);
+
+		if (!fileMd.exists()) {
+			try {
+				FileUtils.writeStringToFile(fileMd, blog.getContent(), "UTF-8");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		File filePdf = new File(pdfFilePath);
+		
+		if (!filePdf.exists()) {
+			try {
+				String pathNode = new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
+				
+				String nodeCmd = StringUtil.replace("node {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
+				logger.debug("Node CMD: " + nodeCmd);
+				Process process = Runtime.getRuntime().exec(nodeCmd);
+				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+				String s = null;
+				while ((s = bufferedReader.readLine()) != null) {
+					logger.debug(s);
+				}
+				process.waitFor();
+				logger.debug("Md2pdf done!");
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// 1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
+		// response.setContentType("multipart/form-data");
+		response.setContentType("application/x-msdownload;");
+		response.addHeader("Content-Type", "text/html; charset=utf-8");
+		String dnFileName = null;
+		String dnFileLength = null;
+		File dnFile = null;
+		if("md".equalsIgnoreCase(type)) {
+			dnFileName = blog.getTitle().trim() + ".md";
+			dnFileLength = String.valueOf(fileMd.length());
+			dnFile = fileMd;
+		} else {
+			dnFileName = blog.getTitle().trim() + ".pdf";
+			dnFileLength = String.valueOf(filePdf.length());
+			dnFile = filePdf;
+		}
+		// 2.设置文件头：最后一个参数是设置下载文件名
+		response.setHeader("Content-Disposition", "attachment; fileName="
+				+ StringUtil.encodingFileName(dnFileName));
+		response.setHeader("Content-Length", dnFileLength);
+
+		java.io.BufferedInputStream bis = null;
+		java.io.BufferedOutputStream bos = null;
+
+		try {
+			bis = new BufferedInputStream(new FileInputStream(dnFile));
+			bos = new BufferedOutputStream(response.getOutputStream());
+			byte[] buff = new byte[2048];
+			int bytesRead;
+			while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
+				bos.write(buff, 0, bytesRead);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (bis != null) {
+				bis.close();
+			}
+			if (bos != null) {
+				bos.close();
+			}
+		}
 	}
 
 }
