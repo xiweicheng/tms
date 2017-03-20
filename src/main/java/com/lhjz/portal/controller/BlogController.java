@@ -80,6 +80,9 @@ public class BlogController extends BaseController {
 	
 	@Value("${tms.blog.upload.path}")
 	private String uploadPath;
+	
+	@Value("${tms.blog.md2pdf.path}")
+	private String md2pdfPath;
 
 	@Autowired
 	BlogRepository blogRepository;
@@ -842,7 +845,7 @@ public class BlogController extends BaseController {
 		
 		if (!filePdf.exists()) {
 			try {
-				String pathNode = new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
+				String pathNode = StringUtil.isNotEmpty(md2pdfPath) ? md2pdfPath : new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
 				
 				String nodeCmd = StringUtil.replace("node {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
 				logger.debug("Node CMD: " + nodeCmd);
