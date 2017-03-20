@@ -565,6 +565,8 @@ public class BlogController extends BaseController {
 				mail.addUsers(user);
 			});
 		}
+		
+		final String html = "<h1 style=\"color: blue;\">评论博文: " + blog.getTitle() + "</h1><hr/>" + contentHtml;
 
 		ThreadUtil.exec(() -> {
 
@@ -572,7 +574,7 @@ public class BlogController extends BaseController {
 				Thread.sleep(3000);
 				mailSender.sendHtml(String.format("TMS-博文评论_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", "下面博文评论涉及到你", "content", contentHtml)),
+								"date", new Date(), "href", href, "title", "下面博文评论涉及到你", "content", html)),
 						mail.get());
 				logger.info("博文评论邮件发送成功！");
 			} catch (Exception e) {
@@ -625,6 +627,8 @@ public class BlogController extends BaseController {
 				mail.addUsers(user);
 			});
 		}
+		
+		final String html = "<h1 style=\"color: blue;\">评论博文: " + blog.getTitle() + "</h1><hr/>" + contentHtml;
 
 		ThreadUtil.exec(() -> {
 
@@ -632,7 +636,7 @@ public class BlogController extends BaseController {
 				Thread.sleep(3000);
 				mailSender.sendHtml(String.format("TMS-博文评论更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", "下面更新博文评论涉及到你", "content", contentHtml)),
+								"date", new Date(), "href", href, "title", "下面更新博文评论涉及到你", "content", html)),
 						mail.get());
 				logger.info("博文评论更新邮件发送成功！");
 			} catch (Exception e) {
