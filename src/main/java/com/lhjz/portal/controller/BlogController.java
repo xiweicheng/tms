@@ -566,7 +566,7 @@ public class BlogController extends BaseController {
 			});
 		}
 		
-		final String html = "<h1 style=\"color: blue;\">评论博文: " + blog.getTitle() + "</h1><hr/>" + contentHtml;
+		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
 
 		ThreadUtil.exec(() -> {
 
@@ -628,7 +628,7 @@ public class BlogController extends BaseController {
 			});
 		}
 		
-		final String html = "<h1 style=\"color: blue;\">评论博文: " + blog.getTitle() + "</h1><hr/>" + contentHtml;
+		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
 
 		ThreadUtil.exec(() -> {
 
