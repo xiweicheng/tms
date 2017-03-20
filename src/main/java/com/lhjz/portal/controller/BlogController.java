@@ -350,8 +350,8 @@ public class BlogController extends BaseController {
 			return RespBody.failed("检索条件不能为空!");
 		}
 
-//		Page<Blog> page = blogRepository.findByTitleContainingOrContentContaining(search, search, pageable);
-		Page<Blog> page = blogRepository.findByTitleContainingOrContentContainingAndStatusNotAndCreatorOrStatusNotAndPrivatedFalse(search, search, Status.Deleted, getLoginUser(), Status.Deleted, pageable);
+		Page<Blog> page = blogRepository.findByTitleContainingOrContentContaining(search, search, pageable);
+//		Page<Blog> page = blogRepository.findByTitleContainingOrContentContainingAndStatusNotAndCreatorOrStatusNotAndPrivatedFalse(search, search, Status.Deleted, getLoginUser(), Status.Deleted, pageable);
 
 		return RespBody.succeed(page);
 	}
