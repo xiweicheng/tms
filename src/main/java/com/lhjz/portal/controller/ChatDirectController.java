@@ -3,12 +3,24 @@
  */
 package com.lhjz.portal.controller;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,6 +66,12 @@ import com.lhjz.portal.util.WebUtil;
 public class ChatDirectController extends BaseController {
 
 	static Logger logger = LoggerFactory.getLogger(ChatDirectController.class);
+	
+	@Value("${tms.chat.direct.upload.path}")
+	private String uploadPath;
+	
+	@Value("${tms.blog.md2pdf.path}")
+	private String md2pdfPath;
 
 	@Autowired
 	ChatDirectRepository chatDirectRepository;
@@ -220,11 +239,23 @@ public class ChatDirectController extends BaseController {
 		return RespBody.succeed();
 	}
 	
+	boolean isCreatorOrChatter(ChatDirect chatDirect) {
+		User creator = chatDirect.getCreator();
+		User chatTo = chatDirect.getChatTo();
+		User loginUser = getLoginUser();
+
+		return (loginUser.equals(creator) || loginUser.equals(chatTo));
+	}
+	
 	@RequestMapping(value = "get", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody get(@RequestParam("id") Long id) {
 		
 		ChatDirect chatDirect = chatDirectRepository.findOne(id);
+		
+		if(!isCreatorOrChatter(chatDirect)) {
+			return RespBody.failed("没有权限查看该私聊消息!");
+		}
 		
 		return RespBody.succeed(chatDirect);
 	}
@@ -340,6 +371,124 @@ public class ChatDirectController extends BaseController {
 		Page<ChatDirect> page = new PageImpl<>(chats, pageable, cnt);
 
 		return RespBody.succeed(page);
+	}
+	
+
+	@RequestMapping(value = "download/{id}", method = RequestMethod.GET)
+	public void download(HttpServletRequest request,
+			HttpServletResponse response, @PathVariable Long id, @RequestParam(value = "type", defaultValue = "pdf") String type)
+			throws Exception {
+
+		logger.debug("download direct chat start...");
+		
+		ChatDirect chatDirect = chatDirectRepository.findOne(id);
+
+		if (chatDirect == null) {
+			try {
+				response.sendError(404, "下载私聊消息不存在!");
+				return;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if(!isCreatorOrChatter(chatDirect)) {
+			try {
+				response.sendError(401, "没有权限下载该私聊消息!");
+				return;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		// 获取网站部署路径(通过ServletContext对象)，用于确定下载文件位置，从而实现下载
+		String path = WebUtil.getRealPath(request);
+		
+		String blogUpdateDate = DateUtil.format(chatDirect.getUpdateDate(), DateUtil.FORMAT9);
+		
+		String mdFileName = chatDirect.getId() + "_" + blogUpdateDate + ".md";
+		String pdfFileName = chatDirect.getId() + "_" + blogUpdateDate + ".pdf";
+		
+		String mdFilePath = path + uploadPath + mdFileName;
+		String pdfFilePath = path + uploadPath + pdfFileName;
+		
+		File fileMd = new File(mdFilePath);
+
+		if (!fileMd.exists()) {
+			try {
+				FileUtils.writeStringToFile(fileMd, chatDirect.getContent(), "UTF-8");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		File filePdf = new File(pdfFilePath);
+		
+		if (!filePdf.exists()) {
+			try {
+				String pathNode = StringUtil.isNotEmpty(md2pdfPath) ? md2pdfPath : new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
+				
+				String nodeCmd = StringUtil.replace("node {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
+				logger.debug("Node CMD: " + nodeCmd);
+				Process process = Runtime.getRuntime().exec(nodeCmd);
+				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+				String s = null;
+				while ((s = bufferedReader.readLine()) != null) {
+					logger.debug(s);
+				}
+				process.waitFor();
+				logger.debug("Md2pdf done!");
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// 1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
+		// response.setContentType("multipart/form-data");
+		response.setContentType("application/x-msdownload;");
+		response.addHeader("Content-Type", "text/html; charset=utf-8");
+		String dnFileName = null;
+		String dnFileLength = null;
+		File dnFile = null;
+		String name = chatDirect.getChatTo().getName();
+		if (StringUtil.isEmpty(name)) {
+			name = chatDirect.getChatTo().getUsername();
+		}
+		if ("md".equalsIgnoreCase(type)) {
+			dnFileName = StringUtil.replace("{?1}_{?2}", name, mdFileName);
+			dnFileLength = String.valueOf(fileMd.length());
+			dnFile = fileMd;
+		} else {
+			dnFileName = StringUtil.replace("{?1}_{?2}", name, pdfFileName);
+			dnFileLength = String.valueOf(filePdf.length());
+			dnFile = filePdf;
+		}
+		// 2.设置文件头：最后一个参数是设置下载文件名
+		response.setHeader("Content-Disposition", "attachment; fileName="
+				+ StringUtil.encodingFileName(dnFileName));
+		response.setHeader("Content-Length", dnFileLength);
+
+		java.io.BufferedInputStream bis = null;
+		java.io.BufferedOutputStream bos = null;
+
+		try {
+			bis = new BufferedInputStream(new FileInputStream(dnFile));
+			bos = new BufferedOutputStream(response.getOutputStream());
+			byte[] buff = new byte[2048];
+			int bytesRead;
+			while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
+				bos.write(buff, 0, bytesRead);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (bis != null) {
+				bis.close();
+			}
+			if (bos != null) {
+				bos.close();
+			}
+		}
 	}
 
 }

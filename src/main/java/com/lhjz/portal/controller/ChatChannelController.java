@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -317,7 +318,7 @@ public class ChatChannelController extends BaseController {
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
 		if (!isSuperOrCreator(chatChannel.getCreator().getUsername())) {
-			return RespBody.failed("您没有权限删除该消息内容!");
+			return RespBody.failed("您没有权限删除该频道消息内容!");
 		}
 		
 		List<ChatAt> chatAts = chatAtRepository.findByChatChannel(chatChannel);
@@ -340,6 +341,10 @@ public class ChatChannelController extends BaseController {
 	public RespBody get(@RequestParam("id") Long id) {
 		
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+		
+		if(!isCreatorOrMemberOrPublic(chatChannel)) {
+			return RespBody.failed("您没有权限查看该频道消息内容!");
+		}
 	
 		return RespBody.succeed(chatChannel);
 	}
@@ -634,6 +639,23 @@ public class ChatChannelController extends BaseController {
 		return RespBody.succeed(new Poll(channelId, lastChatChannelId, isAt, cnt, cntAtUserNew, countMyRecentSchedule));
 	}
 	
+	boolean isCreatorOrMemberOrPublic(ChatChannel chatChannel) {
+		User creator = chatChannel.getCreator();
+		User loginUser = getLoginUser();
+
+		if (loginUser.equals(creator)) {
+			return true;
+		}
+		Channel channel = chatChannel.getChannel();
+		if(!channel.getPrivated()) {
+			return true;
+		}
+
+		Set<User> members = channel.getMembers();
+
+		return members.contains(loginUser);
+	}
+	
 	@RequestMapping(value = "download/{id}", method = RequestMethod.GET)
 	public void download(HttpServletRequest request,
 			HttpServletResponse response, @PathVariable Long id, @RequestParam(value = "type", defaultValue = "pdf") String type)
@@ -646,6 +668,15 @@ public class ChatChannelController extends BaseController {
 		if (chatChannel == null) {
 			try {
 				response.sendError(404, "下载频道消息不存在!");
+				return;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if(!isCreatorOrMemberOrPublic(chatChannel)) {
+			try {
+				response.sendError(401, "没有权限下载该频道消息!");
 				return;
 			} catch (IOException e) {
 				e.printStackTrace();
