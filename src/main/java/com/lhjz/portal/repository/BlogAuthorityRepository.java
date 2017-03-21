@@ -29,4 +29,14 @@ public interface BlogAuthorityRepository extends JpaRepository<BlogAuthority, Lo
 	@Transactional
 	@Query("delete from BlogAuthority ba where ba.blog=?1 and (ba.channel in ?2 or ba.user in ?3)")
 	void removeAuths(Blog blog, Collection<Channel> channels, Collection<User> users);
+	
+	@Modifying
+	@Transactional
+	@Query("delete from BlogAuthority ba where ba.blog=?1 and (ba.channel in ?2)")
+	void removeChannelAuths(Blog blog, Collection<Channel> channels);
+	
+	@Modifying
+	@Transactional
+	@Query("delete from BlogAuthority ba where ba.blog=?1 and (ba.user in ?2)")
+	void removeUserAuths(Blog blog, Collection<User> users);
 }

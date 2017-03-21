@@ -29,4 +29,14 @@ public interface SpaceAuthorityRepository extends JpaRepository<SpaceAuthority, 
 	@Transactional
 	@Query("delete from SpaceAuthority sa where sa.space=?1 and (sa.channel in ?2 or sa.user in ?3)")
 	void removeAuths(Space space, Collection<Channel> channels, Collection<User> users);
+	
+	@Modifying
+	@Transactional
+	@Query("delete from SpaceAuthority sa where sa.space=?1 and (sa.channel in ?2)")
+	void removeChannelAuths(Space space, Collection<Channel> channels);
+	
+	@Modifying
+	@Transactional
+	@Query("delete from SpaceAuthority sa where sa.space=?1 and (sa.user in ?2)")
+	void removeUserAuths(Space space, Collection<User> users);
 }

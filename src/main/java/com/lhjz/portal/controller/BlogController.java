@@ -970,10 +970,12 @@ public class BlogController extends BaseController {
 			});
 		}
 
-		blogAuthorityRepository.save(blogAuthorities);
+		List<BlogAuthority> list = blogAuthorityRepository.save(blogAuthorities);
 		blogAuthorityRepository.flush();
+		
+		blog.getBlogAuthorities().addAll(list);
 
-		return RespBody.succeed();
+		return RespBody.succeed(blog);
 	}
 	
 	@RequestMapping(value = "auth/remove", method = RequestMethod.POST)
@@ -985,13 +987,19 @@ public class BlogController extends BaseController {
 		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限为该博文移除权限!");
 		}
-
+		
+		List<BlogAuthority> list = new ArrayList<>();
 		Collection<Channel> channelC = new ArrayList<>();
 		if (StringUtil.isNotEmpty(channels)) {
 			Stream.of(channels.split(",")).forEach(c -> {
 				Channel ch = new Channel();
 				ch.setId(Long.valueOf(c));
 				channelC.add(ch);
+				
+				BlogAuthority ba = new BlogAuthority();
+				ba.setBlog(blog);
+				ba.setChannel(ch);
+				list.add(ba);
 			});
 		}
 		Collection<User> userC = new ArrayList<>();
@@ -1000,13 +1008,29 @@ public class BlogController extends BaseController {
 				User user = new User();
 				user.setUsername(u);
 				userC.add(user);
+				
+				BlogAuthority ba = new BlogAuthority();
+				ba.setBlog(blog);
+				ba.setUser(user);
+				list.add(ba);
 			});
 		}
+		
+		if (channelC.size() > 0 && userC.size() > 0) {
+			blogAuthorityRepository.removeAuths(blog, channelC, userC);
+		} else {
+			if (channelC.size() > 0) {
+				blogAuthorityRepository.removeChannelAuths(blog, channelC);
+			} else if (userC.size() > 0) {
+				blogAuthorityRepository.removeUserAuths(blog, userC);
+			}
+		}
 
-		blogAuthorityRepository.removeAuths(blog, channelC, userC);
 		blogAuthorityRepository.flush();
+		
+		blog.getBlogAuthorities().removeAll(list);
 
-		return RespBody.succeed();
+		return RespBody.succeed(blog);
 	}
 
 }

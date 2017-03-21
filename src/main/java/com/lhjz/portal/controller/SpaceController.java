@@ -207,10 +207,12 @@ public class SpaceController extends BaseController {
 			});
 		}
 
-		spaceAuthorityRepository.save(spaceAuthorities);
+		List<SpaceAuthority> list = spaceAuthorityRepository.save(spaceAuthorities);
 		spaceAuthorityRepository.flush();
+		
+		space.getSpaceAuthorities().addAll(list);
 
-		return RespBody.succeed();
+		return RespBody.succeed(space);
 	}
 	
 	@RequestMapping(value = "auth/remove", method = RequestMethod.POST)
@@ -223,12 +225,19 @@ public class SpaceController extends BaseController {
 			return RespBody.failed("您没有权限为该空间移除权限!");
 		}
 
+		List<SpaceAuthority> list = new ArrayList<>();
+		
 		Collection<Channel> channelC = new ArrayList<>();
 		if (StringUtil.isNotEmpty(channels)) {
 			Stream.of(channels.split(",")).forEach(c -> {
 				Channel ch = new Channel();
 				ch.setId(Long.valueOf(c));
 				channelC.add(ch);
+				
+				SpaceAuthority sa = new SpaceAuthority();
+				sa.setSpace(space);
+				sa.setChannel(ch);
+				list.add(sa);
 			});
 		}
 		Collection<User> userC = new ArrayList<>();
@@ -237,13 +246,29 @@ public class SpaceController extends BaseController {
 				User user = new User();
 				user.setUsername(u);
 				userC.add(user);
+				
+				SpaceAuthority sa = new SpaceAuthority();
+				sa.setSpace(space);
+				sa.setUser(user);
+				list.add(sa);
 			});
 		}
-
-		spaceAuthorityRepository.removeAuths(space, channelC, userC);
+		
+		if (channelC.size() > 0 && userC.size() > 0) {
+			spaceAuthorityRepository.removeAuths(space, channelC, userC);
+		} else {
+			if (channelC.size() > 0) {
+				spaceAuthorityRepository.removeChannelAuths(space, channelC);
+			} else if (userC.size() > 0) {
+				spaceAuthorityRepository.removeUserAuths(space, userC);
+			}
+		}
+		
 		spaceAuthorityRepository.flush();
+		
+		space.getSpaceAuthorities().removeAll(list);
 
-		return RespBody.succeed();
+		return RespBody.succeed(space);
 	}
 
 }

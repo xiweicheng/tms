@@ -165,6 +165,43 @@ public class SpaceAuthority implements Serializable {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((channel == null) ? 0 : channel.hashCode());
+		result = prime * result + ((space == null) ? 0 : space.hashCode());
+		result = prime * result + ((user == null) ? 0 : user.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SpaceAuthority other = (SpaceAuthority) obj;
+		if (channel == null) {
+			if (other.channel != null)
+				return false;
+		} else if (!channel.equals(other.channel))
+			return false;
+		if (space == null) {
+			if (other.space != null)
+				return false;
+		} else if (!space.equals(other.space))
+			return false;
+		if (user == null) {
+			if (other.user != null)
+				return false;
+		} else if (!user.equals(other.user))
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return "SpaceAuthority [id=" + id + ", space=" + space + ", channel=" + channel + ", user=" + user
 				+ ", creator=" + creator + ", updater=" + updater + ", createDate=" + createDate + ", updateDate="
