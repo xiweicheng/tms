@@ -5,21 +5,16 @@ package com.lhjz.portal.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
@@ -32,7 +27,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.security.User;
-import com.lhjz.portal.pojo.Enum.SpaceType;
 import com.lhjz.portal.pojo.Enum.Status;
 
 /**
@@ -44,22 +38,26 @@ import com.lhjz.portal.pojo.Enum.Status;
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Space implements Serializable {
+public class SpaceAuthority implements Serializable {
 
-	private static final long serialVersionUID = 1036120023938526638L;
+	private static final long serialVersionUID = 1702854162010731723L;
 
 	@Id
 	@GeneratedValue
 	private Long id;
 
-	@Column
-	private String name;
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "space")
+	private Space space;
 
-	@Column(length = 16777216)
-	private String description;
+	@ManyToOne
+	@JoinColumn(name = "channel")
+	private Channel channel;
 
-	@Column
-	private Boolean privated = Boolean.FALSE;
+	@ManyToOne
+	@JoinColumn(name = "user")
+	private User user;
 
 	@ManyToOne
 	@JoinColumn(name = "creator")
@@ -83,17 +81,6 @@ public class Space implements Serializable {
 	@Column(nullable = false)
 	private Status status = Status.New;
 
-	@Enumerated(EnumType.STRING)
-	@Column
-	private SpaceType type = SpaceType.Own;
-
-	@JsonIgnore
-	@OneToMany(mappedBy = "space")
-	Set<Blog> blogs = new HashSet<Blog>();
-	
-	@OneToMany(mappedBy = "space", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-	private Set<SpaceAuthority> spaceAuthorities = new HashSet<>();
-
 	@Version
 	private long version;
 
@@ -105,28 +92,28 @@ public class Space implements Serializable {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public Space getSpace() {
+		return space;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setSpace(Space space) {
+		this.space = space;
 	}
 
-	public String getDescription() {
-		return description;
+	public Channel getChannel() {
+		return channel;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setChannel(Channel channel) {
+		this.channel = channel;
 	}
 
-	public Boolean getPrivated() {
-		return privated;
+	public User getUser() {
+		return user;
 	}
 
-	public void setPrivated(Boolean privated) {
-		this.privated = privated;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public User getCreator() {
@@ -169,22 +156,6 @@ public class Space implements Serializable {
 		this.status = status;
 	}
 
-	public SpaceType getType() {
-		return type;
-	}
-
-	public void setType(SpaceType type) {
-		this.type = type;
-	}
-
-	public Set<Blog> getBlogs() {
-		return blogs;
-	}
-
-	public void setBlogs(Set<Blog> blogs) {
-		this.blogs = blogs;
-	}
-
 	public long getVersion() {
 		return version;
 	}
@@ -193,19 +164,11 @@ public class Space implements Serializable {
 		this.version = version;
 	}
 
-	public Set<SpaceAuthority> getSpaceAuthorities() {
-		return spaceAuthorities;
-	}
-
-	public void setSpaceAuthorities(Set<SpaceAuthority> spaceAuthorities) {
-		this.spaceAuthorities = spaceAuthorities;
-	}
-
 	@Override
 	public String toString() {
-		return "Space [id=" + id + ", name=" + name + ", description=" + description + ", privated=" + privated
+		return "SpaceAuthority [id=" + id + ", space=" + space + ", channel=" + channel + ", user=" + user
 				+ ", creator=" + creator + ", updater=" + updater + ", createDate=" + createDate + ", updateDate="
-				+ updateDate + ", status=" + status + ", type=" + type + ", version=" + version + "]";
+				+ updateDate + ", status=" + status + ", version=" + version + "]";
 	}
 
 }

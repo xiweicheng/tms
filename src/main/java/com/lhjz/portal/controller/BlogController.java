@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +43,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender2;
 import com.lhjz.portal.entity.Blog;
+import com.lhjz.portal.entity.BlogAuthority;
 import com.lhjz.portal.entity.BlogHistory;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.Comment;
@@ -53,6 +56,7 @@ import com.lhjz.portal.pojo.Enum.CommentType;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
+import com.lhjz.portal.repository.BlogAuthorityRepository;
 import com.lhjz.portal.repository.BlogHistoryRepository;
 import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.ChannelRepository;
@@ -90,6 +94,9 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	BlogHistoryRepository blogHistoryRepository;
+	
+	@Autowired
+	BlogAuthorityRepository blogAuthorityRepository;
 
 	@Autowired
 	SpaceRepository spaceRepository;
@@ -912,6 +919,94 @@ public class BlogController extends BaseController {
 				bos.close();
 			}
 		}
+	}
+	
+	@RequestMapping(value = "auth/get", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody getAuth(@RequestParam("id") Long id) {
+		Blog blog = blogRepository.findOne(id);
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限查看该博文权限!");
+		}
+		return RespBody.succeed(blog.getBlogAuthorities());
+	}
+	
+	@RequestMapping(value = "auth/add", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody addAuth(@RequestParam("id") Long id,
+			@RequestParam(value = "channels", required = false) String channels,
+			@RequestParam(value = "users", required = false) String users) {
+		Blog blog = blogRepository.findOne(id);
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限为该博文添加权限!");
+		}
+
+		List<BlogAuthority> blogAuthorities = new ArrayList<>();
+
+		if (StringUtil.isNotEmpty(channels)) {
+			Stream.of(channels.split(",")).forEach(c -> {
+				Channel channel = channelRepository.findOne(Long.valueOf(c));
+
+				if (channel != null) {
+					BlogAuthority blogAuthority = new BlogAuthority();
+					blogAuthority.setBlog(blog);
+					blogAuthority.setChannel(channel);
+					blogAuthorities.add(blogAuthority);
+				}
+
+			});
+		}
+
+		if (StringUtil.isNotEmpty(users)) {
+			Stream.of(users.split(",")).forEach(u -> {
+				User user = userRepository.findOne(u);
+				if (user != null) {
+					BlogAuthority blogAuthority = new BlogAuthority();
+					blogAuthority.setBlog(blog);
+					blogAuthority.setUser(user);
+					blogAuthorities.add(blogAuthority);
+				}
+
+			});
+		}
+
+		blogAuthorityRepository.save(blogAuthorities);
+		blogAuthorityRepository.flush();
+
+		return RespBody.succeed();
+	}
+	
+	@RequestMapping(value = "auth/remove", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody removeAuth(@RequestParam("id") Long id,
+			@RequestParam(value = "channels", required = false) String channels,
+			@RequestParam(value = "users", required = false) String users) {
+		Blog blog = blogRepository.findOne(id);
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限为该博文移除权限!");
+		}
+
+		Collection<Channel> channelC = new ArrayList<>();
+		if (StringUtil.isNotEmpty(channels)) {
+			Stream.of(channels.split(",")).forEach(c -> {
+				Channel ch = new Channel();
+				ch.setId(Long.valueOf(c));
+				channelC.add(ch);
+			});
+		}
+		Collection<User> userC = new ArrayList<>();
+		if (StringUtil.isNotEmpty(users)) {
+			Stream.of(users.split(",")).forEach(u -> {
+				User user = new User();
+				user.setUsername(u);
+				userC.add(user);
+			});
+		}
+
+		blogAuthorityRepository.removeAuths(blog, channelC, userC);
+		blogAuthorityRepository.flush();
+
+		return RespBody.succeed();
 	}
 
 }

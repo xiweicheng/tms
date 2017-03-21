@@ -3,8 +3,11 @@
  */
 package com.lhjz.portal.controller;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +20,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.Space;
+import com.lhjz.portal.entity.SpaceAuthority;
+import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.repository.ChannelRepository;
+import com.lhjz.portal.repository.SpaceAuthorityRepository;
 import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.StringUtil;
@@ -39,6 +47,12 @@ public class SpaceController extends BaseController {
 
 	@Autowired
 	SpaceRepository spaceRepository;
+	
+	@Autowired
+	ChannelRepository channelRepository;
+	
+	@Autowired
+	SpaceAuthorityRepository spaceAuthorityRepository;
 
 	@Autowired
 	UserRepository userRepository;
@@ -142,6 +156,94 @@ public class SpaceController extends BaseController {
 				.collect(Collectors.toList());
 
 		return RespBody.succeed(spaces);
+	}
+	
+	@RequestMapping(value = "auth/get", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody getAuth(@RequestParam("id") Long id) {
+		Space space = spaceRepository.findOne(id);
+		if (!isSuperOrCreator(space.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限查看该空间权限!");
+		}
+		return RespBody.succeed(space.getSpaceAuthorities());
+	}
+	
+	@RequestMapping(value = "auth/add", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody addAuth(@RequestParam("id") Long id,
+			@RequestParam(value = "channels", required = false) String channels,
+			@RequestParam(value = "users", required = false) String users) {
+		Space space = spaceRepository.findOne(id);
+		if (!isSuperOrCreator(space.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限为该空间添加权限!");
+		}
+
+		List<SpaceAuthority> spaceAuthorities = new ArrayList<>();
+
+		if (StringUtil.isNotEmpty(channels)) {
+			Stream.of(channels.split(",")).forEach(c -> {
+				Channel channel = channelRepository.findOne(Long.valueOf(c));
+
+				if (channel != null) {
+					SpaceAuthority spaceAuthority = new SpaceAuthority();
+					spaceAuthority.setSpace(space);
+					spaceAuthority.setChannel(channel);
+					spaceAuthorities.add(spaceAuthority);
+				}
+
+			});
+		}
+
+		if (StringUtil.isNotEmpty(users)) {
+			Stream.of(users.split(",")).forEach(u -> {
+				User user = userRepository.findOne(u);
+				if (user != null) {
+					SpaceAuthority spaceAuthority = new SpaceAuthority();
+					spaceAuthority.setSpace(space);
+					spaceAuthority.setUser(user);
+					spaceAuthorities.add(spaceAuthority);
+				}
+
+			});
+		}
+
+		spaceAuthorityRepository.save(spaceAuthorities);
+		spaceAuthorityRepository.flush();
+
+		return RespBody.succeed();
+	}
+	
+	@RequestMapping(value = "auth/remove", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody removeAuth(@RequestParam("id") Long id,
+			@RequestParam(value = "channels", required = false) String channels,
+			@RequestParam(value = "users", required = false) String users) {
+		Space space = spaceRepository.findOne(id);
+		if (!isSuperOrCreator(space.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限为该空间移除权限!");
+		}
+
+		Collection<Channel> channelC = new ArrayList<>();
+		if (StringUtil.isNotEmpty(channels)) {
+			Stream.of(channels.split(",")).forEach(c -> {
+				Channel ch = new Channel();
+				ch.setId(Long.valueOf(c));
+				channelC.add(ch);
+			});
+		}
+		Collection<User> userC = new ArrayList<>();
+		if (StringUtil.isNotEmpty(users)) {
+			Stream.of(users.split(",")).forEach(u -> {
+				User user = new User();
+				user.setUsername(u);
+				userC.add(user);
+			});
+		}
+
+		spaceAuthorityRepository.removeAuths(space, channelC, userC);
+		spaceAuthorityRepository.flush();
+
+		return RespBody.succeed();
 	}
 
 }

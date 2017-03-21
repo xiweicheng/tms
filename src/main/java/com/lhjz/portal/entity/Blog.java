@@ -5,16 +5,21 @@ package com.lhjz.portal.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
@@ -92,10 +97,13 @@ public class Blog implements Serializable {
 	private Integer voteZanCnt;
 
 	private Integer voteCaiCnt;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "space")
 	private Space space;
+
+	@OneToMany(mappedBy = "blog", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+	private Set<BlogAuthority> blogAuthorities = new HashSet<>();
 
 	@Version
 	private long version;
@@ -234,6 +242,14 @@ public class Blog implements Serializable {
 
 	public void setSpace(Space space) {
 		this.space = space;
+	}
+
+	public Set<BlogAuthority> getBlogAuthorities() {
+		return blogAuthorities;
+	}
+
+	public void setBlogAuthorities(Set<BlogAuthority> blogAuthorities) {
+		this.blogAuthorities = blogAuthorities;
 	}
 
 	@Override
