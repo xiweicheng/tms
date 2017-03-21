@@ -3,9 +3,13 @@
  */
 package com.lhjz.portal.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.entity.security.User;
@@ -23,8 +27,17 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	Page<Blog> findByStatusNot(Status status, Pageable pageable);
 
 	Page<Blog> findByTitleContainingOrContentContaining(String searchT, String searchC, Pageable pageable);
-	
-	Page<Blog> findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status status, User creator, Status status2, Pageable pageable);
-	
-	Page<Blog> findByTitleContainingOrContentContainingAndStatusNotAndCreatorOrStatusNotAndPrivatedFalse(String searchT, String searchC, Status status, User creator, Status status2, Pageable pageable);
+
+	Page<Blog> findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status status, User creator, Status status2,
+			Pageable pageable);
+
+	Page<Blog> findByTitleContainingOrContentContainingAndStatusNotAndCreatorOrStatusNotAndPrivatedFalse(String searchT,
+			String searchC, Status status, User creator, Status status2, Pageable pageable);
+
+	@Query(value = "SELECT * FROM `blog` WHERE blog.`status` <> 'Deleted' AND (privated = 0 OR creator = :username) AND (title LIKE :search OR content LIKE :search) ORDER BY id DESC LIMIT :start,:size", nativeQuery = true)
+	List<Blog> search(@Param("username") String username, @Param("search") String search, @Param("start") Integer start,
+			@Param("size") Integer size);
+
+	@Query(value = "SELECT COUNT(*) FROM `blog` WHERE blog.`status` <> 'Deleted' AND (privated = 0 OR creator = :username) AND (title LIKE :search OR content LIKE :search)", nativeQuery = true)
+	long countSearch(@Param("username") String username, @Param("search") String search);
 }

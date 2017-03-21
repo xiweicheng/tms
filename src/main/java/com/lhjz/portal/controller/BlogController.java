@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
@@ -350,10 +351,13 @@ public class BlogController extends BaseController {
 			return RespBody.failed("检索条件不能为空!");
 		}
 
-		Page<Blog> page = blogRepository.findByTitleContainingOrContentContaining(search, search, pageable);
-//		Page<Blog> page = blogRepository.findByTitleContainingOrContentContainingAndStatusNotAndCreatorOrStatusNotAndPrivatedFalse(search, search, Status.Deleted, getLoginUser(), Status.Deleted, pageable);
-
-		return RespBody.succeed(page);
+//		Page<Blog> page = blogRepository.findByTitleContainingOrContentContaining(search, search, pageable);
+		
+		String username = WebUtil.getUsername();
+		List<Blog> list = blogRepository.search(username, "%" + search + "%", pageable.getOffset(), pageable.getPageSize());
+		long countSearch = blogRepository.countSearch(username, "%" + search + "%");
+		
+		return RespBody.succeed(new PageImpl<Blog>(list, pageable, countSearch));
 	}
 
 	@RequestMapping(value = "openEdit", method = RequestMethod.POST)
@@ -805,7 +809,6 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(blog2);
 	}
-	
 
 	@RequestMapping(value = "download/{id}", method = RequestMethod.GET)
 	public void download(HttpServletRequest request,

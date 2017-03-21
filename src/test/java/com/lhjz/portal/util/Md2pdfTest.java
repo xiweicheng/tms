@@ -14,6 +14,7 @@ public class Md2pdfTest {
 		String path = new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
 		String pathMd = path + "/test.md";
 		String pathPdf = path + "/test.pdf";
+		System.out.println(path);
 		System.out.println("Start create md(" + pathMd + ")...");
 		FileUtils.writeStringToFile(new File(pathMd), "## Markdown title\n> test...", "UTF-8");
 		System.out.println("End create md(" + pathMd + ")...");
