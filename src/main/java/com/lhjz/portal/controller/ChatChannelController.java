@@ -202,6 +202,13 @@ public class ChatChannelController extends BaseController {
 		}
 
 		Page<ChatChannel> page = chatChannelRepository.findByChannel(channel, pageable);
+		page.forEach(cc -> {
+			Channel channel2 = cc.getChannel();
+			Channel channel3 = new Channel();
+			channel3.setId(channel2.getId());
+			channel3.setName(channel2.getName());
+			cc.setChannel(channel3);
+		});
 
 		return RespBody.succeed(page);
 	}
@@ -355,7 +362,14 @@ public class ChatChannelController extends BaseController {
 			@RequestParam("channelId") Long channelId) {
 		
 		List<ChatChannel> chats = chatChannelRepository.latest(channelRepository.findOne(channelId), id);
-	
+		chats.forEach(cc -> {
+			Channel channel2 = cc.getChannel();
+			Channel channel3 = new Channel();
+			channel3.setId(channel2.getId());
+			channel3.setName(channel2.getName());
+			cc.setChannel(channel3);
+		});
+		
 		return RespBody.succeed(chats);
 	}
 	
@@ -365,7 +379,7 @@ public class ChatChannelController extends BaseController {
 			@RequestParam("size") Integer size, @RequestParam("channelId") Long channelId) {
 
 		long count = 0;
-		List<ChatChannel> chats = null;
+		List<ChatChannel> chats = new ArrayList<>();
 		
 		Channel channel = channelRepository.findOne(channelId);
 		
@@ -376,6 +390,14 @@ public class ChatChannelController extends BaseController {
 			count = chatChannelRepository.countAllNew(channel, start);
 			chats = chatChannelRepository.queryMoreNew(channel, start, size);
 		}
+		
+		chats.forEach(cc -> {
+			Channel channel2 = cc.getChannel();
+			Channel channel3 = new Channel();
+			channel3.setId(channel2.getId());
+			channel3.setName(channel2.getName());
+			cc.setChannel(channel3);
+		});
 
 		return RespBody.succeed(chats).addMsg(count);
 	}
@@ -397,6 +419,14 @@ public class ChatChannelController extends BaseController {
 		long cnt = chatChannelRepository.countAboutMe(channel, _search);
 
 		Page<ChatChannel> page = new PageImpl<>(chats, pageable, cnt);
+		
+		page.forEach(cc -> {
+			Channel channel2 = cc.getChannel();
+			Channel channel3 = new Channel();
+			channel3.setId(channel2.getId());
+			channel3.setName(channel2.getName());
+			cc.setChannel(channel3);
+		});
 
 		return RespBody.succeed(page);
 	}
@@ -445,9 +475,13 @@ public class ChatChannelController extends BaseController {
 		List<ChatStow> chatStows = chatStowRepository.findByChatChannelNotNullAndStowUserAndStatus(
 				getLoginUser(), Status.New);
 		
-//		chatStows = chatStows.stream().filter((cs) -> {
-//			return !cs.getChatChannel().getChannel().getStatus().equals(Status.Deleted);
-//		}).collect(Collectors.toList());
+		chatStows.forEach(cs -> {
+			Channel channel = cs.getChatChannel().getChannel();
+			Channel channel3 = new Channel();
+			channel3.setId(channel.getId());
+			channel3.setName(channel.getName());
+			cs.getChatChannel().setChannel(channel3);
+		});
 
 		return RespBody.succeed(chatStows);
 	}
@@ -459,6 +493,14 @@ public class ChatChannelController extends BaseController {
 
 		Page<ChatAt> chatAts = chatAtRepository.findByChatChannelNotNullAndAtUserAndStatus(
 				getLoginUser(), Status.New, pageable);
+		
+		chatAts.forEach(ca -> {
+			Channel channel = ca.getChatChannel().getChannel();
+			Channel channel3 = new Channel();
+			channel3.setId(channel.getId());
+			channel3.setName(channel.getName());
+			ca.getChatChannel().setChannel(channel3);
+		});
 
 		return RespBody.succeed(chatAts);
 	}
