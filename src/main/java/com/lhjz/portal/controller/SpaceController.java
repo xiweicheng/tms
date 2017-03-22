@@ -6,6 +6,7 @@ package com.lhjz.portal.controller;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,6 +32,7 @@ import com.lhjz.portal.repository.SpaceAuthorityRepository;
 import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.StringUtil;
+import com.lhjz.portal.util.WebUtil;
 
 /**
  * 
@@ -97,6 +99,10 @@ public class SpaceController extends BaseController {
 
 		Space space = spaceRepository.findOne(id);
 
+		if (!hasAuth(space)) {
+			return RespBody.failed("没有权限查看该空间!");
+		}
+
 		return RespBody.succeed(space);
 	}
 
@@ -152,8 +158,62 @@ public class SpaceController extends BaseController {
 	@ResponseBody
 	public RespBody list() {
 
+		if (!isSuper()) {
+			return RespBody.failed("没有权限获取全部空间列表!");
+		}
+
 		List<Space> spaces = spaceRepository.findAll().stream().filter(s -> !s.getStatus().equals(Status.Deleted))
 				.collect(Collectors.toList());
+
+		return RespBody.succeed(spaces);
+	}
+	
+	private boolean hasAuth(Space s) {
+
+		if (isSuper()) { // 超级用户
+			return true;
+		}
+
+		if (s.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
+			return false;
+		}
+		
+		User loginUser = new User(WebUtil.getUsername());
+
+		// 过滤掉没有权限的
+		if (s.getCreator().equals(loginUser)) { // 我创建的
+			return true;
+		}
+
+		if (!s.getPrivated()) { // 非私有的
+			return true;
+		}
+
+		boolean exists = false;
+		for (SpaceAuthority sa : s.getSpaceAuthorities()) {
+			if (loginUser.equals(sa.getUser())) {
+				exists = true;
+				break;
+			} else {
+				Channel channel = sa.getChannel();
+				if (channel != null) {
+					Set<User> members = channel.getMembers();
+					if (members.contains(loginUser)) {
+						exists = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return exists;
+	}
+	
+	@RequestMapping(value = "listMy", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody listMy() {
+
+		List<Space> spaces = spaceRepository.findAll().stream().filter(s -> hasAuth(s)).collect(Collectors.toList());
 
 		return RespBody.succeed(spaces);
 	}
@@ -162,8 +222,8 @@ public class SpaceController extends BaseController {
 	@ResponseBody
 	public RespBody getAuth(@RequestParam("id") Long id) {
 		Space space = spaceRepository.findOne(id);
-		if (!isSuperOrCreator(space.getCreator().getUsername())) {
-			return RespBody.failed("您没有权限查看该空间权限!");
+		if (!hasAuth(space)) {
+			return RespBody.failed("没有权限查看该空间权限!");
 		}
 		return RespBody.succeed(space.getSpaceAuthorities());
 	}

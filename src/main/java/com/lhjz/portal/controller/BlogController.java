@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,10 +30,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -189,16 +191,26 @@ public class BlogController extends BaseController {
 
 	@RequestMapping(value = "list", method = RequestMethod.GET)
 	@ResponseBody
-	public RespBody list(@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
+	public RespBody list(@SortDefault(value = "id", direction = Direction.DESC) Sort sort) {
 
-		// TODO 过滤不可见博文
-		// Page<Blog> page = blogRepository.findByStatusNot(Status.Deleted,
-		// pageable);
-		Page<Blog> page = blogRepository.findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status.Deleted,
-				getLoginUser(), Status.Deleted, pageable);
-		page.forEach(b -> b.setContent(null));
+		if (!isSuper()) {
+			return RespBody.failed("没有权限查看全部博文列表!");
+		}
 
-		return RespBody.succeed(page);
+		List<Blog> blogs = blogRepository.findByStatusNot(Status.Deleted, sort);
+		blogs.forEach(b -> b.setContent(null));
+
+		return RespBody.succeed(blogs);
+	}
+	
+	@RequestMapping(value = "listMy", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody listMy(@SortDefault(value = "id", direction = Direction.DESC) Sort sort) {
+
+		List<Blog> blogs = blogRepository.findByStatusNot(Status.Deleted, sort).stream().filter(b -> hasAuth(b))
+				.peek(b -> b.setContent(null)).collect(Collectors.toList());
+
+		return RespBody.succeed(blogs);
 	}
 
 	@RequestMapping(value = "update", method = RequestMethod.POST)
@@ -223,6 +235,10 @@ public class BlogController extends BaseController {
 		Boolean isOpenEdit = blog.getOpenEdit() == null ? false : blog.getOpenEdit();
 
 		if (!isSuperOrCreator(blog.getCreator().getUsername()) && !isOpenEdit) {
+			return RespBody.failed("您没有权限编辑该博文!");
+		}
+		
+		if(isOpenEdit && !hasAuth(blog)) {
 			return RespBody.failed("您没有权限编辑该博文!");
 		}
 
@@ -339,11 +355,8 @@ public class BlogController extends BaseController {
 			return RespBody.failed("博文消息不存在或者已经被删除!");
 		}
 
-		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
-			// TODO 权限可见用户判断
-			if (blog.getPrivated()) {
-				return RespBody.failed("您没有权限查看该博文!");
-			}
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限查看该博文!");
 		}
 
 		return RespBody.succeed(blog);
@@ -352,19 +365,21 @@ public class BlogController extends BaseController {
 	@RequestMapping(value = "search", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody search(@RequestParam("search") String search,
-			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
+			@SortDefault(value = "id", direction = Direction.DESC) Sort sort) {
 
 		if (StringUtil.isEmpty(search)) {
 			return RespBody.failed("检索条件不能为空!");
 		}
 
-//		Page<Blog> page = blogRepository.findByTitleContainingOrContentContaining(search, search, pageable);
-		
-		String username = WebUtil.getUsername();
-		List<Blog> list = blogRepository.search(username, "%" + search + "%", pageable.getOffset(), pageable.getPageSize());
-		long countSearch = blogRepository.countSearch(username, "%" + search + "%");
-		
-		return RespBody.succeed(new PageImpl<Blog>(list, pageable, countSearch));
+		List<Blog> blogs = blogRepository
+				.findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status.Deleted, search,
+						Status.Deleted, search, sort)
+				.stream().filter(b -> hasAuth(b)).peek(b -> {
+					b.setContent(null);
+					b.setBlogAuthorities(null);
+				}).collect(Collectors.toList());
+
+		return RespBody.succeed(blogs);
 	}
 
 	@RequestMapping(value = "openEdit", method = RequestMethod.POST)
@@ -375,6 +390,10 @@ public class BlogController extends BaseController {
 
 		if (blog == null) {
 			return RespBody.failed("博文消息不存在,可能已经被删除!");
+		}
+
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("没有权限修改博文开放编辑全选!");
 		}
 
 		blog.setOpenEdit(open);
@@ -492,7 +511,8 @@ public class BlogController extends BaseController {
 
 		List<User> users = userRepository.findTop6ByUsernameContainingAndEnabledTrue(search);
 		List<Channel> channels = channelRepository.findTop6ByNameContainingAndStatusNot(search, Status.Deleted);
-
+		channels.forEach(c -> c.setMembers(null));
+		
 		map.put("users", users);
 		map.put("channels", channels);
 
@@ -732,9 +752,6 @@ public class BlogController extends BaseController {
 		}
 
 		blog.setPrivated(privated);
-		if (privated) {
-			blog.setOpenEdit(false);
-		}
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 
@@ -747,8 +764,8 @@ public class BlogController extends BaseController {
 
 		Blog blog = blogRepository.findOne(id);
 
-		if (!isSuperOrCreator(blog.getCreator().getUsername()) && blog.getPrivated()) {
-			return RespBody.failed("您没有权限查看该博文可历史!");
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限查看该博文历史列表!");
 		}
 
 		List<BlogHistory> blogHistories = blogHistoryRepository.findByBlogAndStatusNot(blog, Status.Deleted);
@@ -762,9 +779,9 @@ public class BlogController extends BaseController {
 
 		BlogHistory blogHistory = blogHistoryRepository.findOne(hid);
 		Blog blog = blogHistory.getBlog();
-
-		if (!isSuperOrCreator(blog.getCreator().getUsername()) && blog.getPrivated()) {
-			return RespBody.failed("您没有权限查看该博文可历史!");
+		
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限查看该博文历史!");
 		}
 
 		return RespBody.succeed(blogHistory);
@@ -795,8 +812,16 @@ public class BlogController extends BaseController {
 		BlogHistory blogHistory = blogHistoryRepository.findOne(hid);
 		Blog blog = blogHistory.getBlog();
 
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限查看该博文历史!");
+		}
+
 		Boolean isOpenEdit = blog.getOpenEdit() == null ? false : blog.getOpenEdit();
 		if (!isSuperOrCreator(blog.getCreator().getUsername()) && !isOpenEdit) {
+			return RespBody.failed("您没有权限还原该博文历史!");
+		}
+
+		if (isOpenEdit && !hasAuth(blog)) {
 			return RespBody.failed("您没有权限还原该博文历史!");
 		}
 
@@ -829,6 +854,15 @@ public class BlogController extends BaseController {
 		if (blog == null) {
 			try {
 				response.sendError(404, "下载博文不存在!");
+				return;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if (!hasAuth(blog)) {
+			try {
+				response.sendError(404, "您没有权限下载该博文!");
 				return;
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -921,11 +955,52 @@ public class BlogController extends BaseController {
 		}
 	}
 	
+	private boolean hasAuth(Blog b) {
+
+		if (isSuper()) { // 超级用户
+			return true;
+		}
+
+		if (b.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
+			return false;
+		}
+
+		User loginUser = new User(WebUtil.getUsername());
+
+		// 过滤掉没有权限的
+		if (b.getCreator().equals(loginUser)) { // 我创建的
+			return true;
+		}
+
+		if (!b.getPrivated()) { // 非私有的
+			return true;
+		}
+
+		boolean exists = false;
+		for (BlogAuthority ba : b.getBlogAuthorities()) {
+			if (loginUser.equals(ba.getUser())) {
+				exists = true;
+				break;
+			} else {
+				Channel channel = ba.getChannel();
+				if (channel != null) {
+					Set<User> members = channel.getMembers();
+					if (members.contains(loginUser)) {
+						exists = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return exists;
+	}
+	
 	@RequestMapping(value = "auth/get", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody getAuth(@RequestParam("id") Long id) {
 		Blog blog = blogRepository.findOne(id);
-		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+		if(!hasAuth(blog)) {
 			return RespBody.failed("您没有权限查看该博文权限!");
 		}
 		return RespBody.succeed(blog.getBlogAuthorities());

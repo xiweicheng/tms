@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,8 +26,12 @@ import com.lhjz.portal.pojo.Enum.Status;
 public interface BlogRepository extends JpaRepository<Blog, Long> {
 
 	Page<Blog> findByStatusNot(Status status, Pageable pageable);
+	
+	List<Blog> findByStatusNot(Status status, Sort sort);
 
 	Page<Blog> findByTitleContainingOrContentContaining(String searchT, String searchC, Pageable pageable);
+	
+	List<Blog> findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status status, String searchT, Status status2, String searchC, Sort sort);
 
 	Page<Blog> findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status status, User creator, Status status2,
 			Pageable pageable);
