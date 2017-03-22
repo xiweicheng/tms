@@ -48,6 +48,8 @@ import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.entity.BlogAuthority;
 import com.lhjz.portal.entity.BlogHistory;
 import com.lhjz.portal.entity.Channel;
+import com.lhjz.portal.entity.ChatChannel;
+import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.Comment;
 import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.security.User;
@@ -62,6 +64,8 @@ import com.lhjz.portal.repository.BlogAuthorityRepository;
 import com.lhjz.portal.repository.BlogHistoryRepository;
 import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.ChannelRepository;
+import com.lhjz.portal.repository.ChatChannelRepository;
+import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.CommentRepository;
 import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.UserRepository;
@@ -70,6 +74,7 @@ import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
 import com.lhjz.portal.util.ThreadUtil;
+import com.lhjz.portal.util.ValidateUtil;
 import com.lhjz.portal.util.WebUtil;
 
 /**
@@ -105,6 +110,12 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	ChannelRepository channelRepository;
+	
+	@Autowired
+	ChatChannelRepository chatChannelRepository;
+	
+	@Autowired
+	ChatDirectRepository chatDirectRepository;
 
 	@Autowired
 	UserRepository userRepository;
@@ -524,19 +535,39 @@ public class BlogController extends BaseController {
 	public RespBody share(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
 			@RequestParam("html") String html, @RequestParam(value = "desc", required = false) String desc,
 			@RequestParam(value = "users", required = false) String users,
-			@RequestParam(value = "channels", required = false) String channels) {
+			@RequestParam(value = "channels", required = false) String channels,
+			@RequestParam(value = "mails", required = false) String mails) {
 
+		Blog blog = blogRepository.findOne(id);
+
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限分享该博文!");
+		}
+		
 		final User loginUser = getLoginUser();
 
 		final String href = basePath + "#/blog/" + id;
-		final String html2 = html;
+		final String html2 = StringUtil.replace(
+				"<h1 style=\"color: blue;\">分享博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href,
+				blog.getTitle(), html);
+
 		final String title = StringUtil.isNotEmpty(desc) ? desc : "下面的博文有分享到你";
 
 		Mail mail = Mail.instance();
 		if (StringUtil.isNotEmpty(users)) {
 			Stream.of(users.split(",")).forEach(username -> {
 				User user = getUser(username);
-				mail.addUsers(user);
+				if (user != null) {
+					mail.addUsers(user);
+
+					ChatDirect chatDirect = new ChatDirect();
+					chatDirect.setChatTo(user);
+					chatDirect.setContent(
+							StringUtil.replace("## ~私聊消息播报~\n> 来自 {~{?1}} 的博文分享:  [{?2}]({?3})\n\n---\n\n{?4}",
+									loginUser.getUsername(), blog.getTitle(), href, blog.getContent()));
+
+					chatDirectRepository.saveAndFlush(chatDirect);
+				}
 			});
 		}
 		if (StringUtil.isNotEmpty(channels)) {
@@ -546,6 +577,22 @@ public class BlogController extends BaseController {
 					channel.getMembers().forEach(user -> {
 						mail.addUsers(user);
 					});
+
+					ChatChannel chatChannel = new ChatChannel();
+					chatChannel.setChannel(channel);
+					chatChannel.setContent(
+							StringUtil.replace("## ~频道消息播报~\n> 来自 {~{?1}} 的博文分享:  [{?2}]({?3})\n\n---\n\n{?4}",
+									loginUser.getUsername(), blog.getTitle(), href, blog.getContent()));
+
+					chatChannelRepository.saveAndFlush(chatChannel);
+				}
+			});
+		}
+		
+		if (StringUtil.isNotEmpty(mails)) {
+			Stream.of(mails.split(",")).forEach(m -> {
+				if (ValidateUtil.isEmail(m)) {
+					mail.add(m);
 				}
 			});
 		}
@@ -956,6 +1003,10 @@ public class BlogController extends BaseController {
 	}
 	
 	private boolean hasAuth(Blog b) {
+		
+		if (b == null) {
+			return false;
+		}
 
 		if (isSuper()) { // 超级用户
 			return true;

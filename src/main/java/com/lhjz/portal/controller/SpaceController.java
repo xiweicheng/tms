@@ -169,6 +169,10 @@ public class SpaceController extends BaseController {
 	}
 	
 	private boolean hasAuth(Space s) {
+		
+		if (s == null) {
+			return false;
+		}
 
 		if (isSuper()) { // 超级用户
 			return true;

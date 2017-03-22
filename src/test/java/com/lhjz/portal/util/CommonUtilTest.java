@@ -92,6 +92,7 @@ public class CommonUtilTest {
 	public static void main(String[] args) {
 		System.out.println(ToType.valueOf("Channel"));
 		System.out.println(SchedulePriority.Middle.name());
+		System.out.println(StringUtil.replace("xx{~{?1}}xxx", "cccc"));
 	}
 
 	// public static void main(String[] args) {
