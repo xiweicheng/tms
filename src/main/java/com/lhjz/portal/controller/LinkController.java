@@ -76,7 +76,7 @@ public class LinkController extends BaseController {
 			if (channel != null) {
 				ChatChannel chatChannel = new ChatChannel();
 				chatChannel.setChannel(channel);
-				chatChannel.setContent(StringUtil.replace("## ~频道消息播报~\n\n> {~{?1}} 添加了频道外链: [{?2}]({?3})\n\n",
+				chatChannel.setContent(StringUtil.replace("## ~频道消息播报~\n\n> {~{?1}} 添加了频道外链: [**{?2}**]({?3})\n\n",
 						WebUtil.getUsername(), title, href));
 				
 				chatChannelRepository.saveAndFlush(chatChannel);
