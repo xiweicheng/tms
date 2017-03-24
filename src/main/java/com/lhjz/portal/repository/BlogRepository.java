@@ -45,4 +45,7 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 
 	@Query(value = "SELECT COUNT(*) FROM `blog` WHERE blog.`status` <> 'Deleted' AND (privated = 0 OR creator = :username) AND (title LIKE :search OR content LIKE :search)", nativeQuery = true)
 	long countSearch(@Param("username") String username, @Param("search") String search);
+	
+	@Query(value = "SELECT COUNT(*) as cnt FROM blog WHERE `status` <> 'Deleted'", nativeQuery = true)
+	long countBlogs();
 }

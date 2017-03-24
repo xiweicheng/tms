@@ -45,6 +45,7 @@ import com.lhjz.portal.model.UserInfo;
 import com.lhjz.portal.pojo.Enum.SettingType;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
+import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatRepository;
 import com.lhjz.portal.repository.FileRepository;
@@ -106,6 +107,9 @@ public class AdminController extends BaseController {
 	
 	@Autowired
 	ChannelRepository channelRepository;
+	
+	@Autowired
+	BlogRepository blogRepository;
 
 	@Autowired
 	MailSender2 mailSender;
@@ -127,6 +131,7 @@ public class AdminController extends BaseController {
 		model.addAttribute("cntTranslate", translateRepository.count());
 		model.addAttribute("cntChat", chatRepository.count());
 		model.addAttribute("cntChannel", channelRepository.countChannels());
+		model.addAttribute("cntBlog", blogRepository.countBlogs());
 
 		return "admin/index";
 	}

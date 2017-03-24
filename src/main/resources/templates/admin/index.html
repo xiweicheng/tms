@@ -20,6 +20,11 @@
         margin: auto;
         width: 133px;
     }
+    
+    .ui.reveal i.icon.wikipedia:before {
+        position: relative;
+        left: -7px;
+    }
     </style>
     <script th:replace="admin/template :: baiduTongji"></script>
 </head>
@@ -109,31 +114,19 @@
                     <a sec:authorize="hasRole('ROLE_SUPER')" th:classappend="${#strings.contains(uri, '/admin/setting')} ? 'active' : ''" class="item" th:href="@{/admin/setting}" href="setting.html">
                         <i class="settings icon"></i> 系统设置
                     </a>
-                    <div class="item">
-                        <i class="linkify icon"></i> 系统外链
-                        <div class="menu tms-sys-links">
-                            <!-- <a target="_blank" class="item" href="http://220.248.17.34:7991/">JIRA</a>
-                            <a target="_blank" class="item" href="http://220.248.17.34:7992/">Confluence</a>
-                            <a target="_blank" class="item" href="http://220.248.17.34:7990/">Stash</a>
-                            <a target="_blank" class="item" href="http://220.248.17.34:8073/">Jenkins</a>
-                            <a target="_blank" class="item" href="http://220.248.17.34:8063/">Console(测试)</a>
-                            <a target="_blank" class="item" href="http://x-console-test.sh1.newtouch.com/">Console(开发)</a> -->
-                            <!-- <a target="_blank" class="item" href="https://www.draw.io/">绘图(draw)</a> -->
-                            <!-- <a target="_blank" class="item" href="https://www.processon.com/i/57ac7a10e4b09150b0fc8e21">绘图(processon)</a> -->
-                        </div>
+                    <div class="ui dropdown item tms-dd-sys-links">
+                        <i class="dropdown icon"></i> 系统外链
+                        <div class="menu tms-sys-links"></div>
                     </div>
                 </div>
-                <!-- <div class="ui sticky ad-index-sticky">
-                </div> -->
             </div>
             <div id="context">
                 <div style="height:70px;"></div>
-                <!-- <div th:replace="admin/template :: ad-page-header ('门户主页', 'index')"></div> -->
                 <h2 class="ui center aligned icon header">
                   <i class="circular users icon"></i>
                   欢迎使用TMS团队协作系统!
                 </h2>
-                <div class="ui container five column stackable centered grid" style="margin-top:50px;">
+                <div class="ui container six column stackable centered grid" style="margin-top:50px;">
                     <div class="aligined centered column">
                         <div class="ui move reveal">
                             <div class="visible content centered">
@@ -183,6 +176,24 @@
                                     <h2 class="ui inverted header">
                                         总数:
                                         <div class="sub header" th:text="${cntChannel}">99</div>
+                                    </h2>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="aligined centered column">
+                        <div class="ui rotate left reveal">
+                            <div class="visible content">
+                                <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
+                                  <i class="circular wikipedia icon"></i>
+                                  博文
+                                </h2>
+                            </div>
+                            <div class="hidden content">
+                                <a th:href="@{/page/index.html#/blog}" class="ui inverted circular segment" style="width:133px; height:133px;">
+                                    <h2 class="ui inverted header">
+                                        总数:
+                                        <div class="sub header" th:text="${cntBlog}">99</div>
                                     </h2>
                                 </a>
                             </div>
