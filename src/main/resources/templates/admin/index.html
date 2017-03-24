@@ -85,7 +85,7 @@
     </div>
     <div class="pusher ad-index-content">
         <div class="ad-index-container">
-            <div th:fragment="rail-menu" class="ui dividing close left rail ad-index-rail" style="width:133px; min-height:450px; z-index:1;padding-top:70px;">
+            <div th:fragment="rail-menu" class="ui dividing close left rail ad-index-rail" style="width:133px; min-height:450px; z-index:4;padding-top:70px;">
                 <div th:with="uri=${#httpServletRequest.requestURI}" class="ui vertical pointing inverted menu" style="width: 9rem !important; position: fixed;">
                     <a th:classappend="(${#strings.contains(uri, '/admin/index')} or ${#strings.endsWith(uri,'/admin/')} or ${#strings.endsWith(uri,'/admin')}) ? 'active' : ''" class="item" th:href="@{/admin}" href="index.html">
                         <i class="home icon"></i> 主页
