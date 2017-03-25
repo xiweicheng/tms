@@ -1184,14 +1184,20 @@ public class BlogController extends BaseController {
 				return RespBody.failed("您已经收藏过该博文!");
 			} else {
 				blogStow3.setStatus(Status.New);
+				
+				BlogStow blogStow = blogStowRepository.saveAndFlush(blogStow3);
+				blogStow.setBlog(null);
 
-				return RespBody.succeed(blogStowRepository.saveAndFlush(blogStow3));
+				return RespBody.succeed(blogStow);
 			}
 		} else {
 			BlogStow blogStow = new BlogStow();
 			blogStow.setBlog(blog);
+			
+			BlogStow blogStow2 = blogStowRepository.saveAndFlush(blogStow);
+			blogStow2.setBlog(null);
 
-			return RespBody.succeed(blogStowRepository.saveAndFlush(blogStow));
+			return RespBody.succeed(blogStow2);
 		}
 
 	}
@@ -1259,14 +1265,20 @@ public class BlogController extends BaseController {
 				return RespBody.failed("您已经关注过该博文!");
 			} else {
 				blogFollower.setStatus(Status.New);
+				
+				BlogFollower blogFollower2 = blogFollowerRepository.saveAndFlush(blogFollower);
+				blogFollower2.setBlog(null);
 
-				return RespBody.succeed(blogFollowerRepository.saveAndFlush(blogFollower));
+				return RespBody.succeed(blogFollower2);
 			}
 		} else {
 			BlogFollower blogFollower2 = new BlogFollower();
 			blogFollower2.setBlog(blog);
+			
+			BlogFollower blogFollower3 = blogFollowerRepository.saveAndFlush(blogFollower2);
+			blogFollower3.setBlog(null);
 
-			return RespBody.succeed(blogFollowerRepository.saveAndFlush(blogFollower2));
+			return RespBody.succeed(blogFollower3);
 		}
 
 	}
