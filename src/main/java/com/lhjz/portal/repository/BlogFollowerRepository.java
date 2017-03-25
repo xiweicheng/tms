@@ -23,5 +23,7 @@ public interface BlogFollowerRepository extends JpaRepository<BlogFollower, Long
 
 	BlogFollower findOneByBlogAndCreator(Blog blog, User user);
 
+	BlogFollower findOneByBlogAndCreatorAndStatusNot(Blog blog, User user, Status status);
+
 	List<BlogFollower> findByCreatorAndStatusNot(User user, Status status);
 }

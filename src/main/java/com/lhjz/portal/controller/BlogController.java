@@ -1245,8 +1245,8 @@ public class BlogController extends BaseController {
 			return RespBody.failed("您没有权限操作该博文!");
 		}
 
-		BlogStow blogStow = blogStowRepository.findOneByBlogAndCreator(blog, getLoginUser());
-
+		BlogStow blogStow = blogStowRepository.findOneByBlogAndCreatorAndStatusNot(blog, getLoginUser(), Status.Deleted);
+		
 		return RespBody.succeed(blogStow);
 	}
 	
@@ -1327,7 +1327,7 @@ public class BlogController extends BaseController {
 			return RespBody.failed("您没有权限操作该博文!");
 		}
 
-		BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreator(blog, getLoginUser());
+		BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreatorAndStatusNot(blog, getLoginUser(), Status.Deleted);
 
 		return RespBody.succeed(blogFollower);
 	}

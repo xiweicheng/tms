@@ -22,6 +22,8 @@ import com.lhjz.portal.pojo.Enum.Status;
 public interface BlogStowRepository extends JpaRepository<BlogStow, Long> {
 
 	BlogStow findOneByBlogAndCreator(Blog blog, User user);
+	
+	BlogStow findOneByBlogAndCreatorAndStatusNot(Blog blog, User user, Status stats);
 
 	List<BlogStow> findByCreatorAndStatusNot(User user, Status status);
 
