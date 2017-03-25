@@ -170,7 +170,7 @@ public class BlogController extends BaseController {
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 
-		final String href = url + "/#/blog/" + blog2.getId();
+		final String href = url + "#/blog/" + blog2.getId();
 		final String html = contentHtml;
 		final User loginUser = getLoginUser();
 
@@ -296,7 +296,7 @@ public class BlogController extends BaseController {
 			Blog blog2 = blogRepository.saveAndFlush(blog);
 
 			final User loginUser = getLoginUser();
-			final String href = url + "/#/blog/" + blog2.getId();
+			final String href = url + "#/blog/" + blog2.getId();
 			final String html;
 			if (StringUtil.isNotEmpty(diff)) {
 				html = "<h3>内容(Markdown)变更对比:</h3><b>原文链接:</b> <a href=\"" + href + "\">" + href + "</a><hr/>" + diff;
@@ -508,7 +508,7 @@ public class BlogController extends BaseController {
 			}
 		}
 
-		final String href = url + "/#/blog/" + id;
+		final String href = url + "#/blog/" + id;
 		final String titleHtml = title;
 		final Mail mail = Mail.instance().addUsers(blog.getCreator());
 		final String html = "<h3>投票博文消息内容:</h3><hr/>" + contentHtml;
@@ -577,7 +577,7 @@ public class BlogController extends BaseController {
 			}
 		}
 
-		final String href = url + "/#/blog/" + comment.getTargetId() + "?cid=" + cid;
+		final String href = url + "#/blog/" + comment.getTargetId() + "?cid=" + cid;
 		final String titleHtml = title;
 		final Mail mail = Mail.instance().addUsers(comment.getCreator());
 		final String html = "<h3>投票博文评论内容:</h3><hr/>" + contentHtml;
