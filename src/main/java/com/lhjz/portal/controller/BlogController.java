@@ -46,7 +46,9 @@ import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender2;
 import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.entity.BlogAuthority;
+import com.lhjz.portal.entity.BlogFollower;
 import com.lhjz.portal.entity.BlogHistory;
+import com.lhjz.portal.entity.BlogStow;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
@@ -61,8 +63,10 @@ import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
 import com.lhjz.portal.repository.BlogAuthorityRepository;
+import com.lhjz.portal.repository.BlogFollowerRepository;
 import com.lhjz.portal.repository.BlogHistoryRepository;
 import com.lhjz.portal.repository.BlogRepository;
+import com.lhjz.portal.repository.BlogStowRepository;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
@@ -122,6 +126,12 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	CommentRepository commentRepository;
+	
+	@Autowired
+	BlogStowRepository blogStowRepository;
+	
+	@Autowired
+	BlogFollowerRepository blogFollowerRepository;
 
 	@Autowired
 	MailSender2 mailSender;
@@ -1157,6 +1167,157 @@ public class BlogController extends BaseController {
 		blog.getBlogAuthorities().removeAll(list);
 
 		return RespBody.succeed(blog);
+	}
+
+	@RequestMapping(value = "stow/add", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody addStow(@RequestParam("id") Long id) {
+		Blog blog = blogRepository.findOne(id);
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限收藏该博文!");
+		}
+
+		BlogStow blogStow3 = blogStowRepository.findOneByBlogAndCreator(blog, getLoginUser());
+
+		if (blogStow3 != null) {
+			if (!blogStow3.getStatus().equals(Status.Deleted)) {
+				return RespBody.failed("您已经收藏过该博文!");
+			} else {
+				blogStow3.setStatus(Status.New);
+
+				return RespBody.succeed(blogStowRepository.saveAndFlush(blogStow3));
+			}
+		} else {
+			BlogStow blogStow = new BlogStow();
+			blogStow.setBlog(blog);
+
+			return RespBody.succeed(blogStowRepository.saveAndFlush(blogStow));
+		}
+
+	}
+
+	@RequestMapping(value = "stow/remove", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody removeStow(@RequestParam("sid") Long sid) {
+
+		BlogStow blogStow = blogStowRepository.findOne(sid);
+
+		if (blogStow == null) {
+			return RespBody.failed("该博文收藏记录不存在!");
+		}
+
+		if (!hasAuth(blogStow.getBlog())) {
+			return RespBody.failed("您没有权限操作该博文!");
+		}
+
+		blogStow.setStatus(Status.Deleted);
+
+		blogStowRepository.saveAndFlush(blogStow);
+
+		return RespBody.succeed(sid);
+	}
+
+	@RequestMapping(value = "stow/listMy", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody listMyStow() {
+
+		List<BlogStow> blogStows = blogStowRepository.findByCreatorAndStatusNot(getLoginUser(), Status.Deleted);
+		blogStows.forEach(bs -> {
+			bs.getBlog().setContent(null);
+			bs.getBlog().setBlogAuthorities(null);
+		});
+
+		return RespBody.succeed(blogStows);
+	}
+	
+	@RequestMapping(value = "stow/get", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody getStow(@RequestParam("id") Long id) {
+
+		Blog blog = blogRepository.findOne(id);
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限操作该博文!");
+		}
+
+		BlogStow blogStow = blogStowRepository.findOneByBlogAndCreator(blog, getLoginUser());
+
+		return RespBody.succeed(blogStow);
+	}
+	
+	@RequestMapping(value = "follower/add", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody addFollower(@RequestParam("id") Long id) {
+		Blog blog = blogRepository.findOne(id);
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限关注该博文!");
+		}
+
+		BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreator(blog, getLoginUser());
+
+		if (blogFollower != null) {
+			if (!blogFollower.getStatus().equals(Status.Deleted)) {
+				return RespBody.failed("您已经关注过该博文!");
+			} else {
+				blogFollower.setStatus(Status.New);
+
+				return RespBody.succeed(blogFollowerRepository.saveAndFlush(blogFollower));
+			}
+		} else {
+			BlogFollower blogFollower2 = new BlogFollower();
+			blogFollower2.setBlog(blog);
+
+			return RespBody.succeed(blogFollowerRepository.saveAndFlush(blogFollower2));
+		}
+
+	}
+
+	@RequestMapping(value = "follower/remove", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody removeFollower(@RequestParam("fid") Long fid) {
+
+		BlogFollower blogFollower = blogFollowerRepository.findOne(fid);
+
+		if (blogFollower == null) {
+			return RespBody.failed("该博文关注记录不存在!");
+		}
+
+		if (!hasAuth(blogFollower.getBlog())) {
+			return RespBody.failed("您没有权限操作该博文!");
+		}
+
+		blogFollower.setStatus(Status.Deleted);
+
+		blogFollowerRepository.saveAndFlush(blogFollower);
+
+		return RespBody.succeed(fid);
+	}
+
+	@RequestMapping(value = "follower/listMy", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody listMyFollower() {
+
+		List<BlogFollower> blogFollowers = blogFollowerRepository.findByCreatorAndStatusNot(getLoginUser(),
+				Status.Deleted);
+		blogFollowers.forEach(bf -> {
+			bf.getBlog().setContent(null);
+			bf.getBlog().setBlogAuthorities(null);
+		});
+
+		return RespBody.succeed(blogFollowers);
+	}
+
+	@RequestMapping(value = "follower/get", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody getFollower(@RequestParam("id") Long id) {
+
+		Blog blog = blogRepository.findOne(id);
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限操作该博文!");
+		}
+
+		BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreator(blog, getLoginUser());
+
+		return RespBody.succeed(blogFollower);
 	}
 
 }

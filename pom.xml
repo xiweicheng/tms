@@ -168,6 +168,12 @@
 		    <artifactId>markedj</artifactId>
 		    <version>1.0.9</version>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.14</version>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 
 	<build>
