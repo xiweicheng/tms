@@ -384,7 +384,17 @@ public class BlogController extends BaseController {
 			return RespBody.failed("您没有权限查看该博文!");
 		}
 
-		return RespBody.succeed(blog);
+		Long readCnt = blog.getReadCnt();
+		if (readCnt == null) {
+			readCnt = 1L;
+		} else {
+			readCnt = readCnt + 1;
+		}
+
+		blog.setReadCnt(readCnt);
+		Blog blog2 = blogRepository.saveAndFlush(blog);
+
+		return RespBody.succeed(blog2);
 	}
 
 	@RequestMapping(value = "search", method = RequestMethod.GET)

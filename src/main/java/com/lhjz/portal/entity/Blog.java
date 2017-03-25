@@ -98,6 +98,8 @@ public class Blog implements Serializable {
 
 	private Integer voteCaiCnt;
 
+	private Long readCnt;
+
 	@ManyToOne
 	@JoinColumn(name = "space")
 	private Space space;
@@ -236,6 +238,14 @@ public class Blog implements Serializable {
 		this.voteZanCnt = voteZanCnt;
 	}
 
+	public Long getReadCnt() {
+		return readCnt;
+	}
+
+	public void setReadCnt(Long readCnt) {
+		this.readCnt = readCnt;
+	}
+
 	public Space getSpace() {
 		return space;
 	}
@@ -282,8 +292,8 @@ public class Blog implements Serializable {
 		return "Blog [id=" + id + ", title=" + title + ", content=" + content + ", openEdit=" + openEdit + ", privated="
 				+ privated + ", creator=" + creator + ", updater=" + updater + ", createDate=" + createDate
 				+ ", updateDate=" + updateDate + ", status=" + status + ", type=" + type + ", voteZan=" + voteZan
-				+ ", voteCai=" + voteCai + ", voteZanCnt=" + voteZanCnt + ", voteCaiCnt=" + voteCaiCnt + ", version="
-				+ version + "]";
+				+ ", voteCai=" + voteCai + ", voteZanCnt=" + voteZanCnt + ", voteCaiCnt=" + voteCaiCnt + ", readCnt="
+				+ readCnt + ", space=" + space + ", version=" + version + "]";
 	}
 
 }
