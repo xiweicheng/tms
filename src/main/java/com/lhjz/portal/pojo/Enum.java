@@ -46,7 +46,7 @@ public class Enum {
 	}
 
 	public static enum Target {
-		Translate, Label, TranslateItem, Language, Chat, ChatChannel, Blog, ChatDirect, Project, Article, File, Feedback, Diagnose, Settings, Page, User, Authority, Config, Feature, Case, Product, Env, Health, Job, JobApply, Import;
+		Translate, Label, TranslateItem, Language, Chat, ChatChannel, Blog, Comment, ChatDirect, Project, Article, File, Feedback, Diagnose, Settings, Page, User, Authority, Config, Feature, Case, Product, Env, Health, Job, JobApply, Import;
 	}
 
 	public static enum Page {

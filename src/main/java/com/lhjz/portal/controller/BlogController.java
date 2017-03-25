@@ -533,6 +533,75 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(blog2);
 	}
+	
+	@RequestMapping(value = "comment/vote", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody voteComment(@RequestParam("cid") Long cid, @RequestParam("url") String url,
+			@RequestParam("contentHtml") String contentHtml,
+			@RequestParam(value = "type", required = false) String type) {
+
+		Comment comment = commentRepository.findOne(cid);
+		if (comment == null) {
+			return RespBody.failed("投票博文评论不存在!");
+		}
+		String loginUsername = WebUtil.getUsername();
+
+		Comment comment2 = null;
+
+		String title = "";
+		final User loginUser = getLoginUser();
+
+		if (VoteType.Zan.name().equalsIgnoreCase(type)) {
+			String voteZan = comment.getVoteZan();
+			if (isVoterExists(voteZan)) {
+				return RespBody.failed("您已经投票[赞]过！");
+			} else {
+				comment.setVoteZan(voteZan == null ? loginUsername : voteZan + ',' + loginUsername);
+
+				Integer voteZanCnt = comment.getVoteZanCnt();
+				comment.setVoteZanCnt(voteZanCnt == null ? 1 : voteZanCnt + 1);
+
+				comment2 = commentRepository.saveAndFlush(comment);
+				title = loginUser.getName() + "[" + loginUsername + "]赞了你的博文评论!";
+			}
+
+		} else {
+			String voteZan = comment.getVoteZan();
+			if (isVoterExists(voteZan)) {
+				comment.setVoteZan(this.calcVoters(voteZan));
+				Integer voteZanCnt = comment.getVoteZanCnt();
+				comment.setVoteZanCnt(voteZanCnt == null ? 0 : voteZanCnt - 1);
+
+				comment2 = commentRepository.saveAndFlush(comment);
+				return RespBody.succeed(comment2);
+			}
+		}
+
+		final String href = url + "/#/blog/" + comment.getTargetId() + "?cid=" + cid;
+		final String titleHtml = title;
+		final Mail mail = Mail.instance().addUsers(comment.getCreator());
+		final String html = "<h3>投票博文评论内容:</h3><hr/>" + contentHtml;
+
+		ThreadUtil.exec(() -> {
+
+			try {
+				Thread.sleep(3000);
+				mailSender.sendHtml(String.format("TMS-博文评论投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", titleHtml, "content", html)),
+						mail.get());
+				logger.info("博文评论投票邮件发送成功！");
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("博文评论投票邮件发送失败！");
+			}
+
+		});
+
+		log(Action.Vote, Target.Comment, comment.getId(), comment2);
+
+		return RespBody.succeed(comment2);
+	}
 
 	@RequestMapping(value = "share/to/search", method = RequestMethod.GET)
 	@ResponseBody
