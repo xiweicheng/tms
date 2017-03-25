@@ -26,5 +26,7 @@ public interface BlogStowRepository extends JpaRepository<BlogStow, Long> {
 	BlogStow findOneByBlogAndCreatorAndStatusNot(Blog blog, User user, Status stats);
 
 	List<BlogStow> findByCreatorAndStatusNot(User user, Status status);
+	
+	List<BlogStow> findByBlogAndStatusNot(Blog blog, Status status);
 
 }

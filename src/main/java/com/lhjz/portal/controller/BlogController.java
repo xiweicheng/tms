@@ -305,8 +305,10 @@ public class BlogController extends BaseController {
 			}
 
 			final Mail mail = Mail.instance();
+			
+			List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog2, Status.Deleted);
 
-			if (StringUtil.isNotEmpty(usernames)) {
+			if (StringUtil.isNotEmpty(usernames) || followers.size() > 0) {
 
 				Map<String, User> atUserMap = new HashMap<String, User>();
 
@@ -321,12 +323,14 @@ public class BlogController extends BaseController {
 					});
 				}
 
+				followers.forEach(bf -> mail.addUsers(bf.getCreator()));
+
 				ThreadUtil.exec(() -> {
 
 					try {
 						Thread.sleep(3000);
 						mailSender.sendHtml(
-								String.format("TMS-b博文编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+								String.format("TMS-博文编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 								TemplateUtil.process("templates/mail/mail-dynamic",
 										MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
 												"下面编辑的博文消息中有@到你", "content", html)),
@@ -654,7 +658,10 @@ public class BlogController extends BaseController {
 				mail.addUsers(user);
 			});
 		}
-		
+
+		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
+		followers.forEach(bf -> mail.addUsers(bf.getCreator()));
+
 		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
 
 		ThreadUtil.exec(() -> {
@@ -716,6 +723,9 @@ public class BlogController extends BaseController {
 				mail.addUsers(user);
 			});
 		}
+		
+		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
+		followers.forEach(bf -> mail.addUsers(bf.getCreator()));
 		
 		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
 
@@ -1250,6 +1260,21 @@ public class BlogController extends BaseController {
 		return RespBody.succeed(blogStow);
 	}
 	
+	@RequestMapping(value = "stow/list", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody listStow(@RequestParam("id") Long id) {
+
+		Blog blog = blogRepository.findOne(id);
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限操作该博文!");
+		}
+
+		List<BlogStow> stows = blogStowRepository.findByBlogAndStatusNot(blog, Status.Deleted);
+		stows.forEach(bs -> bs.setBlog(null));
+
+		return RespBody.succeed(stows);
+	}
+	
 	@RequestMapping(value = "follower/add", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody addFollower(@RequestParam("id") Long id) {
@@ -1330,6 +1355,21 @@ public class BlogController extends BaseController {
 		BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreatorAndStatusNot(blog, getLoginUser(), Status.Deleted);
 
 		return RespBody.succeed(blogFollower);
+	}
+	
+	@RequestMapping(value = "follower/list", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody listFollower(@RequestParam("id") Long id) {
+
+		Blog blog = blogRepository.findOne(id);
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限操作该博文!");
+		}
+
+		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
+		followers.forEach(bf -> bf.setBlog(null));
+
+		return RespBody.succeed(followers);
 	}
 
 }
