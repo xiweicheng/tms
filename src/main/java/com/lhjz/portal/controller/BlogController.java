@@ -177,16 +177,10 @@ public class BlogController extends BaseController {
 		final Mail mail = Mail.instance();
 		if (StringUtil.isNotEmpty(usernames)) {
 
-			Map<String, User> atUserMap = new HashMap<String, User>();
-
 			if (StringUtil.isNotEmpty(usernames)) {
 				String[] usernameArr = usernames.split(",");
 				Arrays.asList(usernameArr).stream().forEach((username) -> {
-					User user = getUser(username);
-					if (user != null) {
-						mail.addUsers(user);
-						atUserMap.put(user.getUsername(), user);
-					}
+					mail.addUsers(getUser(username));
 				});
 			}
 
@@ -306,20 +300,20 @@ public class BlogController extends BaseController {
 
 			final Mail mail = Mail.instance();
 			
+			boolean isCreator = blog2.getCreator().equals(loginUser);
+			
 			List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog2, Status.Deleted);
 
-			if (StringUtil.isNotEmpty(usernames) || followers.size() > 0) {
-
-				Map<String, User> atUserMap = new HashMap<String, User>();
-
+			if (!isCreator || StringUtil.isNotEmpty(usernames) || followers.size() > 0) {
+				
+				if (!isCreator) {
+					mail.addUsers(blog2.getCreator());
+				}
+				
 				if (StringUtil.isNotEmpty(usernames)) {
 					String[] usernameArr = usernames.split(",");
 					Arrays.asList(usernameArr).stream().forEach((username) -> {
-						User user = getUser(username);
-						if (user != null) {
-							mail.addUsers(user);
-							atUserMap.put(user.getUsername(), user);
-						}
+						mail.addUsers(getUser(username));
 					});
 				}
 
