@@ -724,7 +724,10 @@ public class BlogController extends BaseController {
 
 		Blog blog = blogRepository.findOne(id);
 
-		Mail mail = Mail.instance().addUsers(blog.getCreator());
+		Mail mail = Mail.instance();
+		if (!blog.getCreator().equals(loginUser)) {
+			mail.addUsers(blog.getCreator());
+		}
 		if (StringUtil.isNotEmpty(users)) {
 			Stream.of(users.split(",")).forEach(username -> {
 				User user = getUser(username);
@@ -789,7 +792,10 @@ public class BlogController extends BaseController {
 
 		Blog blog = blogRepository.findOne(id);
 
-		Mail mail = Mail.instance().addUsers(blog.getCreator());
+		Mail mail = Mail.instance();
+		if (!blog.getCreator().equals(loginUser)) {
+			mail.addUsers(blog.getCreator());
+		}
 		if (StringUtil.isNotEmpty(users)) {
 			Stream.of(users.split(",")).forEach(username -> {
 				User user = getUser(username);
