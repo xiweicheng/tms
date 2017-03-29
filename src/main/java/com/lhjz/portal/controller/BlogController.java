@@ -469,8 +469,6 @@ public class BlogController extends BaseController {
 		}
 		String loginUsername = WebUtil.getUsername();
 
-		Blog blog2 = null;
-
 		String title = "";
 		final User loginUser = getLoginUser();
 
@@ -487,7 +485,7 @@ public class BlogController extends BaseController {
 				}
 				blog.setVoteZanCnt(++voteZanCnt);
 
-				blog2 = blogRepository.saveAndFlush(blog);
+				blogRepository.updateVoteZan(blog.getVoteZan(), blog.getVoteZanCnt(), id);
 				title = loginUser.getName() + "[" + loginUsername + "]赞了你的博文消息!";
 			}
 
@@ -498,8 +496,8 @@ public class BlogController extends BaseController {
 				Integer voteZanCnt = blog.getVoteZanCnt();
 				blog.setVoteZanCnt(voteZanCnt == null ? 0 : voteZanCnt - 1);
 
-				blog2 = blogRepository.saveAndFlush(blog);
-				return RespBody.succeed(blog2);
+				blogRepository.updateVoteZan(blog.getVoteZan(), blog.getVoteZanCnt(), id);
+				return RespBody.succeed(blog);
 			}
 		}
 
@@ -524,9 +522,9 @@ public class BlogController extends BaseController {
 
 		});
 
-		log(Action.Vote, Target.Blog, blog.getId(), blog2);
+		log(Action.Vote, Target.Blog, blog.getId(), blog);
 
-		return RespBody.succeed(blog2);
+		return RespBody.succeed(blog);
 	}
 	
 	@RequestMapping(value = "comment/vote", method = RequestMethod.POST)
@@ -899,7 +897,7 @@ public class BlogController extends BaseController {
 		}
 
 		blog.setPrivated(privated);
-
+		
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 
 		return RespBody.succeed(blog2);
