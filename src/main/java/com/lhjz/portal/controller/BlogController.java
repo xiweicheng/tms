@@ -384,11 +384,12 @@ public class BlogController extends BaseController {
 		} else {
 			readCnt = readCnt + 1;
 		}
+		
+		blogRepository.updateReadCnt(readCnt, id);
 
 		blog.setReadCnt(readCnt);
-		Blog blog2 = blogRepository.saveAndFlush(blog);
 
-		return RespBody.succeed(blog2);
+		return RespBody.succeed(blog);
 	}
 
 	@RequestMapping(value = "search", method = RequestMethod.GET)

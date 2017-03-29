@@ -5,10 +5,13 @@ package com.lhjz.portal.repository;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -48,4 +51,9 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	
 	@Query(value = "SELECT COUNT(*) as cnt FROM blog WHERE `status` <> 'Deleted'", nativeQuery = true)
 	long countBlogs();
+
+	@Transactional
+	@Modifying
+	@Query("update Blog b set b.readCnt = ?1 where b.id = ?2")
+	int updateReadCnt(Long readCnt, Long id);
 }
