@@ -1,0 +1,21 @@
+<template>
+    <div ref="popup" class="ui flowing popup transition hidden tms-chat-msg-popup">
+        <div class="ui items">
+            <div class="item">
+                <div class="content" style="width:300px; word-break: break-all;">
+                    <a class="header pp-not" href="javascript:void(0);">消息#${chatMsg.id}</a>
+                    <div class="meta" style="width:300px; word-break: break-all; font-size: 12px;">
+                        <i class="wait icon"></i>
+                        <span>
+                            ${chatMsg.creator ? (chatMsg.creator.name ? chatMsg.creator.name : chatMsg.creator.username) : ''}
+                        </span>
+                        <span>发表于</span>
+                        <span class="cinema timeago" style="font-style: italic;" title="${chatMsg.createDate | date}">${chatMsg.createDate | timeago}</span>
+                    </div>
+                    <div class="ui divider"></div>
+                    <div class="description markdown-body" style="width:300px; word-break: break-all; max-height: 200px; overflow-y: auto; overflow-x: hidden;" innerhtml.bind="chatMsg.content | parseMd"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

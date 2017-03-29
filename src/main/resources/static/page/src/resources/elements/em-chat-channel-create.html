@@ -1,0 +1,38 @@
+<template>
+    <require from="./em-chat-channel-create.css"></require>
+    <em-modal classes="small" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)" show-confirm.bind="activeTab == 'channel-create'" confirm-label="创建">
+        <div slot="header">频道管理</div>
+        <div slot="content" class="tms-em-chat-channel-create">
+            <div ref="tabRef" class="ui pointing secondary menu">
+                <a class="active item" data-tab="channel-create">创建频道</a>
+                <a class="item" data-tab="channel-join">加入频道</a>
+            </div>
+            <div class="ui active tab basic segment tms-create" data-tab="channel-create">
+                <div ref="frm" class="ui form">
+                    <div class="inline required field">
+                        <label>标识</label>
+                        <input type="text" name="name" value.bind="name" placeholder="小写字母数组-_组合">
+                    </div>
+                    <div class="inline required field">
+                        <label>名称</label>
+                        <input type="text" name="title" value.bind="title" placeholder="">
+                    </div>
+                    <div class="inline field">
+                        <label style="visibility: hidden;">公开</label>
+                        <div ref="chk" class="ui checkbox">
+                            <input type="checkbox" name="privated" checked="">
+                            <label>非公开(公开频道用户可以自由加入)</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>描述</label>
+                        <textarea name="desc" value.bind="desc" placeholder="" rows="5"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="ui tab basic segment tms-join" data-tab="channel-join">
+                <em-chat-channel-join em-chat-channel-join.ref="channelJoinVm" login-user.bind="loginUser"></em-chat-channel-join>
+            </div>
+        </div>
+    </em-modal>
+</template>

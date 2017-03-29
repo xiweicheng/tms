@@ -1,0 +1,30 @@
+<template>
+    <table class="ui very basic striped table">
+        <thead>
+            <tr>
+                <th>标识</th>
+                <th>名称</th>
+                <th>描述</th>
+                <th>可见性</th>
+                <th>拥有者</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr repeat.for="item of channels | sort:'title' | sortChannels">
+                <td><i class="hashtag icon"></i>${item.name}</td>
+                <td title="${item.title}">${item.title}</td>
+                <td><span data-tooltip="${item.description}"><i class="info circle icon"></i></span></td>
+                <td if.bind="item.privated"><span data-tooltip="私有频道"><i class="lock icon"></i></span></td>
+                <td if.bind="!item.privated"><span data-tooltip="公开频道"><i class="unlock icon"></i></span></td>
+                <td title="${item.owner.name}(${item.owner.username})" if.bind="item.owner.username != loginUser.username">${item.owner.name ? item.owner.name : item.owner.username}</td>
+                <td title="${item.owner.name}(${item.owner.username})" if.bind="item.owner.username == loginUser.username">自己</td>
+                <td>
+                    <div if.bind="!item.privated && !item.joined" class="ui mini green button" click.delegate="joinHandler(item)">加入</div>
+                    <div if.bind="item.joined && (item.owner.username != loginUser.username)" class="ui mini orange button" click.delegate="leaveHandler(item)">离开</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <em-confirm-modal em-confirm-modal.ref="confirmMd"></em-confirm-modal>
+</template>

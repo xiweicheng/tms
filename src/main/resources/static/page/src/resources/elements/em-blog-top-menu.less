@@ -1,0 +1,83 @@
+.em-blog-top-menu {
+    &.ui.inverted.blue.menu {
+        background-color: #205081;
+        height: 55px;
+        z-index: 103;
+        .item {
+            &.tms-toggle {
+                display: none;
+                i.icon {
+                    margin-right: 0;
+                }
+            }
+            &.tms-links {
+                i.icon {
+                    margin-right: 0;
+                }
+            }
+        }
+        .right.menu {
+            .item {
+                .ui.icon.input {
+                    input {
+                        background-color: #103a65;
+                        color: white;
+                        &:focus {
+                            border-color: rgba(34, 36, 38, .15);
+                            box-shadow: none;
+                        }
+                    }
+                    i.icon.search:before {
+                        color: #a3aab0;
+                    }
+                }
+            }
+        }
+        @media only screen and (max-width: 767px) {
+            .item {
+                &.tms-links {
+                    display: none;
+                }
+                &.tms-logo {
+                    display: none;
+                }
+                &.header {
+                    display: none;
+                }
+                &.tms-toggle {
+                    display: flex;
+                }
+            }
+            .right.menu {
+                .item {
+                    .ui.search {
+                        .ui.input {
+                            width: 100px;
+                        }
+                    }
+                }
+            }
+            &.search-focus {
+                .tms-logo {
+                    display: none;
+                }
+                .tms-create {
+                    display: none;
+                }
+                .right.menu {
+                    .item {
+                        .ui.search {
+                            .ui.input {
+                                width: initial;
+                                transition: width 0.15s ease-out 0s;
+                            }
+                        }
+                    }
+                    .tms-login-user {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+}

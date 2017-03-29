@@ -1,0 +1,52 @@
+<template>
+    <require from="./em-chat-channel-members-mgr.css"></require>
+    <em-modal classes="small" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)" confirm-label="确定">
+        <div slot="header">频道成员管理</div>
+        <div slot="content" class="tms-em-chat-channel-members-mgr">
+            <div ref="frm" class="ui form">
+                <div class="field">
+                    <label>频道成员(${channel.members.length})</label>
+                    <div ref="membersRef" class="ui fluid multiple search selection dropdown">
+                        <input type="hidden" name="members">
+                        <i class="dropdown icon"></i>
+                        <div class="default text"></div>
+                        <div class="menu">
+                            <div repeat.for="item of users | sortUsers:channel.owner.username" task.bind="initMembersUI($last)" class="item" data-value="${item.username}">
+                                <!-- <input type="hidden" class="${!item.enabled ? 'disabled-user' : ''}"> -->
+                                <span class="${channel.owner.username == item.username ? 'owner' : ''} ${!item.enabled ? 'disabled-user' : ''}">${item.name ? item.name : item.username}</span>
+                                <!-- <input type="hidden" class="${channel.owner.username == item.username ? 'owner' : ''}"> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="member-table">
+                <table class="ui very basic striped compact table">
+                    <thead>
+                        <tr>
+                            <th><i class="at icon" style="margin-right: 0;"></i>用户名</th>
+                            <th>姓名</th>
+                            <th>邮箱</th>
+                            <th>登录</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr repeat.for="item of channel.members | sort:'username'">
+                            <td><i class="at icon" style="margin-right: 0;"></i>${item.username}</td>
+                            <td>${item.name}</td>
+                            <td>${item.mails}</td>
+                            <td title="${item.lastLoginDate | date}">${item.lastLoginDate | timeago}</td>
+                            <td if.bind="item.enabled">
+                                <div class="ui green tag label">启用中</div>
+                            </td>
+                            <td if.bind="!item.enabled">
+                                <div class="ui red tag label">已停用</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </em-modal>
+</template>

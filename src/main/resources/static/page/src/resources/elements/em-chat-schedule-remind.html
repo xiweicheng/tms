@@ -1,0 +1,30 @@
+<template>
+    <require from="./em-chat-schedule-remind.css"></require>
+    <em-modal classes="small" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)">
+        <div slot="header">日程提醒</div>
+        <div slot="content" class="em-chat-schedule-remind">
+            <table class="ui unstackable table">
+                <tbody>
+                    <tr>
+                        <td>发起人:</td>
+                        <td>${event.creator.name}</td>
+                    </tr>
+                    <tr>
+                        <td>起止时间:</td>
+                        <td>${event.start | date} - ${event.end | date}</td>
+                    </tr>
+                    <tr>
+                        <td>参与成员:</td>
+                        <td>
+                            <div repeat.for="item of event.actors" class="ui basic label">${item.name}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>日程内容:</td>
+                        <td innerhtml.bind="event.title | nl2br"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </em-modal>
+</template>

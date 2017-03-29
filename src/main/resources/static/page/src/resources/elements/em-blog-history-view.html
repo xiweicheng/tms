@@ -1,0 +1,12 @@
+<template>
+    <require from="./em-blog-history-view.css"></require>
+    <em-modal classes="" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)">
+        <div slot="header">博文历史版本查看(${isCurrentVer ? '当前 ' : ''}v.${ver})</div>
+        <div slot="content" class="em-blog-history-view">
+            <div class="topbar">
+                <div click.delegate="restoreHandler()" class="ui ${!ajax1 || ajax1.readyState == 4 ? '' : 'tms-disabled'} ${!isCurrentVer || (isSuper || blog.creator.username == loginUser.username || blog.openEdit) ? '' : 'disabled'} mini basic button"><i class="undo icon"></i>还原此历史版本</div>
+            </div>
+            <div ref="mkbodyRef" class="content markdown-body" innerhtml.bind="blogHistory.content | parseMd | emoji:mkbodyRef"></div>
+        </div>
+    </em-modal>
+</template>

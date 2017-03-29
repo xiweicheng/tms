@@ -1,0 +1,291 @@
+{
+  "name": "page",
+  "type": "project:application",
+  "platform": {
+    "id": "web",
+    "displayName": "Web",
+    "output": "scripts"
+  },
+  "transpiler": {
+    "id": "babel",
+    "displayName": "Babel",
+    "fileExtension": ".js",
+    "options": {
+      "plugins": [
+        "transform-es2015-modules-amd"
+      ]
+    },
+    "source": "src/**/*.js"
+  },
+  "markupProcessor": {
+    "id": "none",
+    "displayName": "None",
+    "fileExtension": ".html",
+    "source": "src/**/*.html"
+  },
+  "cssProcessor": {
+    "id": "less",
+    "displayName": "Less",
+    "fileExtension": ".less",
+    "source": "src/**/*.less"
+  },
+  "editor": {
+    "id": "sublime",
+    "displayName": "Sublime"
+  },
+  "unitTestRunner": {
+    "id": "none",
+    "displayName": "None"
+  },
+  "paths": {
+    "root": "src",
+    "resources": "src/resources",
+    "elements": "src/resources/elements",
+    "attributes": "src/resources/attributes",
+    "valueConverters": "src/resources/value-converters",
+    "bindingBehaviors": "src/resources/binding-behaviors"
+  },
+  "build": {
+    "targets": [
+      {
+        "id": "web",
+        "displayName": "Web",
+        "output": "scripts",
+        "index": "index.html"
+      }
+    ],
+    "loader": {
+      "type": "require",
+      "configTarget": "vendor-bundle.js",
+      "includeBundleMetadataInConfig": "auto",
+      "config": {
+          "waitSeconds": 60
+      },
+      "plugins": [
+        {
+          "name": "text",
+          "extensions": [
+            ".html",
+            ".css"
+          ],
+          "stub": true
+        }
+      ]
+    },
+    "options": {
+      "minify": "stage & prod",
+      "sourcemaps": "dev & stage",
+      "rev": "stage & prod"
+    },
+    "bundles": [
+      {
+        "name": "app-bundle.js",
+        "source": [
+          "[**/*.js]",
+          "**/*.{css,html}"
+        ]
+      },
+      {
+        "name": "deps-bundle.js",
+        "dependencies": [
+          "marked",
+          "autosize",
+          "clipboard-js",
+          "moment",
+          {
+            "name": "color-hash",
+            "path": "../node_modules/color-hash",
+            "main": "dist/color-hash"
+          },
+          {
+            "name": "push",
+            "path": "../node_modules/push.js",
+            "main": "push.min"
+          },
+          {
+            "name": "clipboard",
+            "path": "../node_modules/clipboard",
+            "main": "dist/clipboard.min"
+          },
+          {
+            "name": "timeago",
+            "path": "../node_modules/timeago.js",
+            "main": "dist/timeago.min"
+          },
+          {
+            "name": "dropzone",
+            "path": "../node_modules/dropzone",
+            "main": "dist/dropzone",
+            "resources": [
+              "dist/basic.css"
+            ]
+          },
+          {
+            "name": "swipebox",
+            "path": "../node_modules/swipebox",
+            "main": "src/js/jquery.swipebox.min",
+            "deps": ["jquery"],
+            "resources": [
+              "src/css/swipebox.min.css"
+            ]
+          },
+          {
+            "name": "simplemde",
+            "path": "../node_modules/simplemde",
+            "main": "dist/simplemde.min",
+            "resources": [
+              "dist/simplemde.min.css"
+            ]
+          },
+          {
+            "name": "highlight",
+            "path": "../node_modules/highlight.js",
+            "main": "lib/index",
+            "resources": [
+              "styles/github.css"
+            ]
+          },
+          {
+            "name": "hotkeys",
+            "path": "../node_modules/jquery.hotkeys",
+            "main": "jquery.hotkeys",
+            "deps": ["jquery"]
+          },
+          {
+            "name": "tablesort",
+            "path": "../node_modules/jquery-tablesort",
+            "main": "jquery.tablesort",
+            "deps": ["jquery"]
+          },
+          {
+            "name": "modaal",
+            "path": "../node_modules/modaal",
+            "main": "dist/js/modaal.min",
+            "resources": [
+              "dist/css/modaal.min.css"
+            ],
+            "deps": ["jquery"]
+          },
+          {
+            "name": "fullcalendar",
+            "path": "../node_modules/fullcalendar",
+            "main": "dist/fullcalendar.min",
+            "deps": ["jquery", "moment"],
+            "resources": [
+              "dist/fullcalendar.min.css",
+              "dist/locale/zh-cn.js"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "vendor-bundle.js",
+        "prepend": [
+          "node_modules/babel-polyfill/dist/polyfill.min.js",
+          "node_modules/bluebird/js/browser/bluebird.core.js",
+          "node_modules/requirejs/require.js"
+        ],
+        "dependencies": [
+          "aurelia-binding",
+          "aurelia-bootstrapper",
+          "aurelia-dependency-injection",
+          "aurelia-event-aggregator",
+          "aurelia-framework",
+          "aurelia-fetch-client",
+          "aurelia-history",
+          "aurelia-history-browser",
+          "aurelia-loader",
+          "aurelia-loader-default",
+          "aurelia-logging",
+          "aurelia-logging-console",
+          "aurelia-metadata",
+          "aurelia-pal",
+          "aurelia-pal-browser",
+          "aurelia-path",
+          "aurelia-polyfills",
+          "aurelia-route-recognizer",
+          "aurelia-router",
+          "aurelia-task-queue",
+          "aurelia-templating",
+          "aurelia-templating-binding",
+          {
+            "name": "textcomplete",
+            "path": "../node_modules/jquery-textcomplete",
+            "main": "dist/jquery.textcomplete",
+            "deps": ["jquery"]
+          },
+          "wurl",
+          "whatwg-fetch",
+          {
+            "name": "isomorphic-fetch",
+            "path": "../node_modules/isomorphic-fetch",
+            "main": "fetch-npm-browserify",
+            "deps": ["whatwg-fetch"]
+          },
+          "lodash",
+          "jquery",
+          "jquery.scrollto",
+          {
+            "name": "tms-semantic-ui",
+            "path": "../node_modules/tms-semantic-ui",
+            "main": "semantic.min",
+            "deps": ["jquery"],
+            "exports": "$",
+            "resources": [
+              "semantic.min.css"
+            ]
+          },
+          {
+            "name": "semantic-ui-calendar",
+            "path": "../node_modules/semantic-ui-calendar",
+            "main": "dist/calendar.min",
+            "deps": ["jquery"],
+            "resources": [
+              "dist/calendar.min.css"
+            ]
+          },
+          {
+            "name": "jquery-format",
+            "path": "../node_modules/jquery-format",
+            "main": "src/jquery.format",
+            "deps": ["jquery"],
+            "exports": "$"
+          },
+          {
+            "name": "toastr",
+            "path": "../node_modules/toastr",
+            "main": "toastr",
+            "resources": [
+              "build/toastr.css"
+            ]
+          },
+          {
+            "name": "nprogress",
+            "path": "../node_modules/nprogress",
+            "main": "nprogress",
+            "resources": [
+              "nprogress.css"
+            ]
+          },
+          "text",
+          {
+            "name": "aurelia-templating-resources",
+            "path": "../node_modules/aurelia-templating-resources/dist/amd",
+            "main": "aurelia-templating-resources"
+          },
+          {
+            "name": "aurelia-templating-router",
+            "path": "../node_modules/aurelia-templating-router/dist/amd",
+            "main": "aurelia-templating-router"
+          },
+          {
+            "name": "aurelia-testing",
+            "path": "../node_modules/aurelia-testing/dist/amd",
+            "main": "aurelia-testing",
+            "env": "dev"
+          }
+        ]
+      }
+    ]
+  }
+}

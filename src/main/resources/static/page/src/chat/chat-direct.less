@@ -1,0 +1,186 @@
+.tms-chat-direct {
+    height: 100%;
+    .ui.comments {
+        min-height: e("calc(100vh - 170px)");
+        > .comment {
+            > .content {
+                display: block!important;
+            }
+        }
+    }
+    .tms-edit-textarea {
+        width: 100%;
+    }
+    .ui.selection.list>.item {
+        cursor: default;
+    }
+    .ui.search .prompt {
+        border-radius: .28571429rem;
+    }
+    .tms-content {
+        /* position: absolute;
+        top: 60px;
+        left: 220px;
+        bottom: 0;
+        right: 0; */
+        position: relative;
+        margin-left: 220px;
+        top: 60px;
+        height: e("calc(100vh - 60px)");
+        display: flex;
+        align-items: stretch;
+        &.tms-sidebar-show {
+            .tms-right-sidebar {
+                width: 388px;
+                border-left: 1px #e9e9e9 solid;
+                transition: width .15s ease-out 0s;
+                margin: 4px;
+                margin-right: 0;
+            }
+        }
+        @media only screen and (max-width: 767px) {
+            margin-left: 0;
+        }
+    }
+    .tms-content-body {
+        width: 100%;
+        max-width: 100%;
+        flex: 1 1 0;
+        display: flex;
+        align-items: stretch;
+        padding-bottom: 73px;
+        .ui.comments {
+            overflow: hidden;
+            flex: 1 1 0;
+            max-width: none;
+            margin-bottom: 12px;
+            margin-top: 10px;
+            > .ui.basic.button {
+                display: block;
+                margin-right: 0;
+            }
+            .tms-pre-more {
+                margin-bottom: 10px;
+            }
+            .tms-next-more {
+                margin-top: 10px;
+                position: relative;
+                .ui.icon.button {
+                    position: absolute;
+                    top: 2px;
+                    right: -1px;
+                }
+            }
+        }
+        .tms-go {
+            position: fixed;
+            left: 240px;
+            .ui.button {
+                margin: 0;
+                background-color: rgba(224, 225, 226, 0.5);
+                &:hover {
+                    background-color: #CACBCD;
+                }
+            }
+            @media only screen and (max-width: 767px) {
+                left: 20px;
+            }
+        }
+        .tms-go-head {
+            top: 80px;
+        }
+        .tms-go-foot {
+            bottom: 90px;
+        }
+    }
+    .tms-right-sidebar {
+        width: 0;
+        overflow: hidden;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        .comments {
+            .ui.button.tms-search-more {
+                display: block;
+                margin: 0;
+            }
+            .comment {
+                .markdown-body {
+                    max-height: 65px;
+                    overflow-y: hidden;
+                    &.tms-open {
+                        max-height: none;
+                        overflow-y: auto;
+                        padding-bottom: 20px;
+                    }
+                }
+                .tms-btn-open-search-item {
+                    display: none;
+                    height: 25px;
+                    background-color: rgba(0, 0, 0, 0.1);
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                    left: 0;
+                    text-align: center;
+                    padding-top: 2px;
+                }
+                &:hover {
+                    .tms-btn-open-search-item {
+                        display: block;
+                    }
+                }
+            }
+        }
+    }
+    @media only screen and (max-width: 767px) {
+        .tms-left-sidebar {
+            display: none;
+        }
+        .tms-right-sidebar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 59px;
+            background-color: white;
+            margin-left: 0!important;
+            .panel-chat-msg {
+                .ui.basic.segment.minimal.selection.list.segment.comments {
+                    padding-left: 0;
+                    padding-right: 0;
+                }
+            }
+        }
+        .tms-sidebar-show {
+            .tms-right-sidebar {
+                width: 100%!important;
+            }
+        }
+        /* .tms-login-user {
+            display: none!important;
+        } */
+    }
+    .tms-edit-actions {
+        .left.button {
+            border-top-left-radius: 0;
+        }
+        .right.button {
+            border-top-right-radius: 0;
+        }
+    }
+}
+
+.tms-chat-progress {
+    position: absolute;
+    display: inline-block;
+    top: 60px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    margin-left: 220px;
+    background-color: #c6c6c6;
+    box-shadow: 0px 0px 8px 0px #c6c6c6;
+    @media only screen and (max-width: 767px) {
+        margin-left: 0;
+    }
+}

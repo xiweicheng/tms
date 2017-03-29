@@ -1,0 +1,177 @@
+.tms-left-sidebar {
+    overflow: hidden;
+    .tms-body {
+        position: absolute;
+        top: 98px;
+        width: 220px;
+        height: e("calc(100vh - 150px)");
+        overflow: hidden;
+        padding-right: 2px;
+        i.circular.icon {
+            box-shadow: 0 0 0 .1em rgb(65, 131, 196) inset;
+        }
+        .title {
+            position: relative;
+            margin-left: 10px;
+            .ui.header {
+                display: inline-block;
+                margin-top: 2px;
+                margin-bottom: 0;
+            }
+            i.plus.icon {
+                position: absolute;
+                right: 10px;
+                font-size: 12px;
+                width: 12px!important;
+                height: 12px!important;
+            }
+        }
+        .ui.list {
+            margin-top: 10px;
+            padding-top: 5px;
+            box-shadow: 0px -1px 1px -1px rgba(65, 131, 196, 0.5);
+            > .item {
+                padding-left: 16px;
+                border-radius: 0;
+                > .icon+.content {
+                    padding: 0;
+                }
+                &.active {
+                    background: rgba(0, 0, 0, 0.2);
+                }
+                &:hover {
+                    background: rgba(0, 0, 0, 0.1)!important;
+                }
+                &.disabled-user {
+                    text-decoration: line-through;
+                    font-style: italic;
+                }
+            }
+        }
+        .tms-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
+        }
+        .tms-users {}
+        .tms-channels {
+            .ui.list {
+                a.item {
+                    position: relative;
+                    &:hover {
+                        .actions {
+                            display: inline-block;
+                        }
+                    }
+                }
+            }
+            .actions {
+                display: none;
+                position: absolute;
+                right: 10px;
+                top: 5px;
+            }
+        }
+        .scroll-element.scroll-y {
+            background-color: #4d394b;
+        }
+    }
+    &.ui.left.sidebar {
+        background-color: #4d394b;
+        width: 220px;
+        * {
+            color: #4183c4!important;
+        }
+        .tms-header {
+            > input {
+                background-color: transparent;
+                border: 1px rgba(103, 104, 104, 0.5) solid;
+                font-size: 12px;
+                padding: 4px;
+                width: 188px;
+                outline: none;
+                margin-top: 10px;
+                border-radius: 2px;
+                &::-webkit-input-placeholder {
+                    color: rgba(103, 104, 104, 0.5)!important;
+                }
+                &::-moz-placeholder {
+                    color: rgba(103, 104, 104, 0.5)!important;
+                }
+                &:-ms-input-placeholder {
+                    color: rgba(103, 104, 104, 0.5)!important;
+                }
+                &:focus {
+                    &::-webkit-input-placeholder {
+                        color: rgb(103, 104, 104)!important;
+                    }
+                    &::-moz-placeholder {
+                        color: rgb(103, 104, 104)!important;
+                    }
+                    &:-ms-input-placeholder {
+                        color: rgb(103, 104, 104)!important;
+                    }
+                }
+            }
+            padding: 9px 16px;
+            box-shadow: 0 1px 1px -1px rgb(65, 131, 196);
+            h1.ui.header {
+                margin: 0;
+                img {
+                    width: 30px;
+                    height: 30px;
+                    margin: 0;
+                }
+            }
+            i.close.icon {
+                position: absolute;
+                right: 16px;
+                top: 57px;
+            }
+        }
+    }
+    .tms-footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        .ui.menu {
+            border-radius: 0;
+            background-color: rgba(27, 28, 29, 0.2)!important;
+            .dropdown.item .menu {
+                border-radius: 0;
+            }
+            .item {
+                font-size: 12px!important;
+            }
+            .item:before {
+                width: 0;
+            }
+            .ui.button.item {
+                width: 140px;
+                margin-right: 0;
+                padding-left: 0;
+                .visible.content {
+                    margin-right: 0;
+                    width: 100%;
+                }
+            }
+            .right.menu {
+                .ui.dropdown {
+                    .menu {
+                        .header {
+                            min-width: 150px;
+                            position: relative;
+                            .plus.icon {
+                                position: absolute;
+                                right: 0;
+                                top: -7px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

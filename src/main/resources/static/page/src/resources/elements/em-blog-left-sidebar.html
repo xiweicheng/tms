@@ -1,0 +1,104 @@
+<template>
+    <require from="./em-blog-left-sidebar.css"></require>
+    <div class="ui left visible sidebar em-blog-left-sidebar ${isHide ? 'mobile-hide' : ''}">
+        <div class="tms-body">
+            <div scrollbar="scrollbar-macosx">
+                <div class="ui list space">
+                    <div class="item" style="padding-top: 0.214286em;">
+                        <i click.delegate="spaceToggleHandler(spaceStow)" class="angle ${spaceStow.open ? 'down' : 'right'} link icon"></i>
+                        <div class="content">
+                            <span style="cursor: pointer;" click.delegate="spaceToggleHandler(spaceStow)">
+                                    <i class="empty star icon" style="margin-right: 0; position: relative; left: -2px;"></i>
+                                    ${spaceStow.name}
+                                </span>
+                            <div show.bind="spaceStow.open" class="ui bulleted list">
+                                <template repeat.for="item of blogStows">
+                                    <div show.bind="!item._hidden" class="item ${item.blog.id == $parent.blog.id ? 'active' : ''}">
+                                        <a title="${item.blog.title}" href="#/blog/${item.blog.id}">
+                                            <i class="icons">
+                                                <i class="file outline icon"></i>
+                                            <i show.bind="item.blog.privated" class="corner lock icon"></i>
+                                            </i>
+                                            ${item.blog.title}</a>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <template repeat.for="space of spaces | sort:'name'">
+                        <div class="item" show.bind="!space._hidden">
+                            <i click.delegate="spaceToggleHandler(space)" class="angle ${space.open ? 'down' : 'right'} link icon"></i>
+                            <div class="content">
+                                <span style="cursor: pointer;" click.delegate="spaceToggleHandler(space)">
+                                    <i class="icons">
+                                        <i class="folder outline icon"></i>
+                                    <i show.bind="space.privated" class="corner lock icon"></i>
+                                    </i>
+                                    ${space.name}
+                                </span>
+                                <div show.bind="space.open" class="ui bulleted list">
+                                    <div repeat.for="item of space.blogs | sort:'title'" show.bind="!item._hidden" class="item ${item.id == blog.id ? 'active' : ''}">
+                                        <a title="${item.title}" href="#/blog/${item.id}">
+                                            <i class="icons">
+                                                <i class="file outline icon"></i>
+                                            <i show.bind="item.privated" class="corner lock icon"></i>
+                                            </i>
+                                            ${item.title}</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <div if.bind="isSuper || space.creator.username == loginUser.username" ui-dropdown class="ui right pointing dropdown">
+                                    <i class="large ellipsis horizontal icon"></i>
+                                    <div class="menu">
+                                        <div class="item" click.delegate="editSpaceHandler(space)"><i class="icon edit"></i>编辑</div>
+                                        <div class="item" click.delegate="authSpaceHandler(space)"><i class="lock icon"></i>限制</div>
+                                        <!-- <div class="divider"></div> -->
+                                        <div class="item" style="color: red;" click.delegate="delSpaceHandler(space)"><i class="trash outline icon"></i>删除</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="ui bulleted list no-space">
+                    <div repeat.for="item of noSpaceBlogs | sort:'title'" show.bind="!item._hidden" class="item ${item.id == blog.id ? 'active' : ''}">
+                        <a title="${item.title}" href="#/blog/${item.id}">
+                            <i class="icons">
+                                <i class="file outline icon"></i>
+                            <i show.bind="item.privated" class="corner lock icon"></i>
+                            </i>
+                            </i>${item.title}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tms-footer">
+            <div class="ui icon menu">
+                <em-blog-space-create></em-blog-space-create>
+                <div class="item tms-search">
+                    <div class="ui transparent left icon input">
+                        <input keyup.trigger="filterKeyupHandler($event)" value.bind="filter" type="text" placeholder="过滤查找...">
+                        <i class="search icon"></i>
+                    </div>
+                    <i click.delegate="clearFilterHandler()" class="remove link icon ${!filter ? 'tms-hidden' : ''}"></i>
+                </div>
+                <div class="right menu">
+                    <div class="ui dropdown icon item" ui-dropdown>
+                        <i class="content icon"></i>
+                        <div class="menu">
+                            <div class="header">
+                                <i class="linkify icon"></i> 系统外链
+                            </div>
+                            <div if.bind="!sysLinks || sysLinks.length == 0" class="item">暂无系统外链</div>
+                            <a repeat.for="item of sysLinks | sort:'title'" target="_blank" href="${item.href}" class="item">${item.title}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <em-confirm-modal em-confirm-modal.ref="confirmMd"></em-confirm-modal>
+    <em-blog-space-edit view-model.ref="spaceEditVm"></em-blog-space-edit>
+    <em-blog-space-auth view-model.ref="blogSpaceAuthVm"></em-blog-space-auth>
+</template>

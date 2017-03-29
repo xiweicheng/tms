@@ -1,0 +1,10 @@
+<template>
+    <div ref="dropdown" class="ui dropdown ${classes}">
+        <input type="hidden" name="${name}">
+        <i class="dropdown icon"></i>
+        <div class="default text">${text}</div>
+        <div class="menu">
+            <div repeat.for="item of menuItems" task.bind="initDropdownHandler($last)" class="item" data-value="${item[valueProp]}">${item[labelProp]}</div>
+        </div>
+    </div>
+</template>

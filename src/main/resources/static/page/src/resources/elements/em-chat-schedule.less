@@ -1,0 +1,32 @@
+.em-chat-schedule {
+    position: relative;
+    height: e("calc(100vh - 100px)");
+    .tms-add {
+        position: absolute;
+        right: 170px;
+        top: 0;
+    }
+    .ui.form {
+        width: 300px;
+        .ui.calendar {
+            width: 200px;
+        }
+        .tms-date-field {
+            position: relative;
+            .ui.button {
+                position: absolute;
+                top: 0;
+                right: 0;
+            }
+        }
+        .ui.dropdown {
+            width: 265px!important;
+            min-height: auto;
+            > a.ui.label {
+                > input.owner + i.delete.icon {
+                    display: none;
+                }
+            }
+        }
+    }
+}

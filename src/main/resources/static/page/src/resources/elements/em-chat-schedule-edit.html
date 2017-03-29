@@ -1,0 +1,45 @@
+<template>
+    <require from="./em-chat-schedule-edit.css"></require>
+    <div ref="scheduleEditRef" class="tms-schedule-edit-target"></div>
+    <div ref="popopRef" class="ui popup bottom center transition hidden em-chat-schedule-edit">
+        <div class="ui form ${event.creator.username == loginUser.username ? '' : 'tms-disabled'}">
+            <div class="field">
+                <textarea ref="titleRef" keyup.trigger="titleKeyupHandler($event)" autosize value.bind="event.title" rows="1" placeholder="日程内容(ctrl+enter更新)" style="width: 270px; padding-top: 5px; padding-bottom: 0;"></textarea>
+            </div>
+            <div class="field tms-date-field">
+                <div class="ui calendar" ref="startRef">
+                    <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input type="text" value.bind="startDate" placeholder="开始时间">
+                    </div>
+                </div>
+                <div click.delegate="clearStartDateHandler()" class="ui button ${event.creator.username == loginUser.username ? '' : 'disabled'}">清空</div>
+            </div>
+            <div class="field tms-date-field">
+                <div class="ui calendar" ref="endRef">
+                    <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input type="text" value.bind="endDate" placeholder="结束时间">
+                    </div>
+                </div>
+                <div click.delegate="clearEndDateHandler()" class="ui button ${event.creator.username == loginUser.username ? '' : 'disabled'}">清空</div>
+            </div>
+            <div class="field">
+                <div ref="actorsRef" class="ui multiple search selection dropdown">
+                    <input type="hidden" value="${loginUser.username}" name="actors">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">日程参与者</div>
+                    <div class="menu">
+                        <div repeat.for="item of users | sortUsers:loginUser.username" task.bind="initMembersUI($last)" class="item" data-value="${item.username}">
+                            ${item.name ? item.name : item.username}
+                            <input type="hidden" class="${(event.creator.username == item.username) ? 'owner' : ''}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button if.bind="event.creator.username == loginUser.username" click.delegate="updateHandler()" class="ui blue button" type="button" style="width: 260px;">更新</button>
+            <button if.bind="event.creator.username == loginUser.username" click.delegate="delHandler()" class="ui red button" type="button" style="width: 260px; margin-top: 10px;">删除</button>
+        </div>
+    </div>
+    <em-confirm-modal em-confirm-modal.ref="emConfirmModal"></em-confirm-modal>
+</template>

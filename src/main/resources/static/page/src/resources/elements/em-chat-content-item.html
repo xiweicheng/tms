@@ -1,0 +1,70 @@
+<template>
+    <require from="./em-chat-content-item.css"></require>
+    <div repeat.for="item of chats" swipebox class="em-chat-content-item comment item ${item.id == markId ? 'active' : ''}" data-id="${item.id}" task.bind="notifyRendered($last, item)">
+        <em-user-avatar user.bind="item.creator"></em-user-avatar>
+        <div class="content">
+            <a class="author" data-value="${item.creator.username}" click.delegate="creatorNameHandler(item)">${item.creator.name}</a>
+            <div class="metadata">
+                <div class="date" data-timeago="${item.createDate}" title="${item.createDate | date}">${item.createDate | timeago}</div>
+                <div show.bind="!isAt" class="rating">
+                    <i click.delegate="likeHandler(item, true)" style="cursor: pointer;" title="赞一下" class="cbutton cbutton--effect-novak thumbs ${item.isZanVoted ? '' : 'outline'} up icon"></i> <span title="${item.voteZan}">${item.voteZanCnt} 赞</span>
+                </div>
+                <div show.bind="!isAt" class="rating">
+                    <i click.delegate="likeHandler(item, false)" style="cursor: pointer;" title="踩一下" class="cbutton cbutton--effect-novak thumbs ${item.isCaiVoted ? '' : 'outline'} down icon"></i> <span title="${item.voteCai}">${item.voteCaiCnt} 踩</span>
+                </div>
+            </div>
+            <div ref="mkbodyRef" show.bind="!item.isEditing" class="text markdown-body" innerhtml.bind="item.content | parseMd | emoji:mkbodyRef"></div>
+            <div class="textcomplete-container" show.bind="item.isEditing">
+                <div class="append-to"></div>
+            </div>
+            <textarea ref="editTxtRef" data-id="${item.id}" textcomplete.bind="members" pastable autosize dropzone keydown.trigger="eidtKeydownHandler($event, item, editTxtRef)" show.bind="item.isEditing" value.bind="item.content & oneWay" class="tms-edit-textarea" rows="1"></textarea>
+            <div show.bind="item.isEditing" class="ui compact icon buttons tms-edit-actions">
+                <button click.delegate="editOkHandler($event, item, editTxtRef)" title="保存 (ctrl+enter)" class="ui left attached compact icon button">
+                    <i class="checkmark icon"></i>
+                </button>
+                <button click.delegate="editCancelHandler($event, item, editTxtRef)" title="取消 (esc)" class="ui attached compact icon button">
+                    <i class="remove icon"></i>
+                </button>
+                <button dropzone="clickable.bind: !0; target.bind: editTxtRef" title="上传 (ctrl+u)" class="ui right attached compact icon button">
+                    <i class="upload icon"></i>
+                </button>
+            </div>
+            <div class="actions">
+                <a if.bind="!isAt && (item.creator.username != loginUser.username)" click.delegate="replyHandler(item)" class="tms-reply" title="回复消息">回复</a>
+                <a if.bind="!isAt" click.delegate="stowHandler(item)" class="tms-stow" title="收藏消息">收藏</a>
+                <!-- <a if.bind="!isAt && (item.creator.username == loginUser.username)" click.delegate="openEditHandler(item)" title="${item.openEdit ? '关闭协作编辑' :'开启协作编辑'}" class="tms-open-edit">${item.openEdit ? '关闭' :'协作'}</a> -->
+                <a if.bind="item.openEdit || (item.creator.username == loginUser.username)" click.delegate="editHandler(item, editTxtRef)" class="tms-edit" title="编辑消息(ctrl+dblclick)">编辑</a>
+                <!-- <a if.bind="item.creator.username == loginUser.username" click.delegate="deleteHandler(item)" class="tms-delete" title="删除消息">删除</a> -->
+                <!-- <a class="tms-copy tms-clipboard" data-clipboard-text="${item.content}" title="复制消息内容">复制</a> -->
+                <!-- <a class="tms-share tms-clipboard" data-clipboard-text="${basePath + '#/chat/' + (isAt ? ('@' + loginUser.username) : channel.name) + '?id=' + item.id}" title="复制消息链接">分享</a> -->
+                <div ui-dropdown-action=".tms-comments-container" class="ui top right pointing dropdown">
+                    <a class="text" title="更多操作"><i class="ellipsis horizontal large icon"></i></a>
+                    <!-- <i class="dropdown icon"></i> -->
+                    <div class="menu">
+                        <div class="item" if.bind="!isAt && (item.creator.username == loginUser.username)" click.delegate="openEditHandler(item)" title="${item.openEdit ? '关闭协作编辑' :'开启协作编辑'}"><i class="write icon"></i> ${item.openEdit ? '关闭' :'协作'}</div>
+                        <div class="item tms-clipboard" data-clipboard-text="${item.content}" title="复制消息内容"><i class="icon copy"></i> 复制</div>
+                        <div class="item tms-clipboard" data-clipboard-text="${basePath + '#/chat/' + (isAt ? ('@' + loginUser.username) : channel.name) + '?id=' + item.id}" title="复制消息链接"><i class="icon share"></i> 分享</div>
+                        <a target="_blank" href="#/blog/create?${isAt ? 'cdid' : 'ccid'}=${item.id}" style="display: block; color: rgba(0,0,0,.87);" class="item">
+                            <i class="wikipedia icon"></i> 转为博文
+                        </a>
+                        <div class="divider"></div>
+                        <a href="/admin/chat/${isAt ? 'direct' : 'channel'}/download/${item.id}?type=pdf" style="display: block; color: rgba(0,0,0,.87);" class="item">
+                            <i class="file pdf outline icon"></i> 导出为PDF
+                        </a>
+                        <a href="/admin/chat/${isAt ? 'direct' : 'channel'}/download/${item.id}?type=md" style="display: block; color: rgba(0,0,0,.87);" class="item">
+                            <i class="file text outline icon"></i> 导出为Markdown
+                        </a>
+                        <div if.bind="item.creator.username == loginUser.username" class="divider"></div>
+                        <div class="item tms-red" if.bind="item.creator.username == loginUser.username" click.delegate="deleteHandler(item)" title="删除消息"><i class="trash outline icon"></i> 删除</div>
+                    </div>
+                </div>
+            </div>
+            <div class="tools">
+                <button show.bind="!isAt && !item.isEditing" click.delegate="refreshHandler(item)" title="刷新同步" class="mini circular ui icon button">
+                    <i class="refresh icon"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <em-confirm-modal em-confirm-modal.ref="emConfirmModal"></em-confirm-modal>
+</template>
