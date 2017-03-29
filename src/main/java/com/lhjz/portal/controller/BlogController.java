@@ -467,6 +467,7 @@ public class BlogController extends BaseController {
 		if (blog == null) {
 			return RespBody.failed("投票博文消息不存在!");
 		}
+		
 		String loginUsername = WebUtil.getUsername();
 
 		String title = "";
@@ -477,26 +478,30 @@ public class BlogController extends BaseController {
 			if (isVoterExists(voteZan)) {
 				return RespBody.failed("您已经投票[赞]过！");
 			} else {
-				blog.setVoteZan(voteZan == null ? loginUsername : voteZan + ',' + loginUsername);
+				
+				String vz = voteZan == null ? loginUsername : voteZan + ',' + loginUsername;
 
 				Integer voteZanCnt = blog.getVoteZanCnt();
-				if (voteZanCnt == null) {
-					voteZanCnt = 0;
-				}
-				blog.setVoteZanCnt(++voteZanCnt);
+				Integer vzc = voteZanCnt == null ? 1 : voteZanCnt + 1;
 
-				blogRepository.updateVoteZan(blog.getVoteZan(), blog.getVoteZanCnt(), id);
+				blogRepository.updateVoteZan(vz, vzc, id);
+				
+				blog.setVoteZan(vz);
+				blog.setVoteZanCnt(vzc);
 				title = loginUser.getName() + "[" + loginUsername + "]赞了你的博文消息!";
 			}
 
 		} else {
 			String voteZan = blog.getVoteZan();
 			if (isVoterExists(voteZan)) {
-				blog.setVoteZan(this.calcVoters(voteZan));
+				String vz = this.calcVoters(voteZan);
 				Integer voteZanCnt = blog.getVoteZanCnt();
-				blog.setVoteZanCnt(voteZanCnt == null ? 0 : voteZanCnt - 1);
+				Integer vzc = voteZanCnt == null ? 0 : voteZanCnt - 1;
 
-				blogRepository.updateVoteZan(blog.getVoteZan(), blog.getVoteZanCnt(), id);
+				blogRepository.updateVoteZan(vz, vzc, id);
+				
+				blog.setVoteZan(vz);
+				blog.setVoteZanCnt(vzc);
 				return RespBody.succeed(blog);
 			}
 		}
@@ -521,8 +526,6 @@ public class BlogController extends BaseController {
 			}
 
 		});
-
-		log(Action.Vote, Target.Blog, blog.getId(), blog);
 
 		return RespBody.succeed(blog);
 	}
