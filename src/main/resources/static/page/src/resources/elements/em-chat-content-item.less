@@ -1,0 +1,59 @@
+.em-chat-content-item {
+    .textcomplete-container {
+        position: relative;
+        .append-to {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    }
+    .ui.comments &.comment {
+        >.avatar~.content {
+            margin-left: 3em;
+        }
+        .actions {
+            > a {
+                margin-right: 5px;
+            }
+            .dropdown {
+                > a .ellipsis.icon {
+                    margin-right: 0;
+                }
+                .item.tms-red {
+                    color: red;
+                }
+            }
+        }
+        &:hover {
+            .tools {
+                display: block;
+            }
+        }
+    }
+    > .content {
+        > .metadata > .rating {
+            @media only screen and (max-width: 767px) {
+                display: none!important;
+            }
+        }
+        > .markdown-body {
+            span.at-user {
+                cursor: pointer;
+            }
+        }
+        > .tools {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            display: none;
+            > .ui.button {
+                margin: 0;
+                background-color: rgba(224, 225, 226, 0.5);
+                &:hover {
+                    background-color: rgba(224, 225, 226, 1);
+                }
+            }
+        }
+    }
+}

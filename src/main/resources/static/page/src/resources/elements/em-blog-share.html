@@ -1,0 +1,54 @@
+<template>
+    <require from="./em-blog-share.css"></require>
+    <div ref="shareRef" class="ui basic mini button">
+        <i title="博文分享 (s)" class="large icon share"></i> <span title="博文分享 (s)">分享</span>
+    </div>
+    <div class="ui popup bottom right transition hidden em-blog-share">
+        <div ref="searchRef" class="ui search">
+            <div class="ui icon input">
+                <input keyup.trigger="shareSearchKeyupHandler($event)" ref="inputSearchRef" class="prompt" type="text" placeholder="用户名，频道，邮箱">
+                <i class="search icon"></i>
+            </div>
+            <div class="results"></div>
+        </div>
+        <div class="ui list">
+            <div repeat.for="item of shares" class="item">
+                <div class="right floated content">
+                    <i click.delegate="removeShareHandler(item)" class="red trash link icon"></i>
+                </div>
+                <template if.bind="item._type == 'user'">
+                    <i class="user icon"></i>
+                    <div class="content">
+                        ${item.name} (${item.username})
+                    </div>
+                </template>
+                <template if.bind="item._type == 'channel'">
+                    <i class="users icon"></i>
+                    <div class="content">
+                        ${item.title} (${item.name})
+                    </div>
+                </template>
+                <template if.bind="item._type == 'mail'">
+                    <i class="mail icon"></i>
+                    <div class="content">
+                        ${item.mail}
+                    </div>
+                </template>
+            </div>
+        </div>
+        <div class="ui form">
+            <div class="field">
+                <textarea value.bind="desc" placeholder="添加一个可选的说明" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="footer">
+            <button class="ui basic icon mini button tms-clipboard" data-tooltip="复制博文分享链接" data-clipboard-text="${basePath}/#/blog/${blog.id}">
+                <i class="copy icon"></i>
+            </button>
+            <a click.delegate="cancelHandler()" href="" class="btn-cancel">取消</a>
+            <button click.delegate="shareHandler()" class="ui basic ${shares.length == 0 || (ajaxS && ajaxS.readyState != 4) ? 'disabled' : ''} right floated mini button">
+                确定
+            </button>
+        </div>
+    </div>
+</template>

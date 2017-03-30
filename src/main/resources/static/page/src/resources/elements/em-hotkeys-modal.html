@@ -1,0 +1,50 @@
+<template>
+    <require from="./em-hotkeys-modal.css"></require>
+    <div ref="md" class="ui basic modal tms-em-hotkeys-modal">
+        <i class="close icon"></i>
+        <div class="content">
+            <h1 class="ui center inverted aligned header">键盘快捷键
+				<span style="position: relative; top: -0.375rem; left: 1rem;" aria-hidden="true">
+					<span class="keyboard" aria-label="Control">Ctrl</span>
+					<span class="keyboard" aria-label="Question mark">/</span>
+				</span>
+            </h1>
+            <div class="ui grid">
+                <div class="three column row">
+                    <div class="column">
+                        <ul class="no_bullets">
+                            <li>上一条: <span class="keyboard">Alt</span><span class="keyboard"><i class="long arrow up icon" aria-label="Up arrow"></i></span></li>
+                            <li>下一条: <span class="keyboard">Alt</span><span class="keyboard"><i class="long arrow down icon" aria-label="Down arrow"></i></span></li>
+                            <li>第一条: <span class="keyboard">t</span></li>
+                            <li>最后一条: <span class="keyboard">b</span></li>
+                            <li>快速切换: <span class="keyboard" aria-label="Control">Ctrl</span><span class="keyboard">k</span></li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <ul class="no_bullets">
+                            <li>
+                                自动补全
+                                <ul>
+                                    <li>提示: <span class="keyboard">/</span></li>
+                                    <li>用户: <span class="keyboard">@</span></li>
+                                    <li>表情: <span class="keyboard">:</span></li>
+                                </ul>
+                            </li>
+                            <li>输入聚焦: <span class="keyboard">r</span></li>
+                            <li>编辑: <span class="keyboard">Ctrl</span><span class="keyboard">DblClick</span></li>
+                            <li>编辑自己最近一条消息: <span class="keyboard">e</span></li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <ul class="no_bullets">
+                            <li>切换边栏: <span class="keyboard" aria-label="Control">s</span></li>
+                            <li>上传文件: <span class="keyboard" aria-label="Control">Ctrl</span><span class="keyboard">u</span></li>
+                            <li>复制代码: <span class="keyboard" aria-label="Control">Ctrl</span><span class="keyboard">Click</span></li>
+                            <li>关闭对话框: <span class="keyboard" aria-label="Escape">Esc</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

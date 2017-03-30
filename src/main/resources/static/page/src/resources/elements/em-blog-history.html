@@ -1,0 +1,54 @@
+<template>
+    <require from="./em-blog-history.css"></require>
+    <em-modal classes="small" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)">
+        <div slot="header">博文历史记录</div>
+        <div slot="content" class="em-blog-history">
+            <div class="topbar">
+                <div click.delegate="diffHandler()" class="ui mini basic button"><i class="resize horizontal icon"></i>比较选择的版本</div>
+            </div>
+            <div class="content">
+                <table class="ui very basic table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>版本</th>
+                            <th>日期</th>
+                            <th>更新人</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <em-checkbox checked.bind="blog.checked"></em-checkbox>
+                            </td>
+                            <td><a click.delegate="viewHistoryHandler(blog, histories.length + 1, true)">当前</a>(v.${histories.length + 1})</td>
+                            <td title="${blog.updateDate | date}">${blog.updateDate | timeago}</td>
+                            <td>${blog.updater.name}</td>
+                            <td></td>
+                        </tr>
+                        <tr repeat.for="item of histories">
+                            <td>
+                                <em-checkbox checked.bind="item.checked"></em-checkbox>
+                            </td>
+                            <td><a click.delegate="viewHistoryHandler(item, histories.length - $index)">v.${histories.length - $index}</a></td>
+                            <td title="${item.blogUpdateDate | date}">${item.blogUpdateDate | timeago}</td>
+                            <td>${item.blogUpdater.name}</td>
+                            <td>
+                                <a if.bind="isSuper || blog.creator.username == loginUser.username || blog.openEdit" class="${!$parent.ajax1 || $parent.ajax1.readyState == 4 ? '' : 'tms-disabled'}" click.delegate="restoreHandler(item)">还原此版本</a> ·
+                                <a if.bind="isSuper || blog.creator.username == loginUser.username" ui-dropdown-action style="margin-right: .75em;" class="ui icon top right pointing dropdown ${!$parent.ajax2 || $parent.ajax2.readyState == 4 ? '' : 'disabled'}" title="删除博文历史记录">
+                                    删除
+                                    <div class="menu">
+                                        <div style="color: red;" class="item" click.delegate="removeHandler(item)"><i class="trash outline icon"></i>确认删除</div>
+                                    </div>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </em-modal>
+    <em-blog-history-view view-model.ref="blogHistoryViewVm"></em-blog-history-view>
+    <em-blog-history-diff view-model.ref="blogHistoryDiffVm"></em-blog-history-diff>
+</template>

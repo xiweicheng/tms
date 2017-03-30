@@ -1,0 +1,343 @@
+{
+  "name": "page",
+  "version": "0.1.0",
+  "dependencies": {
+    "aurelia-animator-css": {
+      "version": "1.0.1",
+      "from": "aurelia-animator-css@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-animator-css/download/aurelia-animator-css-1.0.1.tgz"
+    },
+    "aurelia-binding": {
+      "version": "1.1.0",
+      "from": "aurelia-binding@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-binding/download/aurelia-binding-1.1.0.tgz"
+    },
+    "aurelia-bootstrapper": {
+      "version": "1.0.1",
+      "from": "aurelia-bootstrapper@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-bootstrapper/download/aurelia-bootstrapper-1.0.1.tgz"
+    },
+    "aurelia-dependency-injection": {
+      "version": "1.2.1",
+      "from": "aurelia-dependency-injection@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-dependency-injection/download/aurelia-dependency-injection-1.2.1.tgz"
+    },
+    "aurelia-event-aggregator": {
+      "version": "1.0.1",
+      "from": "aurelia-event-aggregator@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-event-aggregator/download/aurelia-event-aggregator-1.0.1.tgz"
+    },
+    "aurelia-fetch-client": {
+      "version": "1.1.0",
+      "from": "aurelia-fetch-client@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-fetch-client/download/aurelia-fetch-client-1.1.0.tgz"
+    },
+    "aurelia-framework": {
+      "version": "1.0.8",
+      "from": "aurelia-framework@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-framework/download/aurelia-framework-1.0.8.tgz"
+    },
+    "aurelia-history": {
+      "version": "1.0.0",
+      "from": "aurelia-history@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/aurelia-history/-/aurelia-history-1.0.0.tgz"
+    },
+    "aurelia-history-browser": {
+      "version": "1.0.0",
+      "from": "aurelia-history-browser@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/aurelia-history-browser/-/aurelia-history-browser-1.0.0.tgz"
+    },
+    "aurelia-loader": {
+      "version": "1.0.0",
+      "from": "aurelia-loader@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/aurelia-loader/-/aurelia-loader-1.0.0.tgz"
+    },
+    "aurelia-loader-default": {
+      "version": "1.0.0",
+      "from": "aurelia-loader-default@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-loader-default/download/aurelia-loader-default-1.0.0.tgz"
+    },
+    "aurelia-logging": {
+      "version": "1.2.0",
+      "from": "aurelia-logging@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-logging/download/aurelia-logging-1.2.0.tgz"
+    },
+    "aurelia-logging-console": {
+      "version": "1.0.0",
+      "from": "aurelia-logging-console@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/aurelia-logging-console/-/aurelia-logging-console-1.0.0.tgz"
+    },
+    "aurelia-metadata": {
+      "version": "1.0.3",
+      "from": "aurelia-metadata@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-metadata/download/aurelia-metadata-1.0.3.tgz"
+    },
+    "aurelia-pal": {
+      "version": "1.2.0",
+      "from": "aurelia-pal@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-pal/download/aurelia-pal-1.2.0.tgz"
+    },
+    "aurelia-pal-browser": {
+      "version": "1.1.0",
+      "from": "aurelia-pal-browser@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-pal-browser/download/aurelia-pal-browser-1.1.0.tgz"
+    },
+    "aurelia-path": {
+      "version": "1.1.1",
+      "from": "aurelia-path@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/aurelia-path/-/aurelia-path-1.1.1.tgz"
+    },
+    "aurelia-polyfills": {
+      "version": "1.1.1",
+      "from": "aurelia-polyfills@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/aurelia-polyfills/-/aurelia-polyfills-1.1.1.tgz"
+    },
+    "aurelia-route-recognizer": {
+      "version": "1.1.0",
+      "from": "aurelia-route-recognizer@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/aurelia-route-recognizer/-/aurelia-route-recognizer-1.1.0.tgz"
+    },
+    "aurelia-router": {
+      "version": "1.1.0",
+      "from": "aurelia-router@>=1.0.1 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-router/download/aurelia-router-1.1.0.tgz"
+    },
+    "aurelia-task-queue": {
+      "version": "1.1.0",
+      "from": "aurelia-task-queue@>=1.1.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/aurelia-task-queue/-/aurelia-task-queue-1.1.0.tgz"
+    },
+    "aurelia-templating": {
+      "version": "1.1.4",
+      "from": "aurelia-templating@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-templating/download/aurelia-templating-1.1.4.tgz"
+    },
+    "aurelia-templating-binding": {
+      "version": "1.1.0",
+      "from": "aurelia-templating-binding@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-templating-binding/download/aurelia-templating-binding-1.1.0.tgz"
+    },
+    "aurelia-templating-resources": {
+      "version": "1.2.0",
+      "from": "aurelia-templating-resources@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-templating-resources/download/aurelia-templating-resources-1.2.0.tgz"
+    },
+    "aurelia-templating-router": {
+      "version": "1.0.1",
+      "from": "aurelia-templating-router@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/aurelia-templating-router/download/aurelia-templating-router-1.0.1.tgz"
+    },
+    "autosize": {
+      "version": "3.0.20",
+      "from": "autosize@>=3.0.17 <4.0.0",
+      "resolved": "https://registry.npm.taobao.org/autosize/download/autosize-3.0.20.tgz"
+    },
+    "bluebird": {
+      "version": "3.4.7",
+      "from": "bluebird@>=3.4.1 <4.0.0",
+      "resolved": "https://registry.npm.taobao.org/bluebird/download/bluebird-3.4.7.tgz"
+    },
+    "clipboard": {
+      "version": "1.5.16",
+      "from": "clipboard@>=1.5.12 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/clipboard/download/clipboard-1.5.16.tgz"
+    },
+    "clipboard-js": {
+      "version": "0.3.2",
+      "from": "clipboard-js@>=0.3.2 <0.4.0",
+      "resolved": "https://registry.npm.taobao.org/clipboard-js/download/clipboard-js-0.3.2.tgz"
+    },
+    "codemirror": {
+      "version": "5.22.0",
+      "from": "codemirror@*",
+      "resolved": "https://registry.npm.taobao.org/codemirror/download/codemirror-5.22.0.tgz"
+    },
+    "codemirror-spell-checker": {
+      "version": "1.1.2",
+      "from": "codemirror-spell-checker@*",
+      "resolved": "https://registry.npm.taobao.org/codemirror-spell-checker/download/codemirror-spell-checker-1.1.2.tgz"
+    },
+    "color-hash": {
+      "version": "1.0.3",
+      "from": "color-hash@>=1.0.3 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/color-hash/download/color-hash-1.0.3.tgz"
+    },
+    "delegate": {
+      "version": "3.1.1",
+      "from": "delegate@>=3.1.1 <4.0.0",
+      "resolved": "https://registry.npm.taobao.org/delegate/download/delegate-3.1.1.tgz"
+    },
+    "dropzone": {
+      "version": "4.3.0",
+      "from": "dropzone@>=4.3.0 <5.0.0",
+      "resolved": "https://registry.npm.taobao.org/dropzone/download/dropzone-4.3.0.tgz"
+    },
+    "encoding": {
+      "version": "0.1.12",
+      "from": "encoding@>=0.1.11 <0.2.0",
+      "resolved": "https://registry.npmjs.org/encoding/-/encoding-0.1.12.tgz"
+    },
+    "fullcalendar": {
+      "version": "3.2.0",
+      "from": "fullcalendar@>=3.2.0 <4.0.0",
+      "resolved": "https://registry.npm.taobao.org/fullcalendar/download/fullcalendar-3.2.0.tgz",
+      "dependencies": {
+        "jquery": {
+          "version": "3.1.1",
+          "from": "jquery@>=2.0.0 <4.0.0",
+          "resolved": "https://registry.npmjs.org/jquery/-/jquery-3.1.1.tgz"
+        }
+      }
+    },
+    "good-listener": {
+      "version": "1.2.1",
+      "from": "good-listener@>=1.2.0 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/good-listener/download/good-listener-1.2.1.tgz"
+    },
+    "highlight.js": {
+      "version": "9.9.0",
+      "from": "highlight.js@>=9.7.0 <10.0.0",
+      "resolved": "https://registry.npm.taobao.org/highlight.js/download/highlight.js-9.9.0.tgz"
+    },
+    "iconv-lite": {
+      "version": "0.4.15",
+      "from": "iconv-lite@>=0.4.13 <0.5.0",
+      "resolved": "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.4.15.tgz"
+    },
+    "is-stream": {
+      "version": "1.1.0",
+      "from": "is-stream@>=1.0.1 <2.0.0",
+      "resolved": "https://registry.npmjs.org/is-stream/-/is-stream-1.1.0.tgz"
+    },
+    "isomorphic-fetch": {
+      "version": "2.2.1",
+      "from": "isomorphic-fetch@>=2.2.1 <3.0.0",
+      "resolved": "https://registry.npmjs.org/isomorphic-fetch/-/isomorphic-fetch-2.2.1.tgz"
+    },
+    "jquery": {
+      "version": "1.12.4",
+      "from": "jquery@>=1.11.2 <2.0.0",
+      "resolved": "https://registry.npmjs.org/jquery/-/jquery-1.12.4.tgz"
+    },
+    "jquery-format": {
+      "version": "1.3.1",
+      "from": "jquery-format@>=1.3.1 <2.0.0",
+      "resolved": "https://registry.npmjs.org/jquery-format/-/jquery-format-1.3.1.tgz"
+    },
+    "jquery-tablesort": {
+      "version": "0.0.11",
+      "from": "jquery-tablesort@0.0.11",
+      "resolved": "https://registry.npm.taobao.org/jquery-tablesort/download/jquery-tablesort-0.0.11.tgz"
+    },
+    "jquery-textcomplete": {
+      "version": "1.8.0",
+      "from": "jquery-textcomplete@>=1.7.3 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/jquery-textcomplete/download/jquery-textcomplete-1.8.0.tgz"
+    },
+    "jquery.hotkeys": {
+      "version": "0.1.0",
+      "from": "jquery.hotkeys@>=0.1.0 <0.2.0",
+      "resolved": "https://registry.npmjs.org/jquery.hotkeys/-/jquery.hotkeys-0.1.0.tgz"
+    },
+    "jquery.scrollto": {
+      "version": "2.1.2",
+      "from": "jquery.scrollto@>=2.1.2 <3.0.0",
+      "resolved": "https://registry.npm.taobao.org/jquery.scrollto/download/jquery.scrollto-2.1.2.tgz"
+    },
+    "lodash": {
+      "version": "4.17.4",
+      "from": "lodash@>=4.15.0 <5.0.0",
+      "resolved": "https://registry.npm.taobao.org/lodash/download/lodash-4.17.4.tgz"
+    },
+    "marked": {
+      "version": "0.3.6",
+      "from": "marked@>=0.3.6 <0.4.0",
+      "resolved": "https://registry.npm.taobao.org/marked/download/marked-0.3.6.tgz"
+    },
+    "moment": {
+      "version": "2.17.1",
+      "from": "moment@>=2.17.1 <3.0.0",
+      "resolved": "https://registry.npm.taobao.org/moment/download/moment-2.17.1.tgz"
+    },
+    "node-fetch": {
+      "version": "1.6.3",
+      "from": "node-fetch@>=1.0.1 <2.0.0",
+      "resolved": "https://registry.npmjs.org/node-fetch/-/node-fetch-1.6.3.tgz"
+    },
+    "nprogress": {
+      "version": "0.2.0",
+      "from": "nprogress@>=0.2.0 <0.3.0",
+      "resolved": "https://registry.npmjs.org/nprogress/-/nprogress-0.2.0.tgz"
+    },
+    "push.js": {
+      "version": "0.0.11",
+      "from": "push.js@0.0.11",
+      "resolved": "https://registry.npm.taobao.org/push.js/download/push.js-0.0.11.tgz"
+    },
+    "requirejs": {
+      "version": "2.3.2",
+      "from": "requirejs@>=2.3.2 <3.0.0",
+      "resolved": "https://registry.npm.taobao.org/requirejs/download/requirejs-2.3.2.tgz"
+    },
+    "select": {
+      "version": "1.1.0",
+      "from": "select@>=1.0.6 <2.0.0",
+      "resolved": "https://registry.npmjs.org/select/-/select-1.1.0.tgz"
+    },
+    "semantic-ui-calendar": {
+      "version": "0.0.6",
+      "from": "semantic-ui-calendar@0.0.6",
+      "resolved": "https://registry.npm.taobao.org/semantic-ui-calendar/download/semantic-ui-calendar-0.0.6.tgz"
+    },
+    "simplemde": {
+      "version": "1.11.2",
+      "from": "simplemde@>=1.11.2 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/simplemde/download/simplemde-1.11.2.tgz"
+    },
+    "swipebox": {
+      "version": "1.4.6",
+      "from": "swipebox@>=1.4.6 <2.0.0",
+      "resolved": "https://registry.npm.taobao.org/swipebox/download/swipebox-1.4.6.tgz"
+    },
+    "text": {
+      "version": "2.0.15",
+      "from": "requirejs/text#latest",
+      "resolved": "git://github.com/requirejs/text.git#d04de4ffd7bf5ba6cb80cdca2d40d4f6f52a1b1f"
+    },
+    "timeago.js": {
+      "version": "2.0.4",
+      "from": "timeago.js@>=2.0.2 <3.0.0",
+      "resolved": "https://registry.npm.taobao.org/timeago.js/download/timeago.js-2.0.4.tgz"
+    },
+    "tiny-emitter": {
+      "version": "1.1.0",
+      "from": "tiny-emitter@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/tiny-emitter/-/tiny-emitter-1.1.0.tgz"
+    },
+    "tms-semantic-ui": {
+      "version": "2.2.4",
+      "from": "tms-semantic-ui@>=2.2.4 <3.0.0",
+      "resolved": "https://registry.npm.taobao.org/tms-semantic-ui/download/tms-semantic-ui-2.2.4.tgz"
+    },
+    "toastr": {
+      "version": "2.1.2",
+      "from": "toastr@>=2.1.2 <3.0.0",
+      "resolved": "https://registry.npmjs.org/toastr/-/toastr-2.1.2.tgz"
+    },
+    "typo-js": {
+      "version": "1.0.2",
+      "from": "typo-js@*",
+      "resolved": "https://registry.npm.taobao.org/typo-js/download/typo-js-1.0.2.tgz"
+    },
+    "whatwg-fetch": {
+      "version": "2.0.1",
+      "from": "whatwg-fetch@>=0.10.0",
+      "resolved": "https://registry.npmjs.org/whatwg-fetch/-/whatwg-fetch-2.0.1.tgz"
+    },
+    "wurl": {
+      "version": "2.1.0",
+      "from": "wurl@>=2.1.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/wurl/-/wurl-2.1.0.tgz"
+    }
+  }
+}

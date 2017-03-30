@@ -1,0 +1,163 @@
+<template>
+    <require from="./em-chat-top-menu.css"></require>
+    <div class="ui top fixed menu tms-em-chat-top-menu">
+        <div ref="chatToDropdownRef" class="ui dropdown link item ${isActiveSearch ? 'tms-hide' : ''} tms-chat-at">
+            <span class="text"></span>
+            <i class="dropdown icon"></i>
+            <div class="tms-metadata">
+                <div if.bind="!isAt" click.trigger="channelLinksHandler($event)" ref="channelLinksDdRef" class="ui dropdown icon item tms-channel-links" ui-dropdown>
+                    <i title="当前频道外链" class="content icon"></i>
+                    <div class="menu">
+                        <div class="header">
+                            <!-- <i class="linkify icon"></i> 当前频道外链 <i if.bind="(isSuper || (channel.owner.username == loginUser.username))" click.trigger="addChannelLinkHandler($event)" title="添加频道外链" class="circular icon link plus"></i> -->
+                            <i class="linkify icon"></i> 当前频道外链 <i click.trigger="addChannelLinkHandler($event)" title="添加频道外链" class="circular icon link plus"></i>
+                        </div>
+                        <div if.bind="!channelLinks || channelLinks.length == 0" click.trigger="stopImmediatePropagationHandler($event)" class="item">暂无频道外链</div>
+                        <a repeat.for="item of channelLinks | sort:'title'" click.trigger="openChannelLinkHandler($event, item)" target="_blank" href="${item.href}" class="item">${item.title}</a>
+                    </div>
+                </div>
+                <a if.bind="!isAt" class="item" click.trigger="viewOrMgrUsersHandler($event)" title="频道用户(${channel.members.length})"><i class="users icon"></i></a>
+                <a if.bind="!isAt && channel.privated" class="item" click.trigger="stopImmediatePropagationHandler($event)" title="私有频道"><i class="lock icon"></i></a>
+                <a if.bind="!isAt && !channel.privated" class="item" click.trigger="stopImmediatePropagationHandler($event)" title="公开频道"><i class="unlock icon"></i></a>
+                <a if.bind="!isAt" class="item tms-channel-info" click.trigger="channelInfoHandler($event)" title="${channel.description} (${channel.creator.name ? channel.creator.name : channel.creator.username} 创建于 ${channel.createDate | timeago})"><i class="info circle icon"></i></a>
+                <a if.bind="isAt && chatUser.enabled" class="item" click.trigger="stopImmediatePropagationHandler($event)" title="启用中"><i class="heart icon"></i></a>
+                <a if.bind="isAt && !chatUser.enabled" class="item" click.trigger="stopImmediatePropagationHandler($event)" title="禁用中"><i class="empty heart icon"></i></a>
+                <a if.bind="isAt" class="item" click.trigger="mailToHandler($event)" title="${chatUser.mails}"><i class="mail icon"></i></a>
+                <a if.bind="isAt && chatUser.lastLoginDate" class="item tms-user-info" click.trigger="userInfoHandler($event)" title="从IP[${chatUser.loginRemoteAddress}]登录(${chatUser.lastLoginDate | timeago})"><i class="info circle icon"></i></a>
+                <a if.bind="isAt && !chatUser.lastLoginDate" class="item tms-user-info" click.trigger="userInfoHandler($event)" title="该用户可能比较懒,暂无登录记录!"><i class="info circle icon"></i></a>
+            </div>
+            <div class="menu">
+                <div class="ui icon search input">
+                    <i class="search icon"></i>
+                    <input ref="filterChatToUser" type="text" placeholder="过滤沟通频道|用户">
+                </div>
+                <div class="divider"></div>
+                <div class="header">
+                    <i class="filter icon"></i> 切换沟通频道|用户(Ctrl+k)
+                </div>
+                <div class="scrolling menu">
+                    <div class="header">
+                        <i class="users icon"></i> 频道 (${channels.length}) <i ref="createChannelRef" class="circular icon link plus"></i>
+                    </div>
+                    <a repeat.for="item of channels | sort:'title' | sortChannels" task.bind="initChatToDropdownHandler($last)" href="#/chat/${item.name}" class="item" title="${item.title}(${item.name})" data-value="${item.name}" data-id="${item.name}">
+                        <i class="hashtag icon"></i>${item.title}
+                        <div class="actions">
+                            <div if.bind="item.owner.username == loginUser.username" ui-dropdown class="ui dropdown">
+                                <i class="large ellipsis horizontal icon"></i>
+                                <div class="left menu transition hidden">
+                                    <div class="item" click.trigger="membersMgrHandler(item, $event)">成员管理</div>
+                                    <div class="item" click.trigger="editHandler(item, $event)">编辑</div>
+                                    <div class="item" click.trigger="delHandler(item, $event)">删除</div>
+                                </div>
+                            </div>
+                            <div if.bind="item.owner.username != loginUser.username" ui-dropdown class="ui dropdown">
+                                <i class="large ellipsis horizontal icon"></i>
+                                <div class="left menu transition hidden">
+                                    <div class="item" click.trigger="membersShowHandler(item, $event)">成员查看</div>
+                                    <div class="item" click.trigger="leaveHandler(item, $event)">离开</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="header">
+                        <i class="user icon"></i> 用户 (${users.length})
+                    </div>
+                    <a repeat.for="item of users | sortUsers:loginUser.username" task.bind="initChatToDropdownHandler($last)" href="#/chat/@${item.username}" class="item ${!item.enabled ? 'disabled-user' : ''}" title="${item.name}(@${item.username})" data-value="${item.username}" data-id="@${item.username}">
+                        <i style="font-weight: bold;" class="at icon"></i>${item.name} ${item.username == loginUser.username ? '(自己)' : ''}
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="right menu">
+            <div show.bind="!!dir" class="item tms-mobile-hide tms-item ${isActiveSearch ? 'tms-hide' : ''}">
+                <button click.delegate="showWikiDirHandler($event)" title="消息目录查看(ctrl+click刷新)" class="basic ${isRightSidebarShow && (activeType == ACTION_TYPE_DIR) ? 'active' : ''} ui icon button">
+                    <i class="unordered list icon"></i>
+                </button>
+            </div>
+            <div class="item tms-mobile-hide tms-item ${isActiveSearch ? 'tms-hide' : ''}">
+                <button click.delegate="showAtHandler($event)" title="@消息查看(ctrl+click刷新)" class="basic ${isRightSidebarShow && (activeType == ACTION_TYPE_AT) ? 'active' : ''} ui icon button">
+                    <i class="${ajaxAt && ajaxAt.readyState != 4 ? 'spinner loading' : 'at'} icon"></i>
+                    <div show.bind="!!countAt" class="floating ui yellow empty circular label"></div>
+                    <div show.bind="newAtCnt > 0" class="floating ui red empty circular label"></div>
+                </button>
+            </div>
+            <div class="item tms-mobile-hide tms-item ${isActiveSearch ? 'tms-hide' : ''}">
+                <button click.delegate="showStowHandler($event)" title="收藏消息查看(ctrl+click刷新)" class="basic ${isRightSidebarShow && (activeType == ACTION_TYPE_STOW) ? 'active' : ''} ui icon button">
+                    <i class="${ajaxStow && ajaxStow.readyState != 4 ? 'spinner loading' : 'empty star'} icon"></i>
+                </button>
+            </div>
+            <div class="item tms-mobile-hide tms-item ${isActiveSearch ? 'tms-hide' : ''}">
+                <button click.delegate="showAttachHandler($event)" title="附件查看(ctrl+click刷新)" class="basic ${isRightSidebarShow && (activeType == ACTION_TYPE_ATTACH) ? 'active' : ''} ui icon button">
+                    <i class="attach icon"></i>
+                </button>
+            </div>
+            <div class="item tms-mobile-hide tms-item ${isActiveSearch ? 'tms-hide' : ''}">
+                <button click.delegate="showScheduleHandler($event)" title="日程查看(ctrl+click刷新)" class="basic ${isRightSidebarShow && (activeType == ACTION_TYPE_SCHEDULE) ? 'active' : ''} ui icon button">
+                    <i class="calendar outline icon"></i>
+                    <div show.bind="!!countMyRecentSchedule" class="floating ui yellow empty circular label"></div>
+                </button>
+            </div>
+            <div ui-dropdown class="ui dropdown item tms-item">
+                <i class="ellipsis vertical icon"></i>
+                <div class="menu">
+                    <div show.bind="!!dir" class="item tms-item">
+                        <button click.delegate="showWikiDirHandler($event)" title="消息目录查看(ctrl+click刷新)" class="basic ${isRightSidebarShow && (activeType == ACTION_TYPE_DIR) ? 'active' : ''} ui icon button">
+                            <i class="unordered list icon"></i>
+                        </button>
+                    </div>
+                    <div class="item tms-item">
+                        <button click.delegate="showAtHandler($event)" title="@消息查看(ctrl+click刷新)" class="basic ${isRightSidebarShow && (activeType == ACTION_TYPE_AT) ? 'active' : ''} ui icon button">
+                            <i class="${ajaxAt && ajaxAt.readyState != 4 ? 'spinner loading' : 'at'} icon"></i>
+                            <div show.bind="!!countAt" class="floating ui yellow empty circular label"></div>
+                            <div show.bind="newAtCnt > 0" class="floating ui red empty circular label"></div>
+                        </button>
+                    </div>
+                    <div class="item tms-item">
+                        <button click.delegate="showStowHandler($event)" title="收藏消息查看(ctrl+click刷新)" class="basic ${isRightSidebarShow && (activeType == ACTION_TYPE_STOW) ? 'active' : ''} ui icon button">
+                            <i class="${ajaxStow && ajaxStow.readyState != 4 ? 'spinner loading' : 'empty star'} icon"></i>
+                        </button>
+                    </div>
+                    <div class="item tms-item">
+                        <button click.delegate="showAttachHandler($event)" title="附件查看(ctrl+click刷新)" class="basic ${isRightSidebarShow && (activeType == ACTION_TYPE_ATTACH) ? 'active' : ''} ui icon button">
+                            <i class="attach icon"></i>
+                        </button>
+                    </div>
+                    <div class="item tms-item">
+                        <button click.delegate="showScheduleHandler($event)" title="日程查看(ctrl+click刷新)" class="basic ${isRightSidebarShow && (activeType == ACTION_TYPE_SCHEDULE) ? 'active' : ''} ui icon button">
+                            <i class="calendar outline icon"></i>
+                            <div show.bind="!!countMyRecentSchedule" class="floating ui yellow empty circular label"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="item tms-item">
+                <button click.delegate="sibebarRightHandler($event)" title="右侧边栏(s)" class="basic ${isRightSidebarShow ? 'active' : ''} ui icon button">
+                    <i class="columns icon"></i>
+                </button>
+            </div>
+            <div class="item tms-search">
+                <div ref="searchRef" class="ui search">
+                    <div class="ui left icon input">
+                        <input ref="searchInputRef" keyup.trigger="searchKeyupHandler($event)" blur.trigger="searchBlurHandler()" focus.trigger="searchFocusHandler()" class="prompt" type="text" placeholder="搜索...">
+                        <i class="${(searchingP && searchingP.readyState != 4) ? 'spinner loading' : 'search'} icon"></i>
+                        <i ref="searchRemoveRef" click.delegate="clearSearchHandler()" class="remove link icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div ui-dropdown-hover class="ui top right dropdown item tms-login-user ${isActiveSearch ? 'tms-hide' : ''}">
+                <!-- <i class="circular user icon"></i> ${loginUser.name} -->
+                <em-user-avatar user.bind="loginUser"></em-user-avatar>
+                <!-- <i class="dropdown icon"></i> -->
+                <div class="menu">
+                    <div class="header">账户操作</div>
+                    <div class="divider"></div>
+                    <a class="item" click.delegate="userEditHandler()"><i class="edit icon"></i>修改</a>
+                    <a class="item" click.delegate="logoutHandler()"><i class="sign out icon"></i>退出</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <em-user-edit user.bind="loginUser" view-model.ref="userEditMd"></em-user-edit>
+    <em-chat-channel-create login-user.bind="loginUser" trigger.bind="createChannelRef"></em-chat-channel-create>
+    <em-chat-channel-link-mgr login-user.bind="loginUser" view-model.ref="channelLinkMgrVm" channel.bind="channel"></em-chat-channel-link-mgr>
+</template>

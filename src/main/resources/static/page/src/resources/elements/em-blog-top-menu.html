@@ -1,0 +1,48 @@
+<template>
+    <require from="./em-blog-top-menu.css"></require>
+    <div ref="topMenuRef" class="ui top fixed inverted blue menu em-blog-top-menu ${isSearchFocus ? 'search-focus' : ''}">
+        <div click.delegate="toggleHandler()" class="item tms-toggle">
+            <i class="large ${isHide ? 'indent' : 'outdent'} link icon"></i>
+        </div>
+        <div ui-dropdown-action class="ui dropdown item tms-links">
+            <i class="large content icon"></i>
+            <div class="menu">
+                <div class="header">系统外链</div>
+                <a repeat.for="item of sysLinks" href="${item.href}" target="_blank" class="item">${item.title}</a>
+            </div>
+        </div>
+        <div class="item tms-logo">
+            <a href="#/"><img ref="logoRef" src="img/tms-x32.png"></a>
+        </div>
+        <div class="header item">
+            TMS博文
+        </div>
+        <div class="item tms-create">
+            <a modaal="blog-create" href="#modaal-blog-write" title="博文创建 (c)" class="ui primary button">创建</a>
+        </div>
+        <div id="modaal-blog-write" style="display:none;">
+            <em-blog-write></em-blog-write>
+        </div>
+        <div class="right menu">
+            <div class="item">
+                <div ref="searchRef" class="ui search">
+                    <div class="ui icon input">
+                        <input keyup.trigger="searchKeyupHandler($event)" blur.trigger="searchBlurHandler()" focus.trigger="searchFocusHandler()" class="prompt" type="text" placeholder="搜索...">
+                        <i class="search icon"></i>
+                    </div>
+                    <div class="results"></div>
+                </div>
+            </div>
+            <div ui-dropdown-hover class="ui top right dropdown item tms-login-user ${isActiveSearch ? 'tms-hide' : ''}">
+                <em-user-avatar user.bind="loginUser"></em-user-avatar>
+                <div class="menu">
+                    <div class="header">账户操作</div>
+                    <div class="divider"></div>
+                    <a class="item" click.delegate="userEditHandler()"><i class="edit icon"></i>修改</a>
+                    <a class="item" click.delegate="logoutHandler()"><i class="sign out icon"></i>退出</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <em-user-edit user.bind="loginUser" view-model.ref="userEditMd"></em-user-edit>
+</template>

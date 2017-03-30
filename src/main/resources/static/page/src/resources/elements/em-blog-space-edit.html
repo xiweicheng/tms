@@ -1,0 +1,22 @@
+<template>
+    <require from="./em-blog-space-edit.css"></require>
+    <em-modal classes="small tms-md450" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)">
+        <div slot="header">空间编辑</div>
+        <div slot="content" class="em-blog-space-edit">
+            <form class="ui form">
+                <div class="required field">
+                    <input type="text" value.bind="space.name" placeholder="空间名称">
+                </div>
+                <div class="field">
+                    <textarea value.bind="space.description" placeholder="可选的针对空间的描述" rows="2"></textarea>
+                </div>
+                <div class="field">
+                    <div ref="chk" class="ui checkbox">
+                        <input type="checkbox" tabindex="0" class="hidden">
+                        <label><i class="lock icon"></i>私有空间(不公开)</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </em-modal>
+</template>

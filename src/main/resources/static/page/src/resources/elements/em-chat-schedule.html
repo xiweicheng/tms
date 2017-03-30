@@ -1,0 +1,50 @@
+<template>
+    <require from="./em-chat-schedule.css"></require>
+    <div class="em-chat-schedule">
+        <div ref="scheduleRef"></div>
+        <div ref="addRef" class="button blue circular icon mini tms-add ui">
+            <i class="plus icon"></i>
+        </div>
+        <div class="ui popup bottom center transition hidden tms-schedule-add">
+            <div class="ui form">
+                <div class="field">
+                    <textarea ref="titleRef" keyup.trigger="titleKeyupHandler($event)" autosize value.bind="title" rows="1" placeholder="日程内容(ctrl+enter添加)" style="width: 270px;"></textarea>
+                </div>
+                <div class="field tms-date-field">
+                    <div class="ui calendar" ref="startRef">
+                        <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input type="text" value.bind="startDate" placeholder="开始时间">
+                        </div>
+                    </div>
+                    <div click.delegate="clearStartDateHandler()" class="ui button">清空</div>
+                </div>
+                <div class="field tms-date-field">
+                    <div class="ui calendar" ref="endRef">
+                        <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input type="text" value.bind="endDate" placeholder="结束时间">
+                        </div>
+                    </div>
+                    <div click.delegate="clearEndDateHandler()" class="ui button">清空</div>
+                </div>
+                <div class="field">
+                    <div ref="actorsRef" class="ui multiple search selection dropdown">
+                        <input type="hidden" value="${loginUser.username}" name="actors">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">日程参与者</div>
+                        <div class="menu">
+                            <div repeat.for="item of users | sortUsers:loginUser.username" task.bind="initMembersUI($last)" class="item" data-value="${item.username}">
+                                ${item.name ? item.name : item.username}
+                                <input type="hidden" class="${loginUser.username == item.username ? 'owner' : ''}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button click.delegate="addHandler()" class="ui blue button" type="button" style="width: 260px;">添加</button>
+            </div>
+        </div>
+    </div>
+    <em-chat-schedule-edit login-user.bind="loginUser" view-model.ref="scheduleEditVm"></em-chat-schedule-edit>
+    <em-chat-schedule-remind events.bind="events"></em-chat-schedule-remind>
+</template>

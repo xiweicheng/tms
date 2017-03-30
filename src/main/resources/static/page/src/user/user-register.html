@@ -1,0 +1,31 @@
+<template>
+    <require from="./user-register.css"></require>
+    <div class="ui container tms-user-register">
+        <div class="tms-flex">
+            <div if.bind="!token" ref="fm" class="ui form segment" style="width: 280px;">
+                <div class="ui message">提交账户注册信息成功后,我们会向您的注册邮箱发送一封账户激活邮件,激活账户后即可登录!</div>
+                <div class="required field">
+                    <label>用户名</label>
+                    <input type="text" name="username" autofocus="" value.bind="username" placeholder="输入您的登录用户名">
+                </div>
+                <div class="required field">
+                    <label>密码</label>
+                    <input type="password" name="pwd" autofocus="" value.bind="pwd" placeholder="输入您的登录密码">
+                </div>
+                <div class="required field">
+                    <label>姓名</label>
+                    <input type="text" name="name" autofocus="" value.bind="name" placeholder="输入您的显示名称">
+                </div>
+                <div class="required field">
+                    <label>邮箱</label>
+                    <input type="text" name="mail" autofocus="" value.bind="mail" placeholder="输入您的账户激活邮箱">
+                </div>
+                <div class="ui green fluid button ${isReq ? 'disabled' : ''}" click.delegate="okHandler()">确认</div>
+            </div>
+            <div if.bind="token" class="ui center aligned very padded segment" style="width: 320px;">
+            	<h1 class="ui header">${header}</h1>
+            	<a href="/admin/login" class="ui green button">返回登录页面</a>
+            </div>
+        </div>
+    </div>
+</template>

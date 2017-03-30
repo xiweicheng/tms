@@ -1,0 +1,44 @@
+<template>
+    <require from="./em-chat-input.css"></require>
+    <require from="./em-hotkeys-modal"></require>
+    <div class="ui basic segment tms-msg-input tms-em-chat-input dropzone">
+        <div ref="chatStatusBarRef" class="tms-chat-status-bar dropzone-previews"></div>
+        <div ref="inputRef" class="ui left action fluid icon input dropzone">
+            <div ref="chatBtnRef" class="ui icon button">
+                <i class="plus icon"></i>
+            </div>
+            <div class="ui flowing popup bottom left transition hidden vertical menu">
+                <a ref="btnItemUploadRef" class="item">
+                    <i class="upload icon"></i>
+                    <div class="content">
+                        上传文件
+                    </div>
+                </a>
+                <a target="_blank" href="#/blog/create" class="item">
+                    <i class="write icon"></i>
+                    <div class="content">
+                        博文写作
+                    </div>
+                </a>
+            </div>
+            <div class="textareaWrapper">
+                <textarea ref="chatInputRef" placeholder="/ : @ 提示,ctrl+enter发送,esc清空"></textarea>
+            </div>
+            <i click.delegate="sendChatMsgHandler()" title="发送消息(Ctrl+Enter)" class="send link icon"></i>
+        </div>
+    </div>
+    <div ref="previewTemplateRef" style="display: none;">
+        <div class="dz-preview dz-file-preview">
+            <div class="dz-details">
+                <div class="dz-filename"><span data-dz-name></span></div>
+                <div class="dz-size" data-dz-size></div>
+                <img data-dz-thumbnail />
+            </div>
+            <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>
+            <div class="dz-success-mark"><span>✔</span></div>
+            <div class="dz-error-mark"><span>✘</span></div>
+            <div class="dz-error-message"><span data-dz-errormessage></span></div>
+        </div>
+    </div>
+    <em-hotkeys-modal em-hotkeys-modal.ref="emHotkeysModal"></em-hotkeys-modal>
+</template>

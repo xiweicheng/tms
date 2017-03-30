@@ -1,0 +1,29 @@
+<template>
+    <require from="./chat-direct.css"></require>
+    <div ref="chatContainerRef" class="tms-chat-direct">
+        <em-chat-top-menu users.bind="users" chat-user.bind="user" login-user.bind="loginUser" channels.bind="channels" channel.bind="channel" login-user.bind="loginUser" chat-id.bind="chatId" chat-to.bind="chatTo" is-at.bind="isAt"></em-chat-top-menu>
+        <em-chat-sidebar-left users.bind="users" login-user.bind="loginUser" channels.bind="channels" chat-to.bind="chatTo" is-at.bind="isAt"></em-chat-sidebar-left>
+        <div ref="contentRef" class="tms-content ${isRightSidebarShow ? 'tms-sidebar-show' : ''}">
+            <div ref="contentBodyRef" class="tms-content-body">
+                <div class="tms-comments-container" ref="scrollbarRef" scrollbar>
+                    <div ref="commentsRef" class="ui basic segment minimal selection list segment comments">
+                        <div if.bind="!last" click.delegate="lastMoreHandler()" class="basic ui button tms-pre-more"><i show.bind="lastMoreP && lastMoreP.readyState != 4" class="spinner loading icon"></i> 加载更多(${lastCnt})</div>
+                        <em-chat-content-item chat-to.bind="chatTo" mark-id.bind="markId" channel.bind="channel" is-at.bind="isAt" chats.bind="chats" login-user.bind="loginUser"></em-chat-content-item>
+                        <div if.bind="!first" click.delegate="firstMoreHandler()" class="basic ui button tms-next-more"><i show.bind="nextMoreP && nextMoreP.readyState != 4" class="spinner loading icon"></i> 加载更多(${firstCnt})
+                            <div click.trigger="refreshLatestHandler($event)" title="刷新最新消息" class="ui basic circular mini icon button">
+                                <i class="refresh icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div show.bind="isShowHead" title="滚至头部(alt+↑)" class="tms-go tms-go-head"><div click.delegate="goHeadHandler()" class="circular ui icon button"><i class="chevron up icon"></i></div></div>
+                    <div show.bind="isShowFoot" title="滚至尾部(alt+↓)" class="tms-go tms-go-foot"><div click.delegate="goFootHandler()" class="circular ui icon button"><i class="chevron down icon"></i></div></div>
+                </div>
+                <em-chat-input channel.bind="channel" is-at.bind="isAt" chat-to.bind="chatTo" em-chat-input.ref="emChatInputRef"></em-chat-input>
+            </div>
+            <em-chat-sidebar-right login-user.bind="loginUser" channel.bind="channel" login-user.bind="loginUser" is-at.bind="isAt"></em-chat-sidebar-right>
+        </div>
+    </div>
+    <div css="width: ${progressWidth}px;" class="tms-chat-progress"></div>
+    <em-chat-msg-popup></em-chat-msg-popup>
+    <em-chat-member-popup></em-chat-member-popup>
+</template>

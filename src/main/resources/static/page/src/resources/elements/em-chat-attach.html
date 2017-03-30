@@ -1,0 +1,37 @@
+<template>
+    <require from="./em-chat-attach.css"></require>
+    <div class="em-chat-attach tms-attach-search-input">
+        <div class="ui fluid left action icon input">
+            <button class="ui basic icon button">
+                <i show.bind="!ajax || ajax.readyState == 4" class="${type == 'Image' ? 'image' : ''} file outline icon"></i>
+                <i show.bind="ajax && ajax.readyState != 4" class="spinner loading icon"></i>
+            </button>
+            <input ref="searchRef" type="text" value.bind="search" keyup.trigger="keyupHandler($event)" placeholder="${type == 'Image' ? '图片' : '文件'}搜索(Enter确认, Esc取消)...">
+            <i click.delegate="searchHandler()" class="search link icon"></i>
+        </div>
+    </div>
+    <div ref="tabRef" class="ui pointing secondary menu em-chat-attach">
+        <a click.delegate="tabClickHandler('Image')" class="active item" data-tab="Image"><i show.bind="!ajax || ajax.readyState == 4 || type == 'Attachment'" class="file image outline icon"></i><i show.bind="ajax && ajax.readyState != 4 && type == 'Image'" class="spinner loading icon"></i>图片${(page && type == 'Image') ? '(' + page.totalElements + ')' : ''}</a>
+        <a click.delegate="tabClickHandler('Attachment')" class="item" data-tab="Attachment"><i show.bind="!ajax || ajax.readyState == 4 || type == 'Image'" class="file outline icon"></i><i show.bind="ajax && ajax.readyState != 4 && type == 'Attachment'" class="spinner loading icon"></i>文件${(page && type == 'Attachment') ? '(' + page.totalElements + ')' : ''}</a>
+    </div>
+    <div swipebox class="ui active tab basic segment em-chat-attach" data-tab="Image">
+        <h1 if.bind="!attachs || attachs.length == 0" class="centered ui header">暂无图片</h1>
+        <div if.bind="type == 'Image'" class="ui small bordered images">
+            <img repeat.for="item of attachs" if.bind="item.type == 'Image'" src="/${item.path + item.uuidName}" alt="${item.name}" title="${item.username | userName}上传于${item.createDate | timeago}">
+            <div if.bind="page && !page.last" click.delegate="moreHandler()" class="basic ui button"><i show.bind="ajax && ajax.readyState != 4" class="spinner loading icon"></i> 加载更多(${moreCnt})</div>
+        </div>
+    </div>
+    <div class="ui tab basic segment em-chat-attach" data-tab="Attachment">
+        <h1 if.bind="!attachs || attachs.length == 0" class="centered ui header">暂无文件</h1>
+        <div if.bind="type == 'Attachment'" class="divided list selection ui">
+            <div repeat.for="item of attachs" if.bind="item.type == 'Attachment'" class="item">
+                <i class="file outline icon"></i>
+                <div class="content">
+                    <div class="header"><a href="/admin/file/download/${item.id}">${item.name}</a></div>
+                    <div class="description"><i class="wait icon"></i><b>${item.username | userName}</b>上传于<span title="${item.createDate | date}">${item.createDate | timeago}</span></div>
+                </div>
+            </div>
+            <div if.bind="page && !page.last" click.delegate="moreHandler()" class="basic ui button"><i show.bind="ajax && ajax.readyState != 4" class="spinner loading icon"></i> 加载更多(${moreCnt})</div>
+        </div>
+    </div>
+</template>

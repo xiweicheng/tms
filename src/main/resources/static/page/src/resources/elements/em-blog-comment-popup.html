@@ -1,0 +1,22 @@
+<template>
+    <require from="./em-blog-comment-popup.css"></require>
+    <div ref="popup" class="ui flowing popup transition hidden em-blog-comment-popup">
+        <div class="ui items">
+            <div class="item">
+                <div class="content" style="width:300px; word-break: break-all;">
+                    <a class="header pp-not" href="javascript:void(0);">评论#${comment.id}</a>
+                    <div class="meta" style="width:300px; word-break: break-all; font-size: 12px;">
+                        <i class="wait icon"></i>
+                        <span>
+                            ${comment.creator ? (comment.creator.name ? comment.creator.name : comment.creator.username) : ''}
+                        </span>
+                        <span>发表于</span>
+                        <span class="cinema timeago" style="font-style: italic;" title="${comment.createDate | date}">${comment.createDate | timeago}</span>
+                    </div>
+                    <div class="ui divider"></div>
+                    <div class="description markdown-body" style="width:300px; word-break: break-all; max-height: 200px; overflow-y: auto; overflow-x: hidden;" innerhtml.bind="comment.content | parseMd"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

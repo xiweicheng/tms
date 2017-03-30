@@ -1,0 +1,18 @@
+<template>
+    <div ref="md" class="ui small modal nx-ui-confirm tms-md450">
+        <div class="header">
+            ${config.title}
+        </div>
+        <div class="content">
+            <i if.bind="config.warning" class="large yellow warning sign icon" style="float: left;"></i>
+            <i if.bind="!config.warning" class="large blue info circle icon" style="float: left;"></i>
+            <p style="margin-left: 20px;">
+                <span innerhtml.bind="config.content"></span>
+            </p>
+        </div>
+        <div class="actions">
+            <div class="ui cancel basic blue left floated button">取消</div>
+            <div class="ui ok blue button">确认</div>
+        </div>
+    </div>
+</template>

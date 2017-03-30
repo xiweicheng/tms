@@ -1,0 +1,66 @@
+<template>
+    <require from="./em-chat-channel-link-mgr.css"></require>
+    <em-modal classes="small" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)">
+        <div slot="header">频道外链管理</div>
+        <div slot="content" class="tms-em-chat-channel-link-mgr">
+            <div class="ui segment">
+                <div class="ui form">
+                    <div class="field required">
+                        <label>添加频道外链</label>
+                        <div class="fields">
+                            <div class="five wide field">
+                                <input type="text" value.bind="title" name="title" placeholder="链接标题">
+                            </div>
+                            <div class="ten wide field">
+                                <input type="text" value.bind="href" name="href" placeholder="链接地址">
+                            </div>
+                            <div class="one wide field">
+                                <button title="添加外链" click.delegate="addHandler()" class="circular ui icon blue button" type="button"><i class="plus icon"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="max-height: 275px; overflow: auto;">
+                <table class="ui very basic striped compact table">
+                    <thead>
+                        <tr>
+                            <th style="width: 180px;">标题</th>
+                            <th>链接</th>
+                            <th></th>
+                            <th style="width: 150px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr repeat.for="item of links | sort:'title'">
+                            <td if.bind="!item.isEditing">${item.title}</td>
+                            <td if.bind="item.isEditing">
+                                <div class="ui fluid input">
+                                    <input type="text" value.bind="item.title" placeholder="链接标题">
+                                </div>
+                            </td>
+                            <td if.bind="!item.isEditing"><a style="word-break: break-all;" target="_blank" href="${item.href}">${item.href}</a></td>
+                            <td if.bind="item.isEditing">
+                                <div class="ui fluid input">
+                                    <input type="text" value.bind="item.href" placeholder="链接地址">
+                                </div>
+                            </td>
+                            <td><span data-tooltip="${item.creator.name ? item.creator.name : item.creator.username} 添加于 ${item.createDate | timeago}"><i class="info circle icon"></i></span></td>
+                            <td>
+                                <button if.bind="item.creator.username == loginUser.username || channel.owner.username == loginUser.username" show.bind="!item.isEditing" click.delegate="editHandler(item)" class="mini ui button">
+                                    编辑
+                                </button>
+                                <button if.bind="item.creator.username == loginUser.username || channel.owner.username == loginUser.username" click.delegate="updateHandler(item)" show.bind="item.isEditing" class="mini green ui button">
+                                    更新
+                                </button>
+                                <button if.bind="item.creator.username == loginUser.username || channel.owner.username == loginUser.username" click.delegate="delHandler(item)" class="mini ui red button">
+                                    删除
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </em-modal>
+</template>

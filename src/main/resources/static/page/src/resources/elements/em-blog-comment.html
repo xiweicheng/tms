@@ -1,0 +1,73 @@
+<template>
+    <require from="./em-blog-comment.css"></require>
+    <div class="em-blog-comment">
+        <div class="ui minimal comments" ref="blogCommentsRef">
+            <h3 title="快速评论 (r)" class="ui dividing header">${comments.length > 0 ? comments.length + ' ' : ''}评论</h3>
+            <div repeat.for="item of comments" class="comment" data-id="${item.id}">
+                <!-- <a class="avatar"> -->
+                <em-user-avatar user.bind="item.creator"></em-user-avatar>
+                <!-- </a> -->
+                <div class="content">
+                    <a class="author" data-value=${item.creator.username}>${item.creator.name}</a>
+                    <div class="metadata">
+                        <span class="date" data-timeago="${item.createDate}" title="${item.createDate | date}">${item.createDate | timeago}</span>
+                        <div class="rating">
+                            <i click.delegate="rateHandler(item)" style="cursor: pointer;" title="赞一下" class="cbutton cbutton--effect-novak thumbs ${item.voteZan && item.voteZan.split(',').includes(loginUser.username) ? '' : 'outline'} up icon"></i> <span title="${item.voteZan}">${item.voteZanCnt ? item.voteZanCnt : ''} 赞</span>
+                        </div>
+                    </div>
+                    <div swipebox show.bind="!item.isEditing" ref="mkbodyRef" class="text markdown-body" innerhtml.bind="item.content | parseMd | emoji:mkbodyRef"></div>
+                    <div class="textcomplete-container" show.bind="item.isEditing">
+                        <div class="append-to"></div>
+                    </div>
+                    <textarea ref="editTxtRef" data-id="${item.id}" textcomplete.bind="users" pastable autosize dropzone keydown.trigger="eidtKeydownHandler($event, item, editTxtRef)" show.bind="item.isEditing" value.bind="item.content & oneWay" class="tms-blog-comment-edit-textarea" rows="1"></textarea>
+                    <div show.bind="item.isEditing" class="ui compact icon buttons tms-blog-comment-edit-actions">
+                        <button click.delegate="editOkHandler($event, item, editTxtRef)" title="保存 (ctrl+enter)" class="ui left attached compact icon button">
+                            <i class="checkmark icon"></i>
+                        </button>
+                        <button click.delegate="editCancelHandler($event, item, editTxtRef)" title="取消 (esc)" class="ui attached compact icon button">
+                            <i class="remove icon"></i>
+                        </button>
+                        <button dropzone="type:Blog; clickable.bind: !0; target.bind: editTxtRef" title="上传 (ctrl+u)" class="ui right attached compact icon button">
+                            <i class="upload icon"></i>
+                        </button>
+                    </div>
+                    <div class="actions">
+                        <a click.delegate="replyHandler(item)" class="reply">回复</a>
+                        <a if.bind="isSuper || item.creator.username == loginUser.username" click.delegate="editHandler(item, editTxtRef)" title="评论编辑(ctrl+dblclick)" class="reply">编辑</a>
+                        <a class="item tms-clipboard" data-clipboard-text="${item.content}" title="复制评论内容">复制</a>
+                        <a class="item tms-clipboard" data-clipboard-text="${basePath + '#/blog/' + blog.id + '?cid=' + item.id}" title="复制评论链接">分享</a>
+                        <div if.bind="isSuper || item.creator.username == loginUser.username" ui-dropdown-action style="margin-right: .75em;" class="ui icon top right pointing dropdown" title="移除评论">
+                            移除
+                            <div class="menu">
+                                <div style="color: red;" class="item" click.delegate="removeHandler(item)"><i class="trash outline icon"></i>确认移除</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tools">
+                        <button show.bind="!item.isEditing" click.delegate="refreshHandler(item)" title="刷新同步" class="mini circular ui icon button">
+                            <i class="refresh icon"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="ui divider"></div>
+            </div>
+            <form class="ui reply form dropzone">
+                <div class="tms-blog-comment-status-bar-wrapper">
+                    <div class="tms-blog-comment-status-bar"></div>
+                    <div class="dropzone-previews"></div>
+                </div>
+                <div ref="markdownRef" class="field markdown-body">
+                    <textarea ref="commentRef"></textarea>
+                </div>
+                <div click.delegate="addHandler()" title="提交评论(ctrl+enter)" class="ui blue labeled submit icon button">
+                    <i class="icon edit"></i> 添加评论
+                </div>
+            </form>
+        </div>
+        <div class="preview-template" style="display: none;">
+            <div class="dz-preview dz-file-preview">
+                <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>
+            </div>
+        </div>
+    </div>
+</template>

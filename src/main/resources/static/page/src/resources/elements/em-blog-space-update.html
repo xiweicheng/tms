@@ -1,0 +1,23 @@
+<template>
+    <require from="./em-blog-space-update.css"></require>
+    <em-modal classes="small tms-md450" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)">
+        <div slot="header">博文移动</div>
+        <div slot="content" class="em-blog-space-update">
+            <form class="ui form">
+                <div class="required field">
+                    <div ref="spacesRef" class="ui fluid search selection dropdown">
+                        <input type="hidden" name="country">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">选择空间(可选)</div>
+                        <div class="menu">
+                            <div class="item" data-value="">(不指定空间)</div>
+                            <template repeat.for="item of spaces">
+                                <div task.bind="initSpacesHandler($last)" class="item" data-value="${item.id}"><i class="folder outline icon"></i>${item.name}</div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </em-modal>
+</template>
