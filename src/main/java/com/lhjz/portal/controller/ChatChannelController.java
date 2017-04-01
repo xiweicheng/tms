@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -125,6 +124,10 @@ public class ChatChannelController extends BaseController {
 		}
 
 		Channel channel = channelRepository.findOne(channelId);
+		
+		if (!hasAuth(channel)) {
+			return RespBody.failed("权限不足!");
+		}
 
 		ChatChannel chatChannel = new ChatChannel();
 		chatChannel.setChannel(channel);
@@ -195,6 +198,11 @@ public class ChatChannelController extends BaseController {
 			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
 		Channel channel = channelRepository.findOne(channelId);
+		
+		if (!hasAuth(channel)) {
+			return RespBody.failed("权限不足!");
+		}
+		
 		int limit = pageable.getPageSize();
 
 		if (StringUtil.isNotEmpty(id)) {
@@ -239,6 +247,10 @@ public class ChatChannelController extends BaseController {
 				.getOpenEdit();
 
 		if (!isSuperOrCreator(chatChannel.getCreator().getUsername()) && !isOpenEdit) {
+			return RespBody.failed("您没有权限编辑该消息内容!");
+		}
+		
+		if (isOpenEdit && !hasAuth(chatChannel)) {
 			return RespBody.failed("您没有权限编辑该消息内容!");
 		}
 		
@@ -356,7 +368,7 @@ public class ChatChannelController extends BaseController {
 		
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 		
-		if(!isCreatorOrMemberOrPublic(chatChannel)) {
+		if (!hasAuth(chatChannel)) {
 			return RespBody.failed("您没有权限查看该频道消息内容!");
 		}
 	
@@ -368,7 +380,13 @@ public class ChatChannelController extends BaseController {
 	public RespBody latest(@RequestParam("id") Long id,
 			@RequestParam("channelId") Long channelId) {
 		
-		List<ChatChannel> chats = chatChannelRepository.latest(channelRepository.findOne(channelId), id);
+		Channel channel = channelRepository.findOne(channelId);
+		
+		if (!hasAuth(channel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		List<ChatChannel> chats = chatChannelRepository.latest(channel, id);
 		chats.forEach(cc -> {
 			Channel channel2 = cc.getChannel();
 			Channel channel3 = new Channel();
@@ -389,6 +407,10 @@ public class ChatChannelController extends BaseController {
 		List<ChatChannel> chats = new ArrayList<>();
 		
 		Channel channel = channelRepository.findOne(channelId);
+		
+		if (!hasAuth(channel)) {
+			return RespBody.failed("权限不足!");
+		}
 		
 		if (last) {
 			count = chatChannelRepository.countAllOld(channel, start);
@@ -419,6 +441,10 @@ public class ChatChannelController extends BaseController {
 		}
 		
 		Channel channel = channelRepository.findOne(channelId);
+		
+		if (!hasAuth(channel)) {
+			return RespBody.failed("权限不足!");
+		}
 
 		String _search = "%" + search + "%";
 		List<ChatChannel> chats = chatChannelRepository.queryAboutMe(channel, _search, pageable.getOffset(),
@@ -448,6 +474,10 @@ public class ChatChannelController extends BaseController {
 		if (chatChannel == null) {
 			return RespBody.failed("收藏频道消息不存在,可能已经被删除!");
 		}
+		
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
 
 		User loginUser = getLoginUser();
 		ChatStow chatStow = chatStowRepository.findOneByChatChannelAndStowUser(chatChannel,
@@ -469,6 +499,12 @@ public class ChatChannelController extends BaseController {
 	@RequestMapping(value = "removeStow", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody removeStow(@RequestParam("id") Long id) {
+		
+		ChatStow stow = chatStowRepository.findOne(id);
+		
+		if (!isSuperOrCreator(stow.getCreator().getUsername())) {
+			return RespBody.failed("权限不足!");
+		}
 
 		chatStowRepository.delete(id);
 
@@ -520,6 +556,11 @@ public class ChatChannelController extends BaseController {
 		if (chatAt == null) {
 			return RespBody.failed("@消息不存在,可能已经被删除!");
 		}
+		
+		if (!isSuperOrCreator(chatAt.getAtUser().getUsername())) {
+			return RespBody.failed("权限不足!");
+		}
+		
 		chatAt.setStatus(Status.Readed);
 		chatAtRepository.saveAndFlush(chatAt);
 
@@ -533,6 +574,10 @@ public class ChatChannelController extends BaseController {
 		ChatChannel chatChannel = chatChannelRepository.findOne(chatId);
 		if (chatChannel == null) {
 			return RespBody.failed("@頻道消息不存在,可能已经被删除!");
+		}
+		
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
 		}
 		
 		int cnt = chatAtRepository.markChatChannelAsReaded(chatChannel, getLoginUser());
@@ -558,6 +603,10 @@ public class ChatChannelController extends BaseController {
 
 		if (chatChannel == null) {
 			return RespBody.failed("操作频道消息不存在,可能已经被删除!");
+		}
+
+		if (!isSuperOrCreator(chatChannel.getCreator().getUsername())) {
+			return RespBody.failed("权限不足!");
 		}
 
 		chatChannel.setOpenEdit(open);
@@ -594,6 +643,11 @@ public class ChatChannelController extends BaseController {
 		if (chatChannel == null) {
 			return RespBody.failed("投票频道消息不存在!");
 		}
+		
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
+		
 		String loginUsername = WebUtil.getUsername();
 
 		ChatChannel chatChannel2 = null;
@@ -688,23 +742,6 @@ public class ChatChannelController extends BaseController {
 		return RespBody.succeed(new Poll(channelId, lastChatChannelId, isAt, cnt, cntAtUserNew, countMyRecentSchedule));
 	}
 	
-	boolean isCreatorOrMemberOrPublic(ChatChannel chatChannel) {
-		User creator = chatChannel.getCreator();
-		User loginUser = getLoginUser();
-
-		if (loginUser.equals(creator)) {
-			return true;
-		}
-		Channel channel = chatChannel.getChannel();
-		if(!channel.getPrivated()) {
-			return true;
-		}
-
-		Set<User> members = channel.getMembers();
-
-		return members.contains(loginUser);
-	}
-	
 	@RequestMapping(value = "download/{id}", method = RequestMethod.GET)
 	public void download(HttpServletRequest request,
 			HttpServletResponse response, @PathVariable Long id, @RequestParam(value = "type", defaultValue = "pdf") String type)
@@ -723,7 +760,7 @@ public class ChatChannelController extends BaseController {
 			}
 		}
 		
-		if(!isCreatorOrMemberOrPublic(chatChannel)) {
+		if(!hasAuth(chatChannel)) {
 			try {
 				response.sendError(401, "没有权限下载该频道消息!");
 				return;
@@ -824,12 +861,17 @@ public class ChatChannelController extends BaseController {
 			return true;
 		}
 
-		User loginUser = new User(WebUtil.getUsername());
-		if (cc.getChannel().getMembers().contains(loginUser)) {
+		return hasAuth(cc.getChannel());
+	}
+	
+	private boolean hasAuth(Channel c) {
+
+		if (!c.getPrivated()) {
 			return true;
 		}
 
-		return false;
+		User loginUser = new User(WebUtil.getUsername());
+		return c.getMembers().contains(loginUser);
 	}
 
 	@RequestMapping(value = "share", method = RequestMethod.POST)
