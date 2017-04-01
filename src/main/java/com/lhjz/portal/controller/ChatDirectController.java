@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,10 +38,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender2;
 import com.lhjz.portal.constant.SysConstant;
+import com.lhjz.portal.entity.Channel;
+import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatAtRepository;
+import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.GroupMemberRepository;
@@ -52,6 +58,7 @@ import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
 import com.lhjz.portal.util.ThreadUtil;
+import com.lhjz.portal.util.ValidateUtil;
 import com.lhjz.portal.util.WebUtil;
 
 /**
@@ -74,7 +81,13 @@ public class ChatDirectController extends BaseController {
 	private String md2pdfPath;
 
 	@Autowired
+	ChannelRepository channelRepository;
+	
+	@Autowired
 	ChatDirectRepository chatDirectRepository;
+	
+	@Autowired
+	ChatChannelRepository chatChannelRepository;
 
 	@Autowired
 	UserRepository userRepository;
@@ -489,6 +502,103 @@ public class ChatDirectController extends BaseController {
 				bos.close();
 			}
 		}
+	}
+	
+	private boolean hasAuth(ChatDirect cd) {
+
+		if (isSuperOrCreator(cd.getCreator().getUsername())) {
+			return true;
+		}
+
+		User loginUser = new User(WebUtil.getUsername());
+
+		return cd.getChatTo().equals(loginUser);
+	}
+
+	@RequestMapping(value = "share", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody share(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
+			@RequestParam("href") final String href, @RequestParam("html") String html,
+			@RequestParam(value = "desc", required = false) String desc,
+			@RequestParam(value = "users", required = false) String users,
+			@RequestParam(value = "channels", required = false) String channels,
+			@RequestParam(value = "mails", required = false) String mails) {
+
+		ChatDirect chatDirect2 = chatDirectRepository.findOne(id);
+
+		if (!hasAuth(chatDirect2)) {
+			return RespBody.failed("您没有权限分享该沟通消息!");
+		}
+
+		final User loginUser = getLoginUser();
+
+		final String html2 = StringUtil.replace(
+				"<h1 style=\"color: blue;\">分享沟通消息: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href,
+				"沟通消息链接", html);
+
+		final String title = StringUtil.isNotEmpty(desc) ? desc : "下面的沟通消息有分享到你";
+
+		Mail mail = Mail.instance();
+		if (StringUtil.isNotEmpty(users)) {
+			Stream.of(users.split(",")).forEach(username -> {
+				User user = getUser(username);
+				if (user != null) {
+					mail.addUsers(user);
+
+					ChatDirect chatDirect = new ChatDirect();
+					chatDirect.setChatTo(user);
+					chatDirect.setContent(
+							StringUtil.replace("## ~私聊消息播报~\n> 来自 {~{?1}} 的沟通消息分享:  [{?2}]({?3})\n\n---\n\n{?4}",
+									loginUser.getUsername(), "沟通消息链接", href, chatDirect2.getContent()));
+
+					chatDirectRepository.saveAndFlush(chatDirect);
+				}
+			});
+		}
+		if (StringUtil.isNotEmpty(channels)) {
+			Stream.of(channels.split(",")).forEach(name -> {
+				Channel channel = channelRepository.findOneByName(name);
+				if (channel != null) {
+					channel.getMembers().forEach(user -> {
+						mail.addUsers(user);
+					});
+
+					ChatChannel chatChannel = new ChatChannel();
+					chatChannel.setChannel(channel);
+					chatChannel.setContent(
+							StringUtil.replace("## ~频道消息播报~\n> 来自 {~{?1}} 的沟通消息分享:  [{?2}]({?3})\n\n---\n\n{?4}",
+									loginUser.getUsername(), "沟通消息链接", href, chatDirect2.getContent()));
+
+					chatChannelRepository.saveAndFlush(chatChannel);
+				}
+			});
+		}
+
+		if (StringUtil.isNotEmpty(mails)) {
+			Stream.of(mails.split(",")).forEach(m -> {
+				if (ValidateUtil.isEmail(m)) {
+					mail.add(m);
+				}
+			});
+		}
+
+		ThreadUtil.exec(() -> {
+
+			try {
+				Thread.sleep(3000);
+				mailSender
+						.sendHtml(String.format("TMS-沟通消息分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+								TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user",
+										loginUser, "date", new Date(), "href", href, "title", title, "content", html2)),
+								mail.get());
+				logger.info("沟通消息分享邮件发送成功！");
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("沟通消息分享邮件发送失败！");
+			}
+
+		});
+		return RespBody.succeed();
 	}
 
 }
