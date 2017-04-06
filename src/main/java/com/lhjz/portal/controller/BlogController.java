@@ -742,7 +742,7 @@ public class BlogController extends BaseController {
 		
 		// auto follow blog
 		boolean isFollower = followers.stream().anyMatch(f -> f.getCreator().equals(loginUser));
-		if (!isFollower) {
+		if (!isFollower && !blog.getCreator().equals(loginUser)) {
 			BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreator(blog, getLoginUser());
 
 			if (blogFollower != null) {
