@@ -1338,6 +1338,8 @@ public class BlogController extends BaseController {
 	public RespBody listMyStow() {
 
 		List<BlogStow> blogStows = blogStowRepository.findByCreatorAndStatusNot(getLoginUser(), Status.Deleted);
+		blogStows = blogStows.stream().filter(bs -> !bs.getBlog().getStatus().equals(Status.Deleted))
+				.collect(Collectors.toList());
 		blogStows.forEach(bs -> {
 			bs.getBlog().setContent(null);
 			bs.getBlog().setBlogAuthorities(null);
