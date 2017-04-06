@@ -739,6 +739,25 @@ public class BlogController extends BaseController {
 
 		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
 		followers.forEach(bf -> mail.addUsers(bf.getCreator()));
+		
+		// auto follow blog
+		boolean isFollower = followers.stream().anyMatch(f -> f.getCreator().equals(loginUser));
+		if (!isFollower) {
+			BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreator(blog, getLoginUser());
+
+			if (blogFollower != null) {
+				if (blogFollower.getStatus().equals(Status.Deleted)) {
+					blogFollower.setStatus(Status.New);
+
+					blogFollowerRepository.saveAndFlush(blogFollower);
+				}
+			} else {
+				blogFollower = new BlogFollower();
+				blogFollower.setBlog(blog);
+
+				blogFollowerRepository.saveAndFlush(blogFollower);
+			}
+		}
 
 		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
 
