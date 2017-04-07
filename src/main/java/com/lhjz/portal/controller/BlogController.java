@@ -437,7 +437,7 @@ public class BlogController extends BaseController {
 		blog.setOpenEdit(open);
 		blogRepository.saveAndFlush(blog);
 		
-		logWithProperties(Action.Update, Target.Blog, id, "openEdit", open);
+		logWithProperties(Action.Update, Target.Blog, id, "openEdit", open, blog.getTitle());
 
 		return RespBody.succeed();
 	}
