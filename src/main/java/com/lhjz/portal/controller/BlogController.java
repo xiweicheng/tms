@@ -272,7 +272,7 @@ public class BlogController extends BaseController {
 		boolean isUpdated = false;
 
 		if (!content.equals(blog.getContent())) {
-			logWithProperties(Action.Update, Target.Blog, blog.getId(), "content", diff);
+			logWithProperties(Action.Update, Target.Blog, blog.getId(), "content", diff, blog.getTitle());
 			isUpdated = true;
 		}
 
@@ -732,7 +732,7 @@ public class BlogController extends BaseController {
 
 		Comment comment2 = commentRepository.saveAndFlush(comment);
 		
-		log(Action.Create, Target.Comment, comment2.getId(), content);
+		log(Action.Create, Target.Comment, comment2.getId(), content, id);
 
 		final User loginUser = getLoginUser();
 
@@ -819,7 +819,7 @@ public class BlogController extends BaseController {
 
 		comment.setContent(content);
 		
-		logWithProperties(Action.Update, Target.Comment, cid, "content", diff);
+		logWithProperties(Action.Update, Target.Comment, cid, "content", diff, id);
 
 		Comment comment2 = commentRepository.saveAndFlush(comment);
 
@@ -890,7 +890,7 @@ public class BlogController extends BaseController {
 			comment.setStatus(Status.Deleted);
 			commentRepository.saveAndFlush(comment);
 			
-			log(Action.Delete, Target.Comment, cid);
+			log(Action.Delete, Target.Comment, cid, comment.getContent());
 		}
 
 		return RespBody.succeed(cid);
