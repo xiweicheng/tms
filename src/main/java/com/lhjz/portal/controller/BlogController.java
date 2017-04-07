@@ -1317,7 +1317,7 @@ public class BlogController extends BaseController {
 				blogStow3.setStatus(Status.New);
 				
 				BlogStow blogStow = blogStowRepository.saveAndFlush(blogStow3);
-				blogStow.setBlog(null);
+//				blogStow.setBlog(null);
 				
 				logWithProperties(Action.Update, Target.Blog, id, "stow", loginUser.getUsername());
 
@@ -1328,7 +1328,7 @@ public class BlogController extends BaseController {
 			blogStow.setBlog(blog);
 			
 			BlogStow blogStow2 = blogStowRepository.saveAndFlush(blogStow);
-			blogStow2.setBlog(null);
+//			blogStow2.setBlog(null);
 			
 			logWithProperties(Action.Update, Target.Blog, id, "stow", loginUser.getUsername());
 
@@ -1421,7 +1421,7 @@ public class BlogController extends BaseController {
 				blogFollower.setStatus(Status.New);
 				
 				BlogFollower blogFollower2 = blogFollowerRepository.saveAndFlush(blogFollower);
-				blogFollower2.setBlog(null);
+//				blogFollower2.setBlog(null);
 				
 				logWithProperties(Action.Update, Target.Blog, id, "follower", loginUser.getUsername());
 
@@ -1432,7 +1432,7 @@ public class BlogController extends BaseController {
 			blogFollower2.setBlog(blog);
 			
 			BlogFollower blogFollower3 = blogFollowerRepository.saveAndFlush(blogFollower2);
-			blogFollower3.setBlog(null);
+//			blogFollower3.setBlog(null);
 			
 			logWithProperties(Action.Update, Target.Blog, id, "follower", loginUser.getUsername());
 
