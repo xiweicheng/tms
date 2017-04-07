@@ -919,14 +919,12 @@ public class BlogController extends BaseController {
 
 		Space space = sid != null ? spaceRepository.findOne(sid) : null;
 		
-		Space spaceOld = blog.getSpace();
-		
 		blog.setSpace(space);
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 
 		logWithProperties(Action.Update, Target.Blog, id, "space", space != null ? space.getName() : "",
-				spaceOld != null ? spaceOld.getName() : "");
+				blog.getTitle());
 
 		return RespBody.succeed(blog2);
 	}
@@ -945,7 +943,7 @@ public class BlogController extends BaseController {
 		
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 
-		logWithProperties(Action.Update, Target.Blog, id, "privated", privated);
+		logWithProperties(Action.Update, Target.Blog, id, "privated", privated, blog.getTitle());
 
 		return RespBody.succeed(blog2);
 	}
