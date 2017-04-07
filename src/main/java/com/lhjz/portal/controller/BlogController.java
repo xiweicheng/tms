@@ -496,7 +496,7 @@ public class BlogController extends BaseController {
 
 				blogRepository.updateVoteZan(vz, vzc, id);
 				
-				logWithProperties(Action.Update, Target.Blog, id, "voteZan", loginUsername);
+				logWithProperties(Action.Update, Target.Blog, id, "voteZan", blog.getTitle());
 				
 				blog.setVoteZan(vz);
 				blog.setVoteZanCnt(vzc);
@@ -572,7 +572,7 @@ public class BlogController extends BaseController {
 				comment2 = commentRepository.saveAndFlush(comment);
 				title = loginUser.getName() + "[" + loginUsername + "]赞了你的博文评论!";
 				
-				logWithProperties(Action.Update, Target.Comment, cid, "voteZan", loginUsername);
+				logWithProperties(Action.Update, Target.Comment, cid, "voteZan", comment2.getTargetId(), comment2.getContent());
 			}
 
 		} else {
