@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,7 @@ import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.Comment;
+import com.lhjz.portal.entity.Log;
 import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
@@ -71,6 +73,7 @@ import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.CommentRepository;
+import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.DateUtil;
@@ -132,6 +135,9 @@ public class BlogController extends BaseController {
 	
 	@Autowired
 	BlogFollowerRepository blogFollowerRepository;
+	
+	@Autowired
+	LogRepository logRepository;
 
 	@Autowired
 	MailSender2 mailSender;
@@ -1503,6 +1509,31 @@ public class BlogController extends BaseController {
 		followers.forEach(bf -> bf.setBlog(null));
 
 		return RespBody.succeed(followers);
+	}
+	
+	@RequestMapping(value = "log/my", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody myLog() {
+
+		List<Log> logs = logRepository.findByTargetInAndCreateDateAfter(Arrays.asList(Target.Blog, Target.Comment),
+				new DateTime().minusDays(7).toDate());
+
+		logs = logs.stream().filter(lg -> {
+
+			String targetId = lg.getTargetId();
+			if (Target.Blog.equals(lg.getTarget())) {
+				Blog blog = blogRepository.findOne(Long.valueOf(targetId));
+				return hasAuth(blog);
+			} else if (Target.Comment.equals(lg.getTarget())) {
+				Comment comment = commentRepository.findOne(Long.valueOf(targetId));
+				Blog blog = blogRepository.findOne(Long.valueOf(comment.getTargetId()));
+				return hasAuth(blog);
+			}
+
+			return false;
+		}).collect(Collectors.toList());
+
+		return RespBody.succeed(logs);
 	}
 
 }
