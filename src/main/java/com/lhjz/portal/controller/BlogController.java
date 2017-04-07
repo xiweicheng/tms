@@ -56,6 +56,7 @@ import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.Comment;
 import com.lhjz.portal.entity.Log;
 import com.lhjz.portal.entity.Space;
+import com.lhjz.portal.entity.SpaceAuthority;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
@@ -1157,28 +1158,77 @@ public class BlogController extends BaseController {
 
 		return hasAuthWithDeleted(b);
 	}
-	
-	private boolean hasAuthWithDeleted(Blog b) {
-		
-		if (b == null) {
+
+	private boolean hasSpaceAuth(Space s) {
+
+		if (s == null) {
 			return false;
 		}
-		
+
 		if (isSuper()) { // 超级用户
 			return true;
 		}
-		
+
+		if (s.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
+			return false;
+		}
+
 		User loginUser = new User(WebUtil.getUsername());
-		
+
+		// 过滤掉没有权限的
+		if (s.getCreator().equals(loginUser)) { // 我创建的
+			return true;
+		}
+
+		if (!s.getPrivated()) { // 非私有的
+			return true;
+		}
+
+		boolean exists = false;
+		for (SpaceAuthority sa : s.getSpaceAuthorities()) {
+			if (loginUser.equals(sa.getUser())) {
+				exists = true;
+				break;
+			} else {
+				Channel channel = sa.getChannel();
+				if (channel != null) {
+					Set<User> members = channel.getMembers();
+					if (members.contains(loginUser)) {
+						exists = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return exists;
+	}
+	
+	private boolean hasAuthWithDeleted(Blog b) {
+
+		if (b == null) {
+			return false;
+		}
+
+		if (isSuper()) { // 超级用户
+			return true;
+		}
+
+		User loginUser = new User(WebUtil.getUsername());
+
 		// 过滤掉没有权限的
 		if (b.getCreator().equals(loginUser)) { // 我创建的
 			return true;
 		}
-		
+
 		if (!b.getPrivated()) { // 非私有的
-			return true;
+			if (b.getSpace() == null) {
+				return true;
+			} else {
+				return hasSpaceAuth(b.getSpace());
+			}
 		}
-		
+
 		boolean exists = false;
 		for (BlogAuthority ba : b.getBlogAuthorities()) {
 			if (loginUser.equals(ba.getUser())) {
@@ -1195,7 +1245,7 @@ public class BlogController extends BaseController {
 				}
 			}
 		}
-		
+
 		return exists;
 	}
 	
