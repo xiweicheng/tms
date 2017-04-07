@@ -169,6 +169,8 @@ public class BlogController extends BaseController {
 		}
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
+		
+		log(Action.Create, Target.Blog, blog2.getId(), blog2.getTitle());
 
 		final String href = url + "#/blog/" + blog2.getId();
 		final String html = contentHtml;
@@ -264,12 +266,12 @@ public class BlogController extends BaseController {
 		boolean isUpdated = false;
 
 		if (!content.equals(blog.getContent())) {
-			logWithProperties(Action.Update, Target.ChatChannel, blog.getId(), "title", blog.getTitle());
+			logWithProperties(Action.Update, Target.Blog, blog.getId(), "content", diff);
 			isUpdated = true;
 		}
 
 		if (!title.equals(blog.getTitle())) {
-			logWithProperties(Action.Update, Target.ChatChannel, blog.getId(), "content", blog.getContent());
+			logWithProperties(Action.Update, Target.Blog, blog.getId(), "title", title, blog.getTitle());
 			isUpdated = true;
 		}
 
@@ -359,7 +361,7 @@ public class BlogController extends BaseController {
 
 		blogRepository.saveAndFlush(blog);
 
-		log(Action.Delete, Target.Blog, id);
+		log(Action.Delete, Target.Blog, id, blog.getTitle());
 
 		return RespBody.succeed(id);
 	}
@@ -428,6 +430,8 @@ public class BlogController extends BaseController {
 
 		blog.setOpenEdit(open);
 		blogRepository.saveAndFlush(blog);
+		
+		logWithProperties(Action.Update, Target.Blog, id, "openEdit", open);
 
 		return RespBody.succeed();
 	}
@@ -485,6 +489,8 @@ public class BlogController extends BaseController {
 				Integer vzc = voteZanCnt == null ? 1 : voteZanCnt + 1;
 
 				blogRepository.updateVoteZan(vz, vzc, id);
+				
+				logWithProperties(Action.Update, Target.Blog, id, "voteZan", loginUsername);
 				
 				blog.setVoteZan(vz);
 				blog.setVoteZanCnt(vzc);
@@ -559,6 +565,8 @@ public class BlogController extends BaseController {
 
 				comment2 = commentRepository.saveAndFlush(comment);
 				title = loginUser.getName() + "[" + loginUsername + "]赞了你的博文评论!";
+				
+				logWithProperties(Action.Update, Target.Comment, cid, "voteZan", loginUsername);
 			}
 
 		} else {
@@ -593,8 +601,6 @@ public class BlogController extends BaseController {
 			}
 
 		});
-
-		log(Action.Vote, Target.Comment, comment.getId(), comment2);
 
 		return RespBody.succeed(comment2);
 	}
@@ -719,6 +725,8 @@ public class BlogController extends BaseController {
 		comment.setType(CommentType.Blog);
 
 		Comment comment2 = commentRepository.saveAndFlush(comment);
+		
+		log(Action.Create, Target.Comment, comment2.getId(), content);
 
 		final User loginUser = getLoginUser();
 
@@ -804,6 +812,8 @@ public class BlogController extends BaseController {
 		}
 
 		comment.setContent(content);
+		
+		logWithProperties(Action.Update, Target.Comment, cid, "content", diff);
 
 		Comment comment2 = commentRepository.saveAndFlush(comment);
 
@@ -873,6 +883,8 @@ public class BlogController extends BaseController {
 
 			comment.setStatus(Status.Deleted);
 			commentRepository.saveAndFlush(comment);
+			
+			log(Action.Delete, Target.Comment, cid);
 		}
 
 		return RespBody.succeed(cid);
@@ -900,10 +912,15 @@ public class BlogController extends BaseController {
 		}
 
 		Space space = sid != null ? spaceRepository.findOne(sid) : null;
-
+		
+		Space spaceOld = blog.getSpace();
+		
 		blog.setSpace(space);
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
+
+		logWithProperties(Action.Update, Target.Blog, id, "space", space != null ? space.getName() : "",
+				spaceOld != null ? spaceOld.getName() : "");
 
 		return RespBody.succeed(blog2);
 	}
@@ -921,6 +938,8 @@ public class BlogController extends BaseController {
 		blog.setPrivated(privated);
 		
 		Blog blog2 = blogRepository.saveAndFlush(blog);
+
+		logWithProperties(Action.Update, Target.Blog, id, "privated", privated);
 
 		return RespBody.succeed(blog2);
 	}
@@ -1287,7 +1306,9 @@ public class BlogController extends BaseController {
 			return RespBody.failed("您没有权限收藏该博文!");
 		}
 
-		BlogStow blogStow3 = blogStowRepository.findOneByBlogAndCreator(blog, getLoginUser());
+		User loginUser = getLoginUser();
+		
+		BlogStow blogStow3 = blogStowRepository.findOneByBlogAndCreator(blog, loginUser);
 
 		if (blogStow3 != null) {
 			if (!blogStow3.getStatus().equals(Status.Deleted)) {
@@ -1297,6 +1318,8 @@ public class BlogController extends BaseController {
 				
 				BlogStow blogStow = blogStowRepository.saveAndFlush(blogStow3);
 				blogStow.setBlog(null);
+				
+				logWithProperties(Action.Update, Target.Blog, id, "stow", loginUser.getUsername());
 
 				return RespBody.succeed(blogStow);
 			}
@@ -1306,6 +1329,8 @@ public class BlogController extends BaseController {
 			
 			BlogStow blogStow2 = blogStowRepository.saveAndFlush(blogStow);
 			blogStow2.setBlog(null);
+			
+			logWithProperties(Action.Update, Target.Blog, id, "stow", loginUser.getUsername());
 
 			return RespBody.succeed(blogStow2);
 		}
@@ -1384,8 +1409,10 @@ public class BlogController extends BaseController {
 		if (!hasAuth(blog)) {
 			return RespBody.failed("您没有权限关注该博文!");
 		}
-
-		BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreator(blog, getLoginUser());
+		
+		User loginUser = getLoginUser();
+		
+		BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreator(blog, loginUser);
 
 		if (blogFollower != null) {
 			if (!blogFollower.getStatus().equals(Status.Deleted)) {
@@ -1395,6 +1422,8 @@ public class BlogController extends BaseController {
 				
 				BlogFollower blogFollower2 = blogFollowerRepository.saveAndFlush(blogFollower);
 				blogFollower2.setBlog(null);
+				
+				logWithProperties(Action.Update, Target.Blog, id, "follower", loginUser.getUsername());
 
 				return RespBody.succeed(blogFollower2);
 			}
@@ -1404,6 +1433,8 @@ public class BlogController extends BaseController {
 			
 			BlogFollower blogFollower3 = blogFollowerRepository.saveAndFlush(blogFollower2);
 			blogFollower3.setBlog(null);
+			
+			logWithProperties(Action.Update, Target.Blog, id, "follower", loginUser.getUsername());
 
 			return RespBody.succeed(blogFollower3);
 		}
