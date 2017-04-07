@@ -1153,25 +1153,34 @@ public class BlogController extends BaseController {
 			return false;
 		}
 
-		if (isSuper()) { // 超级用户
-			return true;
-		}
-
 		if (b.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
 			return false;
 		}
 
+		return hasAuthWithDeleted(b);
+	}
+	
+	private boolean hasAuthWithDeleted(Blog b) {
+		
+		if (b == null) {
+			return false;
+		}
+		
+		if (isSuper()) { // 超级用户
+			return true;
+		}
+		
 		User loginUser = new User(WebUtil.getUsername());
-
+		
 		// 过滤掉没有权限的
 		if (b.getCreator().equals(loginUser)) { // 我创建的
 			return true;
 		}
-
+		
 		if (!b.getPrivated()) { // 非私有的
 			return true;
 		}
-
+		
 		boolean exists = false;
 		for (BlogAuthority ba : b.getBlogAuthorities()) {
 			if (loginUser.equals(ba.getUser())) {
@@ -1188,7 +1197,7 @@ public class BlogController extends BaseController {
 				}
 			}
 		}
-
+		
 		return exists;
 	}
 	
@@ -1519,11 +1528,11 @@ public class BlogController extends BaseController {
 			String targetId = lg.getTargetId();
 			if (Target.Blog.equals(lg.getTarget())) {
 				Blog blog = blogRepository.findOne(Long.valueOf(targetId));
-				return hasAuth(blog);
+				return hasAuthWithDeleted(blog);
 			} else if (Target.Comment.equals(lg.getTarget())) {
 				Comment comment = commentRepository.findOne(Long.valueOf(targetId));
 				Blog blog = blogRepository.findOne(Long.valueOf(comment.getTargetId()));
-				return hasAuth(blog);
+				return hasAuthWithDeleted(blog);
 			}
 
 			return false;
