@@ -1584,7 +1584,7 @@ public class BlogController extends BaseController {
 			}
 
 			return false;
-		}).collect(Collectors.toList());
+		}).limit(100).collect(Collectors.toList());
 
 		return RespBody.succeed(logs);
 	}
