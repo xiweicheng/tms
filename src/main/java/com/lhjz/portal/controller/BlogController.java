@@ -59,6 +59,7 @@ import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.SpaceAuthority;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
+import com.lhjz.portal.model.PollBlog;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.CommentType;
@@ -1562,6 +1563,18 @@ public class BlogController extends BaseController {
 		followers.forEach(bf -> bf.setBlog(null));
 
 		return RespBody.succeed(followers);
+	}
+	
+	@RequestMapping(value = "poll", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody poll(@RequestParam("id") Long id) {
+		
+		Blog blog = blogRepository.findOne(id);
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限操作该博文!");
+		}
+		
+		return RespBody.succeed(PollBlog.builder().version(blog.getVersion()).build());
 	}
 	
 	@RequestMapping(value = "log/my", method = RequestMethod.GET)
