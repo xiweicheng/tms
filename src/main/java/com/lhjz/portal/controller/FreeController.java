@@ -328,7 +328,7 @@ public class FreeController extends BaseController {
 		sb.append(StringUtil.replace("> ![{?1}]({?5}) [{?1}]({?2})  创建了 ![]({?6}) {?7}: [{?3}]({?4})", creatorName,
 				creatorSelf, issueKey, issueUrl, avatarUrls, issuetypeIconUrl, issuetype)).append(SysConstant.NEW_LINE);
 		sb.append("**内容:** " + summary).append(SysConstant.NEW_LINE);
-		sb.append("**描述:** " + description).append(SysConstant.NEW_LINE);
+		sb.append("**描述:** " + (description != null ? description : "")).append(SysConstant.NEW_LINE);
 		sb.append("**分配给:** " + StringUtil.replace("![]({?1}) {?2}", assigneeAvatarUrls, assigneeName))
 				.append(SysConstant.NEW_LINE);
 		sb.append("**优先级:** " + StringUtil.replace("![]({?1}) {?2}", priorityIconUrl, priority))
