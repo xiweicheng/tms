@@ -312,7 +312,7 @@ public class FreeController extends BaseController {
 		String description = JsonPath.read(reqBody, "$.issue.fields.description");
 		String summary = JsonPath.read(reqBody, "$.issue.fields.summary");
 		String creatorSelf = JsonPath.read(reqBody, "$.issue.fields.creator.self");
-		String creatorName = JsonPath.read(reqBody, "$.issue.fields.creator.name");
+		String creatorName = JsonPath.read(reqBody, "$.issue.fields.creator.displayName");
 
 		StringBuffer sb = new StringBuffer();
 		sb.append("## JIRA状态报告").append(SysConstant.NEW_LINE);
