@@ -279,7 +279,7 @@ public class FreeController extends BaseController {
 		return RespBody.succeed();
 
 	}
-
+	
 	@RequestMapping(value = "channel/send/{token}", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody sendChannelMsg(@RequestParam("channel") String channel, @RequestParam("user") String user,
@@ -313,13 +313,18 @@ public class FreeController extends BaseController {
 		String summary = JsonPath.read(reqBody, "$.issue.fields.summary");
 		String creatorSelf = JsonPath.read(reqBody, "$.issue.fields.creator.self");
 		String creatorName = JsonPath.read(reqBody, "$.issue.fields.creator.displayName");
+		String avatarUrls = JsonPath.read(reqBody, "$.issue.fields.creator.avatarUrls.16x16");
+		
+		String issueUrl = StringUtil.parseUrl(issueSelf) + "/browse/" + issueKey;
 
 		StringBuffer sb = new StringBuffer();
 		sb.append("## JIRA状态报告").append(SysConstant.NEW_LINE);
-		sb.append(StringUtil.replace("> [{?1}]({?2}) 创建 [{?3}]({?4})", creatorName, creatorSelf, issueKey, issueSelf))
+		sb.append(StringUtil.replace("> ![{?1}]({?5}) [{?1}]({?2})  创建了JIRA票: [{?3}]({?4})", creatorName, creatorSelf, issueKey, issueUrl, avatarUrls))
 				.append(SysConstant.NEW_LINE);
 		sb.append("**内容:** " + summary).append(SysConstant.NEW_LINE);
 		sb.append("**描述:** " + description).append(SysConstant.NEW_LINE);
+		sb.append("> ").append(SysConstant.NEW_LINE);
+		sb.append(StringUtil.replace("[{?1}]({?2})", "点击查看更多该票相关信息", issueSelf)).append(SysConstant.NEW_LINE);
 
 		ChatChannel chatChannel = new ChatChannel();
 		chatChannel.setChannel(channel2);

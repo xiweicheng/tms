@@ -93,6 +93,8 @@ public class CommonUtilTest {
 		System.out.println(ToType.valueOf("Channel"));
 		System.out.println(SchedulePriority.Middle.name());
 		System.out.println(StringUtil.replace("xx{~{?1}}xxx", "cccc"));
+		
+		System.out.println(StringUtil.parseUrl("http://jira00.sh1.newtouch.com/rest/api/2/issue/13701"));
 	}
 
 	// public static void main(String[] args) {

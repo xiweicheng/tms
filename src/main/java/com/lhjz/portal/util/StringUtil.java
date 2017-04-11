@@ -1,6 +1,8 @@
 package com.lhjz.portal.util;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -568,4 +570,23 @@ public final class StringUtil {
 		}
 		return returnFileName;
 	}
+	
+	public static String parseUrl(String href) {
+		
+		try {
+			URL url = new URL(href);
+			String v = url.getProtocol() + "://" + url.getHost();
+			int p = url.getPort();
+			if(p != -1 && p != 80 && p != 443) {
+				v = v + ":" + p;
+			}
+			
+			return v;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return "";
+		}
+		
+	}
+
 }
