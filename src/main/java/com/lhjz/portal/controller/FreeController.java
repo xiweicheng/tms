@@ -314,13 +314,13 @@ public class FreeController extends BaseController {
 		String creatorSelf = JsonPath.read(reqBody, "$.issue.fields.creator.self");
 		String creatorName = JsonPath.read(reqBody, "$.issue.fields.creator.displayName");
 		String avatarUrls = JsonPath.read(reqBody, "$.issue.fields.creator.avatarUrls.16x16");
-		
+
 		String issueUrl = StringUtil.parseUrl(issueSelf) + "/browse/" + issueKey;
 
 		StringBuffer sb = new StringBuffer();
 		sb.append("## JIRA状态报告").append(SysConstant.NEW_LINE);
-		sb.append(StringUtil.replace("> ![{?1}]({?5}) [{?1}]({?2})  创建了JIRA票: [{?3}]({?4})", creatorName, creatorSelf, issueKey, issueUrl, avatarUrls))
-				.append(SysConstant.NEW_LINE);
+		sb.append(StringUtil.replace("> ![{?1}]({?5}) [{?1}]({?2})  创建了JIRA票: [{?3}]({?4})", creatorName, creatorSelf,
+				issueKey, issueUrl, avatarUrls)).append(SysConstant.NEW_LINE);
 		sb.append("**内容:** " + summary).append(SysConstant.NEW_LINE);
 		sb.append("**描述:** " + description).append(SysConstant.NEW_LINE);
 		sb.append("> ").append(SysConstant.NEW_LINE);
@@ -329,10 +329,9 @@ public class FreeController extends BaseController {
 		ChatChannel chatChannel = new ChatChannel();
 		chatChannel.setChannel(channel2);
 		chatChannel.setContent(sb.toString());
-		chatChannel.setCreator(user2);
-		chatChannel.setUpdater(user2);
 
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
+		chatChannelRepository.updateAuditing(user2, user2, new Date(), new Date(), chatChannel2.getId());
 
 		if (mail) {
 			final Mail mail2 = Mail.instance();
