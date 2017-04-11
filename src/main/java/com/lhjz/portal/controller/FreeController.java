@@ -314,12 +314,9 @@ public class FreeController extends BaseController {
 		String creatorSelf = JsonPath.read(reqBody, "$.issue.fields.creator.self");
 		String creatorName = JsonPath.read(reqBody, "$.issue.fields.creator.displayName");
 		String avatarUrls = JsonPath.read(reqBody, "$.issue.fields.creator.avatarUrls.16x16");
-		String assigneeName = JsonPath.read(reqBody, "$.issue.fields.assignee.displayName");
-		String assigneeAvatarUrls = JsonPath.read(reqBody, "$.issue.fields.assignee.avatarUrls.16x16");
+		
 		String issuetype = JsonPath.read(reqBody, "$.issue.fields.issuetype.name");
 		String issuetypeIconUrl = JsonPath.read(reqBody, "$.issue.fields.issuetype.iconUrl");
-		String priority = JsonPath.read(reqBody, "$.issue.fields.priority.name");
-		String priorityIconUrl = JsonPath.read(reqBody, "$.issue.fields.priority.iconUrl");
 
 		String issueUrl = StringUtil.parseUrl(issueSelf) + "/browse/" + issueKey;
 
@@ -329,10 +326,24 @@ public class FreeController extends BaseController {
 				creatorSelf, issueKey, issueUrl, avatarUrls, issuetypeIconUrl, issuetype)).append(SysConstant.NEW_LINE);
 		sb.append("**内容:** " + summary).append(SysConstant.NEW_LINE);
 		sb.append("**描述:** " + (description != null ? description : "")).append(SysConstant.NEW_LINE);
-		sb.append("**分配给:** " + StringUtil.replace("![]({?1}) {?2}", assigneeAvatarUrls, assigneeName))
-				.append(SysConstant.NEW_LINE);
-		sb.append("**优先级:** " + StringUtil.replace("![]({?1}) {?2}", priorityIconUrl, priority))
-				.append(SysConstant.NEW_LINE);
+		
+		try {
+			String assigneeName = JsonPath.read(reqBody, "$.issue.fields.assignee.displayName");
+			String assigneeAvatarUrls = JsonPath.read(reqBody, "$.issue.fields.assignee.avatarUrls.16x16");
+
+			sb.append("**分配给:** " + StringUtil.replace("![]({?1}) {?2}", assigneeAvatarUrls, assigneeName))
+					.append(SysConstant.NEW_LINE);
+		} catch (Exception e1) {
+		}
+		
+		try {
+			String priority = JsonPath.read(reqBody, "$.issue.fields.priority.name");
+			String priorityIconUrl = JsonPath.read(reqBody, "$.issue.fields.priority.iconUrl");
+			sb.append("**优先级:** " + StringUtil.replace("![]({?1}) {?2}", priorityIconUrl, priority))
+					.append(SysConstant.NEW_LINE);
+		} catch (Exception e1) {
+		}
+		
 		sb.append("> ").append(SysConstant.NEW_LINE);
 		sb.append(StringUtil.replace("[{?1}]({?2})", "点击查看更多该票相关信息", issueSelf)).append(SysConstant.NEW_LINE);
 
