@@ -35,6 +35,7 @@ import com.lhjz.portal.entity.security.AuthorityId;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.model.RunAsAuth;
 import com.lhjz.portal.pojo.Enum.Role;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.repository.AuthorityRepository;
@@ -314,7 +315,7 @@ public class FreeController extends BaseController {
 		String creatorSelf = JsonPath.read(reqBody, "$.issue.fields.creator.self");
 		String creatorName = JsonPath.read(reqBody, "$.issue.fields.creator.displayName");
 		String avatarUrls = JsonPath.read(reqBody, "$.issue.fields.creator.avatarUrls.16x16");
-		
+
 		String issuetype = JsonPath.read(reqBody, "$.issue.fields.issuetype.name");
 		String issuetypeIconUrl = JsonPath.read(reqBody, "$.issue.fields.issuetype.iconUrl");
 
@@ -326,7 +327,7 @@ public class FreeController extends BaseController {
 				creatorSelf, issueKey, issueUrl, avatarUrls, issuetypeIconUrl, issuetype)).append(SysConstant.NEW_LINE);
 		sb.append("**内容:** " + summary).append(SysConstant.NEW_LINE);
 		sb.append("**描述:** " + (description != null ? description : "")).append(SysConstant.NEW_LINE);
-		
+
 		try {
 			String assigneeName = JsonPath.read(reqBody, "$.issue.fields.assignee.displayName");
 			String assigneeAvatarUrls = JsonPath.read(reqBody, "$.issue.fields.assignee.avatarUrls.16x16");
@@ -335,7 +336,7 @@ public class FreeController extends BaseController {
 					.append(SysConstant.NEW_LINE);
 		} catch (Exception e1) {
 		}
-		
+
 		try {
 			String priority = JsonPath.read(reqBody, "$.issue.fields.priority.name");
 			String priorityIconUrl = JsonPath.read(reqBody, "$.issue.fields.priority.iconUrl");
@@ -343,16 +344,19 @@ public class FreeController extends BaseController {
 					.append(SysConstant.NEW_LINE);
 		} catch (Exception e1) {
 		}
-		
+
 		sb.append("> ").append(SysConstant.NEW_LINE);
 		sb.append(StringUtil.replace("[{?1}]({?2})", "点击查看更多该票相关信息", issueSelf)).append(SysConstant.NEW_LINE);
+
+		RunAsAuth runAsAuth = RunAsAuth.instance().runAs(user);
 
 		ChatChannel chatChannel = new ChatChannel();
 		chatChannel.setChannel(channel2);
 		chatChannel.setContent(sb.toString());
 
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
-		chatChannelRepository.updateAuditing(user2, user2, new Date(), new Date(), chatChannel2.getId());
+		// chatChannelRepository.updateAuditing(user2, user2, new Date(), new
+		// Date(), chatChannel2.getId());
 
 		if (mail) {
 			final Mail mail2 = Mail.instance();
@@ -379,6 +383,8 @@ public class FreeController extends BaseController {
 
 			});
 		}
+		
+		runAsAuth.rest();
 
 		return RespBody.succeed();
 	}
