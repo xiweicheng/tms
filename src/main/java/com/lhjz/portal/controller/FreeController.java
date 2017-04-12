@@ -330,9 +330,10 @@ public class FreeController extends BaseController {
 
 		try {
 			String assigneeName = JsonPath.read(reqBody, "$.issue.fields.assignee.displayName");
+			String assigneeSelf = JsonPath.read(reqBody, "$.issue.fields.assignee.self");
 			String assigneeAvatarUrls = JsonPath.read(reqBody, "$.issue.fields.assignee.avatarUrls.16x16");
 
-			sb.append("**分配给:** " + StringUtil.replace("![]({?1}) {?2}", assigneeAvatarUrls, assigneeName))
+			sb.append("**分配给:** " + StringUtil.replace("![]({?1}) [{?2}]({?3})", assigneeAvatarUrls, assigneeName, assigneeSelf))
 					.append(SysConstant.NEW_LINE);
 		} catch (Exception e1) {
 		}
