@@ -407,7 +407,7 @@ public class FreeController extends BaseController {
 		return RespBody.succeed();
 	}
 	
-	@RequestMapping(value = "feedback/{token}", method = RequestMethod.POST)
+	@RequestMapping(value = "{token}/feedback", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody feedback(@RequestParam("channel") String channel, @RequestParam("user") String user,
 			@PathVariable("token") String token,
@@ -486,7 +486,7 @@ public class FreeController extends BaseController {
 		return RespBody.succeed();
 	}
 
-	@RequestMapping(value = "base64/{token}", method = RequestMethod.POST)
+	@RequestMapping(value = "{token}/base64", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody base64(HttpServletRequest request, @RequestParam(value = "toType", required = false) String toType, // Feedback
 			@PathVariable("token") String token,
