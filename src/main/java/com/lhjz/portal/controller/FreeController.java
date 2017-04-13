@@ -435,8 +435,8 @@ public class FreeController extends BaseController {
 		StringBuffer sb = new StringBuffer();
 		sb.append("## 用户工单反馈").append(SysConstant.NEW_LINE);
 		sb.append("> **工单分类: **" + category).append(SysConstant.NEW_LINE);
-		sb.append("> **工单内容: **").append(SysConstant.NEW_LINE);
-		sb.append("> " + content).append(SysConstant.NEW_LINE);
+		sb.append("> **工单内容: **").append(SysConstant.NEW_LINE).append(SysConstant.NEW_LINE);
+		sb.append(content).append(SysConstant.NEW_LINE);
 
 		if (raw) {
 			sb.append(SysConstant.NEW_LINE);
