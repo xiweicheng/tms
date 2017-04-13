@@ -442,8 +442,8 @@ public class FreeController extends BaseController {
 			String email = JsonPath.read(reqBody, "$.user.email");
 			String mobile = JsonPath.read(reqBody, "$.user.mobile");
 
-			sb.append(StringUtil.replace("> **反馈用户: ** `{?1}` `{?2}` `{?3}` `{?4}`", realName, loginName, mobile,
-					email)).append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> **反馈用户: ** `{?1}` `{?2}` `{?3}` [`{?4}`](mailto:{?4})", realName, loginName,
+					mobile, email)).append(SysConstant.NEW_LINE);
 
 		} catch (Exception e1) {
 		}
