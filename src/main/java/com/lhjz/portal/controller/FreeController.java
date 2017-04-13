@@ -3,13 +3,16 @@
  */
 package com.lhjz.portal.controller;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,17 +39,25 @@ import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.model.RunAsAuth;
+import com.lhjz.portal.pojo.Enum.Action;
+import com.lhjz.portal.pojo.Enum.FileType;
 import com.lhjz.portal.pojo.Enum.Role;
 import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.pojo.Enum.Target;
+import com.lhjz.portal.pojo.Enum.ToType;
 import com.lhjz.portal.repository.AuthorityRepository;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
+import com.lhjz.portal.repository.FileRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.DateUtil;
+import com.lhjz.portal.util.ImageUtil;
+import com.lhjz.portal.util.JsonUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
 import com.lhjz.portal.util.ThreadUtil;
+import com.lhjz.portal.util.WebUtil;
 
 /**
  * 
@@ -83,6 +94,9 @@ public class FreeController extends BaseController {
 	ChatChannelRepository chatChannelRepository;
 	
 	@Autowired
+	FileRepository fileRepository;
+	
+	@Autowired
 	Environment env;
 	
 	@Value("${tms.base.url}")
@@ -90,6 +104,9 @@ public class FreeController extends BaseController {
 	
 	@Value("${tms.token.jira}")
 	private String tokenJira;
+	
+	@Value("${tms.token.feedback}")
+	private String tokenFeedback;
 
 	@RequestMapping(value = "user/pwd/reset", method = { RequestMethod.POST })
 	public RespBody resetUserPwd(@RequestBody Map<String, Object> params) {
@@ -388,5 +405,158 @@ public class FreeController extends BaseController {
 		runAsAuth.rest();
 
 		return RespBody.succeed();
+	}
+	
+	@RequestMapping(value = "feedback/{token}", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody feedback(@RequestParam("channel") String channel, @RequestParam("user") String user,
+			@PathVariable("token") String token,
+			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
+			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
+			@RequestBody String reqBody) {
+
+		if (!tokenFeedback.equals(token)) {
+			return RespBody.failed("Token认证失败!");
+		}
+
+		Channel channel2 = channelRepository.findOneByName(channel);
+		if (channel2 == null) {
+			return RespBody.failed("发送消息目的频道不存在!");
+		}
+
+		User user2 = userRepository.findOne(user);
+		if (user2 == null) {
+			return RespBody.failed("用户不存在不存在!");
+		}
+
+		String category = JsonPath.read(reqBody, "$.category");
+		String content = JsonPath.read(reqBody, "$.content");
+
+		StringBuffer sb = new StringBuffer();
+		sb.append("## 用户工单反馈").append(SysConstant.NEW_LINE);
+		sb.append("> **工单分类: **" + category).append(SysConstant.NEW_LINE);
+		sb.append("> **工单内容: **").append(SysConstant.NEW_LINE);
+		sb.append("> " + content).append(SysConstant.NEW_LINE);
+
+		if (raw) {
+			sb.append(SysConstant.NEW_LINE);
+			sb.append("---").append(SysConstant.NEW_LINE);
+			sb.append("> **完整内容:** ").append(SysConstant.NEW_LINE);
+			sb.append("```").append(SysConstant.NEW_LINE);
+			sb.append(JsonUtil.toPrettyJson(reqBody));
+			sb.append("```").append(SysConstant.NEW_LINE);
+		}
+
+		RunAsAuth runAsAuth = RunAsAuth.instance().runAs(user);
+
+		ChatChannel chatChannel = new ChatChannel();
+		chatChannel.setChannel(channel2);
+		chatChannel.setContent(sb.toString());
+
+		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
+
+		if (mail) {
+			final Mail mail2 = Mail.instance();
+			final User loginUser = getLoginUser();
+			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
+			channel2.getMembers().forEach(item -> mail2.addUsers(item));
+
+			final String html = StringUtil.md2Html(sb.toString());
+
+			ThreadUtil.exec(() -> {
+
+				try {
+					Thread.sleep(3000);
+					mailSender.sendHtml(
+							String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
+							mail2.get());
+					logger.info("沟通频道来自第三方应用推送的消息邮件发送成功！");
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("沟通频道来自第三方应用推送的消息邮件发送失败！");
+				}
+
+			});
+		}
+
+		runAsAuth.rest();
+
+		return RespBody.succeed();
+	}
+
+	@RequestMapping(value = "base64", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody base64(HttpServletRequest request, @RequestParam(value = "toType", required = false) String toType, // Feedback
+			@RequestParam(value = "toId", required = false) String toId, @RequestParam("dataURL") String dataURL,
+			@RequestParam("type") String type) {
+
+		logger.debug("upload base64 start...");
+
+		try {
+
+			String realPath = WebUtil.getRealPath(request);
+
+			String storePath = env.getProperty("lhjz.upload.img.store.path");
+			int sizeOriginal = env.getProperty("lhjz.upload.img.scale.size.original", Integer.class);
+			int sizeLarge = env.getProperty("lhjz.upload.img.scale.size.large", Integer.class);
+			int sizeHuge = env.getProperty("lhjz.upload.img.scale.size.huge", Integer.class);
+
+			// make upload dir if not exists
+			FileUtils.forceMkdir(new File(realPath + storePath + sizeOriginal));
+			FileUtils.forceMkdir(new File(realPath + storePath + sizeLarge));
+			FileUtils.forceMkdir(new File(realPath + storePath + sizeHuge));
+
+			String uuid = UUID.randomUUID().toString();
+
+			String suffix = type.contains("png") ? ".png" : ".jpg";
+
+			String uuidName = StringUtil.replace("{?1}{?2}", uuid, suffix);
+
+			// relative file path
+			String path = storePath + sizeOriginal + "/" + uuidName;// 原始图片存放
+			String pathLarge = storePath + sizeLarge + "/" + uuidName;// 缩放图片存放
+			String pathHuge = storePath + sizeHuge + "/" + uuidName;// 缩放图片存放
+
+			// absolute file path
+			String filePath = realPath + path;
+
+			int index = dataURL.indexOf(",");
+
+			// 原始图保存
+			ImageUtil.decodeBase64ToImage(dataURL.substring(index + 1), filePath);
+			// 缩放图
+			// scale image size as thumbnail
+			// 图片缩放处理.120*120
+			ImageUtil.scale2(filePath, realPath + pathLarge, sizeLarge, sizeLarge, true);
+			// 图片缩放处理.640*640
+			ImageUtil.scale2(filePath, realPath + pathHuge, sizeHuge, sizeHuge, true);
+
+			// 保存记录到数据库
+			com.lhjz.portal.entity.File file2 = new com.lhjz.portal.entity.File();
+			file2.setCreateDate(new Date());
+			file2.setName(uuidName);
+			file2.setUsername(WebUtil.getUsername());
+			file2.setUuidName(uuidName);
+			file2.setPath(storePath + sizeOriginal + "/");
+			file2.setType(FileType.Image);
+
+			if (StringUtil.isNotEmpty(toType)) {
+				file2.setToType(ToType.valueOf(toType));
+				file2.setToId(toId);
+			}
+
+			com.lhjz.portal.entity.File file = fileRepository.save(file2);
+
+			log(Action.Upload, Target.File, file2.getId());
+
+			return RespBody.succeed(file);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage(), e);
+			return RespBody.failed(e.getMessage());
+		}
+
 	}
 }
