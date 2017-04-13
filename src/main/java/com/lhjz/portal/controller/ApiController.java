@@ -67,6 +67,7 @@ public class ApiController extends BaseController {
 	public RespBody sendChannelJenkinsMsg(@RequestParam("channel") String channel,
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
+			@RequestParam(value = "web", required = false) String web,
 			@RequestBody String reqBody) {
 
 		Channel channel2 = channelRepository.findOneByName(channel);
@@ -85,6 +86,11 @@ public class ApiController extends BaseController {
 		sb.append("> **任务URL:** ").append(fullUrl).append(SysConstant.NEW_LINE);
 		sb.append("> **任务阶段:** ").append(phase).append(SysConstant.NEW_LINE);
 		sb.append("> **任务状态:** ").append(status).append(SysConstant.NEW_LINE);
+		
+		if (StringUtil.isNotEmpty(web)) {
+			sb.append("> ").append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> [点击此访问web服务]({?1})", web)).append(SysConstant.NEW_LINE);
+		}
 
 		if (raw) {
 			sb.append(SysConstant.NEW_LINE);
@@ -134,6 +140,7 @@ public class ApiController extends BaseController {
 	@ResponseBody
 	public RespBody sendChannelMsg(@RequestParam("channel") String channel,
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
+			@RequestParam(value = "web", required = false) String web,
 			@RequestBody String reqBody) {
 		
 		Channel channel2 = channelRepository.findOneByName(channel);
@@ -147,6 +154,11 @@ public class ApiController extends BaseController {
 		sb.append("```").append(SysConstant.NEW_LINE);
 		sb.append(reqBody);
 		sb.append("```").append(SysConstant.NEW_LINE);
+		
+		if (StringUtil.isNotEmpty(web)) {
+			sb.append("> ").append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> [点击此访问web服务]({?1})", web)).append(SysConstant.NEW_LINE);
+		}
 		
 		ChatChannel chatChannel = new ChatChannel();
 		chatChannel.setChannel(channel2);
