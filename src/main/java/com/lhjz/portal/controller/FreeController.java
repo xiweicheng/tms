@@ -413,6 +413,7 @@ public class FreeController extends BaseController {
 			@PathVariable("token") String token,
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
+			@RequestParam(value = "format", required = false, defaultValue = "false") Boolean format,
 			@RequestBody String reqBody) {
 
 		if (!tokenFeedback.equals(token)) {
@@ -431,9 +432,22 @@ public class FreeController extends BaseController {
 
 		String category = JsonPath.read(reqBody, "$.category");
 		String content = JsonPath.read(reqBody, "$.content");
-
+		
 		StringBuffer sb = new StringBuffer();
 		sb.append("## 用户工单反馈").append(SysConstant.NEW_LINE);
+		
+		try {
+			String loginName = JsonPath.read(reqBody, "$.user.loginName");
+			String realName = JsonPath.read(reqBody, "$.user.realName");
+			String email = JsonPath.read(reqBody, "$.user.email");
+			String mobile = JsonPath.read(reqBody, "$.user.mobile");
+
+			sb.append(StringUtil.replace("> **反馈用户: ** `{?1}` `{?2}` `{?3}` `{?4}`", realName, loginName, mobile,
+					email)).append(SysConstant.NEW_LINE);
+
+		} catch (Exception e1) {
+		}
+		
 		sb.append("> **工单分类: **" + category).append(SysConstant.NEW_LINE);
 		sb.append("> **工单内容: **").append(SysConstant.NEW_LINE).append(SysConstant.NEW_LINE);
 		sb.append(content).append(SysConstant.NEW_LINE);
@@ -443,7 +457,7 @@ public class FreeController extends BaseController {
 			sb.append("---").append(SysConstant.NEW_LINE);
 			sb.append("> **完整内容:** ").append(SysConstant.NEW_LINE);
 			sb.append("```").append(SysConstant.NEW_LINE);
-			sb.append(JsonUtil.toPrettyJson(reqBody));
+			sb.append(format ? JsonUtil.toPrettyJson(reqBody) : reqBody);
 			sb.append("```").append(SysConstant.NEW_LINE);
 		}
 
