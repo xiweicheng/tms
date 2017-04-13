@@ -486,13 +486,18 @@ public class FreeController extends BaseController {
 		return RespBody.succeed();
 	}
 
-	@RequestMapping(value = "base64", method = RequestMethod.POST)
+	@RequestMapping(value = "base64/{token}", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody base64(HttpServletRequest request, @RequestParam(value = "toType", required = false) String toType, // Feedback
+			@PathVariable("token") String token,
 			@RequestParam(value = "toId", required = false) String toId, @RequestParam("dataURL") String dataURL,
 			@RequestParam("type") String type) {
-
+		
 		logger.debug("upload base64 start...");
+		
+		if (!tokenFeedback.equals(token)) {
+			return RespBody.failed("Token认证失败!");
+		}
 
 		try {
 
