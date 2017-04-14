@@ -432,6 +432,7 @@ public class FreeController extends BaseController {
 
 		String category = JsonPath.read(reqBody, "$.category");
 		String content = JsonPath.read(reqBody, "$.content");
+		String url = JsonPath.read(reqBody, "$.url");
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append("## 用户工单反馈").append(SysConstant.NEW_LINE);
@@ -448,6 +449,7 @@ public class FreeController extends BaseController {
 		} catch (Exception e1) {
 		}
 		
+		sb.append("> **环境地址: **" + url).append(SysConstant.NEW_LINE);
 		sb.append("> **工单分类: **" + category).append(SysConstant.NEW_LINE);
 		sb.append("> **工单内容: **").append(SysConstant.NEW_LINE).append(SysConstant.NEW_LINE);
 		sb.append(content).append(SysConstant.NEW_LINE);
