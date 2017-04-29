@@ -1,4 +1,5 @@
 window.nsCons = {
+    EVENT_APP_ROUTER_NAVIGATE: 'event_app_router_navigate',
     EVENT_CHAT_MSG_SENDED: 'event_chat_msg_sended',
     EVENT_CHAT_MSG_EDIT_UPLOAD: 'event_chat_msg_edit_upload',
     EVENT_CHAT_SIDEBAR_TOGGLE: 'event_chat_sidebar_toggle',
@@ -46,7 +47,11 @@ window.nsCons = {
     EVENT_BLOG_HISTORY_CHANGED: 'event_blog_history_changed',
     EVENT_BLOG_COMMENT_POPUP_SHOW: 'event_blog_comment_popup_show',
     EVENT_BLOG_RIGHT_SIDEBAR_TOGGLE: 'event_blog_right_sidebar_toggle',
+    EVENT_BLOG_LEFT_SIDEBAR_TOGGLE: 'event_blog_left_sidebar_toggle',
     EVENT_BLOG_CONTENT_DIMMER_TOGGLE: 'event_blog_content_dimmer_toggle',
+    EVENT_BLOG_COMMENT_MSG_INSERT: 'event_blog_comment_msg_insert',
+    EVENT_BLOG_COMMENT_ADDED: 'event_blog_comment_added',
+    EVENT_BLOG_COMMENT_CHANGED: 'event_blog_comment_changed',
     ACTION_TYPE_SEARCH: 'action_type_search',
     ACTION_TYPE_STOW: 'action_type_stow',
     ACTION_TYPE_AT: 'action_type_at',
@@ -57,4 +62,5 @@ window.nsCons = {
     STR_EMOJI_SEARCH_URL: 'http://emoji.muan.co/',
     KEY_REMEMBER_LAST_CHAT_TO: 'tms/remember_last_chat_to',
     KEY_LOGIN_USERNAME: 'tms/login_username',
+    KEY_BLOG_COMMON_SPACE: 'tms/blog/common_space',
 }

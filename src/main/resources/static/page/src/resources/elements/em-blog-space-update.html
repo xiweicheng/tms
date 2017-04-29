@@ -11,7 +11,7 @@
                         <div class="default text">选择空间(可选)</div>
                         <div class="menu">
                             <div class="item" data-value="">(不指定空间)</div>
-                            <template repeat.for="item of spaces">
+                            <template repeat.for="item of spaces | sort:'name'">
                                 <div task.bind="initSpacesHandler($last)" class="item" data-value="${item.id}"><i class="folder outline icon"></i>${item.name}</div>
                             </template>
                         </div>

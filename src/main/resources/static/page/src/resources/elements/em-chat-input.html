@@ -22,7 +22,7 @@
                 </a>
             </div>
             <div class="textareaWrapper">
-                <textarea ref="chatInputRef" placeholder="/ : @ 提示,ctrl+enter发送,esc清空"></textarea>
+                <textarea ref="chatInputRef" placeholder="/ : @ 提示${isMobile ? '' : ',ctrl+enter发送,esc清空'}"></textarea>
             </div>
             <i click.delegate="sendChatMsgHandler()" title="发送消息(Ctrl+Enter)" class="send link icon"></i>
         </div>

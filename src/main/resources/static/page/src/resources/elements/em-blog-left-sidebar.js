@@ -26,8 +26,13 @@ export class EmBlogLeftSidebar {
             if (payload.action == 'created') {
                 this.blogs = [payload.blog, ...this.blogs];
                 this.calcTree();
+                ea.publish(nsCons.EVENT_APP_ROUTER_NAVIGATE, { to: `#/blog/${payload.blog.id}` });
             } else if (payload.action == 'updated') {
                 _.extend(_.find(this.blogs, { id: payload.blog.id }), payload.blog);
+                this.calcTree();
+            } else if (payload.action == 'deleted') {
+                this.blogStows = _.reject(this.blogStows, bs => bs.blog.id == payload.blog.id);
+                this.blogs = _.reject(this.blogs, { id: payload.blog.id });
                 this.calcTree();
             }
         });

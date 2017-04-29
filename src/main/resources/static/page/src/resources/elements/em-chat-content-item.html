@@ -31,19 +31,15 @@
             </div>
             <div class="actions">
                 <a if.bind="!isAt && (item.creator.username != loginUser.username)" click.delegate="replyHandler(item)" class="tms-reply" title="回复消息">回复</a>
-                <a if.bind="!isAt" click.delegate="stowHandler(item)" class="tms-stow" title="收藏消息">收藏</a>
-                <!-- <a if.bind="!isAt && (item.creator.username == loginUser.username)" click.delegate="openEditHandler(item)" title="${item.openEdit ? '关闭协作编辑' :'开启协作编辑'}" class="tms-open-edit">${item.openEdit ? '关闭' :'协作'}</a> -->
                 <a if.bind="item.openEdit || (item.creator.username == loginUser.username)" click.delegate="editHandler(item, editTxtRef)" class="tms-edit" title="编辑消息(ctrl+dblclick)">编辑</a>
-                <!-- <a if.bind="item.creator.username == loginUser.username" click.delegate="deleteHandler(item)" class="tms-delete" title="删除消息">删除</a> -->
-                <!-- <a class="tms-copy tms-clipboard" data-clipboard-text="${item.content}" title="复制消息内容">复制</a> -->
-                <!-- <a class="tms-share tms-clipboard" data-clipboard-text="${basePath + '#/chat/' + (isAt ? ('@' + loginUser.username) : channel.name) + '?id=' + item.id}" title="复制消息链接">分享</a> -->
+                <a if.bind="!isAt" click.delegate="stowHandler(item)" class="tms-stow" title="收藏消息">收藏</a>
+                <em-chat-share chat.bind="item" channel.bind="channel" is-at.bind="isAt" login-user.bind="loginUser"></em-chat-share>
                 <div ui-dropdown-action=".tms-comments-container" class="ui top right pointing dropdown">
                     <a class="text" title="更多操作"><i class="ellipsis horizontal large icon"></i></a>
-                    <!-- <i class="dropdown icon"></i> -->
                     <div class="menu">
                         <div class="item" if.bind="!isAt && (item.creator.username == loginUser.username)" click.delegate="openEditHandler(item)" title="${item.openEdit ? '关闭协作编辑' :'开启协作编辑'}"><i class="write icon"></i> ${item.openEdit ? '关闭' :'协作'}</div>
                         <div class="item tms-clipboard" data-clipboard-text="${item.content}" title="复制消息内容"><i class="icon copy"></i> 复制</div>
-                        <div class="item tms-clipboard" data-clipboard-text="${basePath + '#/chat/' + (isAt ? ('@' + loginUser.username) : channel.name) + '?id=' + item.id}" title="复制消息链接"><i class="icon share"></i> 分享</div>
+                        <!-- <div class="item tms-clipboard" data-clipboard-text="${basePath + '#/chat/' + (isAt ? ('@' + loginUser.username) : channel.name) + '?id=' + item.id}" title="复制消息链接"><i class="icon share"></i> 分享</div> -->
                         <a target="_blank" href="#/blog/create?${isAt ? 'cdid' : 'ccid'}=${item.id}" style="display: block; color: rgba(0,0,0,.87);" class="item">
                             <i class="wikipedia icon"></i> 转为博文
                         </a>

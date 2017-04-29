@@ -13,7 +13,7 @@
                                 </span>
                             <div show.bind="spaceStow.open" class="ui bulleted list">
                                 <template repeat.for="item of blogStows">
-                                    <div show.bind="!item._hidden" class="item ${item.blog.id == $parent.blog.id ? 'active' : ''}">
+                                    <div if.bind="item.blog.status != 'Deleted'" show.bind="!item._hidden" class="item ${item.blog.id == $parent.blog.id ? 'active' : ''}">
                                         <a title="${item.blog.title}" href="#/blog/${item.blog.id}">
                                             <i class="icons">
                                                 <i class="file outline icon"></i>

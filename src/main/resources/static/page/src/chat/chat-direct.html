@@ -5,7 +5,7 @@
         <em-chat-sidebar-left users.bind="users" login-user.bind="loginUser" channels.bind="channels" chat-to.bind="chatTo" is-at.bind="isAt"></em-chat-sidebar-left>
         <div ref="contentRef" class="tms-content ${isRightSidebarShow ? 'tms-sidebar-show' : ''}">
             <div ref="contentBodyRef" class="tms-content-body">
-                <div class="tms-comments-container" ref="scrollbarRef" scrollbar>
+                <div ref="scrollbarRef" class="tms-comments-container" scrollbar>
                     <div ref="commentsRef" class="ui basic segment minimal selection list segment comments">
                         <div if.bind="!last" click.delegate="lastMoreHandler()" class="basic ui button tms-pre-more"><i show.bind="lastMoreP && lastMoreP.readyState != 4" class="spinner loading icon"></i> 加载更多(${lastCnt})</div>
                         <em-chat-content-item chat-to.bind="chatTo" mark-id.bind="markId" channel.bind="channel" is-at.bind="isAt" chats.bind="chats" login-user.bind="loginUser"></em-chat-content-item>

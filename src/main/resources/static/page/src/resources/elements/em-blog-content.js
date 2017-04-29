@@ -22,19 +22,27 @@ export class EmBlogContent {
         this.subscribe = ea.subscribe(nsCons.EVENT_BLOG_SWITCH, (payload) => {
             this.getBlog();
             ea.publish(nsCons.EVENT_BLOG_RIGHT_SIDEBAR_TOGGLE, {
-                toggle: false
+                isHide: true
             });
         });
         this.subscribe2 = ea.subscribe(nsCons.EVENT_BLOG_CHANGED, (payload) => {
             if (payload.action == 'updated') {
-                // this.blog = payload.blog;
                 _.extend(this.blog, payload.blog);
-                _.defer(() => this._dir());
+                _.defer(() => this.catalogHandler(true));
             }
+        });
+        this.subscribe3 = ea.subscribe(nsCons.EVENT_BLOG_COMMENT_ADDED, (payload) => {
+            if (!this.blogFollower) {
+                this.getFollower();
+            }
+        });
+        this.subscribe4 = ea.subscribe(nsCons.EVENT_BLOG_COMMENT_CHANGED, (payload) => {
+            this.comments = payload.comments;
         });
 
         this.throttleCreateHandler = _.throttle(() => { this.createHandler() }, 1000, { 'trailing': false });
         this.throttleEditHandler = _.throttle(() => { this.editHandler() }, 1000, { 'trailing': false });
+        this.throttleCopyHandler = _.throttle(() => { this.copyHandler() }, 1000, { 'trailing': false });
     }
 
     /**
@@ -43,6 +51,8 @@ export class EmBlogContent {
     unbind() {
         this.subscribe.dispose();
         this.subscribe2.dispose();
+        this.subscribe3.dispose();
+        this.subscribe4.dispose();
     }
 
     /**
@@ -83,7 +93,7 @@ export class EmBlogContent {
         $('.em-blog-right-sidebar').on('click', '.panel-blog-dir .wiki-dir-item', (event) => {
             event.preventDefault();
             if ($(window).width() <= 768) {
-                ea.publish(nsCons.EVENT_BLOG_RIGHT_SIDEBAR_TOGGLE, { toggle: false });
+                ea.publish(nsCons.EVENT_BLOG_RIGHT_SIDEBAR_TOGGLE, { isHide: true });
             }
             $('.em-blog-content').scrollTo(`#${$(event.currentTarget).attr('data-id')}`, 200, {
                 offset: 0
@@ -105,11 +115,55 @@ export class EmBlogContent {
 
                 let scale = sTop * 1.0 / (sHeight - $('.em-blog-content').outerHeight());
                 this.progressWidth = $('.em-blog-content').outerWidth() * scale;
+
+                this.fixDirItem();
+
             } catch (err) { this.progressWidth = 0; }
 
         }, 10));
 
+        // 消息popup
+        $(this.feedRef).on('mouseenter', '.event a[href*="#/blog/"]:not(.pp-not)', (event) => {
+            event.preventDefault();
+            var $a = $(event.currentTarget);
+            let cid = utils.urlQuery('cid', $a.attr('href'));
+            cid && ea.publish(nsCons.EVENT_BLOG_COMMENT_POPUP_SHOW, {
+                id: cid,
+                target: event.currentTarget
+            });
+        });
+
         this.initHotkeys();
+    }
+
+    fixDirItem() {
+        let fixId = null;
+        let preId = null;
+        _.each(this.dirItemIds, (id) => {
+            if (!preId) {
+                if (utils.isElementInViewport($(`#${id}`))) {
+                    fixId = id;
+                    return false;
+                }
+            } else {
+                if (utils.isElementInViewport($(`#${id}`)) && !utils.isElementInViewport($(`#${preId}`))) {
+                    fixId = id;
+                    return false;
+                }
+            }
+        });
+
+        if (fixId) {
+            let fixDirItem = $('.em-blog-right-sidebar .panel-blog-dir').find(`.wiki-dir-item[data-id="${fixId}"]`);
+            if (fixDirItem) {
+                $('.em-blog-right-sidebar .panel-blog-dir').find(`.wiki-dir-item[data-id]`).removeClass('active');
+                fixDirItem.addClass('active');
+
+                $('.em-blog-right-sidebar .scrollbar-macosx.scroll-content.scroll-scrolly_visible').scrollTo(fixDirItem, 10, {
+                    offset: -120
+                });
+            }
+        }
     }
 
     initHotkeys() {
@@ -143,6 +197,30 @@ export class EmBlogContent {
                 $('.em-blog-content').scrollTo(`max`, 200, {
                     offset: 0
                 });
+            }).bind('keydown', 'alt+r', (event) => { // refresh
+                event.preventDefault();
+                this.refreshHandler();
+            }).bind('keydown', 'alt+h', (event) => { // history
+                event.preventDefault();
+                this.historyHandler();
+            }).bind('keydown', 'alt+l', (event) => { // history
+                event.preventDefault();
+                this.authHandler();
+            }).bind('keydown', 'alt+s', (event) => { // stow
+                event.preventDefault();
+                this.stowHandler();
+            }).bind('keydown', 'alt+c', (event) => { // copy
+                event.preventDefault();
+                this.throttleCopyHandler();
+            }).bind('keydown', 'alt+m', (event) => { // move space
+                event.preventDefault();
+                this.updateSpaceHandler();
+            }).bind('keydown', 'alt+o', (event) => { // open edit
+                event.preventDefault();
+                this.openEditHandler();
+            }).bind('keydown', 'alt+ctrl+d', (event) => { // delete
+                event.preventDefault();
+                this.deleteHandler();
             });
         } catch (err) { console.log(err); }
 
@@ -150,12 +228,30 @@ export class EmBlogContent {
 
     _dir() {
         this.dir = utils.dir($(this.mkbodyRef), 'tms-blog-dir-item-');
+        this.dirItemIds = [];
+        if (this.dir) {
+            $(this.dir).find('a.item.wiki-dir-item').each((index, el) => {
+                this.dirItemIds.push($(el).attr('data-id'));
+            });
+        }
         return this.dir;
+    }
+
+    getMyLog() {
+        $.get('/admin/blog/log/my', (data) => {
+            if (data.success) {
+                this.logs = _.reverse(data.data);
+            } else {
+                toastr.error(data.data);
+            }
+        });
     }
 
     getBlog() {
         this.progressWidth = 0;
         if (!nsCtx.blogId || isNaN(new Number(nsCtx.blogId))) {
+            this.blog = null;
+            this.getMyLog();
             return;
         }
 
@@ -168,7 +264,7 @@ export class EmBlogContent {
             if (data.success) {
                 this.blog = data.data;
                 ea.publish(nsCons.EVENT_BLOG_VIEW_CHANGED, this.blog);
-                _.defer(() => this._dir());
+                _.defer(() => this.catalogHandler(true));
             } else {
                 toastr.error(data.data, "获取博文失败!");
             }
@@ -206,23 +302,30 @@ export class EmBlogContent {
     }
 
     deleteHandler() {
-
-        this.emConfirmModal.show({
-            onapprove: () => {
-                $.post("/admin/blog/delete", {
-                    id: this.blog.id
-                }, (data, textStatus, xhr) => {
-                    if (data.success) {
-                        toastr.success('删除博文成功!');
-                        window.location.href = "#/blog";
-                        window.location.reload();
-                    } else {
-                        toastr.error(data.data, '删除博文失败!');
-                    }
-                });
-            }
-        });
-
+        if (this.isSuper || this.blog.creator.username == this.loginUser.username) {
+            this.emConfirmModal.show({
+                title: '删除确认',
+                content: '确认要删除该博文吗?',
+                onapprove: () => {
+                    $.post("/admin/blog/delete", {
+                        id: this.blog.id
+                    }, (data, textStatus, xhr) => {
+                        if (data.success) {
+                            toastr.success('删除博文成功!');
+                            ea.publish(nsCons.EVENT_BLOG_CHANGED, {
+                                action: 'deleted',
+                                blog: this.blog
+                            });
+                            ea.publish(nsCons.EVENT_APP_ROUTER_NAVIGATE, {
+                                to: '#/blog'
+                            });
+                        } else {
+                            toastr.error(data.data, '删除博文失败!');
+                        }
+                    });
+                }
+            });
+        }
     }
 
     createHandler() {
@@ -232,7 +335,9 @@ export class EmBlogContent {
     }
 
     updateSpaceHandler() {
-        this.blogSpaceUpdateVm.show(this.blog);
+        if (this.isSuper || this.blog.creator.username == this.loginUser.username) {
+            this.blogSpaceUpdateVm.show(this.blog);
+        }
     }
 
     updatePrivatedHandler() {
@@ -278,21 +383,23 @@ export class EmBlogContent {
     }
 
     openEditHandler() {
-        $.post('/admin/blog/openEdit', {
-            id: this.blog.id,
-            open: !this.blog.openEdit
-        }, (data, textStatus, xhr) => {
-            if (data.success) {
-                this.blog.openEdit = !this.blog.openEdit;
-                ea.publish(nsCons.EVENT_BLOG_CHANGED, {
-                    action: 'updated',
-                    blog: this.blog
-                });
-                toastr.success(this.blog.openEdit ? '开放协作编辑成功!' : '关闭协作编辑成功!');
-            } else {
-                toastr.error(data.data, '协作编辑操作失败!');
-            }
-        });
+        if (this.isSuper || this.blog.creator.username == this.loginUser.username) {
+            $.post('/admin/blog/openEdit', {
+                id: this.blog.id,
+                open: !this.blog.openEdit
+            }, (data, textStatus, xhr) => {
+                if (data.success) {
+                    this.blog.openEdit = !this.blog.openEdit;
+                    ea.publish(nsCons.EVENT_BLOG_CHANGED, {
+                        action: 'updated',
+                        blog: this.blog
+                    });
+                    toastr.success(this.blog.openEdit ? '开放协作编辑成功!' : '关闭协作编辑成功!');
+                } else {
+                    toastr.error(data.data, '协作编辑操作失败!');
+                }
+            });
+        }
     }
 
     refreshHandler() {
@@ -304,15 +411,18 @@ export class EmBlogContent {
         this.blogHistoryVm.show(this.blog);
     }
 
-    catalogHandler() {
+    catalogHandler(justRefresh = false) {
         ea.publish(nsCons.EVENT_BLOG_RIGHT_SIDEBAR_TOGGLE, {
+            justRefresh: justRefresh,
             action: 'dir',
             dir: this._dir()
         });
     }
 
     authHandler() {
-        this.blogSpaceAuthVm.show('blog', this.blog);
+        if (this.isSuper || this.blog.creator.username == this.loginUser.username) {
+            this.blogSpaceAuthVm.show('blog', this.blog);
+        }
     }
 
     copyHandler() {
@@ -378,6 +488,25 @@ export class EmBlogContent {
     }
 
     dimmerHandler() {
-        ea.publish(nsCons.EVENT_BLOG_SWITCH, {});
+        ea.publish(nsCons.EVENT_BLOG_LEFT_SIDEBAR_TOGGLE, { isHide: true });
+        ea.publish(nsCons.EVENT_BLOG_RIGHT_SIDEBAR_TOGGLE, { isHide: true });
+    }
+
+    commentsHandler() {
+        $('.em-blog-content').scrollTo(`.em-blog-comment `, 120, {
+            offset: -16
+        });
+    }
+
+    openFeedEventItemHandler(item) {
+        item.isOpen = !item.isOpen;
+    }
+
+    feedEventItemMouseleaveHandler(item) {
+        item.isOpen = false;
+    }
+
+    refreshFeedHandler() {
+        this.getMyLog();
     }
 }

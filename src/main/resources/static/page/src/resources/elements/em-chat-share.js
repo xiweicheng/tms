@@ -1,12 +1,15 @@
 import { bindable, containerless } from 'aurelia-framework';
 
 @containerless
-export class EmBlogShare {
+export class EmChatShare {
 
     shares = [];
     desc = '';
 
-    @bindable blog;
+    @bindable chat;
+    @bindable channel;
+    @bindable loginUser;
+    @bindable isAt;
 
     basePath = utils.getBasePath();
 
@@ -106,25 +109,25 @@ export class EmBlogShare {
     shareHandler() {
 
         if (this.shares.length === 0) {
-            toastr.error('请先指定博文分享用户或者频道或者邮箱!');
+            toastr.error('请先指定沟通消息分享用户或者频道或者邮箱!');
             return;
         }
 
-        this.ajaxS = $.post('/admin/blog/share', {
+        this.ajaxS = $.post(`/admin/chat/${this.isAt ? 'direct' : 'channel'}/share`, {
             basePath: utils.getBasePath(),
-            id: this.blog.id,
+            href: `${this.basePath}#/chat/${this.isAt ? ('@' + this.loginUser.username) : this.channel.name}?id=${this.chat.id}`,
+            id: this.chat.id,
             desc: this.desc,
-            title: this.blog.title,
-            html: utils.md2html(this.blog.content),
+            html: utils.md2html(this.chat.content),
             users: _.chain(this.shares).filter(item => item._type == 'user').map('username').join().value(),
             channels: _.chain(this.shares).filter(item => item._type == 'channel').map('name').join().value(),
             mails: _.chain(this.shares).filter(item => item._type == 'mail').map('mail').join().value()
         }, (data, textStatus, xhr) => {
             if (data.success) {
                 this._reset();
-                toastr.success('博文分享成功!');
+                toastr.success('沟通消息分享成功!');
             } else {
-                toastr.error(data.data, '博文分享失败!');
+                toastr.error(data.data, '沟通消息分享失败!');
             }
         });
     }

@@ -25,6 +25,23 @@ export class EmBlogComment {
         this._refresh();
     }
 
+    /**
+     * 构造函数
+     */
+    constructor() {
+        this.subscribe = ea.subscribe(nsCons.EVENT_BLOG_COMMENT_MSG_INSERT, (payload) => {
+            this.insertContent(`${payload.content}`);
+            this._scrollTo('b');
+        });
+    }
+
+    /**
+     * 当数据绑定引擎从视图解除绑定时被调用
+     */
+    unbind() {
+        this.subscribe.dispose();
+    }
+
     _refresh() {
         if (!this.blog) {
             return;
@@ -42,6 +59,10 @@ export class EmBlogComment {
                         this.scrollToAfterImgLoaded(cid);
                     });
                 }
+                ea.publish(nsCons.EVENT_BLOG_COMMENT_CHANGED, {
+                    action: 'query',
+                    comments: this.comments
+                });
             } else {
                 toastr.error(data.data);
             }
@@ -58,8 +79,9 @@ export class EmBlogComment {
         $('.em-blog-comment .comments').on('mouseenter', '.markdown-body a[href*="#/blog/"]:not(.pp-not)', (event) => {
             event.preventDefault();
             var $a = $(event.currentTarget);
-            ea.publish(nsCons.EVENT_BLOG_COMMENT_POPUP_SHOW, {
-                id: utils.urlQuery('cid', $a.attr('href')),
+            let cid = utils.urlQuery('cid', $a.attr('href'));
+            cid && ea.publish(nsCons.EVENT_BLOG_COMMENT_POPUP_SHOW, {
+                id: cid,
                 target: event.currentTarget
             });
         });
@@ -373,12 +395,14 @@ export class EmBlogComment {
      * @return {[type]}         [description]
      */
     insertContent(content, mde) {
-        let cm = mde ? mde.codemirror : this.simplemde.codemirror;
-        var cursor = cm.getCursor();
-        if (cursor) {
-            cm.replaceRange(content, cursor, cursor);
-            cm.focus();
-        }
+        try {
+            let cm = mde ? mde.codemirror : this.simplemde.codemirror;
+            var cursor = cm.getCursor();
+            if (cursor) {
+                cm.replaceRange(content, cursor, cursor);
+                cm.focus();
+            }
+        } catch (err) { console.log(err); }
     }
 
     replyHandler(item) {
@@ -393,6 +417,10 @@ export class EmBlogComment {
             if (data.success) {
                 this.comments = _.reject(this.comments, { id: item.id });
                 toastr.success('博文评论移除成功!');
+                ea.publish(nsCons.EVENT_BLOG_COMMENT_CHANGED, {
+                    action: 'removed',
+                    comments: this.comments
+                });
             } else {
                 toastr.error(data.data, '博文评论移除失败!');
             }
@@ -429,6 +457,11 @@ export class EmBlogComment {
                 this.simplemde.value('');
                 toastr.success('博文评论提交成功!');
                 this.scrollToAfterImgLoaded('b');
+                ea.publish(nsCons.EVENT_BLOG_COMMENT_ADDED, {});
+                ea.publish(nsCons.EVENT_BLOG_COMMENT_CHANGED, {
+                    action: 'created',
+                    comments: this.comments
+                });
             } else {
                 toastr.error(data.data, '博文评论提交失败!');
             }
@@ -675,6 +708,10 @@ export class EmBlogComment {
             }
         });
 
+    }
+
+    gotoTopHandler() {
+        $('.em-blog-content').scrollTo(0, 120);
     }
 
 }

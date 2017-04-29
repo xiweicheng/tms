@@ -62,7 +62,7 @@
                     <div class="header">
                         <i class="user icon"></i> 用户 (${users.length})
                     </div>
-                    <a repeat.for="item of users | sortUsers:loginUser.username" task.bind="initChatToDropdownHandler($last)" href="#/chat/@${item.username}" class="item ${!item.enabled ? 'disabled-user' : ''}" title="${item.name}(@${item.username})" data-value="${item.username}" data-id="@${item.username}">
+                    <a repeat.for="item of users | sortUsers:loginUser.username" task.bind="initChatToDropdownHandler($last)" href="#/chat/@${item.username}" class="item ${!item.enabled ? 'disabled-user' : ''}" title="${item.name}(@${item.username})" data-value="@${item.username}" data-id="@${item.username}">
                         <i style="font-weight: bold;" class="at icon"></i>${item.name} ${item.username == loginUser.username ? '(自己)' : ''}
                     </a>
                 </div>

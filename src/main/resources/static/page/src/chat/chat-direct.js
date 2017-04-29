@@ -595,7 +595,7 @@ export class ChatDirect {
             }
         });
 
-        $('.tms-comments-container.scroll-content').scroll(_.throttle((event) => {
+        $('.tms-comments-container[ref="scrollbarRef"]').scroll(_.throttle((event) => {
             try {
                 let sHeight = $(event.currentTarget)[0].scrollHeight;
                 let sTop = $(event.currentTarget)[0].scrollTop;

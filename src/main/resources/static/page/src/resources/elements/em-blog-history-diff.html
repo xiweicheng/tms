@@ -3,7 +3,7 @@
     <em-modal classes="" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)">
         <div slot="header">博文历史版本比较(v.${sIndex + 1} <i class="resize horizontal icon"></i> v.${fIndex + 1})</div>
         <div slot="content" class="em-blog-history-diff">
-            <div class="content markdown-body" innerhtml.bind="diffHtml"></div>
+            <div class="content markdown-body" innerhtml.bind="diffHtml | diffHtml"></div>
         </div>
     </em-modal>
 </template>

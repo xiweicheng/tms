@@ -4,12 +4,17 @@
     position: fixed;
     top: 55px;
     right: -300px;
-    height: e("calc(100vh - 55px)");
+    height: e("calc(100% - 55px)");
     transition: right 0.15s ease-out 0s;
     .right-sidebar-show & {
         right: 0;
     }
     .panel-blog-dir {
         padding: 16px;
+        .wiki-dir-item {
+            &.active {
+                background-color: #e8e0e0;
+            }
+        }
     }
 }

@@ -34,7 +34,7 @@ export class EmChatTopMenu {
     }
 
     chatToChanged() {
-        $(this.chatToDropdownRef).dropdown('set selected', this.chatTo).dropdown('hide');
+        $(this.chatToDropdownRef).dropdown('set selected', this.chatId).dropdown('hide');
     }
 
     channelChanged() {
@@ -205,7 +205,7 @@ export class EmChatTopMenu {
     initChatToDropdownHandler(last) {
         if (last) {
             _.defer(() => {
-                $(this.chatToDropdownRef).dropdown().dropdown('set selected', this.chatTo).dropdown({
+                $(this.chatToDropdownRef).dropdown().dropdown('set selected', this.chatId).dropdown({
                     onChange: (value, text, $choice) => {
                         window.location = wurl('path') + `#/chat/${$choice.attr('data-id')}`;
                     }

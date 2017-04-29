@@ -29,6 +29,30 @@
             .tools {
                 display: block;
             }
+            &:before {
+                width: 4px;
+            }
+        }
+        &.active {
+            &:before {
+                width: 4px;
+            }
+        }
+        &:before {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background: #2098D1;
+            width: 0;
+            -webkit-transition-property: width;
+            transition-property: width;
+            -webkit-transition-duration: 0.3s;
+            transition-duration: 0.3s;
+            -webkit-transition-timing-function: ease-out;
+            transition-timing-function: ease-out;
         }
     }
     > .content {

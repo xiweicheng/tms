@@ -14,7 +14,10 @@ export class EmBlogTopMenu {
      */
     constructor() {
         this.subscribe = ea.subscribe(nsCons.EVENT_BLOG_SWITCH, (payload) => {
-            !this.isHide && this.toggleHandler();
+            this.toggleHandler(true);
+        });
+        this.subscribe = ea.subscribe(nsCons.EVENT_BLOG_LEFT_SIDEBAR_TOGGLE, (payload) => {
+            this.toggleHandler(payload.isHide);
         });
     }
 
@@ -80,8 +83,11 @@ export class EmBlogTopMenu {
         this.isSearchFocus = true;
     }
 
-    toggleHandler() {
-        this.isHide = !this.isHide;
+    toggleHandler(isHide) {
+        if (this.isHide === isHide) {
+            return;
+        }
+        this.isHide = isHide ? isHide : !this.isHide;
         ea.publish(nsCons.EVENT_BLOG_TOGGLE_SIDEBAR, this.isHide);
     }
 

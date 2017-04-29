@@ -1,7 +1,7 @@
 .em-blog-content {
     transition: width 0.15s ease-out 0s;
     .right-sidebar-show & {
-        width: e("calc(100vw - 600px)")!important;
+        width: e("calc(100% - 600px)")!important;
         @media only screen and (max-width: 767px) {
             width: 100%!important;
         }
@@ -14,8 +14,8 @@
     position: fixed;
     top: 55px;
     left: 300px;
-    width: e("calc(100vw - 300px)")!important;
-    height: e("calc(100vh - 55px)")!important;
+    width: e("calc(100% - 300px)")!important;
+    height: e("calc(100% - 55px)")!important;
     padding: 16px;
     overflow: auto;
     > .header {
@@ -28,6 +28,14 @@
                     cursor: pointer;
                 }
                 .readCnt {
+                    cursor: pointer;
+                    margin-left: 16px;
+                    a {
+                        cursor: pointer;
+                    }
+                }
+                .commentCnt {
+                    cursor: pointer;
                     margin-left: 16px;
                     a {
                         cursor: pointer;
@@ -94,6 +102,82 @@
             color: #4183c4;
         }
     }
+    > .ui.feed {
+        margin-bottom: 25px!important;
+        > .event {
+            position: relative;
+            &.opened {
+                > .content .extra.text {
+                    &:hover {
+                        max-height: none;
+                        overflow-y: auto;
+                        padding-bottom: 25px;
+                    }
+                }
+            }
+            >.label+.content {
+                max-width: e("calc(100% - 50px)");
+            }
+            > .content .extra.text {
+                position: relative;
+                max-width: none;
+                min-height: 25px;
+                max-height: 60px;
+                overflow-y: hidden;
+                &:hover {
+                    > .btn-open {
+                        display: block;
+                    }
+                }
+                > .btn-open {
+                    display: none;
+                    height: 25px;
+                    background-color: rgba(0, 0, 0, 0.1);
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                    left: 0;
+                    text-align: center;
+                    padding-top: 2px;
+                }
+                pre {
+                    white-space: pre-wrap;
+                    white-space: -moz-pre-wrap;
+                    white-space: -pre-wrap;
+                    white-space: -o-pre-wrap;
+                    word-wrap: break-word;
+                    word-break: break-all;
+                }
+            }
+            &.active {
+                background: rgba(0, 0, 0, .03);
+                &:before {
+                    width: 4px;
+                }
+            }
+            &:hover {
+                background: rgba(0, 0, 0, .03);
+                &:before {
+                    width: 4px;
+                }
+            }
+            &:before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: -4px;
+                bottom: 0;
+                background: #2098D1;
+                width: 0;
+                -webkit-transition-property: width;
+                transition-property: width;
+                -webkit-transition-duration: 0.3s;
+                transition-duration: 0.3s;
+                -webkit-transition-timing-function: ease-out;
+                transition-timing-function: ease-out;
+            }
+        }
+    }
 }
 
 .tms-blog-progress {
@@ -115,7 +199,7 @@
     position: fixed;
     top: 55px;
     width: e("calc(100vw)")!important;
-    height: e("calc(100vh - 55px)")!important;
+    height: e("calc(100% - 55px)")!important;
 }
 
 @media only screen and (max-width: 767px) {

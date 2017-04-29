@@ -7,6 +7,17 @@ export class App {
     constructor() {
         this.init();
         this.initCalendar();
+
+        this.subscribe = ea.subscribe(nsCons.EVENT_APP_ROUTER_NAVIGATE, (payload) => {
+            this.router && this.router.navigate(`${payload.to}`);
+        });
+    }
+
+    /**
+     * 当数据绑定引擎从视图解除绑定时被调用
+     */
+    unbind() {
+        this.subscribe.dispose();
     }
 
     init() {

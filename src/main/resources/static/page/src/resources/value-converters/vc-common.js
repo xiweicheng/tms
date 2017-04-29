@@ -139,3 +139,12 @@ export class Nl2brValueConverter {
         return value;
     }
 }
+
+export class DiffHtmlValueConverter {
+    toView(value, allowedTags, allowedAttributes) {
+        if (value) {
+            return utils.diffHtml(value);
+        }
+        return value;
+    }
+}

@@ -14,8 +14,11 @@ export class Blog {
             this.routeConfig && this.routeConfig.navModel.setTitle(`${payload.title} | 博文 | TMS`);
         });
         this.subscribe1 = ea.subscribe(nsCons.EVENT_BLOG_RIGHT_SIDEBAR_TOGGLE, (payload) => {
-            if (payload && !_.isUndefined(payload.toggle)) {
-                this.rightSidebarShow = payload.toggle;
+            if (payload.justRefresh) {
+                return;
+            }
+            if (payload && !_.isUndefined(payload.isHide)) {
+                this.rightSidebarShow = !payload.isHide;
             } else {
                 this.rightSidebarShow = !this.rightSidebarShow;
             }
@@ -55,6 +58,13 @@ export class Blog {
             ea.publish(nsCons.EVENT_CHAT_MEMBER_POPUP_SHOW, {
                 username: $a.attr('data-value'),
                 target: event.currentTarget
+            });
+        });
+
+        $('.tms-blog .em-blog-content').on('click', 'a.avatar[data-value], a.author[data-value], .at-user[data-value]', (event) => {
+            event.preventDefault();
+            ea.publish(nsCons.EVENT_BLOG_COMMENT_MSG_INSERT, {
+                content: `{~${$(event.currentTarget).attr('data-value')}} `
             });
         });
 

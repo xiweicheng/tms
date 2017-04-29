@@ -54,6 +54,7 @@ export function configure(aurelia) {
         'resources/elements/em-chat-schedule',
         'resources/elements/em-chat-schedule-edit',
         'resources/elements/em-chat-schedule-remind',
+        'resources/elements/em-chat-share',
         'resources/elements/em-blog-write',
         'resources/elements/em-blog-left-sidebar',
         'resources/elements/em-blog-right-sidebar',
@@ -72,5 +73,6 @@ export function configure(aurelia) {
         'resources/elements/em-blog-space-auth',
         'resources/elements/em-user-avatar',
         'resources/elements/em-user-edit',
+        'resources/elements/em-blog-comment-share',
     ]);
 }

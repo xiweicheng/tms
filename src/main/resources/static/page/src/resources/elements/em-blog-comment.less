@@ -16,6 +16,9 @@
                         display: block;
                     }
                 }
+                &:before {
+                    width: 4px;
+                }
             }
             > .ui.divider {
                 margin-bottom: 0;
@@ -50,6 +53,30 @@
             }
             &.active {
                 background-color: #f5f5f5;
+                &:before {
+                    width: 4px;
+                }
+            }
+            &:before {
+                content: "";
+                position: absolute;
+                z-index: -1;
+                top: -2px;
+                left: -4px;
+                bottom: 1px;
+                background: #2098D1;
+                width: 0;
+                -webkit-transition-property: width;
+                transition-property: width;
+                -webkit-transition-duration: 0.3s;
+                transition-duration: 0.3s;
+                -webkit-transition-timing-function: ease-out;
+                transition-timing-function: ease-out;
+            }
+            &:nth-child(2) {
+                &:before {
+                    top: -1px;
+                }
             }
         }
     }

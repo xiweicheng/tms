@@ -58,12 +58,16 @@ export class EmBlogSave {
         var html = utils.md2html(this.blogInfo.content);
         let users = [nsCtx.memberAll, ...(window.tmsUsers ? tmsUsers : [])];
 
+        let spaceId = $(this.spacesRef).dropdown('get value');
+
+        localStorage && localStorage.setItem(nsCons.KEY_BLOG_COMMON_SPACE, spaceId);
+
         $.post(`/admin/blog/create`, {
             url: utils.getBasePath(),
             usernames: utils.parseUsernames(this.blogInfo.content, users).join(','),
             title: this.blogInfo.title,
             content: this.blogInfo.content,
-            spaceId: $(this.spacesRef).dropdown('get value'),
+            spaceId: spaceId,
             privated: $(this.chk).checkbox('is checked'),
             contentHtml: html
         }, (data, textStatus, xhr) => {
@@ -86,6 +90,12 @@ export class EmBlogSave {
         if (last) {
             _.defer(() => {
                 $(this.spacesRef).dropdown('clear');
+                if (localStorage) {
+                    let sid = localStorage.getItem(nsCons.KEY_BLOG_COMMON_SPACE);
+                    if (sid) {
+                        $(this.spacesRef).dropdown('set selected', sid);
+                    }
+                }
             });
         }
     }

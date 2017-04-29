@@ -1,12 +1,14 @@
 import { bindable, containerless } from 'aurelia-framework';
 
 @containerless
-export class EmBlogShare {
+export class EmBlogCommentShare {
 
     shares = [];
     desc = '';
 
     @bindable blog;
+    @bindable comment;
+    @bindable loginUser;
 
     basePath = utils.getBasePath();
 
@@ -106,25 +108,25 @@ export class EmBlogShare {
     shareHandler() {
 
         if (this.shares.length === 0) {
-            toastr.error('请先指定博文分享用户或者频道或者邮箱!');
+            toastr.error('请先指定博文评论分享用户或者频道或者邮箱!');
             return;
         }
 
-        this.ajaxS = $.post('/admin/blog/share', {
+        this.ajaxS = $.post(`/admin/blog/comment/share`, {
             basePath: utils.getBasePath(),
-            id: this.blog.id,
+            href: `${this.basePath}#/blog/${this.blog.id}?cid=${this.comment.id}`,
+            id: this.comment.id,
             desc: this.desc,
-            title: this.blog.title,
-            html: utils.md2html(this.blog.content),
+            html: utils.md2html(this.comment.content),
             users: _.chain(this.shares).filter(item => item._type == 'user').map('username').join().value(),
             channels: _.chain(this.shares).filter(item => item._type == 'channel').map('name').join().value(),
             mails: _.chain(this.shares).filter(item => item._type == 'mail').map('mail').join().value()
         }, (data, textStatus, xhr) => {
             if (data.success) {
                 this._reset();
-                toastr.success('博文分享成功!');
+                toastr.success('博文评论分享成功!');
             } else {
-                toastr.error(data.data, '博文分享失败!');
+                toastr.error(data.data, '博文评论分享失败!');
             }
         });
     }
