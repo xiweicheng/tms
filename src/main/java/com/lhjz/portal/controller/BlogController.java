@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -1665,6 +1666,8 @@ public class BlogController extends BaseController {
 
 		List<Log> logs = logRepository.findByTargetInAndCreateDateAfter(Arrays.asList(Target.Blog, Target.Comment),
 				new DateTime().minusDays(7).toDate());
+		
+		Collections.reverse(logs);
 
 		logs = logs.stream().filter(lg -> {
 
