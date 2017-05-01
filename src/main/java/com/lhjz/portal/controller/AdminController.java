@@ -28,6 +28,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender2;
@@ -41,6 +42,7 @@ import com.lhjz.portal.entity.Translate;
 import com.lhjz.portal.entity.security.Authority;
 import com.lhjz.portal.entity.security.Group;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.model.UserInfo;
 import com.lhjz.portal.pojo.Enum.SettingType;
 import com.lhjz.portal.pojo.Enum.Status;
@@ -120,6 +122,12 @@ public class AdminController extends BaseController {
 		logger.debug("Enter method: {}", "login");
 
 		return "admin/login";
+	}
+	
+	@RequestMapping("health")
+	@ResponseBody
+	public RespBody health() {
+		return RespBody.succeed();
 	}
 
 	@RequestMapping()
