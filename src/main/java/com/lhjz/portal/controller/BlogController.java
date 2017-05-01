@@ -59,6 +59,7 @@ import com.lhjz.portal.entity.Log;
 import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.SpaceAuthority;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.BlogSearchResult;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.PollBlog;
 import com.lhjz.portal.model.RespBody;
@@ -406,6 +407,7 @@ public class BlogController extends BaseController {
 	@RequestMapping(value = "search", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody search(@RequestParam("search") String search,
+			@RequestParam(value = "comment", defaultValue = "false") Boolean comment,
 			@SortDefault(value = "id", direction = Direction.DESC) Sort sort) {
 
 		if (StringUtil.isEmpty(search)) {
@@ -419,10 +421,20 @@ public class BlogController extends BaseController {
 					b.setContent(null);
 					b.setBlogAuthorities(null);
 				}).collect(Collectors.toList());
+		
+		if (comment) {
+			List<Comment> comments = commentRepository
+					.findByTypeAndStatusNotAndContentContaining(CommentType.Blog, Status.Deleted, search, sort).stream()
+					.filter(c -> hasAuth(Long.valueOf(c.getTargetId()))).peek(c -> {
+						c.setContent(null);
+					}).collect(Collectors.toList());
+
+			return RespBody.succeed(new BlogSearchResult(blogs, comments));
+		}
 
 		return RespBody.succeed(blogs);
 	}
-
+	
 	@RequestMapping(value = "openEdit", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody openEdit(@RequestParam("id") Long id, @RequestParam("open") Boolean open) {
@@ -1240,6 +1252,25 @@ public class BlogController extends BaseController {
 			return false;
 		}
 
+		return hasAuthWithDeleted(b);
+	}
+	
+	private boolean hasAuth(Long id) {
+		
+		if (id == null) {
+			return false;
+		}
+		
+		Blog b = blogRepository.findOne(id);
+		
+		if (b == null) {
+			return false;
+		}
+		
+		if (b.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
+			return false;
+		}
+		
 		return hasAuthWithDeleted(b);
 	}
 
