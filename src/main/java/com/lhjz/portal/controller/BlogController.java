@@ -408,6 +408,7 @@ public class BlogController extends BaseController {
 	@ResponseBody
 	public RespBody search(@RequestParam("search") String search,
 			@RequestParam(value = "comment", defaultValue = "false") Boolean comment,
+			@RequestParam(value = "ellipsis", defaultValue = "60") Integer ellipsis,
 			@SortDefault(value = "id", direction = Direction.DESC) Sort sort) {
 
 		if (StringUtil.isEmpty(search)) {
@@ -418,7 +419,7 @@ public class BlogController extends BaseController {
 				.findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status.Deleted, search,
 						Status.Deleted, search, sort)
 				.stream().filter(b -> hasAuth(b)).peek(b -> {
-					b.setContent(null);
+					b.setContent(StringUtil.limitLength(b.getContent(), ellipsis));
 					b.setBlogAuthorities(null);
 				}).collect(Collectors.toList());
 		
@@ -426,7 +427,7 @@ public class BlogController extends BaseController {
 			List<Comment> comments = commentRepository
 					.findByTypeAndStatusNotAndContentContaining(CommentType.Blog, Status.Deleted, search, sort).stream()
 					.filter(c -> hasAuth(Long.valueOf(c.getTargetId()))).peek(c -> {
-						c.setContent(null);
+						c.setContent(StringUtil.limitLength(c.getContent(), ellipsis));
 					}).collect(Collectors.toList());
 
 			return RespBody.succeed(new BlogSearchResult(blogs, comments));
