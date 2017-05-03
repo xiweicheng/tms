@@ -38,23 +38,57 @@ export class EmBlogTopMenu {
 
         $(this.searchRef)
             .search({
+                type: 'category',
                 minCharacters: 2,
+                onSelect: (result, response) => {
+                    $(this.searchRef).search('hide results');
+                    _.defer(() => $(this.searchRef).find('input').blur());
+                    return false;
+                },
                 apiSettings: {
                     onResponse: function(resp) {
+                        // var response = {
+                        //     results: []
+                        // };
+                        // $.each(resp.data, (index, item) => {
+                        //     response.results.push({
+                        //         title: item.title,
+                        //         // description: utils.abbreviate(item.content, 65),
+                        //         description: `<i class="wait icon"></i>${item.creator.name} 创建于 ${tg.format(item.createDate, 'zh_CN')}`,
+                        //         url: `#/blog/${item.id}`
+                        //     });
+                        // });
                         var response = {
-                            results: []
+                            results: {
+                                blogs: {
+                                    name: `博文 (${resp.data.blogs.length})`,
+                                    results: []
+                                },
+                                comments: {
+                                    name: `评论 (${resp.data.comments.length})`,
+                                    results: []
+                                }
+                            }
                         };
-                        $.each(resp.data, (index, item) => {
-                            response.results.push({
+                        $.each(resp.data.blogs, (index, item) => {
+                            response.results.blogs.results.push({
                                 title: item.title,
                                 // description: utils.abbreviate(item.content, 65),
                                 description: `<i class="wait icon"></i>${item.creator.name} 创建于 ${tg.format(item.createDate, 'zh_CN')}`,
                                 url: `#/blog/${item.id}`
                             });
                         });
+                        $.each(resp.data.comments, (index, item) => {
+                            response.results.comments.results.push({
+                                title: `#/blog/${item.targetId}?cid=${item.id}`,
+                                // description: item.content,
+                                description: `<i class="wait icon"></i>${item.creator.name} 创建于 ${tg.format(item.createDate, 'zh_CN')}<br/>${utils.encodeHtml(item.content)}`,
+                                url: `#/blog/${item.targetId}?cid=${item.id}`
+                            });
+                        });
                         return response;
                     },
-                    url: '/admin/blog/search?search={query}'
+                    url: '/admin/blog/search?search={query}&comment=true&ellipsis=60'
                 }
             });
 

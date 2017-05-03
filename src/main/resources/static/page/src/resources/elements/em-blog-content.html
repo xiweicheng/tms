@@ -99,11 +99,11 @@
                 <i class="icon feed"></i>
                 <div class="content">博文更新</div>
                 </h3>
-                <button click.delegate="refreshFeedHandler()" style="position: absolute; right: 0; top: 2px;" class="circular ui icon button" data-tooltip="刷新博文更新" data-position="top right">
-                  <i class="icon refresh"></i>
+                <button click.delegate="refreshFeedHandler()" style="position: absolute; right: 0; top: 2px;" class="circular ui icon button ${(ajaxS && ajaxS.readyState != 4) ? 'disabled' : ''}" data-tooltip="刷新博文更新" data-position="top right">
+                    <i class="icon refresh ${(ajaxS && ajaxS.readyState != 4) ? 'loading' : ''}""></i>
                 </button>
                 <div if.bind="!logs || logs.length == 0" class="ui info massive message">
-                    暂无博文更新!
+                    ${(ajaxS && ajaxS.readyState != 4) ? '博文更新内容加载中...' : '暂无博文更新!'}
                 </div>
                 <div repeat.for="item of logs" mouseleave.trigger="feedEventItemMouseleaveHandler(item)" class="event ${item.isOpen ? 'opened' : ''}">
                     <div class="label">

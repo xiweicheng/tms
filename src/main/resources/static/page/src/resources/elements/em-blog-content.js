@@ -238,9 +238,10 @@ export class EmBlogContent {
     }
 
     getMyLog() {
-        $.get('/admin/blog/log/my', (data) => {
+        this.ajaxS = $.get('/admin/blog/log/my', (data) => {
             if (data.success) {
-                this.logs = _.reverse(data.data);
+                // this.logs = _.reverse(data.data);
+                this.logs = data.data;
             } else {
                 toastr.error(data.data);
             }
