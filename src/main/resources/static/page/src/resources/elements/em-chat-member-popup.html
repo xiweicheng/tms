@@ -1,0 +1,66 @@
+<template>
+    <require from="./em-chat-member-popup.css"></require>
+    <div ref="popup" class="ui flowing popup transition hidden tms-chat-member-popup">
+        <div class="ui cards" show.bind="(username == 'all')">
+            <div class="card">
+                <div class="content">
+                    <div class="header" style="border-bottom: 1px lightgray solid;">
+                        全部用户 (${members.length}人)
+                    </div>
+                    <div class="description" style="max-height: 200px; overflow-y: auto;">
+                        <div class="ui middle aligned divided list" style="padding-left: 0px;">
+                            <div class="item" style="padding-top: 5px!important; padding-bottom: 5px!important; padding-left: 0; padding-right: 0;">
+                                <div class="content">
+                                    <div repeat.for="item of members" class="ui basic label mapping-user group-user" data-value="${item.username}" style="margin-top: 3px; margin-left: 0;" title="${item.username}">${item.name ? item.name : item.username}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ui cards" show.bind="(username != 'all')">
+            <div class="card">
+                <div class="content">
+                    <div class="header">
+                        ${member.name ? member.name : member.username} <a style="float: right;" href="#/chat/@${member.username}"><i class="at icon" style="margin-right: 0;"></i>${member.username}(私聊)</a>
+                    </div>
+                    <div class="ui divider"></div>
+                    <div class="meta">
+                        <i class="wait icon"></i>
+                        <span class="mapping-user">${member.creatorName}</span> 创建于 <span style="font-style: italic;" class="timeago" title="${member.createDate | date}">${member.createDate | timeago}</span>
+                    </div>
+                    <div class="description">
+                        <div class="ui middle aligned divided list">
+                            <div class="item" style="padding-top: 5px!important; padding-bottom: 5px!important;">
+                                <div class="content">
+                                    <a class="header" style="display: inline;">姓名</a> ${member.name}
+                                </div>
+                            </div>
+                            <div class="item" style="padding-top: 5px!important; padding-bottom: 5px!important;">
+                                <div class="content">
+                                    <a class="header" style="display: inline;">邮箱</a> <a href="mailto:${member.mails}">${member.mails}</a>
+                                </div>
+                            </div>
+                            <div class="item" style="padding-top: 5px!important; padding-bottom: 5px!important;">
+                                <div class="content">
+                                    <a class="header" style="display: inline;">状态</a> ${member.enabled ? '启用中' : '已禁用'}
+                                </div>
+                            </div>
+                            <div class="item" style="padding-top: 5px!important; padding-bottom: 5px!important;">
+                                <div class="content">
+                                    <a class="header" style="display: inline;">登录</a> 从IP ${member.loginRemoteAddress} (<span style="font-style: italic; color:gray;" class="timeago" title="${member.lastLoginDate | date}">${member.lastLoginDate | timeago}</span>)
+                                </div>
+                            </div>
+                            <div class="item" style="padding-top: 5px!important; padding-bottom: 5px!important;">
+                                <div class="content">
+                                    <div repeat.for="item of member.joinChannels" class="ui basic label user-channel" data-value="${item.name}" style="margin-top: 3px; margin-left: 0;" title="${item.title}">${item.name}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

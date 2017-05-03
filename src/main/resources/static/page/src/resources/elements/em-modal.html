@@ -1,0 +1,21 @@
+<template>
+    <div ref="modal" class="ui modal ${classes}">
+        <i class="close icon" style="top: 0; right: 0; color: #214262;"></i>
+        <div class="header">
+            <slot name="header">modal header...</slot>
+        </div>
+        <div class="content">
+            <div class="ui inverted dimmer" style="background-color: rgba(255, 255, 255, 0.5) !important;">
+                <div class="ui loader"></div>
+            </div>
+            <slot name="content">modal content...</slot>
+        </div>
+        <div class="actions">
+            <slot name="actions">
+                <div style="margin-left: 3.5px;" class="ui cancel basic blue left floated button" textcontent.bind="cancelLabel">取消</div>
+                <div show.bind="showConfirm" class="ui ok blue button ${(loading || disabled) ? 'disabled' : ''}" textcontent.bind="confirmLabel">确认</div>
+            </slot>
+            <div style="clear: both;"></div>
+        </div>
+    </div>
+</template>

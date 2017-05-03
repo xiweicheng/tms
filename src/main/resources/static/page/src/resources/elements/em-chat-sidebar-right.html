@@ -1,0 +1,46 @@
+<template>
+    <require from="./em-chat-sidebar-right.css"></require>
+    <div class="tms-right-sidebar em-chat-sidebar-right">
+        <div scrollbar="scrollbar-macosx">
+            <div show.bind="forShow == 'chat-msg'" class="panel-chat-msg">
+                <div class="ui basic segment minimal selection list segment comments">
+                    <h1 show.bind="!chats.length" class="ui center aligned header">${headerMapping[forAction]}</h1>
+                    <div repeat.for="item of chats" mouseleave.trigger="searchItemMouseleaveHandler(item)" mouseenter.trigger="searchItemMouseenterHandler(item)" swipebox class="comment item ${item.id == markId ? 'active' : ''}" data-id="${item.id}">
+                        <em-user-avatar user.bind="item.creator"></em-user-avatar>
+                        <div class="content">
+                            <a class="author" data-value="${item.creator.username}">${item.creator.name}</a>
+                            <div class="metadata">
+                                <div class="date" data-timeago="${item.createDate}" title="${item.createDate | date}">${item.createDate | timeago}</div>
+                            </div>
+                            <div ref="mkbodyRef" class="text markdown-body ${item.isOpen ? 'tms-open' : ''}" innerhtml.bind="item.content | parseMd | emoji:mkbodyRef"></div>
+                            <div class="actions">
+                                <div if.bind="item.chatStow" ui-dropdown-action style="margin-right: .75em;" class="ui icon top left pointing dropdown" title="移除收藏消息">
+                                    移除
+                                    <div class="menu">
+                                        <div style="color: red;" class="item" click.delegate="removeStowHandler(item)"><i class="trash outline icon"></i>确认移除</div>
+                                    </div>
+                                </div>
+                                <a if.bind="item.chatAt" click.delegate="removeAtHandler(item)" class="tms-read" title="标记@消息已读" href="">知悉</a>
+                                <a click.delegate="gotoChatHandler(item)" class="tms-goto" href="" title="定位到消息">定位</a>
+                                <a class="tms-copy tms-clipboard" data-clipboard-text="${item.content}" title="复制消息内容到剪贴板">复制</a>
+                                <a class="tms-share tms-clipboard" data-clipboard-text="${basePath + '#/chat/' + (isAt ? ('@' + loginUser.username) : channel.name) + '?id=' + item.id}" title="复制消息链接到剪贴板">分享</a>
+                            </div>
+                        </div>
+                        <div class="tms-btn-open-search-item" click.delegate="openSearchItemHandler(item)">
+                            <i title="${item.isOpen ? '点击收起 (o)' : '点击展开 (o)'}" class="angle double ${item.isOpen ? 'up' : 'down'} large icon"></i>
+                        </div>
+                    </div>
+                    <div if.bind="!last" click.delegate="searchMoreHandler()" class="ui basic button tms-search-more"><i show.bind="searchMoreP && searchMoreP.readyState != 4" class="spinner loading icon"></i> 加载更多(${moreCnt})</div>
+                </div>
+            </div>
+            <div ref="dirRef" show.bind="forShow == 'wiki-dir'" class="panel-wiki-dir"></div>
+            <div ref="attachRef" show.bind="forShow == 'chat-attach'" class="panel-chat-attach">
+                <em-chat-attach view-model.ref="chatAttachVm"></em-chat-attach>
+            </div>
+            <div ref="scheduleRef" show.bind="forShow == 'chat-schedule'" class="panel-chat-schedule">
+                <em-chat-schedule login-user.bind="loginUser" view-model.ref="chatScheduleVm"></em-chat-schedule>
+            </div>
+        </div>
+    </div>
+    <em-confirm-modal em-confirm-modal.ref="emConfirmModal"></em-confirm-modal>
+</template>

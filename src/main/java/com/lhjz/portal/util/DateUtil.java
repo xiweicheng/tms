@@ -19,6 +19,7 @@ public final class DateUtil {
 	public static final String FORMAT2 = "yyyy/MM/dd HH:mm:ss";
 	public static final String FORMAT7 = "yyyy/MM/dd HH:mm:ss S";
 	public static final String FORMAT8 = "yyMMddHHmmssS";
+	public static final String FORMAT9 = "yyyyMMddHHmmssS";
 	public static final String FORMAT3 = "yyyy-MM-dd";
 	public static final String FORMAT4 = "yyyy/MM/dd";
 	public static final String FORMAT5 = "yyyyMMddHHmmss";

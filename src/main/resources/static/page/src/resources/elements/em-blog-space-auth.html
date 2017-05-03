@@ -1,0 +1,49 @@
+<template>
+    <require from="./em-blog-space-auth.css"></require>
+    <em-modal classes="small tms-md450" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)">
+        <div slot="header">${type == 'blog' ? '博文' : '空间'}可见性限制</div>
+        <div slot="content" class="em-blog-space-auth">
+            <div show.bind="!authO.privated" class="ui warning message">
+                <i class="warning icon"></i> 设置为私有${type == 'blog' ? '博文' : '空间'}后,可见性限制才会有效!
+            </div>
+            <form class="ui form">
+                <div class="field">
+                    <div ref="chk" class="ui checkbox">
+                        <input type="checkbox" tabindex="0" class="hidden">
+                        <label><i class="lock icon"></i>私有${type == 'blog' ? '博文' : '空间'}(不公开)</label>
+                    </div>
+                </div>
+            </form>
+            <div class="ui divider"></div>
+            <div class="${!authO.privated? 'tms-disabled' : ''}">
+                <div class="tms-header"><i class="lock icon"></i>限制为仅下面用户或者频道成员可见:</div>
+                <div ref="searchRef" class="ui fluid search">
+                    <div class="ui icon fluid input">
+                        <input ref="inputSearchRef" class="prompt" type="text" placeholder="用户名，频道">
+                        <i class="search icon"></i>
+                    </div>
+                    <div class="results"></div>
+                </div>
+                <div class="ui list">
+                    <div repeat.for="item of shares" class="item">
+                        <div class="right floated content">
+                            <i click.delegate="removeShareHandler(item)" class="red trash link icon"></i>
+                        </div>
+                        <template if.bind="item.username">
+                            <i class="user icon"></i>
+                            <div class="content">
+                                ${item.name} (${item.username})
+                            </div>
+                        </template>
+                        <template if.bind="!item.username">
+                            <i class="users icon"></i>
+                            <div class="content">
+                                ${item.title} (${item.name})
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </em-modal>
+</template>

@@ -1,0 +1,11 @@
+<template>
+    <require from="./blog.css"></require>
+    <div ref="blogContainerRef" class="tms-blog ${!isHide ? 'left-sidebar-show' : ''} ${rightSidebarShow ? 'right-sidebar-show' : ''}">
+        <em-blog-top-menu></em-blog-top-menu>
+        <em-blog-left-sidebar></em-blog-left-sidebar>
+        <em-blog-content></em-blog-content>
+        <em-blog-right-sidebar></em-blog-right-sidebar>
+        <em-chat-member-popup></em-chat-member-popup>
+    </div>
+    <em-blog-comment-popup></em-blog-comment-popup>
+</template>

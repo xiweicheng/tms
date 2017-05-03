@@ -1,0 +1,26 @@
+<template>
+    <require from="./em-blog-write.css"></require>
+    <div class="em-blog-write">
+        <div class="wrapper dropzone">
+            <div class="title">
+                <div class="ui transparent fluid massive input">
+                    <input id="blog-title-input" type="text" placeholder="标题">
+                </div>
+                <button id="blog-save-btn" title="ctrl+click快速保存" class="ui mini positive button"><i style="display: none;" class="spinner loading icon"></i><span>保存</span></button>
+            </div>
+            <div class="dropzone-previews"></div>
+            <div id="txt-blog-write-wrapper" class="content markdown-body">
+                <textarea style="width: 0; height: 0; border: 0; resize:none;" id="txt-blog-write"></textarea>
+            </div>
+            <div class="tms-blog-write-status-bar-wrapper">
+                <div class="tms-blog-write-status-bar"></div>
+            </div>
+        </div>
+        <div class="preview-template" style="display: none;">
+            <div class="dz-preview dz-file-preview">
+                <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>
+            </div>
+        </div>
+    </div>
+    <em-blog-save view-model.ref="blogSaveVm"></em-blog-save>
+</template>

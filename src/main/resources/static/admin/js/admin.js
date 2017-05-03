@@ -149,6 +149,11 @@ jQuery(function($) {
 
                     $('.tms-sys-links').append($item);
                 });
+
+                $('.tms-dd-sys-links').dropdown({
+                    on: 'hover',
+                    action: 'hide'
+                });
             }
         });
     }

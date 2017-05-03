@@ -20,7 +20,6 @@
 		<start-class>com.lhjz.portal.Application</start-class>
 		<java.version>1.8</java.version>
 	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -168,8 +167,13 @@
 		    <artifactId>markedj</artifactId>
 		    <version>1.0.9</version>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.14</version>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
-
 	<build>
 		<resources>
 			<resource>

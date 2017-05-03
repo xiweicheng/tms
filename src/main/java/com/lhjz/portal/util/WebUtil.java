@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -439,6 +440,35 @@ public final class WebUtil {
 		} catch (Exception e) {
 			logger.warn("获取登录用户名错误，将返回空字符串。 错误信息 ：{}", e.getMessage());
 			return StringUtil.EMPTY;
+		}
+	}
+	
+	/**
+	 * 设置登录的用户名
+	 * 
+	 * @return
+	 */
+	public static void setUsername(String username) {
+
+		try {
+			AbstractAuthenticationToken authenticationToken = new AbstractAuthenticationToken(null) {
+
+				private static final long serialVersionUID = 1033003540219681089L;
+
+				@Override
+				public Object getPrincipal() {
+					return username;
+				}
+
+				@Override
+				public Object getCredentials() {
+					return null;
+				}
+			};
+			authenticationToken.setAuthenticated(true);
+			SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+		} catch (Exception e) {
 		}
 	}
 	

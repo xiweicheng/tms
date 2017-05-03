@@ -25,12 +25,20 @@ public class Enum {
 		Wiki, Msg;
 	}
 	
+	public static enum BlogType {
+		Team, Own;
+	}
+	
+	public static enum SpaceType {
+		Team, Own;
+	}
+	
 	public static enum ChannelType {
 		Common;
 	}
 	
 	public static enum CommentType {
-		Reply;
+		Reply, Blog;
 	}
 	
 	public static enum Prop {
@@ -38,7 +46,7 @@ public class Enum {
 	}
 
 	public static enum Target {
-		Translate, Label, TranslateItem, Language, Chat, ChatChannel, ChatDirect, Project, Article, File, Feedback, Diagnose, Settings, Page, User, Authority, Config, Feature, Case, Product, Env, Health, Job, JobApply, Import;
+		Translate, Label, TranslateItem, Language, Chat, ChatChannel, Blog, Comment, ChatDirect, Project, Article, File, Feedback, Diagnose, Settings, Page, User, Authority, Config, Feature, Case, Product, Env, Health, Job, JobApply, Import;
 	}
 
 	public static enum Page {
@@ -66,7 +74,7 @@ public class Enum {
 	}
 	
 	public static enum ToType {
-		Channel, User;
+		Channel, User, Blog, Feedback;
 	}
 	
 	public static enum LinkType {

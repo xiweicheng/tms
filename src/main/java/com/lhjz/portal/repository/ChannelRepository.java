@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.lhjz.portal.entity.Channel;
+import com.lhjz.portal.pojo.Enum.Status;
 
 /**
  * 
@@ -26,5 +27,7 @@ public interface ChannelRepository extends JpaRepository<Channel, Long> {
 	
 	@Query(value = "SELECT COUNT(*) as cnt FROM channel WHERE `status` <> 'Deleted'", nativeQuery = true)
 	long countChannels();
+	
+	List<Channel> findTop6ByNameContainingAndStatusNot(String name, Status status);
 	
 }

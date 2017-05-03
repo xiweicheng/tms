@@ -1,0 +1,24 @@
+<template>
+    <require from="./em-blog-space-create.css"></require>
+    <a ref="ppRef" ui-popup="top left" class="item">
+        <i class="plus icon"></i>
+    </a>
+    <div class="ui popup em-blog-space-create">
+        <form class="ui form">
+            <h3 class="ui dividing header">创建空间</h3>
+            <div class="required field">
+                <input type="text" value.bind="name" placeholder="空间名称">
+            </div>
+            <div class="field">
+                <textarea value.bind="desc" placeholder="可选的针对空间的描述" rows="2"></textarea>
+            </div>
+            <div class="field">
+                <div ref="chk" class="ui checkbox">
+                    <input type="checkbox" tabindex="0" class="hidden">
+                    <label><i class="lock icon"></i>私有空间(不公开)</label>
+                </div>
+            </div>
+            <button click.delegate="createHandler()" class="ui ${(!name || (ajax && ajax.readyState != 4)) ? 'disabled' : ''} blue mini button" type="submit"><i show.bind="ajax && ajax.readyState != 4" class="spinner loading icon"></i>创建</button>
+        </form>
+    </div>
+</template>

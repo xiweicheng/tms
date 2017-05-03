@@ -1,4 +1,0 @@
-[submodule "src/main/resources/static/page"]
-	path = src/main/resources/static/page
-	url = https://git.oschina.net/xiweicheng/tms-frontend.git
-	branch = master

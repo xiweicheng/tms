@@ -28,6 +28,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender2;
@@ -41,10 +42,12 @@ import com.lhjz.portal.entity.Translate;
 import com.lhjz.portal.entity.security.Authority;
 import com.lhjz.portal.entity.security.Group;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.model.UserInfo;
 import com.lhjz.portal.pojo.Enum.SettingType;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
+import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatRepository;
 import com.lhjz.portal.repository.FileRepository;
@@ -106,6 +109,9 @@ public class AdminController extends BaseController {
 	
 	@Autowired
 	ChannelRepository channelRepository;
+	
+	@Autowired
+	BlogRepository blogRepository;
 
 	@Autowired
 	MailSender2 mailSender;
@@ -117,6 +123,12 @@ public class AdminController extends BaseController {
 
 		return "admin/login";
 	}
+	
+	@RequestMapping("health")
+	@ResponseBody
+	public RespBody health() {
+		return RespBody.succeed();
+	}
 
 	@RequestMapping()
 	public String home(Model model) {
@@ -127,6 +139,7 @@ public class AdminController extends BaseController {
 		model.addAttribute("cntTranslate", translateRepository.count());
 		model.addAttribute("cntChat", chatRepository.count());
 		model.addAttribute("cntChannel", channelRepository.countChannels());
+		model.addAttribute("cntBlog", blogRepository.countBlogs());
 
 		return "admin/index";
 	}

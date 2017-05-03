@@ -3,15 +3,20 @@
  */
 package com.lhjz.portal.repository;
 
+import java.util.Date;
 import java.util.List;
+
+import javax.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
+import com.lhjz.portal.entity.security.User;
 
 /**
  * 
@@ -53,4 +58,9 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 	
 	@Query(value = "SELECT COUNT(*) FROM chat_channel WHERE channel = ?1 AND id > ?2", nativeQuery = true)
 	long countQueryRecent(Long channelId, Long lastId);
+	
+	@Transactional
+	@Modifying
+	@Query("update ChatChannel cc set cc.creator = ?1, cc.updater = ?2, cc.createDate = ?3, cc.updateDate = ?4 where cc.id = ?5")
+	int updateAuditing(User creator, User updater, Date createDate, Date updateDate, Long id);
 }

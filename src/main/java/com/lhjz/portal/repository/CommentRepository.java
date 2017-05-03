@@ -3,9 +3,16 @@
  */
 package com.lhjz.portal.repository;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.lhjz.portal.entity.Comment;
+import com.lhjz.portal.pojo.Enum.CommentType;
+import com.lhjz.portal.pojo.Enum.Status;
 
 /**
  * 
@@ -15,5 +22,9 @@ import com.lhjz.portal.entity.Comment;
  * 
  */
 public interface CommentRepository extends JpaRepository<Comment, Long> {
+	
+	Page<Comment> findByTargetIdAndStatusNot(String targetId, Status status, Pageable pageable);
+	
+	List<Comment> findByTypeAndStatusNotAndContentContaining(CommentType type, Status status, String search, Sort sort);
 
 }

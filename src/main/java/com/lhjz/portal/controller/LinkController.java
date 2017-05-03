@@ -15,12 +15,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
+import com.lhjz.portal.entity.Channel;
+import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.Link;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.LinkType;
 import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.repository.ChannelRepository;
+import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.LinkRepository;
 import com.lhjz.portal.util.StringUtil;
+import com.lhjz.portal.util.WebUtil;
 
 /**
  * 
@@ -37,6 +42,12 @@ public class LinkController extends BaseController {
 
 	@Autowired
 	LinkRepository linkRepository;
+	
+	@Autowired
+	ChatChannelRepository chatChannelRepository;
+	
+	@Autowired
+	ChannelRepository channelRepository;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -59,6 +70,18 @@ public class LinkController extends BaseController {
 		link.setType(LinkType.valueOf(type));
 
 		Link link2 = linkRepository.saveAndFlush(link);
+		
+		if (channelId != null) {
+			Channel channel = channelRepository.findOne(channelId);
+			if (channel != null) {
+				ChatChannel chatChannel = new ChatChannel();
+				chatChannel.setChannel(channel);
+				chatChannel.setContent(StringUtil.replace("## ~频道消息播报~\n\n> {~{?1}} 添加了频道外链: [**{?2}**]({?3})\n\n",
+						WebUtil.getUsername(), title, href));
+				
+				chatChannelRepository.saveAndFlush(chatChannel);
+			}
+		}
 
 		return RespBody.succeed(link2);
 	}
@@ -102,11 +125,29 @@ public class LinkController extends BaseController {
 		}
 
 		Link link = linkRepository.findOne(id);
+		
+		String hrefOld = link.getHref();
+		String titleOld = link.getTitle();
 
 		link.setHref(href);
 		link.setTitle(title);
 
 		Link link2 = linkRepository.saveAndFlush(link);
+		
+		Long channelId = link2.getChannelId();
+		
+		if (channelId != null) {
+			Channel channel = channelRepository.findOne(channelId);
+			if (channel != null) {
+				ChatChannel chatChannel = new ChatChannel();
+				chatChannel.setChannel(channel);
+				chatChannel.setContent(
+						StringUtil.replace("## ~频道消息播报~\n\n> {~{?1}} 将频道外链 [**{?2}**]({?3}) 更新为 [**{?4}**]({?5})\n\n",
+								WebUtil.getUsername(), titleOld, hrefOld, title, href));
+
+				chatChannelRepository.saveAndFlush(chatChannel);
+			}
+		}
 
 		return RespBody.succeed(link2);
 	}
@@ -115,7 +156,28 @@ public class LinkController extends BaseController {
 	@ResponseBody
 	public RespBody delete(@RequestParam("id") Long id) {
 
+		Link link = linkRepository.findOne(id);
+		
+		if(link == null) {
+			return RespBody.failed("删除频道外链不存在!");
+		}
+		
 		linkRepository.delete(id);
+		
+		Long channelId = link.getChannelId();
+		if (channelId != null) {
+			
+			Channel channel = channelRepository.findOne(channelId);
+			if (channel != null) {
+				ChatChannel chatChannel = new ChatChannel();
+				chatChannel.setChannel(channel);
+				chatChannel.setContent(
+						StringUtil.replace("## ~频道消息播报~\n\n> {~{?1}} 删除了频道外链: [**{?2}**]({?3})\n\n",
+								WebUtil.getUsername(), link.getTitle(), link.getHref()));
+
+				chatChannelRepository.saveAndFlush(chatChannel);
+			}
+		}
 
 		return RespBody.succeed(id);
 	}

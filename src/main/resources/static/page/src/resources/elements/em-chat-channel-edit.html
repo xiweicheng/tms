@@ -1,0 +1,28 @@
+<template>
+    <em-modal classes="small" em-modal.ref="emModal" onshow.call="showHandler($event)" onapprove.call="approveHandler($event)" confirm-label="更新">
+        <div slot="header">编辑频道</div>
+        <div slot="content" class="tms-em-chat-channel-create">
+            <div ref="frm" class="ui form">
+                <div class="inline required field">
+                    <label>标识</label>
+                    <div class="ui basic label">${channel.name}</div>
+                </div>
+                <div class="inline required field">
+                    <label>名称</label>
+                    <input type="text" name="title" value.bind="channel.title" placeholder="">
+                </div>
+                <div class="inline field">
+                    <label style="visibility: hidden;">公开</label>
+                    <div ref="chk" class="ui checkbox">
+                        <input type="checkbox" name="privated" checked="">
+                        <label>非公开(公开频道用户可以自由加入)</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>描述</label>
+                    <textarea name="desc" value.bind="channel.description" placeholder="" rows="5"></textarea>
+                </div>
+            </div>
+        </div>
+    </em-modal>
+</template>

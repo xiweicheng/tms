@@ -7,6 +7,7 @@ import java.util.Date;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.jayway.jsonpath.JsonPath;
 import com.lhjz.portal.pojo.Enum.Prop;
 import com.lhjz.portal.pojo.Enum.SchedulePriority;
 import com.lhjz.portal.pojo.Enum.Status;
@@ -92,6 +93,13 @@ public class CommonUtilTest {
 	public static void main(String[] args) {
 		System.out.println(ToType.valueOf("Channel"));
 		System.out.println(SchedulePriority.Middle.name());
+		System.out.println(StringUtil.replace("xx{~{?1}}xxx", "cccc"));
+		
+		System.out.println(StringUtil.parseUrl("http://jira00.sh1.newtouch.com/rest/api/2/issue/13701"));
+	
+		String read = JsonPath.read("{}", "$.name");
+		System.out.println(read);
+	
 	}
 
 	// public static void main(String[] args) {

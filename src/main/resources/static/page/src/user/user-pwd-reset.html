@@ -1,0 +1,23 @@
+<template>
+    <require from="./user-pwd-reset.css"></require>
+    <div class="ui container tms-user-pwd-reset">
+        <div class="tms-flex">
+            <div if.bind="!token" ref="fm" class="ui form segment" style="width: 260px;">
+                <div class="ui message">输入您的邮箱地址,我们会发送密码重置链接到您的邮箱!</div>
+                <div class="field">
+                    <label style="display:none;">邮件地址</label>
+                    <input type="text" name="mail" autofocus="" value.bind="mail" placeholder="输入您的邮件地址">
+                </div>
+                <div class="ui green fluid button ${isReq ? 'disabled' : ''}" click.delegate="resetPwdHandler()">发送密码重置邮件</div>
+            </div>
+            <div if.bind="token" ref="fm2" class="ui form segment" style="width: 260px;">
+                <div class="ui message">设置您的新密码,密码长度要求至少8位字符!</div>
+                <div class="field">
+                    <label style="display:none;">新密码</label>
+                    <input type="password" name="mail" autofocus="" value.bind="pwd" placeholder="设置您的新密码">
+                </div>
+                <div class="ui green fluid button ${isReq ? 'disabled' : ''}" click.delegate="newPwdHandler()">确认</div>
+            </div>
+        </div>
+    </div>
+</template>

@@ -3,6 +3,8 @@
  */
 package com.lhjz.portal.repository;
 
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -29,4 +31,6 @@ public interface LogRepository extends JpaRepository<Log, Long> {
 
 	@Query(value = "SELECT COUNT(*) FROM log WHERE target = 'Translate' AND id > ?1", nativeQuery = true)
 	long countQueryRecent(Long lastEvtId);
+	
+	List<Log> findByTargetInAndCreateDateAfter(Collection<Target> targets, Date dateAfter);
 }
