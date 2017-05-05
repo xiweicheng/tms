@@ -58,6 +58,7 @@ import com.lhjz.portal.entity.Comment;
 import com.lhjz.portal.entity.Log;
 import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.SpaceAuthority;
+import com.lhjz.portal.entity.Tag;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.BlogSearchResult;
 import com.lhjz.portal.model.Mail;
@@ -79,6 +80,7 @@ import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.CommentRepository;
 import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.SpaceRepository;
+import com.lhjz.portal.repository.TagRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
@@ -142,6 +144,9 @@ public class BlogController extends BaseController {
 	
 	@Autowired
 	LogRepository logRepository;
+	
+	@Autowired
+	TagRepository tagRepository;
 
 	@Autowired
 	MailSender2 mailSender;
@@ -1755,6 +1760,65 @@ public class BlogController extends BaseController {
 		}).limit(100).collect(Collectors.toList());
 
 		return RespBody.succeed(logs);
+	}
+	
+	@RequestMapping(value = "tag/add", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody addTag(@RequestParam("id") Long id, @RequestParam("tags") String tags) {
+
+		Blog blog = blogRepository.findOne(id);
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限为该博文添加标签!");
+		}
+
+		User loginUser = getLoginUser();
+
+		if (StringUtil.isNotEmpty(tags)) {
+			Stream.of(tags.split(",")).forEach(t -> {
+				Tag tag = tagRepository.findOneByNameAndCreator(t, loginUser);
+				if (tag == null) {
+					Tag tag2 = new Tag();
+					tag2.setName(t);
+					tag2.getBlogs().add(blog);
+
+					tag = tagRepository.saveAndFlush(tag2);
+				} else {
+					tag.getBlogs().add(blog);
+					tagRepository.saveAndFlush(tag);
+				}
+
+				blog.getTags().add(tag);
+
+			});
+		}
+
+		return RespBody.succeed(blog);
+	}
+	
+	@RequestMapping(value = "tag/remove", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody removeTag(@RequestParam("id") Long id, @RequestParam("tags") String tags) {
+
+		Blog blog = blogRepository.findOne(id);
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限移除该博文的标签!");
+		}
+
+		if (StringUtil.isNotEmpty(tags)) {
+			Stream.of(tags.split(",")).forEach(t -> {
+				Tag tag = tagRepository.findOne(Long.valueOf(t));
+				if (tag != null) {
+					tag.getBlogs().remove(blog);
+
+					tagRepository.saveAndFlush(tag);
+
+					blog.getTags().remove(tag);
+				}
+
+			});
+		}
+
+		return RespBody.succeed(blog);
 	}
 
 }
