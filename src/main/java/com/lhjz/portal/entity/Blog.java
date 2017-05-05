@@ -61,6 +61,9 @@ public class Blog implements Serializable {
 
 	@Column
 	private Boolean privated = Boolean.FALSE;
+	
+	@Column
+	private Boolean opened = Boolean.FALSE;
 
 	@ManyToOne
 	@JoinColumn(name = "creator")
@@ -262,6 +265,14 @@ public class Blog implements Serializable {
 		this.blogAuthorities = blogAuthorities;
 	}
 
+	public Boolean getOpened() {
+		return opened;
+	}
+
+	public void setOpened(Boolean opened) {
+		this.opened = opened;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -290,10 +301,10 @@ public class Blog implements Serializable {
 	@Override
 	public String toString() {
 		return "Blog [id=" + id + ", title=" + title + ", content=" + content + ", openEdit=" + openEdit + ", privated="
-				+ privated + ", creator=" + creator + ", updater=" + updater + ", createDate=" + createDate
-				+ ", updateDate=" + updateDate + ", status=" + status + ", type=" + type + ", voteZan=" + voteZan
-				+ ", voteCai=" + voteCai + ", voteZanCnt=" + voteZanCnt + ", voteCaiCnt=" + voteCaiCnt + ", readCnt="
-				+ readCnt + ", space=" + space + ", version=" + version + "]";
+				+ privated + ", opened=" + opened + ", creator=" + creator + ", updater=" + updater + ", createDate="
+				+ createDate + ", updateDate=" + updateDate + ", status=" + status + ", type=" + type + ", voteZan="
+				+ voteZan + ", voteCai=" + voteCai + ", voteZanCnt=" + voteZanCnt + ", voteCaiCnt=" + voteCaiCnt
+				+ ", readCnt=" + readCnt + ", space=" + space + ", version=" + version + "]";
 	}
 
 }

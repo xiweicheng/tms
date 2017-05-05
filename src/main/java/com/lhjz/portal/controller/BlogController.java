@@ -151,6 +151,7 @@ public class BlogController extends BaseController {
 	public RespBody create(@RequestParam("url") String url,
 			@RequestParam(value = "spaceId", required = false) Long spaceId,
 			@RequestParam(value = "privated", required = false) Boolean privated,
+			@RequestParam(value = "opened", required = false) Boolean opened,
 			@RequestParam(value = "usernames", required = false) String usernames, @RequestParam("title") String title,
 			@RequestParam("content") String content, @RequestParam("contentHtml") String contentHtml) {
 
@@ -176,6 +177,10 @@ public class BlogController extends BaseController {
 
 		if (privated != null) {
 			blog.setPrivated(privated);
+		}
+		
+		if (opened != null) {
+			blog.setOpened(opened);
 		}
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
@@ -1038,10 +1043,35 @@ public class BlogController extends BaseController {
 		}
 
 		blog.setPrivated(privated);
+		if(privated) {
+			blog.setOpened(false);
+		}
 		
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 
 		logWithProperties(Action.Update, Target.Blog, id, "privated", privated, blog.getTitle());
+
+		return RespBody.succeed(blog2);
+	}	
+
+	@RequestMapping(value = "opened/update", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody updateOpened(@RequestParam("id") Long id, @RequestParam("opened") Boolean opened) {
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限修改该博文的可见性!");
+		}
+
+		blog.setOpened(opened);
+		if(opened) {
+			blog.setPrivated(false);
+		}
+		
+		Blog blog2 = blogRepository.saveAndFlush(blog);
+
+		logWithProperties(Action.Update, Target.Blog, id, "opened", opened, blog.getTitle());
 
 		return RespBody.succeed(blog2);
 	}
@@ -1288,6 +1318,10 @@ public class BlogController extends BaseController {
 		if (s.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
 			return false;
 		}
+		
+		if(Boolean.TRUE.equals(s.getOpened())) {
+			return true;
+		}
 
 		User loginUser = new User(WebUtil.getUsername());
 
@@ -1334,6 +1368,10 @@ public class BlogController extends BaseController {
 
 		// 过滤掉没有权限的
 		if (b.getCreator().equals(loginUser)) { // 我创建的
+			return true;
+		}
+		
+		if(Boolean.TRUE.equals(b.getOpened())) {
 			return true;
 		}
 

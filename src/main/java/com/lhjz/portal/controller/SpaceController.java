@@ -66,6 +66,7 @@ public class SpaceController extends BaseController {
 	@ResponseBody
 	public RespBody create(@RequestParam("name") String name,
 			@RequestParam(value = "desc", required = false) String desc,
+			@RequestParam(value = "opened", required = false) Boolean opened,
 			@RequestParam(value = "privated", required = false) Boolean privated) {
 
 		if (StringUtil.isEmpty(name)) {
@@ -86,6 +87,9 @@ public class SpaceController extends BaseController {
 		}
 		if (privated != null) {
 			space.setPrivated(privated);
+		}
+		if (opened != null) {
+			space.setOpened(opened);
 		}
 
 		Space space2 = spaceRepository.saveAndFlush(space);
@@ -110,6 +114,7 @@ public class SpaceController extends BaseController {
 	@ResponseBody
 	public RespBody update(@RequestParam("id") Long id, @RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "desc", required = false) String desc,
+			@RequestParam(value = "opened", required = false) Boolean opened,
 			@RequestParam(value = "privated", required = false) Boolean privated) {
 
 		Space space = spaceRepository.findOne(id);
@@ -126,6 +131,15 @@ public class SpaceController extends BaseController {
 		}
 		if (privated != null) {
 			space.setPrivated(privated);
+			if(privated) {
+				space.setOpened(false);
+			}
+		}
+		if (opened != null) {
+			space.setOpened(opened);
+			if(opened) {
+				space.setPrivated(false);
+			}
 		}
 
 		Space space2 = spaceRepository.saveAndFlush(space);
@@ -186,6 +200,10 @@ public class SpaceController extends BaseController {
 
 		// 过滤掉没有权限的
 		if (s.getCreator().equals(loginUser)) { // 我创建的
+			return true;
+		}
+		
+		if(Boolean.TRUE.equals(s.getOpened())) {
 			return true;
 		}
 
