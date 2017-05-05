@@ -1767,7 +1767,8 @@ public class BlogController extends BaseController {
 	public RespBody addTag(@RequestParam("id") Long id, @RequestParam("tags") String tags) {
 
 		Blog blog = blogRepository.findOne(id);
-		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+		Boolean isOpenEdit = blog.getOpenEdit() == null ? false : blog.getOpenEdit();
+		if (!isSuperOrCreator(blog.getCreator().getUsername()) && !isOpenEdit) {
 			return RespBody.failed("您没有权限为该博文添加标签!");
 		}
 
@@ -1800,7 +1801,8 @@ public class BlogController extends BaseController {
 	public RespBody removeTag(@RequestParam("id") Long id, @RequestParam("tags") String tags) {
 
 		Blog blog = blogRepository.findOne(id);
-		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+		Boolean isOpenEdit = blog.getOpenEdit() == null ? false : blog.getOpenEdit();
+		if (!isSuperOrCreator(blog.getCreator().getUsername()) && !isOpenEdit) {
 			return RespBody.failed("您没有权限移除该博文的标签!");
 		}
 
