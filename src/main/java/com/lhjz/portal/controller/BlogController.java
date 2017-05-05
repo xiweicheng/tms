@@ -1820,5 +1820,14 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(blog);
 	}
+	
+	@RequestMapping(value = "tag/my", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody myTag() {
+		
+		List<Tag> tags = tagRepository.findByCreator(getLoginUser());
+		
+		return RespBody.succeed(tags);
+	}
 
 }
