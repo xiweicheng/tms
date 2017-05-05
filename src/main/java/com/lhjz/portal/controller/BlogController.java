@@ -1804,9 +1804,11 @@ public class BlogController extends BaseController {
 			return RespBody.failed("您没有权限移除该博文的标签!");
 		}
 
+		User loginUser = getLoginUser();
+		
 		if (StringUtil.isNotEmpty(tags)) {
 			Stream.of(tags.split(",")).forEach(t -> {
-				Tag tag = tagRepository.findOne(Long.valueOf(t));
+				Tag tag = tagRepository.findOneByNameAndCreator(t, loginUser);
 				if (tag != null) {
 					tag.getBlogs().remove(blog);
 
