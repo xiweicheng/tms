@@ -29,6 +29,10 @@ public class Enum {
 		Team, Own;
 	}
 	
+	public static enum TagType {
+		Blog;
+	}
+	
 	public static enum SpaceType {
 		Team, Own;
 	}

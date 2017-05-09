@@ -60,6 +60,9 @@ public class Space implements Serializable {
 
 	@Column
 	private Boolean privated = Boolean.FALSE;
+	
+	@Column
+	private Boolean opened = Boolean.FALSE;
 
 	@ManyToOne
 	@JoinColumn(name = "creator")
@@ -201,11 +204,20 @@ public class Space implements Serializable {
 		this.spaceAuthorities = spaceAuthorities;
 	}
 
+	public Boolean getOpened() {
+		return opened;
+	}
+
+	public void setOpened(Boolean opened) {
+		this.opened = opened;
+	}
+
 	@Override
 	public String toString() {
 		return "Space [id=" + id + ", name=" + name + ", description=" + description + ", privated=" + privated
-				+ ", creator=" + creator + ", updater=" + updater + ", createDate=" + createDate + ", updateDate="
-				+ updateDate + ", status=" + status + ", type=" + type + ", version=" + version + "]";
+				+ ", opened=" + opened + ", creator=" + creator + ", updater=" + updater + ", createDate=" + createDate
+				+ ", updateDate=" + updateDate + ", status=" + status + ", type=" + type + ", blogs=" + blogs
+				+ ", version=" + version + "]";
 	}
 
 }
