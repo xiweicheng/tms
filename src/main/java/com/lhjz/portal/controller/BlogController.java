@@ -1767,7 +1767,8 @@ public class BlogController extends BaseController {
 	public RespBody addTag(@RequestParam("id") Long id, @RequestParam("tags") String tags) {
 
 		Blog blog = blogRepository.findOne(id);
-		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+		Boolean isOpenEdit = blog.getOpenEdit() == null ? false : blog.getOpenEdit();
+		if (!isSuperOrCreator(blog.getCreator().getUsername()) && !isOpenEdit) {
 			return RespBody.failed("您没有权限为该博文添加标签!");
 		}
 
@@ -1800,13 +1801,16 @@ public class BlogController extends BaseController {
 	public RespBody removeTag(@RequestParam("id") Long id, @RequestParam("tags") String tags) {
 
 		Blog blog = blogRepository.findOne(id);
-		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+		Boolean isOpenEdit = blog.getOpenEdit() == null ? false : blog.getOpenEdit();
+		if (!isSuperOrCreator(blog.getCreator().getUsername()) && !isOpenEdit) {
 			return RespBody.failed("您没有权限移除该博文的标签!");
 		}
 
+		User loginUser = getLoginUser();
+		
 		if (StringUtil.isNotEmpty(tags)) {
 			Stream.of(tags.split(",")).forEach(t -> {
-				Tag tag = tagRepository.findOne(Long.valueOf(t));
+				Tag tag = tagRepository.findOneByNameAndCreator(t, loginUser);
 				if (tag != null) {
 					tag.getBlogs().remove(blog);
 
@@ -1819,6 +1823,15 @@ public class BlogController extends BaseController {
 		}
 
 		return RespBody.succeed(blog);
+	}
+	
+	@RequestMapping(value = "tag/my", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody myTag() {
+		
+		List<Tag> tags = tagRepository.findByCreator(getLoginUser());
+		
+		return RespBody.succeed(tags);
 	}
 
 }

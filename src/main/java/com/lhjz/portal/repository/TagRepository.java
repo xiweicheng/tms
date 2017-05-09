@@ -3,6 +3,8 @@
  */
 package com.lhjz.portal.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.lhjz.portal.entity.Tag;
@@ -18,5 +20,7 @@ import com.lhjz.portal.entity.security.User;
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
 	Tag findOneByNameAndCreator(String name, User creator);
+	
+	List<Tag> findByCreator(User creator);
 
 }
