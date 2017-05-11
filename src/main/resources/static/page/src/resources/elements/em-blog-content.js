@@ -266,9 +266,51 @@ export class EmBlogContent {
                 this.blog = data.data;
                 ea.publish(nsCons.EVENT_BLOG_VIEW_CHANGED, this.blog);
                 _.defer(() => this.catalogHandler(true));
+                this.getMyTags();
             } else {
                 toastr.error(data.data, "获取博文失败!");
             }
+        });
+    }
+
+    getMyTags() {
+        $.get('/admin/blog/tag/my', (data) => {
+            let tags = [];
+            if (data.success) {
+                tags = data.data;
+            }
+            this.tags = _.unionBy(tags, this.blog.tags, 'name');
+
+            _.defer(() => {
+                let tags = _.map(this.blog.tags, "name");
+                $(this.tagsRef).dropdown({}).dropdown('clear').dropdown('set selected', tags).dropdown({
+                    allowAdditions: true,
+                    onAdd: (addedValue, addedText, $addedChoice) => {
+                        $.post('/admin/blog/tag/add', {
+                            id: this.blog.id,
+                            tags: addedValue
+                        }, (data, textStatus, xhr) => {
+                            if (data.success) {
+                                toastr.success('添加标签成功!');
+                            } else {
+                                toastr.error(data.data, '添加标签失败!');
+                            }
+                        });
+                    },
+                    onLabelRemove: (removedValue) => {
+                        $.post('/admin/blog/tag/remove', {
+                            id: this.blog.id,
+                            tags: removedValue
+                        }, (data, textStatus, xhr) => {
+                            if (data.success) {
+                                toastr.success('移除标签成功!');
+                            } else {
+                                toastr.error(data.data, '移除标签失败!');
+                            }
+                        });
+                    }
+                });
+            });
         });
     }
 

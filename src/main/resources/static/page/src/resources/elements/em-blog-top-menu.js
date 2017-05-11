@@ -40,9 +40,13 @@ export class EmBlogTopMenu {
             .search({
                 type: 'category',
                 minCharacters: 2,
+                selectFirstResult: true,
                 onSelect: (result, response) => {
                     $(this.searchRef).search('hide results');
-                    _.defer(() => $(this.searchRef).find('input').blur());
+                    _.defer(() => {
+                        $(this.searchRef).find('input').blur();
+                        ea.publish(nsCons.EVENT_APP_ROUTER_NAVIGATE, { to: result.url });
+                    });
                     return false;
                 },
                 apiSettings: {

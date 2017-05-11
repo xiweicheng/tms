@@ -81,6 +81,16 @@
             <div swipebox ref="mkbodyRef" class="markdown-body" innerhtml.bind="blog.content | parseMd | emoji:mkbodyRef"></div>
             <div class="footer">
                 <span click.delegate="rateHandler()" class="rate"><i class="link icon thumbs outline up"></i>${blog.voteZan && blog.voteZan.split(',').includes(loginUser.username) ? '踩' : '赞'}</span> <span show.bind="!blog.voteZanCnt">成为第一个赞同者</span> <span show.bind="blog.voteZan && blog.voteZan.split(',').includes(loginUser.username)">你赞了它</span> <span show.bind="blog.voteZan && !blog.voteZan.split(',').includes(loginUser.username)" title="${blog.voteZan}"><a href="javascript:void(0);">${blog.voteZanCnt}</a>人赞了它</span>
+                <div class="tags">
+                    <div ref="tagsRef" class="ui fluid multiple search selection dropdown ${isSuper || blog.openEdit || blog.creator.username == loginUser.username ? '' : 'disabled'}">
+                        <input name="tags" type="hidden">
+                        <!-- <i class="dropdown icon"></i> -->
+                        <div class="default text">标签</div>
+                        <div class="menu">
+                            <div repeat.for="item of tags" class="item" data-value="${item.name}">${item.name}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <em-blog-comment blog.bind="blog"></em-blog-comment>
         </div>
@@ -100,110 +110,116 @@
                 <div class="content">博文更新</div>
                 </h3>
                 <button click.delegate="refreshFeedHandler()" style="position: absolute; right: 0; top: 2px;" class="circular ui icon button ${(ajaxS && ajaxS.readyState != 4) ? 'disabled' : ''}" data-tooltip="刷新博文更新" data-position="top right">
-                    <i class="icon refresh ${(ajaxS && ajaxS.readyState != 4) ? 'loading' : ''}""></i>
+                    <i class="icon refresh ${(ajaxS && ajaxS.readyState != 4) ? 'loading' : ''}" "></i>
                 </button>
-                <div if.bind="!logs || logs.length == 0" class="ui info massive message">
+                <div if.bind="!logs || logs.length==0 " class="ui info massive message ">
                     ${(ajaxS && ajaxS.readyState != 4) ? '博文更新内容加载中...' : '暂无博文更新!'}
                 </div>
-                <div repeat.for="item of logs" mouseleave.trigger="feedEventItemMouseleaveHandler(item)" class="event ${item.isOpen ? 'opened' : ''}">
-                    <div class="label">
-                        <em-user-avatar user.bind="item.creator"></em-user-avatar>
+                <div repeat.for="item of logs " mouseleave.trigger="feedEventItemMouseleaveHandler(item) " class="event ${item.isOpen ? 'opened' : ''} ">
+                    <div class="label ">
+                        <em-user-avatar user.bind="item.creator "></em-user-avatar>
                     </div>
-                    <div class="content">
-                        <div class="summary">
-                            <a class="user author" data-value="${item.creator.username}">${item.creator.name}</a>
-                            <template if.bind="item.target == 'Blog'">
-                                <span if.bind="item.action == 'Create'">创建了博文 <a href="#/blog/${item.targetId}">${item.newValue}</a></span>
-                                <span if.bind="item.action == 'Delete'">删除了博文 <a href="javascript:void(0);">${item.newValue}</a></span>
-                                <template if.bind="item.action == 'Update' && item.properties == 'content'">
-                                    <span>更新了博文 <a href="#/blog/${item.targetId}">${item.oldValue}</a> 的内容</span>
+                    <div class="content ">
+                        <div class="summary ">
+                            <a class="user author " data-value="${item.creator.username} ">${item.creator.name}</a>
+                            <template if.bind="item.target=='Blog' ">
+                                <span if.bind="item.action=='Create' ">创建了博文 <a href="#/blog/${item.targetId} ">${item.newValue}</a></span>
+                                <span if.bind="item.action=='Delete' ">删除了博文 <a href="javascript:void(0); ">${item.newValue}</a></span>
+                                <template if.bind="item.action=='Update' && item.properties=='content' ">
+                                    <span>更新了博文 <a href="#/blog/${item.targetId} ">${item.oldValue}</a> 的内容</span>
                                 </template>
-                                <template if.bind="item.action == 'Update' && item.properties == 'title'">
-                                    <span>更新了博文 <a href="#/blog/${item.targetId}">${item.newValue}</a> 的标题</span>
+                                <template if.bind="item.action=='Update' && item.properties=='title' ">
+                                    <span>更新了博文 <a href="#/blog/${item.targetId} ">${item.newValue}</a> 的标题</span>
                                 </template>
-                                <template if.bind="item.action == 'Update' && item.properties == 'privated'">
-                                    <span>更新了博文 <a href="#/blog/${item.targetId}">${item.oldValue}</a> 的可见性</span>
+                                <template if.bind="item.action=='Update' && item.properties=='privated' ">
+                                    <span>更新了博文 <a href="#/blog/${item.targetId} ">${item.oldValue}</a> 的可见性</span>
                                 </template>
-                                <template if.bind="item.action == 'Update' && item.properties == 'space'">
-                                    <span>更新了博文 <a href="#/blog/${item.targetId}">${item.oldValue}</a> 的所属空间</span>
+                                <template if.bind="item.action=='Update' && item.properties=='opened' ">
+                                    <span>更新了博文 <a href="#/blog/${item.targetId} ">${item.oldValue}</a> 的可见性</span>
                                 </template>
-                                <template if.bind="item.action == 'Update' && item.properties == 'openEdit'">
-                                    <span>${item.newValue == 'true' ? '开放' : '关闭'}了博文 <a href="#/blog/${item.targetId}">${item.oldValue}</a> 的协作编辑权限</span>
+                                <template if.bind="item.action=='Update' && item.properties=='space' ">
+                                    <span>更新了博文 <a href="#/blog/${item.targetId} ">${item.oldValue}</a> 的所属空间</span>
                                 </template>
-                                <template if.bind="item.action == 'Update' && item.properties == 'voteZan'">
-                                    <span>投票赞了博文 <a href="#/blog/${item.targetId}">${item.newValue}</a> </span>
+                                <template if.bind="item.action=='Update' && item.properties=='openEdit' ">
+                                    <span>${item.newValue == 'true' ? '开放' : '关闭'}了博文 <a href="#/blog/${item.targetId} ">${item.oldValue}</a> 的协作编辑权限</span>
                                 </template>
-                                <template if.bind="item.action == 'Update' && item.properties == 'stow'">
-                                    <span>收藏了博文 <a href="#/blog/${item.targetId}">${item.newValue}</a> </span>
+                                <template if.bind="item.action=='Update' && item.properties=='voteZan' ">
+                                    <span>投票赞了博文 <a href="#/blog/${item.targetId} ">${item.newValue}</a> </span>
                                 </template>
-                                <template if.bind="item.action == 'Update' && item.properties == 'follower'">
-                                    <span>关注了博文 <a href="#/blog/${item.targetId}">${item.newValue}</a> </span>
+                                <template if.bind="item.action=='Update' && item.properties=='stow' ">
+                                    <span>收藏了博文 <a href="#/blog/${item.targetId} ">${item.newValue}</a> </span>
                                 </template>
-                            </template>
-                            <template if.bind="item.target == 'Comment'">
-                                <span if.bind="item.action == 'Create'">添加了评论 <a href="#/blog/${item.oldValue}?cid=${item.targetId}">#${item.targetId}</a></span>
-                                <span if.bind="item.action == 'Delete'">删除了评论 <a href="javascript:void(0);">#${item.targetId}</a></span>
-                                <template if.bind="item.action == 'Update' && item.properties == 'content'">
-                                    <span>更新了评论 <a href="#/blog/${item.oldValue}?cid=${item.targetId}">#${item.targetId}</a> 的内容</span>
-                                </template>
-                                <template if.bind="item.action == 'Update' && item.properties == 'voteZan'">
-                                    <span>投票赞了评论 <a href="#/blog/${item.newValue}?cid=${item.targetId}">#${item.targetId}</a> </span>
+                                <template if.bind="item.action=='Update' && item.properties=='follower' ">
+                                    <span>关注了博文 <a href="#/blog/${item.targetId} ">${item.newValue}</a> </span>
                                 </template>
                             </template>
-                            <div class="date" title="${item.createDate | date}">
+                            <template if.bind="item.target=='Comment' ">
+                                <span if.bind="item.action=='Create' ">添加了评论 <a href="#/blog/${item.oldValue}?cid=${item.targetId} ">#${item.targetId}</a></span>
+                                <span if.bind="item.action=='Delete' ">删除了评论 <a href="javascript:void(0); ">#${item.targetId}</a></span>
+                                <template if.bind="item.action=='Update' && item.properties=='content' ">
+                                    <span>更新了评论 <a href="#/blog/${item.oldValue}?cid=${item.targetId} ">#${item.targetId}</a> 的内容</span>
+                                </template>
+                                <template if.bind="item.action=='Update' && item.properties=='voteZan' ">
+                                    <span>投票赞了评论 <a href="#/blog/${item.newValue}?cid=${item.targetId} ">#${item.targetId}</a> </span>
+                                </template>
+                            </template>
+                            <div class="date " title="${item.createDate | date} ">
                                 ${item.createDate | timeago}
                             </div>
                         </div>
-                        <template if.bind="item.target == 'Blog'">
-                            <template if.bind="item.action == 'Update' && item.properties == 'content'">
-                                <div class="extra text">
-                                    <!-- <div textcontent.bind="item.newValue"></div> -->
-                                    <div innerhtml.bind="item.newValue | diffHtml"></div>
-                                    <div class="btn-open" click.delegate="openFeedEventItemHandler(item)">
-                                        <i title="${item.isOpen ? '点击收起' : '点击展开'}" class="angle double ${item.isOpen ? 'up' : 'down'} large icon"></i>
+                        <template if.bind="item.target=='Blog' ">
+                            <template if.bind="item.action=='Update' && item.properties=='content' ">
+                                <div class="extra text ">
+                                    <!-- <div textcontent.bind="item.newValue "></div> -->
+                                    <div innerhtml.bind="item.newValue | diffHtml "></div>
+                                    <div class="btn-open " click.delegate="openFeedEventItemHandler(item) ">
+                                        <i title="${item.isOpen ? '点击收起' : '点击展开'} " class="angle double ${item.isOpen ? 'up' : 'down'} large icon "></i>
                                     </div>
                                 </div>
                             </template>
-                            <template if.bind="item.action == 'Update' && item.properties == 'title'">
-                                <div class="extra text">原标题: ${item.oldValue}</div>
+                            <template if.bind="item.action=='Update' && item.properties=='title' ">
+                                <div class="extra text ">原标题: ${item.oldValue}</div>
                             </template>
-                            <template if.bind="item.action == 'Update' && item.properties == 'privated'">
-                                <div class="extra text">可见性修改为: ${item.newValue == 'true' ? '私有' : '公开'}</div>
+                            <template if.bind="item.action=='Update' && item.properties=='privated' ">
+                                <div class="extra text ">可见性修改为: ${item.newValue == 'true' ? '私有' : '公开'}</div>
                             </template>
-                            <template if.bind="item.action == 'Update' && item.properties == 'space'">
-                                <div class="extra text">所属空间修改为: ${item.newValue}</div>
+                            <template if.bind="item.action=='Update' && item.properties=='opened' ">
+                                <div class="extra text ">可见性修改为: ${item.newValue == 'true' ? '游客(匿名访客)可见' : '游客(匿名访客)不可见'}</div>
+                            </template>
+                            <template if.bind="item.action=='Update' && item.properties=='space' ">
+                                <div class="extra text ">所属空间修改为: ${item.newValue}</div>
                             </template>
                         </template>
-                        <template if.bind="item.target == 'Comment'">
-                            <template if.bind="item.action == 'Create'">
-                                <div ref="mkbodyRef2" class="extra text markdown-body">
-                                    <div swipebox innerhtml.bind="item.newValue | parseMd | emoji:mkbodyRef2"></div>
-                                    <div class="btn-open" click.delegate="openFeedEventItemHandler(item)">
-                                        <i title="${item.isOpen ? '点击收起 (o)' : '点击展开 (o)'}" class="angle double ${item.isOpen ? 'up' : 'down'} large icon"></i>
+                        <template if.bind="item.target=='Comment' ">
+                            <template if.bind="item.action=='Create' ">
+                                <div ref="mkbodyRef2 " class="extra text markdown-body ">
+                                    <div swipebox innerhtml.bind="item.newValue | parseMd | emoji:mkbodyRef2 "></div>
+                                    <div class="btn-open " click.delegate="openFeedEventItemHandler(item) ">
+                                        <i title="${item.isOpen ? '点击收起 (o)' : '点击展开 (o)'} " class="angle double ${item.isOpen ? 'up' : 'down'} large icon "></i>
                                     </div>
                                 </div>
                             </template>
-                            <template if.bind="item.action == 'Delete'">
-                                <div ref="mkbodyRef2" class="extra text markdown-body">
-                                    <div swipebox innerhtml.bind="item.newValue | parseMd | emoji:mkbodyRef2"></div>
-                                    <div class="btn-open" click.delegate="openFeedEventItemHandler(item)">
-                                        <i title="${item.isOpen ? '点击收起 (o)' : '点击展开 (o)'}" class="angle double ${item.isOpen ? 'up' : 'down'} large icon"></i>
+                            <template if.bind="item.action=='Delete' ">
+                                <div ref="mkbodyRef2 " class="extra text markdown-body ">
+                                    <div swipebox innerhtml.bind="item.newValue | parseMd | emoji:mkbodyRef2 "></div>
+                                    <div class="btn-open " click.delegate="openFeedEventItemHandler(item) ">
+                                        <i title="${item.isOpen ? '点击收起 (o)' : '点击展开 (o)'} " class="angle double ${item.isOpen ? 'up' : 'down'} large icon "></i>
                                     </div>
                                 </div>
                             </template>
                             <template if.bind="item.action=='Update' && item.properties=='content' ">
-                                <div class="extra text">
+                                <div class="extra text ">
                                     <div innerhtml.bind="item.newValue | diffHtml "></div>
-                                    <div class="btn-open" click.delegate="openFeedEventItemHandler(item)">
-                                        <i title="${item.isOpen ? '点击收起 (o)' : '点击展开 (o)'}" class="angle double ${item.isOpen ? 'up' : 'down'} large icon"></i>
+                                    <div class="btn-open " click.delegate="openFeedEventItemHandler(item) ">
+                                        <i title="${item.isOpen ? '点击收起 (o)' : '点击展开 (o)'} " class="angle double ${item.isOpen ? 'up' : 'down'} large icon "></i>
                                     </div>
                                 </div>
                             </template>
                             <template if.bind="item.action=='Update' && item.properties=='voteZan' ">
-                                <div ref="mkbodyRef2 " class="extra text markdown-body">
-                                    <div swipebox innerhtml.bind="item.oldValue | parseMd | emoji:mkbodyRef2"></div>
-                                    <div class="btn-open" click.delegate="openFeedEventItemHandler(item)">
-                                        <i title="${item.isOpen ? '点击收起 (o)' : '点击展开 (o)'}" class="angle double ${item.isOpen ? 'up' : 'down'} large icon"></i>
+                                <div ref="mkbodyRef2 " class="extra text markdown-body ">
+                                    <div swipebox innerhtml.bind="item.oldValue | parseMd | emoji:mkbodyRef2 "></div>
+                                    <div class="btn-open " click.delegate="openFeedEventItemHandler(item) ">
+                                        <i title="${item.isOpen ? '点击收起 (o)' : '点击展开 (o)'} " class="angle double ${item.isOpen ? 'up' : 'down'} large icon "></i>
                                     </div>
                                 </div>
                             </template>

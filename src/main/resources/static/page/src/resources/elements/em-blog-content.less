@@ -101,6 +101,20 @@
             cursor: pointer;
             color: #4183c4;
         }
+        > .tags {
+            float: right;
+            .ui.selection.dropdown {
+                border: none;
+                &:hover {
+                    box-shadow: 0 0px 1px 0px #2185d0;
+                }
+            }
+        }
+        &:after {
+            content: '';
+            clear: both;
+            display: block;
+        }
     }
     > .ui.feed {
         margin-bottom: 25px!important;

@@ -7,10 +7,18 @@
                 <i class="warning icon"></i> 设置为私有${type == 'blog' ? '博文' : '空间'}后,可见性限制才会有效!
             </div>
             <form class="ui form">
-                <div class="field">
-                    <div ref="chk" class="ui checkbox">
-                        <input type="checkbox" tabindex="0" class="hidden">
-                        <label><i class="lock icon"></i>私有${type == 'blog' ? '博文' : '空间'}(不公开)</label>
+                <div class="two fields">
+                    <div class="field">
+                        <div ref="chk" class="ui checkbox ${authO.opened ? 'disabled' : ''}">
+                            <input type="checkbox" tabindex="0" class="hidden">
+                            <label><i class="lock icon"></i>私有${type == 'blog' ? '博文' : '空间'}(不公开)</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div ref="chk2" class="ui checkbox ${authO.privated ? 'disabled' : ''}">
+                            <input type="checkbox" tabindex="0" class="hidden">
+                            <label><i class="lock icon"></i>游客(匿名访客)可见</label>
+                        </div>
                     </div>
                 </div>
             </form>
