@@ -156,8 +156,9 @@ public class SpaceController extends BaseController {
 		if (!isSuperOrCreator(space.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限删除该空间!");
 		}
-
-		if (space.getBlogs().size() != 0) {
+		
+		boolean exist = space.getBlogs().stream().anyMatch(s -> !Status.Deleted.equals(s.getStatus()));
+		if (exist) {
 			return RespBody.failed("该空间下存在博文,不能删除,请移除博文后再试!");
 		}
 

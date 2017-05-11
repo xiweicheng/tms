@@ -16,7 +16,7 @@ export class EmBlogSpaceAuth {
      * 当视图被附加到DOM中时被调用
      */
     attached() {
-        $(this.chk).checkbox({
+        $(this.chk).checkbox({ // privated
             onChange: () => {
                 if (this._isBlog()) {
                     $.post('/admin/blog/privated/update', {
@@ -38,6 +38,43 @@ export class EmBlogSpaceAuth {
                     $.post('/admin/space/update', {
                         id: this.authO.id,
                         privated: $(this.chk).checkbox('is checked')
+                    }, (data, textStatus, xhr) => {
+                        if (data.success) {
+                            _.extend(this.authO, data.data);
+                            ea.publish(nsCons.EVENT_SPACE_CHANGED, {
+                                action: 'updated',
+                                space: data.data
+                            });
+                            toastr.success('更新空间可见性成功!');
+                        } else {
+                            toastr.error(data.data, '更新空间可见性失败!');
+                        }
+                    });
+                }
+            }
+        });
+        $(this.chk2).checkbox({ // opened
+            onChange: () => {
+                if (this._isBlog()) {
+                    $.post('/admin/blog/opened/update', {
+                        id: this.authO.id,
+                        opened: $(this.chk2).checkbox('is checked')
+                    }, (data, textStatus, xhr) => {
+                        if (data.success) {
+                            _.extend(this.authO, data.data);
+                            ea.publish(nsCons.EVENT_BLOG_CHANGED, {
+                                action: 'updated',
+                                blog: data.data
+                            });
+                            toastr.success('更新博文可见性成功!');
+                        } else {
+                            toastr.error(data.data, '更新博文可见性失败!');
+                        }
+                    });
+                } else {
+                    $.post('/admin/space/update', {
+                        id: this.authO.id,
+                        opened: $(this.chk2).checkbox('is checked')
                     }, (data, textStatus, xhr) => {
                         if (data.success) {
                             _.extend(this.authO, data.data);
@@ -161,6 +198,7 @@ export class EmBlogSpaceAuth {
     showHandler() {
         this._reset();
         $(this.chk).checkbox(this.authO.privated ? 'set checked' : 'set unchecked');
+        $(this.chk2).checkbox(this.authO.opened ? 'set checked' : 'set unchecked');
         let auths;
         if (this._isBlog()) {
             auths = this.authO.blogAuthorities;
