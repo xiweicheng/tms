@@ -33,7 +33,7 @@ public class OAuth2ClientConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().and().addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
+		http.addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
 	}
 
 	@Bean
