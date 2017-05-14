@@ -3,7 +3,7 @@
 >    
 > 试玩: http://tms000.sh1.newtouch.com/page/index.html  
 > 账号: admin/88888888  user/88888888  
-> repo: http://git.oschina.net/xiweicheng/tms  
+> repo: http://git.oschina.net/xiweicheng/tms  https://github.com/xiweicheng/tms  
 
 ## GIF show
 **主页设计&国际化翻译**
