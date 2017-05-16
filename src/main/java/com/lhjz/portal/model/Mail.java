@@ -159,6 +159,25 @@ public class Mail {
 
 		return this;
 	}
+	
+	/**
+	 * 添加发邮件用户
+	 * 
+	 * @param users
+	 * @return
+	 */
+	public Mail addUsers(Collection<User> users) {
+		
+		if (users != null) {
+			for (User user : users) {
+				if (user.isEnabled()) {
+					this.add(user.getMails());
+				}
+			}
+		}
+		
+		return this;
+	}
 
 	public Mail addWatchers(Translate translate) {
 
