@@ -351,6 +351,7 @@ public class ChannelController extends BaseController {
 		return channel.getMembers().stream().anyMatch(m -> m.equals(new User(WebUtil.getUsername())));
 	}
 	
+	@SuppressWarnings("unused")
 	private boolean hasAuth(Channel channel) {
 		if (channel == null) {
 			return false;
