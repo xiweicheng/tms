@@ -373,15 +373,19 @@ public class FreeController extends BaseController {
 		chatChannel.setContent(sb.toString());
 
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
-		// chatChannelRepository.updateAuditing(user2, user2, new Date(), new
-		// Date(), chatChannel2.getId());
 
+		final Mail mail2 = Mail.instance();
+		
 		if (mail) {
-			final Mail mail2 = Mail.instance();
+			channel2.getMembers().forEach(item -> mail2.addUsers(item));
+		}
+		
+		mail2.addUsers(channel2.getSubscriber());
+		
+		if (!mail2.isEmpty()) {
 			final User loginUser = getLoginUser();
 			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
-			channel2.getMembers().forEach(item -> mail2.addUsers(item));
-
+			
 			final String html = StringUtil.md2Html(sb.toString());
 
 			ThreadUtil.exec(() -> {
@@ -470,12 +474,19 @@ public class FreeController extends BaseController {
 		chatChannel.setContent(sb.toString());
 
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
-
+		
+		final Mail mail2 = Mail.instance();
+		
 		if (mail) {
-			final Mail mail2 = Mail.instance();
+			channel2.getMembers().forEach(item -> mail2.addUsers(item));
+		}
+		
+		mail2.addUsers(channel2.getSubscriber());
+		
+		if (!mail2.isEmpty()) {
+
 			final User loginUser = getLoginUser();
 			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
-			channel2.getMembers().forEach(item -> mail2.addUsers(item));
 
 			final String html = StringUtil.md2Html(sb.toString());
 

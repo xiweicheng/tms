@@ -33,6 +33,10 @@ import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.ChannelType;
 import com.lhjz.portal.pojo.Enum.Status;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 /**
  * 
  * @author xi
@@ -42,6 +46,9 @@ import com.lhjz.portal.pojo.Enum.Status;
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Data
+@ToString(exclude = "members")
+@EqualsAndHashCode(of = { "id" })
 public class Channel implements Serializable {
 
 	private static final long serialVersionUID = 1864577736341309316L;
@@ -98,150 +105,8 @@ public class Channel implements Serializable {
 
 	@ManyToMany(mappedBy = "joinChannels")
 	Set<User> members = new HashSet<User>();
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public Boolean getPrivated() {
-		return privated;
-	}
-
-	public void setPrivated(Boolean privated) {
-		this.privated = privated;
-	}
-
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
-	}
-
-	public User getUpdater() {
-		return updater;
-	}
-
-	public void setUpdater(User updater) {
-		this.updater = updater;
-	}
-
-	public User getOwner() {
-		return owner;
-	}
-
-	public void setOwner(User owner) {
-		this.owner = owner;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public ChannelType getType() {
-		return type;
-	}
-
-	public void setType(ChannelType type) {
-		this.type = type;
-	}
-
-	public Date getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-
-	public Date getUpdateDate() {
-		return updateDate;
-	}
-
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
-	}
-
-	public long getVersion() {
-		return version;
-	}
-
-	public void setVersion(long version) {
-		this.version = version;
-	}
-
-	public Set<User> getMembers() {
-		return members;
-	}
-
-	public void setMembers(Set<User> members) {
-		this.members = members;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Channel other = (Channel) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Channel [id=" + id + ", name=" + name + ", title=" + title + ", description=" + description + ", privated=" + privated
-				+ ", creator=" + creator + ", updater=" + updater + ", owner=" + owner + ", status=" + status
-				+ ", type=" + type + ", createDate=" + createDate + ", updateDate=" + updateDate + ", version="
-				+ version + "]";
-	}
+	
+	@ManyToMany(mappedBy = "subscribeChannels")
+	Set<User> subscriber = new HashSet<User>();
 
 }

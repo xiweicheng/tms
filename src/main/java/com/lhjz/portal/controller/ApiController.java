@@ -86,7 +86,7 @@ public class ApiController extends BaseController {
 		sb.append("> **任务URL:** ").append(fullUrl).append(SysConstant.NEW_LINE);
 		sb.append("> **任务阶段:** ").append(phase).append(SysConstant.NEW_LINE);
 		sb.append("> **任务状态:** ").append(status).append(SysConstant.NEW_LINE);
-		
+
 		if (StringUtil.isNotEmpty(web)) {
 			sb.append("> ").append(SysConstant.NEW_LINE);
 			sb.append(StringUtil.replace("> [点击此访问web服务]({?1})", web)).append(SysConstant.NEW_LINE);
@@ -107,11 +107,18 @@ public class ApiController extends BaseController {
 
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 
+		final Mail mail2 = Mail.instance();
+
 		if (mail) {
-			final Mail mail2 = Mail.instance();
+			channel2.getMembers().forEach(item -> mail2.addUsers(item));
+		}
+
+		mail2.addUsers(channel2.getSubscriber());
+
+		if (!mail2.isEmpty()) {
+
 			final User loginUser = getLoginUser();
 			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
-			channel2.getMembers().forEach(item -> mail2.addUsers(item));
 
 			final String html = StringUtil.md2Html(sb.toString());
 
@@ -142,40 +149,47 @@ public class ApiController extends BaseController {
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "web", required = false) String web,
 			@RequestBody String reqBody) {
-		
+
 		Channel channel2 = channelRepository.findOneByName(channel);
 		if (channel2 == null) {
 			return RespBody.failed("发送消息目的频道不存在!");
 		}
-		
+
 		StringBuffer sb = new StringBuffer();
 		sb.append("## 来自第三方应用推送的消息").append(SysConstant.NEW_LINE);
 		sb.append("> **消息内容:** ").append(SysConstant.NEW_LINE);
 		sb.append("```").append(SysConstant.NEW_LINE);
 		sb.append(reqBody);
 		sb.append("```").append(SysConstant.NEW_LINE);
-		
+
 		if (StringUtil.isNotEmpty(web)) {
 			sb.append("> ").append(SysConstant.NEW_LINE);
 			sb.append(StringUtil.replace("> [点击此访问web服务]({?1})", web)).append(SysConstant.NEW_LINE);
 		}
-		
+
 		ChatChannel chatChannel = new ChatChannel();
 		chatChannel.setChannel(channel2);
 		chatChannel.setContent(sb.toString());
-		
+
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
-		
+
+		final Mail mail2 = Mail.instance();
+
 		if (mail) {
-			final Mail mail2 = Mail.instance();
+			channel2.getMembers().forEach(item -> mail2.addUsers(item));
+		}
+
+		mail2.addUsers(channel2.getSubscriber());
+
+		if (!mail2.isEmpty()) {
+
 			final User loginUser = getLoginUser();
 			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
-			channel2.getMembers().forEach(item -> mail2.addUsers(item));
-			
+
 			final String html = StringUtil.md2Html(sb.toString());
-			
+
 			ThreadUtil.exec(() -> {
-				
+
 				try {
 					Thread.sleep(3000);
 					mailSender.sendHtml(
@@ -188,10 +202,10 @@ public class ApiController extends BaseController {
 					e.printStackTrace();
 					logger.error("沟通频道来自第三方应用推送的消息邮件发送失败！");
 				}
-				
+
 			});
 		}
-		
+
 		return RespBody.succeed();
 	}
 
