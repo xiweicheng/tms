@@ -36,6 +36,7 @@ import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
 import com.lhjz.portal.util.ThreadUtil;
+import com.lhjz.portal.util.WebUtil;
 
 /**
  * 
@@ -340,6 +341,69 @@ public class ChannelController extends BaseController {
 			chatChannelRepository.saveAndFlush(chatChannel);
 		}
 		
+		return RespBody.succeed(channel);
+	}
+	
+	private boolean isMember(Channel channel) {
+		if (channel == null) {
+			return false;
+		}
+		return channel.getMembers().stream().anyMatch(m -> m.equals(new User(WebUtil.getUsername())));
+	}
+	
+	@SuppressWarnings("unused")
+	private boolean hasAuth(Channel channel) {
+		if (channel == null) {
+			return false;
+		}
+
+		if (!channel.getPrivated()) {
+			return true;
+		}
+
+		return isMember(channel);
+
+	}
+	
+	@RequestMapping(value = "subscribe", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody subscribe(@RequestParam("id") Long id) {
+
+		Channel channel = channelRepository.findOne(id);
+
+		if (!isMember(channel)) {
+			return RespBody.failed("非频道成员,无订阅权限!");
+		}
+
+		final User loginUser = getLoginUser();
+
+		if (loginUser.getSubscribeChannels().contains(channel)) {
+			return RespBody.failed("重复订阅该频道!");
+		}
+
+		loginUser.getSubscribeChannels().add(channel);
+		userRepository.saveAndFlush(loginUser);
+
+		channel.getSubscriber().add(loginUser);
+
+		return RespBody.succeed(channel);
+	}
+	
+	@RequestMapping(value = "unsubscribe", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody unsubscribe(@RequestParam("id") Long id) {
+
+		Channel channel = channelRepository.findOne(id);
+
+		final User loginUser = getLoginUser();
+
+		if (loginUser.getSubscribeChannels().contains(channel)) {
+			loginUser.getSubscribeChannels().remove(channel);
+			userRepository.saveAndFlush(loginUser);
+
+			channel.getSubscriber().remove(loginUser);
+		}
+
 		return RespBody.succeed(channel);
 	}
 }
