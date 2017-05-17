@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.Chat;
 import com.lhjz.portal.entity.ChatAt;
@@ -94,7 +94,7 @@ public class ChatController extends BaseController {
 	LabelRepository labelRepository;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	String dynamicAction = "admin/dynamic";
 

@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Setting;
 import com.lhjz.portal.pojo.Enum.SettingType;
 import com.lhjz.portal.repository.SettingRepository;
@@ -25,7 +25,7 @@ public class DataInitConfig {
 	SettingRepository settingRepository;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	@PostConstruct
 	public void init() {

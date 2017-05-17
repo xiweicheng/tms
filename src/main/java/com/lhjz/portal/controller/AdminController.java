@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Chat;
 import com.lhjz.portal.entity.Label;
 import com.lhjz.portal.entity.Language;
@@ -114,7 +114,7 @@ public class AdminController extends BaseController {
 	BlogRepository blogRepository;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	@RequestMapping("login")
 	public String login(Model model) {

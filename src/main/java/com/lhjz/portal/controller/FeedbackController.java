@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Feedback;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.RespBody;
@@ -54,7 +54,7 @@ public class FeedbackController extends BaseController {
 	FeedbackRepository feedbackRepository;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	@Value("${lhjz.mail.to.addresses}")
 	private String toAddrArr;

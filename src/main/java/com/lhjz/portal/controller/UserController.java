@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.security.Authority;
 import com.lhjz.portal.entity.security.AuthorityId;
 import com.lhjz.portal.entity.security.Group;
@@ -75,7 +75,7 @@ public class UserController extends BaseController {
 	PasswordEncoder passwordEncoder;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	@Autowired
 	GroupRepository groupRepository;
