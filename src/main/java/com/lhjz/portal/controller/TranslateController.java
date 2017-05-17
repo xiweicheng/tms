@@ -214,23 +214,14 @@ public class TranslateController extends BaseController {
 		final String href = baseURL + translateAction + "?projectId="
 				+ projectId + "&id=" + translate.getId();
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				mailSender.sendHtml(String.format("TMS-翻译新建_%s",
-						DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/translate-create",
-								MapUtil.objArr2Map("translate", translate,
-										"user", loginUser, "href", href,
-										"project", project, "body",
-										mail2.body())), mail.get());
-				logger.info("翻译新建邮件发送成功！ID:{}", translate.getId());
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("翻译新建邮件发送失败！ID:{}", translate.getId());
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-翻译新建_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/translate-create", MapUtil.objArr2Map("translate", translate,
+							"user", loginUser, "href", href, "project", project, "body", mail2.body())),
+					mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed(translate);
 	}
@@ -317,25 +308,14 @@ public class TranslateController extends BaseController {
 
 			final Project project = translate.getProject();
 
-			ThreadUtil.exec(() -> {
-
-				try {
-					mailSender.sendHtml(String.format("TMS-翻译更新_%s",
-							DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process(
-									"templates/mail/translate-update", MapUtil
-											.objArr2Map("translate", translate,
-													"user", loginUser, "href",
-													href, "project", project,
-													"body", mail2.body())),
-							mail.get());
-					logger.info("翻译更新邮件发送成功！ID:{}", translate.getId());
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("翻译更新邮件发送失败！ID:{}", translate.getId());
-				}
-
-			});
+			try {
+				mailSender.sendHtmlByQueue(String.format("TMS-翻译更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/translate-update", MapUtil.objArr2Map("translate",
+								translate, "user", loginUser, "href", href, "project", project, "body", mail2.body())),
+						mail.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 		} else {
 			logger.error("更新翻译条目不存在! ID: {}", id);
@@ -539,25 +519,14 @@ public class TranslateController extends BaseController {
 
 			final Project project = translate.getProject();
 
-			ThreadUtil.exec(() -> {
-
-				try {
-					mailSender.sendHtml(String.format("TMS-翻译更新_%s",
-							DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process(
-									"templates/mail/translate-update", MapUtil
-											.objArr2Map("translate", translate,
-													"user", loginUser, "href",
-													href, "project", project,
-													"body", mail2.body())),
-							mail.get());
-					logger.info("翻译更新邮件发送成功！ID:{}", translate.getId());
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("翻译更新邮件发送失败！ID:{}", translate.getId());
-				}
-
-			});
+			try {
+				mailSender.sendHtmlByQueue(String.format("TMS-翻译更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/translate-update", MapUtil.objArr2Map("translate",
+								translate, "user", loginUser, "href", href, "project", project, "body", mail2.body())),
+						mail.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 		} else {
 			logger.error("更新翻译不存在! ID: {}", id);
@@ -611,25 +580,14 @@ public class TranslateController extends BaseController {
 
 			final Project project = translate.getProject();
 
-			ThreadUtil.exec(() -> {
-
-				try {
-					mailSender.sendHtml(String.format("TMS-翻译更新_%s",
-							DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process(
-									"templates/mail/translate-update", MapUtil
-											.objArr2Map("translate", translate,
-													"user", loginUser, "href",
-													href, "project", project,
-													"body", mail2.body())),
-							mail.get());
-					logger.info("翻译更新邮件发送成功！ID:{}", translate.getId());
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("翻译更新邮件发送失败！ID:{}", translate.getId());
-				}
-
-			});
+			try {
+				mailSender.sendHtmlByQueue(String.format("TMS-翻译更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/translate-update", MapUtil.objArr2Map("translate",
+								translate, "user", loginUser, "href", href, "project", project, "body", mail2.body())),
+						mail.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 		} else {
 			logger.error("更新翻译不存在! ID: {}", id);
@@ -679,25 +637,16 @@ public class TranslateController extends BaseController {
 		final String href = baseURL + translateAction + "?projectId="
 				+ projectId;
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				mailSender.sendHtml(String.format("TMS-翻译删除_%s",
-						DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/translate-delete",
-								MapUtil.objArr2Map("translate", translate,
-										"user", loginUser, "deleter",
-										loginUser.getUsername(), "deleteDate",
-										new Date(), "href", href, "project",
-										project, "body", mail2.body())), mail
-								.get());
-				logger.info("翻译更删除邮件发送成功！ID:{}", translate.getId());
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("翻译删除邮件发送失败！ID:{}", translate.getId());
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-翻译删除_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/translate-delete",
+							MapUtil.objArr2Map("translate", translate, "user", loginUser, "deleter",
+									loginUser.getUsername(), "deleteDate", new Date(), "href", href, "project", project,
+									"body", mail2.body())),
+					mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed(id);
 	}
@@ -779,23 +728,14 @@ public class TranslateController extends BaseController {
 
 		final Project project = translate.getProject();
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				mailSender.sendHtml(String.format("TMS-翻译更新_%s",
-						DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/translate-update",
-								MapUtil.objArr2Map("translate", translate,
-										"user", loginUser, "href", href,
-										"project", project, "body",
-										mail2.body())), mail.get());
-				logger.info("翻译删除关注者更新邮件发送成功！ID:{}", translate.getId());
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("翻译删除关注者更新邮件发送失败！ID:{}", translate.getId());
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-翻译更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/translate-update", MapUtil.objArr2Map("translate", translate,
+							"user", loginUser, "href", href, "project", project, "body", mail2.body())),
+					mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed(id);
 	}
@@ -899,23 +839,14 @@ public class TranslateController extends BaseController {
 
 		final Project project = translate.getProject();
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				mailSender.sendHtml(String.format("TMS-翻译更新_%s",
-						DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/translate-update",
-								MapUtil.objArr2Map("translate", translate,
-										"user", loginUser, "href", href,
-										"project", project, "body",
-										mail2.body())), mail.get());
-				logger.info("翻译添加关注者更新邮件发送成功！ID:{}", translate.getId());
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("翻译添加关注者更新邮件发送失败！ID:{}", translate.getId());
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-翻译更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/translate-update", MapUtil.objArr2Map("translate", translate,
+							"user", loginUser, "href", href, "project", project, "body", mail2.body())),
+					mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed(user);
 	}

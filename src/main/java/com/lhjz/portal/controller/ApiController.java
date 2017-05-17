@@ -122,22 +122,16 @@ public class ApiController extends BaseController {
 
 			final String html = StringUtil.md2Html(sb.toString());
 
-			ThreadUtil.exec(() -> {
+			try {
+				mailSender.sendHtmlByQueue(
+						String.format("TMS-Jenkins发版报告沟通频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", "Jenkins发版报告频道消息有@到你", "content", html)),
+						mail2.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(
-							String.format("TMS-Jenkins发版报告沟通频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", "Jenkins发版报告频道消息有@到你", "content", html)),
-							mail2.get());
-					logger.info("沟通频道Jenins发版消息邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("沟通频道Jenins发版消息邮件发送失败！");
-				}
-
-			});
 		}
 
 		return RespBody.succeed();
@@ -188,22 +182,16 @@ public class ApiController extends BaseController {
 
 			final String html = StringUtil.md2Html(sb.toString());
 
-			ThreadUtil.exec(() -> {
+			try {
+				mailSender.sendHtmlByQueue(
+						String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
+						mail2.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(
-							String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
-							mail2.get());
-					logger.info("沟通频道来自第三方应用推送的消息邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("沟通频道来自第三方应用推送的消息邮件发送失败！");
-				}
-
-			});
 		}
 
 		return RespBody.succeed();

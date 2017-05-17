@@ -186,24 +186,16 @@ public class ChatController extends BaseController {
 			chatAtRepository.save(chatAtList);
 			chatAtRepository.flush();
 
-			ThreadUtil.exec(() -> {
+			try {
+				mailSender.sendHtmlByQueue(
+						String.format("TMS-沟通动态@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", "下面的沟通消息中有@到你", "content", html)),
+						mail.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(String.format("TMS-沟通动态@消息_%s",
-							DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic",
-									MapUtil.objArr2Map("user", loginUser,
-											"date", new Date(), "href", href,
-											"title", "下面的沟通消息中有@到你", "content",
-											html)), mail.get());
-					logger.info("沟通邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("沟通邮件发送失败！");
-				}
-
-			});
 		}
 
 		if (!preMore && chatRepository.countQueryRecent(lastId) <= 50) {
@@ -330,24 +322,16 @@ public class ChatController extends BaseController {
 			chatAtRepository.save(chatAtList);
 			chatAtRepository.flush();
 
-			ThreadUtil.exec(() -> {
+			try {
+				mailSender.sendHtmlByQueue(
+						String.format("TMS-沟通动态编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", "下面编辑的沟通消息中有@到你", "content", html)),
+						mail.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(String.format("TMS-沟通动态编辑@消息_%s",
-							DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic",
-									MapUtil.objArr2Map("user", loginUser,
-											"date", new Date(), "href", href,
-											"title", "下面编辑的沟通消息中有@到你",
-											"content", html)), mail.get());
-					logger.info("沟通编辑邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("沟通编辑邮件发送失败！");
-				}
-
-			});
 		}
 
 		return RespBody.succeed(chat2);
@@ -636,24 +620,15 @@ public class ChatController extends BaseController {
 		final Mail mail = Mail.instance().addUsers(chat.getCreator());
 		final String html = "<h3>投票沟通消息内容:</h3><hr/>" + contentHtml;
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(String.format("TMS-沟通动态投票@消息_%s",
-						DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic",
-								MapUtil.objArr2Map("user", loginUser, "date",
-										new Date(), "href", href, "title",
-										titleHtml, "content", html)), mail
-								.get());
-				logger.info("沟通消息投票邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("沟通消息投票邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-沟通动态投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
+							mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		log(Action.Vote, Target.Chat, chat.getId(), chat2);
 

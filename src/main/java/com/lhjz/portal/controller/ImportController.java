@@ -373,30 +373,13 @@ public class ImportController extends BaseController {
 			});
 		}
 
-		// 如果邮件通知
-		if (mail.get().length > 0) {
-
-			ThreadUtil.exec(() -> {
-
-				try {
-					mailSender.sendHtml(
-							String.format("TMS-翻译导入_%s",
-									DateUtil.format(new Date(),
-											DateUtil.FORMAT7)),
-							TemplateUtil.process(
-									"templates/mail/translate-import",
-									MapUtil.objArr2Map("user", loginUser,
-											"project", project, "importDate",
-											new Date(), "href", href, "body",
-											msg)),
-							mail.get());
-					logger.info("批量导入翻译邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("批量导入翻译邮件发送失败！");
-				}
-
-			});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-翻译导入_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/translate-import", MapUtil.objArr2Map("user", loginUser,
+							"project", project, "importDate", new Date(), "href", href, "body", msg)),
+					mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return RespBody.succeed(msg);

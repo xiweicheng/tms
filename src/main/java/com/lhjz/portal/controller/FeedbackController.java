@@ -97,25 +97,16 @@ public class FeedbackController extends BaseController {
 
 		final String href = baseURL;
 
-		ThreadUtil.exec(() -> {
+		feedback2.setContent(CommonUtil.replaceLinebreak(feedback2.getContent()));
 
-			feedback2.setContent(CommonUtil.replaceLinebreak(feedback2
-					.getContent()));
-
-			try {
-				mailSender.sendHtml(String.format("TMS-用户反馈_%s",
-						DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/feedback", MapUtil
-								.objArr2Map("feedback", feedback2, "user",
-										loginUser, "href", href)), StringUtil
-								.split(toAddrArr, ","));
-				logger.info("反馈邮件发送成功！ID:{}", feedback2.getId());
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("反馈邮件发送失败！ID:{}", feedback2.getId());
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-用户反馈_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/feedback",
+							MapUtil.objArr2Map("feedback", feedback2, "user", loginUser, "href", href)),
+					StringUtil.split(toAddrArr, ","));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed("反馈提交成功，谢谢！");
 	}

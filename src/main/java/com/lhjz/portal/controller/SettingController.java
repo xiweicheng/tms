@@ -170,21 +170,10 @@ public class SettingController extends BaseController {
 				.add(StringUtil.split(toAddrArr, ","))
 				.add(StringUtil.split(addr, ","));
 
-		if (!mail.isEmpty()) {
-			ThreadUtil.exec(() -> {
-
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(
-							"邮箱服务配置测试邮件-" + System.currentTimeMillis(),
-							"恭喜您,邮箱服务配置成功!", mail.get());
-					logger.info("沟通邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("沟通邮件发送失败！");
-				}
-
-			});
+		try {
+			mailSender.sendHtmlByQueue("邮箱服务配置测试邮件-" + System.currentTimeMillis(), "恭喜您,邮箱服务配置成功!", mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return RespBody.succeed();

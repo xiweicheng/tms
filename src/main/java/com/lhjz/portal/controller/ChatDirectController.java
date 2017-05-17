@@ -139,25 +139,14 @@ public class ChatDirectController extends BaseController {
 				+ loginUser.getUsername() + "?id="
 				+ chatDirect2.getId();
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(
-						String.format("TMS-私聊@消息_%s",
-								DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic",
-								MapUtil.objArr2Map("user", loginUser, "date",
-										new Date(), "href", href, "title",
-										"发给你的私聊消息", "content", contentHtml)),
-						chatToUser.getMails());
-				logger.info("私聊邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("私聊邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-私聊@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", "发给你的私聊消息", "content", contentHtml)),
+					chatToUser.getMails());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed();
 	}
@@ -205,25 +194,14 @@ public class ChatDirectController extends BaseController {
 			html = "<h3>编辑后内容:</h3>" + contentHtml + "<hr/><h3>编辑前内容:</h3>" + contentHtmlOld;
 		}
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(
-						String.format("TMS-私聊@消息更新_%s",
-								DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic",
-								MapUtil.objArr2Map("user", loginUser, "date",
-										new Date(), "href", href, "title",
-										"发给你的私聊消息更新", "content", html)),
-						chatDirect.getChatTo().getMails());
-				logger.info("私聊消息更新邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("私聊消息更新邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-私聊@消息更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", "发给你的私聊消息更新", "content", html)),
+					chatDirect.getChatTo().getMails());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed();
 	}

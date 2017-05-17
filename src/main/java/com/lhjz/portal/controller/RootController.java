@@ -198,21 +198,14 @@ public class RootController extends BaseController {
 			loginUser = user;
 		}
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(String.format("TMS-博文回复_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", "博文回复消息", "content", content2)),
-						StringUtil.split(toAddrArr, ","));
-				logger.info("博文回复邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("博文回复邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-博文回复_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", "博文回复消息", "content", content2)),
+					StringUtil.split(toAddrArr, ","));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed(comment2);
 	}
@@ -304,21 +297,15 @@ public class RootController extends BaseController {
 		final Mail mail = Mail.instance().addUsers(chat.getCreator());
 		final String html = "<h3>投票博文内容:</h3><hr/>" + contentHtml;
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(String.format("TMS-博文投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", titleHtml, "content", html)),
-						mail.get());
-				logger.info("博文投票邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("博文投票邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-博文投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
+							mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		log(Action.Vote, Target.Chat, chat.getId(), chat2);
 
