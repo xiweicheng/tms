@@ -138,7 +138,7 @@ public class MailSender2 {
 	}
 	
 	@Scheduled(fixedRate = 60000)
-	public void reportCurrentTime() {
+	public void mailQueueScheduledTask() {
 		log.info("邮件定时计划任务执行!");
 		MailItem mailItem = mailQueue.poll();
 		if (mailItem != null) {
