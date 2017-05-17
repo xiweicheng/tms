@@ -6,14 +6,14 @@ import java.util.Date;
 import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 
 import com.lhjz.portal.Application;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.TemplateUtil;
 
-@SpringApplicationConfiguration(classes = Application.class)
+@SpringBootTest(classes = Application.class)
 public class MailSenderTest extends AbstractTestNGSpringContextTests {
 
 	@Autowired

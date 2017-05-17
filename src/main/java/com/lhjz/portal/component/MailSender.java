@@ -34,7 +34,7 @@ import lombok.extern.log4j.Log4j;
  * @date 2015年6月14日 上午10:31:32
  * 
  */
-@Component
+@Component("myMailSender")
 @Log4j
 public class MailSender {
 

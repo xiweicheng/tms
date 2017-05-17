@@ -3,14 +3,14 @@ package com.lhjz.portal.repository;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.Test;
 
 import com.lhjz.portal.Application;
 import com.lhjz.portal.entity.ChatDirect;
 
-@SpringApplicationConfiguration(classes = Application.class)
+@SpringBootTest(classes = Application.class)
 public class ChatDirectRepositoryTest extends AbstractTestNGSpringContextTests {
 
 	@Autowired

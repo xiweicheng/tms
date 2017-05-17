@@ -3,13 +3,13 @@ package com.lhjz.portal.repository;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 
 import com.lhjz.portal.Application;
 import com.lhjz.portal.entity.Blog;
 
-@SpringApplicationConfiguration(classes = Application.class)
+@SpringBootTest(classes = Application.class)
 public class BlogRepositoryTest extends AbstractTestNGSpringContextTests {
 
 	@Autowired

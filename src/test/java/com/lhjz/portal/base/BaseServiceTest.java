@@ -3,7 +3,7 @@
  */
 package com.lhjz.portal.base;
 
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 
 import com.lhjz.portal.Application;
@@ -15,7 +15,7 @@ import com.lhjz.portal.Application;
  * @date 2015年3月28日 下午7:54:29
  * 
  */
-@SpringApplicationConfiguration(classes = Application.class)
+@SpringBootTest(classes = Application.class)
 public abstract class BaseServiceTest extends
 		AbstractTestNGSpringContextTests {
 
