@@ -129,7 +129,7 @@ public class MailSender2 {
 				log.info("邮件发送成功!");
 			} catch (MessagingException e) {
 				log.info("邮件发送失败,放入邮件定时计划任务队列中!");
-				if (mailQueue.offer(new MailItem(subject, html, toAddr))) {
+				if (!mailQueue.offer(new MailItem(subject, html, toAddr))) {
 					log.error("邮件队列已满!");
 				}
 				e.printStackTrace();
@@ -139,7 +139,7 @@ public class MailSender2 {
 	
 	@Scheduled(fixedRate = 60000)
 	public void reportCurrentTime() {
-		log.debug("邮件定时计划任务执行!");
+		log.info("邮件定时计划任务执行!");
 		MailItem mailItem = mailQueue.poll();
 		if (mailItem != null) {
 			this.sendHtmlByQueue(mailItem);
