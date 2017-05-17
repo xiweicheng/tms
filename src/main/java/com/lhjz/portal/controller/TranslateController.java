@@ -65,7 +65,6 @@ import com.lhjz.portal.util.JsonUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
-import com.lhjz.portal.util.ThreadUtil;
 import com.lhjz.portal.util.WebUtil;
 
 /**

@@ -32,7 +32,6 @@ import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.SettingRepository;
 import com.lhjz.portal.util.JsonUtil;
 import com.lhjz.portal.util.StringUtil;
-import com.lhjz.portal.util.ThreadUtil;
 
 /**
  * 
