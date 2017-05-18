@@ -3,14 +3,6 @@
  */
 package com.lhjz.portal.config;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Date;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,24 +16,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.stereotype.Component;
 
 import com.lhjz.portal.component.AjaxAwareLoginUrlAuthenticationEntryPoint;
 import com.lhjz.portal.component.AjaxSimpleUrlAuthenticationFailureHandler;
 import com.lhjz.portal.component.AjaxSimpleUrlLogoutSuccessHandler;
-import com.lhjz.portal.entity.security.User;
-import com.lhjz.portal.model.RespBody;
-import com.lhjz.portal.repository.UserRepository;
-import com.lhjz.portal.util.JsonUtil;
-import com.lhjz.portal.util.WebUtil;
+import com.lhjz.portal.component.LoginSuccessHandler;
 
 /**
  * 
@@ -59,16 +43,14 @@ public class SecurityConfig {
 
 	@Autowired
 	DataSource dataSource;
-
-	@Bean
-	BCryptPasswordEncoder bCryptPasswordEncoderBean() {
-		return new BCryptPasswordEncoder();
-	}
+	
+	@Autowired
+	PasswordEncoder passwordEncoder;
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 
-		auth.jdbcAuthentication().dataSource(dataSource).passwordEncoder(bCryptPasswordEncoderBean());
+		auth.jdbcAuthentication().dataSource(dataSource).passwordEncoder(passwordEncoder);
 	}
 
 	@Configuration
@@ -163,104 +145,8 @@ public class SecurityConfig {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-
-			http.antMatcher("/").authorizeRequests().anyRequest().permitAll().and().csrf().disable();
-
-		}
-
-	}
-
-	@Configuration
-	@Order(order + 2)
-	@Profile({ "dev", "prod" })
-	public static class SecurityConfiguration3 extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-
-			http.antMatcher("/free/**").authorizeRequests().anyRequest().permitAll().and().csrf().disable();
-
-		}
-
-	}
-
-	@Configuration
-	@Order(order)
-	@Profile("test")
-	public static class SecurityConfigurationTest extends WebSecurityConfigurerAdapter {
-
-		@Autowired
-		LoginSuccessHandler loginSuccessHandler;
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-
-			// @formatter:off
-			http
-				.antMatcher("/admin/**")
-					.authorizeRequests()
-					.antMatchers("/admin/file/download/**")
-					.permitAll()
-				.antMatchers("/admin/css/**", "/admin/img/**", "/admin/js/**")
-					.permitAll()
-				.anyRequest()
-					.authenticated()
-				.and()
-					.formLogin()
-					.loginPage("/admin/login")
-					.permitAll()
-					.loginProcessingUrl("/admin/signin")
-					.successHandler(loginSuccessHandler)
-				.and()
-					.logout()
-					.logoutUrl("/admin/logout")
-					.logoutSuccessUrl("/admin/login")
-				.and()
-					.csrf()
-					.disable();
-			// @formatter:on
-
-		}
-
-	}
-
-	@Component("loginSuccessHandler")
-	public static class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
-
-		@Autowired
-		UserRepository userRepository;
-
-		@Override
-		public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-				Authentication authentication) throws IOException, ServletException {
-
-			UserDetails uds = (UserDetails) authentication.getPrincipal();
-
-			User loginUser = userRepository.findOne(uds.getUsername());
-			if (loginUser != null) {
-				loginUser.setLastLoginDate(new Date());
-				loginUser.setLoginRemoteAddress(WebUtil.getIpAddr(request));
-
-				long loginCount = loginUser.getLoginCount();
-				loginUser.setLoginCount(++loginCount);
-
-				userRepository.saveAndFlush(loginUser);
-			}
 			
-			if (Arrays.asList("XMLHttpRequest|fetch".split("\\|")).contains(request.getHeader("X-Requested-With"))) {
-				this.clearAuthenticationAttributes(request);
-				// 对于ajax请求不重定向
-				response.setContentType("application/json");
-				try (PrintWriter writer = response.getWriter();) {
-					writer.print(JsonUtil.toJson(RespBody.succeed()));
-					writer.flush();
-				}
-			} else {
-				this.setDefaultTargetUrl("/admin");
-				this.setAlwaysUseDefaultTargetUrl(false);
-
-				super.onAuthenticationSuccess(request, response, authentication);
-			}
+			http.authorizeRequests().antMatchers("/", "/free/**").permitAll().and().csrf().disable();
 
 		}
 
