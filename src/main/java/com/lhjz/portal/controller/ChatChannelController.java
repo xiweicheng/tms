@@ -139,7 +139,7 @@ public class ChatChannelController extends BaseController {
 		final User loginUser = getLoginUser();
 
 		final Mail mail = Mail.instance();
-		mail.addUsers(channel.getSubscriber());
+		mail.addUsers(channel.getSubscriber(), loginUser);
 		
 		if (StringUtil.isNotEmpty(usernames)) {
 

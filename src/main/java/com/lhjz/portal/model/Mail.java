@@ -166,17 +166,30 @@ public class Mail {
 	 * @param users
 	 * @return
 	 */
-	public Mail addUsers(Collection<User> users) {
-		
+	public Mail addUsers(Collection<User> users, User... exclusive) {
+
 		if (users != null) {
 			for (User user : users) {
-				if (user.isEnabled()) {
+				if (user.isEnabled() && !isContained(user, exclusive)) {
 					this.add(user.getMails());
 				}
 			}
 		}
-		
+
 		return this;
+	}
+	
+	private boolean isContained(User user, User... users) {
+
+		if (user != null && users != null && users.length > 0) {
+			for (int i = 0; i < users.length; i++) {
+				if (user.equals(users[i])) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	public Mail addWatchers(Translate translate) {

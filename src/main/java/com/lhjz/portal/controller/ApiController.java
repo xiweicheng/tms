@@ -112,7 +112,7 @@ public class ApiController extends BaseController {
 			channel2.getMembers().forEach(item -> mail2.addUsers(item));
 		}
 
-		mail2.addUsers(channel2.getSubscriber());
+		mail2.addUsers(channel2.getSubscriber(), getLoginUser());
 
 		if (!mail2.isEmpty()) {
 
@@ -172,7 +172,7 @@ public class ApiController extends BaseController {
 			channel2.getMembers().forEach(item -> mail2.addUsers(item));
 		}
 
-		mail2.addUsers(channel2.getSubscriber());
+		mail2.addUsers(channel2.getSubscriber(), getLoginUser());
 
 		if (!mail2.isEmpty()) {
 
