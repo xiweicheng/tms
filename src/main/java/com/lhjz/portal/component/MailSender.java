@@ -5,6 +5,7 @@ package com.lhjz.portal.component;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,6 +14,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -44,6 +46,9 @@ public class MailSender {
 	@Autowired
 	MailQueue mailQueue;
 	
+	@Value("${tms.mail.sender.from.personal}")
+	String personal;
+	
 	static ExecutorService pool = Executors.newSingleThreadExecutor();
 
 	public JavaMailSenderImpl getMailSender() {
@@ -64,7 +69,7 @@ public class MailSender {
 	}
 
 	public boolean sendHtml(String subject, String html, String... toAddr)
-			throws MessagingException {
+			throws MessagingException, UnsupportedEncodingException {
 
 		if (toAddr == null || toAddr.length == 0) {
 			return false;
@@ -74,7 +79,7 @@ public class MailSender {
 		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false,
 				"UTF-8");
 
-		helper.setFrom(((JavaMailSenderImpl) mailSender).getUsername());
+		helper.setFrom(((JavaMailSenderImpl) mailSender).getUsername(), personal);
 		helper.setTo(toAddr);
 		helper.setSubject(subject);
 		helper.setText(html, true);
@@ -92,7 +97,7 @@ public class MailSender {
 		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true,
 				"UTF-8");
 
-		helper.setFrom(((JavaMailSenderImpl) mailSender).getUsername());
+		helper.setFrom(((JavaMailSenderImpl) mailSender).getUsername(), personal);
 		helper.setTo(toAddr);
 		helper.setSubject(subject);
 		helper.setText(html, true);
@@ -127,7 +132,7 @@ public class MailSender {
 			try {
 				this.sendHtml(subject, html, toAddr);
 				log.info("邮件发送成功!");
-			} catch (MessagingException e) {
+			} catch (MessagingException | UnsupportedEncodingException e) {
 				log.info("邮件发送失败,放入邮件定时计划任务队列中!");
 				if (!mailQueue.offer(new MailItem(subject, html, toAddr))) {
 					log.error("邮件队列已满!");
