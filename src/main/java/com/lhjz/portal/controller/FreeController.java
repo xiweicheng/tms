@@ -4,6 +4,7 @@
 package com.lhjz.portal.controller;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -139,11 +140,11 @@ public class FreeController extends BaseController {
 			sts = mailSender.sendHtml(
 					String.format("TMS-密码重置_%s",
 							DateUtil.format(new Date(), DateUtil.FORMAT7)),
-					content, user.getMails());
+					content, Mail.instance().addUsers(user).get());
 
 			logger.info("重置密码邮件发送状态: " + sts);
 			return sts ? RespBody.succeed() : RespBody.failed("重置邮件发送失败!");
-		} catch (MessagingException e) {
+		} catch (MessagingException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return RespBody.failed("重置邮件发送失败!");
 		}
@@ -243,11 +244,11 @@ public class FreeController extends BaseController {
 							String.format("TMS-账户激活_%s",
 									DateUtil.format(new Date(),
 											DateUtil.FORMAT7)),
-							content, newUser.getMails());
+							content, Mail.instance().addUsers(newUser).get());
 
 			logger.info("激活账户邮件发送状态: " + sts);
 			return sts ? RespBody.succeed() : RespBody.failed("激活账户邮件发送失败!");
-		} catch (MessagingException e) {
+		} catch (MessagingException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return RespBody.failed("激活账户邮件发送失败!");
 		}
@@ -278,16 +279,11 @@ public class FreeController extends BaseController {
 
 		if (StringUtil.isNotEmpty(toAddrArr)) {
 			try {
-				mailSender
-						.sendHtml(
-								String.format("TMS-新注册用户通知_%s",
-										DateUtil.format(new Date(),
-												DateUtil.FORMAT7)),
-								"注册用户: " + user.getUsername() + " - "
-										+ user.getMails(),
-								toAddrArr.split(","));
+				mailSender.sendHtml(String.format("TMS-新注册用户通知_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						"注册用户: " + user.getUsername() + " - " + user.getMails(),
+						Mail.instance().add(toAddrArr.split(",")).get());
 
-			} catch (MessagingException e) {
+			} catch (MessagingException | UnsupportedEncodingException e) {
 				e.printStackTrace();
 				logger.warn("新注册用户通知邮件发送失败!");
 			}

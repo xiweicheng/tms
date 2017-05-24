@@ -143,7 +143,7 @@ public class ChatDirectController extends BaseController {
 			mailSender.sendHtmlByQueue(String.format("TMS-私聊@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
 							new Date(), "href", href, "title", "发给你的私聊消息", "content", contentHtml)),
-					chatToUser.getMails());
+					Mail.instance().addUsers(chatToUser).get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -198,7 +198,7 @@ public class ChatDirectController extends BaseController {
 			mailSender.sendHtmlByQueue(String.format("TMS-私聊@消息更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
 							new Date(), "href", href, "title", "发给你的私聊消息更新", "content", html)),
-					chatDirect.getChatTo().getMails());
+					Mail.instance().addUsers(chatDirect.getChatTo()).get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

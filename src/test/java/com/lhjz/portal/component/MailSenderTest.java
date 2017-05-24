@@ -1,6 +1,7 @@
 package com.lhjz.portal.component;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 import javax.mail.MessagingException;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 
 import com.lhjz.portal.Application;
+import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.TemplateUtil;
 
@@ -20,11 +22,11 @@ public class MailSenderTest extends AbstractTestNGSpringContextTests {
 	MailSender mailSender;
 
 	// @Test
-	public void sendHtml() throws MessagingException {
+	public void sendHtml() throws MessagingException, UnsupportedEncodingException {
 
 		mailSender.sendHtml("标题" + new Date().getTime(),
 				"<html><head><meta charset='utf-8' /></head><body><h1>邮件标题</h1><p>邮件内容...</p></body></html>",
-				"xiwc87@yeah.net", "xiweicheng@yeah.net");
+				Mail.instance().add("xiwc87@yeah.net", "xiweicheng@yeah.net").get());
 
 	}
 

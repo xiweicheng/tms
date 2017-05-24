@@ -3,6 +3,7 @@
  */
 package com.lhjz.portal.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -104,7 +105,7 @@ public class SettingController extends BaseController {
 			} else {
 				return RespBody.failed();
 			}
-		} catch (MessagingException e) {
+		} catch (MessagingException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 			logger.error("邮箱服务配置测试邮件发送失败！");
 			return RespBody.failed(e.getMessage());

@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import com.lhjz.portal.component.core.MailQueue;
 import com.lhjz.portal.component.core.model.MailItem;
+import com.lhjz.portal.model.MailAddr;
 import com.lhjz.portal.util.StringUtil;
 
 import lombok.extern.log4j.Log4j;
@@ -68,7 +69,7 @@ public class MailSender {
 		return true;
 	}
 
-	public boolean sendHtml(String subject, String html, String... toAddr)
+	public boolean sendHtml(String subject, String html, MailAddr... toAddr)
 			throws MessagingException, UnsupportedEncodingException {
 
 		if (toAddr == null || toAddr.length == 0) {
@@ -76,11 +77,12 @@ public class MailSender {
 		}
 
 		MimeMessage mimeMessage = mailSender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false,
-				"UTF-8");
+		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
 		helper.setFrom(((JavaMailSenderImpl) mailSender).getUsername(), personal);
-		helper.setTo(toAddr);
+		for (MailAddr addr : toAddr) {
+			helper.addTo(addr.getFrom(), addr.getPersonal());
+		}
 		helper.setSubject(subject);
 		helper.setText(html, true);
 
@@ -118,7 +120,7 @@ public class MailSender {
 		this.sendHtmlByQueue(mailItem.getSubject(), mailItem.getHtml(), mailItem.getToAddr());
 	}
 	
-	public void sendHtmlByQueue(String subject, String html, String... toAddr) {
+	public void sendHtmlByQueue(String subject, String html, MailAddr... toAddr) {
 
 		if (StringUtil.isEmpty(subject) || StringUtil.isEmpty(html)) {
 			return;

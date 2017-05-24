@@ -24,6 +24,7 @@ import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Feedback;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.Target;
@@ -102,7 +103,7 @@ public class FeedbackController extends BaseController {
 			mailSender.sendHtmlByQueue(String.format("TMS-用户反馈_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/feedback",
 							MapUtil.objArr2Map("feedback", feedback2, "user", loginUser, "href", href)),
-					StringUtil.split(toAddrArr, ","));
+					Mail.instance().add(StringUtil.split(toAddrArr, ",")).get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
