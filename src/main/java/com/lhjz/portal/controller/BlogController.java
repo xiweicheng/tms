@@ -211,7 +211,7 @@ public class BlogController extends BaseController {
 						String.format("TMS-博文频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 								"date", new Date(), "href", href, "title", "下面的博文消息中有@到你", "content", html)),
-						mail.get());
+						getLoginUserName(loginUser), mail.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -341,7 +341,7 @@ public class BlogController extends BaseController {
 							String.format("TMS-博文编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", "下面编辑的博文消息中有@到你", "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -542,7 +542,7 @@ public class BlogController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-博文消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -605,7 +605,7 @@ public class BlogController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-博文评论投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -708,7 +708,7 @@ public class BlogController extends BaseController {
 						.sendHtml(String.format("TMS-博文分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 								TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user",
 										loginUser, "date", new Date(), "href", href, "title", title, "content", html2)),
-								mail.get());
+								getLoginUserName(loginUser), mail.get());
 				logger.info("博文分享邮件发送成功！");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -790,7 +790,7 @@ public class BlogController extends BaseController {
 						.sendHtml(String.format("TMS-博文评论分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 								TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user",
 										loginUser, "date", new Date(), "href", href, "title", title, "content", html2)),
-								mail.get());
+								getLoginUserName(loginUser), mail.get());
 				logger.info("博文评论分享邮件发送成功！");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -864,7 +864,7 @@ public class BlogController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-博文评论_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", "下面博文评论涉及到你", "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -928,7 +928,7 @@ public class BlogController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-博文评论更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", "下面更新博文评论涉及到你", "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

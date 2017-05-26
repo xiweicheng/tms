@@ -376,7 +376,7 @@ public class ImportController extends BaseController {
 			mailSender.sendHtmlByQueue(String.format("TMS-翻译导入_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/translate-import", MapUtil.objArr2Map("user", loginUser,
 							"project", project, "importDate", new Date(), "href", href, "body", msg)),
-					mail.get());
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

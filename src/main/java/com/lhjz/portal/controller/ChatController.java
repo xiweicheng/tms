@@ -190,7 +190,7 @@ public class ChatController extends BaseController {
 						String.format("TMS-沟通动态@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 								"date", new Date(), "href", href, "title", "下面的沟通消息中有@到你", "content", html)),
-						mail.get());
+						getLoginUserName(loginUser), mail.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -326,7 +326,7 @@ public class ChatController extends BaseController {
 						String.format("TMS-沟通动态编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 								"date", new Date(), "href", href, "title", "下面编辑的沟通消息中有@到你", "content", html)),
-						mail.get());
+						getLoginUserName(loginUser), mail.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -624,7 +624,7 @@ public class ChatController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-沟通动态投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

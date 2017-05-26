@@ -201,7 +201,7 @@ public class RootController extends BaseController {
 			mailSender.sendHtmlByQueue(String.format("TMS-博文回复_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
 							new Date(), "href", href, "title", "博文回复消息", "content", content2)),
-					Mail.instance().add(StringUtil.split(toAddrArr, ",")).get());
+					getLoginUserName(loginUser), Mail.instance().add(StringUtil.split(toAddrArr, ",")).get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -301,7 +301,7 @@ public class RootController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-博文投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

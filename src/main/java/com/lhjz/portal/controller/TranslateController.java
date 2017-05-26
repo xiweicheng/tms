@@ -217,7 +217,7 @@ public class TranslateController extends BaseController {
 			mailSender.sendHtmlByQueue(String.format("TMS-翻译新建_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/translate-create", MapUtil.objArr2Map("translate", translate,
 							"user", loginUser, "href", href, "project", project, "body", mail2.body())),
-					mail.get());
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -311,7 +311,7 @@ public class TranslateController extends BaseController {
 				mailSender.sendHtmlByQueue(String.format("TMS-翻译更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/translate-update", MapUtil.objArr2Map("translate",
 								translate, "user", loginUser, "href", href, "project", project, "body", mail2.body())),
-						mail.get());
+						getLoginUserName(loginUser), mail.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -522,7 +522,7 @@ public class TranslateController extends BaseController {
 				mailSender.sendHtmlByQueue(String.format("TMS-翻译更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/translate-update", MapUtil.objArr2Map("translate",
 								translate, "user", loginUser, "href", href, "project", project, "body", mail2.body())),
-						mail.get());
+						getLoginUserName(loginUser), mail.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -583,7 +583,7 @@ public class TranslateController extends BaseController {
 				mailSender.sendHtmlByQueue(String.format("TMS-翻译更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/translate-update", MapUtil.objArr2Map("translate",
 								translate, "user", loginUser, "href", href, "project", project, "body", mail2.body())),
-						mail.get());
+						getLoginUserName(loginUser), mail.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -642,7 +642,7 @@ public class TranslateController extends BaseController {
 							MapUtil.objArr2Map("translate", translate, "user", loginUser, "deleter",
 									loginUser.getUsername(), "deleteDate", new Date(), "href", href, "project", project,
 									"body", mail2.body())),
-					mail.get());
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -731,7 +731,7 @@ public class TranslateController extends BaseController {
 			mailSender.sendHtmlByQueue(String.format("TMS-翻译更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/translate-update", MapUtil.objArr2Map("translate", translate,
 							"user", loginUser, "href", href, "project", project, "body", mail2.body())),
-					mail.get());
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -842,7 +842,7 @@ public class TranslateController extends BaseController {
 			mailSender.sendHtmlByQueue(String.format("TMS-翻译更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/translate-update", MapUtil.objArr2Map("translate", translate,
 							"user", loginUser, "href", href, "project", project, "body", mail2.body())),
-					mail.get());
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

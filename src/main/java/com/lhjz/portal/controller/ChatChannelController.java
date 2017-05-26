@@ -176,7 +176,7 @@ public class ChatChannelController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-沟通频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", "下面的沟通频道消息中有@到你", "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -317,7 +317,7 @@ public class ChatChannelController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-沟通频道编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", "下面编辑的沟通频道消息中有@到你", "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -658,7 +658,7 @@ public class ChatChannelController extends BaseController {
 				chatChannel.setVoteZanCnt(++voteZanCnt);
 
 				chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
-				title = loginUser.getName() + "[" + loginUsername
+				title = getLoginUserName(loginUser) + "[" + loginUsername
 						+ "]赞了你的频道消息!";
 			}
 
@@ -677,7 +677,7 @@ public class ChatChannelController extends BaseController {
 				chatChannel.setVoteCaiCnt(++voteCaiCnt);
 				
 				chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
-				title = loginUser.getName() + "[" + loginUsername
+				title = getLoginUserName(loginUser) + "[" + loginUsername
 						+ "]踩了你的频道消息!";
 			}
 		}
@@ -691,7 +691,7 @@ public class ChatChannelController extends BaseController {
 			mailSender.sendHtmlByQueue(String.format("TMS-沟通频道消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
 							new Date(), "href", href, "title", titleHtml, "content", html)),
-					mail.get());
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -923,7 +923,7 @@ public class ChatChannelController extends BaseController {
 			mailSender.sendHtmlByQueue(String.format("TMS-沟通消息分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
 							new Date(), "href", href, "title", title, "content", html2)),
-					mail.get());
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -26,7 +26,7 @@ public class MailSenderTest extends AbstractTestNGSpringContextTests {
 
 		mailSender.sendHtml("标题" + new Date().getTime(),
 				"<html><head><meta charset='utf-8' /></head><body><h1>邮件标题</h1><p>邮件内容...</p></body></html>",
-				Mail.instance().add("xiwc87@yeah.net", "xiweicheng@yeah.net").get());
+				null, Mail.instance().add("xiwc87@yeah.net", "xiweicheng@yeah.net").get());
 
 	}
 

@@ -91,6 +91,29 @@ public class MailSender {
 		return true;
 	}
 
+	public boolean sendHtml(String subject, String html, String from, MailAddr... toAddr)
+			throws MessagingException, UnsupportedEncodingException {
+
+		if (toAddr == null || toAddr.length == 0) {
+			return false;
+		}
+
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+
+		String personal = StringUtil.isNotEmpty(from) ? from + " (" + this.personal + ")" : this.personal;
+		helper.setFrom(((JavaMailSenderImpl) mailSender).getUsername(), personal);
+		for (MailAddr addr : toAddr) {
+			helper.addTo(addr.getFrom(), addr.getPersonal());
+		}
+		helper.setSubject(subject);
+		helper.setText(html, true);
+
+		mailSender.send(mimeMessage);
+
+		return true;
+	}
+
 	public boolean sendHtmlWithAttachment(String subject, String html,
 			String[] attachmentPaths, String... toAddr)
 			throws MessagingException, IOException {
@@ -117,7 +140,7 @@ public class MailSender {
 
 	public void sendHtmlByQueue(MailItem mailItem) {
 
-		this.sendHtmlByQueue(mailItem.getSubject(), mailItem.getHtml(), mailItem.getToAddr());
+		this.sendHtmlByQueue(mailItem.getSubject(), mailItem.getHtml(), mailItem.getFrom(), mailItem.getToAddr());
 	}
 	
 	public void sendHtmlByQueue(String subject, String html, MailAddr... toAddr) {
@@ -136,7 +159,31 @@ public class MailSender {
 				log.info("邮件发送成功!");
 			} catch (MessagingException | UnsupportedEncodingException e) {
 				log.info("邮件发送失败,放入邮件定时计划任务队列中!");
-				if (!mailQueue.offer(new MailItem(subject, html, toAddr))) {
+				if (!mailQueue.offer(new MailItem(subject, html, null, toAddr))) {
+					log.error("邮件队列已满!");
+				}
+				e.printStackTrace();
+			}
+		});
+	}
+	
+	public void sendHtmlByQueue(String subject, String html, String from, MailAddr... toAddr) {
+
+		if (StringUtil.isEmpty(subject) || StringUtil.isEmpty(html)) {
+			return;
+		}
+
+		if (toAddr == null || toAddr.length == 0) {
+			return;
+		}
+
+		pool.execute(() -> {
+			try {
+				this.sendHtml(subject, html, from, toAddr);
+				log.info("邮件发送成功!");
+			} catch (MessagingException | UnsupportedEncodingException e) {
+				log.info("邮件发送失败,放入邮件定时计划任务队列中!");
+				if (!mailQueue.offer(new MailItem(subject, html, from, toAddr))) {
 					log.error("邮件队列已满!");
 				}
 				e.printStackTrace();

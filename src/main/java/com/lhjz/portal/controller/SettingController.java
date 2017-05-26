@@ -97,7 +97,7 @@ public class SettingController extends BaseController {
 		try {
 			boolean sendSts = mailSender.sendHtml(
 					"邮箱服务配置测试邮件-" + System.currentTimeMillis(),
-					"恭喜您,邮箱服务配置成功!", mail.get());
+					"恭喜您,邮箱服务配置成功!", null, mail.get());
 			logger.info("邮箱服务配置测试邮件发送成功！");
 
 			if (sendSts) {
@@ -171,7 +171,7 @@ public class SettingController extends BaseController {
 				.add(StringUtil.split(addr, ","));
 
 		try {
-			mailSender.sendHtmlByQueue("邮箱服务配置测试邮件-" + System.currentTimeMillis(), "恭喜您,邮箱服务配置成功!", mail.get());
+			mailSender.sendHtmlByQueue("邮箱服务配置测试邮件-" + System.currentTimeMillis(), "恭喜您,邮箱服务配置成功!", null, mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

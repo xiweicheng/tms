@@ -218,7 +218,7 @@ public class ChannelController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-频道加入通知_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", "下面的沟通消息中有@到你", "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

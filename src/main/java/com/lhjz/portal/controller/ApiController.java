@@ -126,7 +126,7 @@ public class ApiController extends BaseController {
 						String.format("TMS-Jenkins发版报告沟通频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 								"date", new Date(), "href", href, "title", "Jenkins发版报告频道消息有@到你", "content", html)),
-						mail2.get());
+						getLoginUserName(loginUser), mail2.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -186,7 +186,7 @@ public class ApiController extends BaseController {
 						String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 								"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
-						mail2.get());
+						getLoginUserName(loginUser), mail2.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

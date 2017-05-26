@@ -14,6 +14,8 @@ public class MailItem {
 	String subject;
 
 	String html;
+	
+	String from;
 
 	MailAddr[] toAddr;
 

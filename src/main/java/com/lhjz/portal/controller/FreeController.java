@@ -140,7 +140,7 @@ public class FreeController extends BaseController {
 			sts = mailSender.sendHtml(
 					String.format("TMS-密码重置_%s",
 							DateUtil.format(new Date(), DateUtil.FORMAT7)),
-					content, Mail.instance().addUsers(user).get());
+					content, null, Mail.instance().addUsers(user).get());
 
 			logger.info("重置密码邮件发送状态: " + sts);
 			return sts ? RespBody.succeed() : RespBody.failed("重置邮件发送失败!");
@@ -244,7 +244,7 @@ public class FreeController extends BaseController {
 							String.format("TMS-账户激活_%s",
 									DateUtil.format(new Date(),
 											DateUtil.FORMAT7)),
-							content, Mail.instance().addUsers(newUser).get());
+							content, null, Mail.instance().addUsers(newUser).get());
 
 			logger.info("激活账户邮件发送状态: " + sts);
 			return sts ? RespBody.succeed() : RespBody.failed("激活账户邮件发送失败!");
@@ -281,7 +281,7 @@ public class FreeController extends BaseController {
 			try {
 				mailSender.sendHtml(String.format("TMS-新注册用户通知_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						"注册用户: " + user.getUsername() + " - " + user.getMails(),
-						Mail.instance().add(toAddrArr.split(",")).get());
+						null, Mail.instance().add(toAddrArr.split(",")).get());
 
 			} catch (MessagingException | UnsupportedEncodingException e) {
 				e.printStackTrace();
@@ -388,7 +388,7 @@ public class FreeController extends BaseController {
 						String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 								"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
-						mail2.get());
+						getLoginUserName(loginUser), mail2.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -483,7 +483,7 @@ public class FreeController extends BaseController {
 						String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 								"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
-						mail2.get());
+						getLoginUserName(loginUser), mail2.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

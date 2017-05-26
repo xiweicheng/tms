@@ -155,7 +155,7 @@ public class UserController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-用户创建_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/user-create", MapUtil.objArr2Map("user", userForm2,
 									"userRole", userRole, "href", href, "loginUrl", loginUrl, "baseUrl", baseUrl)),
-							mail.get());
+							null, mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -242,7 +242,7 @@ public class UserController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-系统消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-msg", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", title1, "content", content1)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -123,7 +123,7 @@ public class ScheduleController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-日程创建消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", basePath, "title", "下面创建的日程的参与者中有你", "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -212,7 +212,7 @@ public class ScheduleController extends BaseController {
 				mailSender.sendHtmlByQueue(String.format("TMS-日程更新消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 								"date", new Date(), "href", basePath, "title", "下面你参与的日程有更新", "content", html)),
-						mail.get());
+						getLoginUserName(loginUser), mail.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -270,7 +270,7 @@ public class ScheduleController extends BaseController {
 				mailSender.sendHtmlByQueue(String.format("TMS-日程更新消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 								"date", new Date(), "href", basePath, "title", "下面你参与的日程有更新", "content", html)),
-						mail.get());
+						getLoginUserName(loginUser), mail.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -334,7 +334,7 @@ public class ScheduleController extends BaseController {
 						String.format("TMS-日程更新消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 								"date", new Date(), "href", basePath, "title", "下面你参与的日程有更新", "content", html)),
-						mail.get());
+						getLoginUserName(loginUser), mail.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -402,7 +402,7 @@ public class ScheduleController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-日程添加参与者消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", basePath, "title", "下面日程的参与者中加入了你", "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -447,7 +447,7 @@ public class ScheduleController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-日程移除参与者消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", basePath, "title", "下面日程将你从参与者中移除", "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -487,7 +487,7 @@ public class ScheduleController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-日程删除消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", basePath, "title", "下面日程被取消并且删除", "content", html)),
-							mail.get());
+							getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
