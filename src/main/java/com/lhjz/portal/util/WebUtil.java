@@ -62,8 +62,10 @@ public final class WebUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			pw.flush();
-			pw.close();
+			if (pw != null) {
+				pw.flush();
+				pw.close();
+			}
 		}
 	}
 
@@ -87,8 +89,10 @@ public final class WebUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			pw.flush();
-			pw.close();
+			if (pw != null) {
+				pw.flush();
+				pw.close();
+			}
 		}
 	}
 
@@ -112,8 +116,10 @@ public final class WebUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			pw.flush();
-			pw.close();
+			if (pw != null) {
+				pw.flush();
+				pw.close();
+			}
 		}
 	}
 
