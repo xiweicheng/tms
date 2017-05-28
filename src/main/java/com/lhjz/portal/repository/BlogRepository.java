@@ -61,4 +61,6 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	@Modifying
 	@Query("update Blog b set b.voteZan = ?1, b.voteZanCnt = ?2 where b.id = ?3")
 	int updateVoteZan(String voteZan, Integer voteZanCnt, Long id);
+	
+	Page<Blog> findByStatusNotAndOpenedTrue(Status status, Pageable pageable);
 }
