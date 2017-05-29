@@ -35,6 +35,8 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	Page<Blog> findByTitleContainingOrContentContaining(String searchT, String searchC, Pageable pageable);
 	
 	List<Blog> findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status status, String searchT, Status status2, String searchC, Sort sort);
+	
+	List<Blog> findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(Status status, String searchT, Status status2, String searchC, Sort sort);
 
 	Page<Blog> findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status status, User creator, Status status2,
 			Pageable pageable);
@@ -63,4 +65,8 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	int updateVoteZan(String voteZan, Integer voteZanCnt, Long id);
 	
 	Page<Blog> findByStatusNotAndOpenedTrue(Status status, Pageable pageable);
+	
+	Blog findTopByStatusNotAndOpenedTrueAndIdLessThanOrderByIdDesc(Status status, Long id);
+	
+	Blog findTopByStatusNotAndOpenedTrueAndIdGreaterThanOrderByIdAsc(Status status, Long id);
 }
