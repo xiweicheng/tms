@@ -74,7 +74,7 @@
                             <div class="animated bounceInLeft comment" th:each="c : ${chats}" th:classappend="${(param.containsKey('id') and #strings.equals(param.id[0], c.id)) ? 'marked' : ''}" th:attr="data-id=${c.id}">
                                 <a class="avatar ui mini circular image" style="width: 35px; height: 35px; font-size: 35px; background-color: rgba(150, 178, 183, 0.4); text-align: center;">
                                     <span style="display: inline-block; height: 35px; line-height: 35px; vertical-align: top;" th:if="${not #strings.isEmpty(c.creator.name)}" th:text="${#strings.toUpperCase(#strings.substring(c.creator.name,#strings.length(c.creator.name) - 1,#strings.length(c.creator.name)))}">管理员</span>
-                                    <img th:if="${#strings.isEmpty(c.creator.name)}" th:src="@{/img/head.png}" src="../static/img/head.png">
+                                    <img th:if="${#strings.isEmpty(c.creator.name)}" th:src="@{/image/head.png}" src="../static/image/head.png">
                                 </a>
                                 <div class="content">
                                     <a class="author" th:attr="data-value=${c.creator.username}" th:text="${#strings.isEmpty(c.creator.name) ? c.creator.username : c.creator.name}">Matt</a>
