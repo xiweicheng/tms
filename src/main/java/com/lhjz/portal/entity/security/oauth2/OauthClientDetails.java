@@ -11,6 +11,7 @@ public class OauthClientDetails implements Serializable {
 
 	private static final long serialVersionUID = -7358074737100865809L;
 	@Id
+	@Column(length = 128)
 	private String clientId;
 	private String resourceIds;
 	private String clientSecret;
