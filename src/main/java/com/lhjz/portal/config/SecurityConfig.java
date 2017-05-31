@@ -98,6 +98,7 @@ public class SecurityConfig {
 					"/landing/**",
 					"/lib/**",
 					"/page/**",
+					"/index.html",
 					"/favicon.ico");
 			// @formatter:on
 		}

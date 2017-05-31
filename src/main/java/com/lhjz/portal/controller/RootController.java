@@ -94,8 +94,13 @@ public class RootController extends BaseController {
 
 	@Autowired
 	Environment env;
-
+	
 	@RequestMapping()
+	public String index() {
+		return "forward:index.html";
+	}
+
+	@RequestMapping("home")
 	public String home(Model model, @RequestParam(value = "id", required = false) Long id,
 			@RequestParam(value = "search", required = false) String search,
 			@PageableDefault(size = 2, sort = { "createDate" }, direction = Direction.DESC) Pageable pageable) {
