@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Blog;
-import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.model.BlogInfo;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Status;
@@ -69,19 +68,6 @@ public class HomeController extends BaseController {
 
 		blogs.forEach(b -> {
 			b.setBlogAuthorities(null);
-			Space space = b.getSpace();
-			if (space != null) {
-				Space spaceN = new Space();
-				spaceN.setId(space.getId());
-				spaceN.setName(space.getName());
-				b.setSpace(spaceN);
-			}
-
-			b.getTags().forEach(tag -> {
-				tag.setCreator(null);
-				tag.setUpdater(null);
-			});
-
 		});
 
 		return RespBody.succeed(blogs);

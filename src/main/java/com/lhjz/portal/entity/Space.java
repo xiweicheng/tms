@@ -45,10 +45,10 @@ import lombok.ToString;
  * @date 2015年3月28日 下午2:03:20
  * 
  */
-@Data
-@ToString(exclude = { "blogs", "spaceAuthorities" })
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Data
+@ToString(exclude = { "blogs", "spaceAuthorities" })
 public class Space implements Serializable {
 
 	private static final long serialVersionUID = 1036120023938526638L;
