@@ -1,22 +1,32 @@
 # TMS(Teamwork Management System)
-> TMS是团队协作(沟通,博文,国际化翻译)web系统(响应式界面设计,移动端适配).
+> TMS是开源团队协作(沟通,博文,国际化翻译)web系统(响应式界面设计,移动端适配).
 >    
-> 试玩: http://tms000.sh1.newtouch.com/page/index.html  
+> **试玩:**  
+> 着陆页: http://tms000.sh1.newtouch.com/  
+> 团队沟通: http://tms000.sh1.newtouch.com/page/index.html  
+> 团队博文: http://tms000.sh1.newtouch.com/page/index.html#/blog  
+> 国际化翻译: http://tms000.sh1.newtouch.com/admin/translate  
 > 账号: admin/88888888  user/88888888  
-> repo: http://git.oschina.net/xiweicheng/tms  https://github.com/xiweicheng/tms  
+> **repo:**  
+> http://git.oschina.net/xiweicheng/tms  
+> https://github.com/xiweicheng/tms  
 
-## GIF show
-**主页设计&国际化翻译**
-![2017-05-09_17-19-13.gif](https://xiweicheng.com/upload/img/0/9434031b-06bb-45a2-9098-de875b5a2b44.gif) 
+## GIF show 
+
+**着陆页** 
+![着陆页](http://translation.sh1.newtouch.com/upload/img/0/8185920a-cecf-42b5-a2f8-8ffdba6c4fdd.gif)
+
+**国际化翻译**
+![国际化翻译](http://translation.sh1.newtouch.com/upload/img/0/bd20688a-9668-4c4a-a8bd-43701d05b7ef.gif) 
 
 **团队沟通**
-![2017-05-09_17-30-18.gif](https://xiweicheng.com/upload/img/0/a7d92130-1343-46d7-ba46-3b4a2c5260f8.gif) 
+![团队沟通](http://translation.sh1.newtouch.com/upload/img/0/27183d4b-9ec9-4333-9f17-0a41441c96c2.gif) 
 
 **团队博文(wiki)**
-![2017-05-09_17-34-24.gif](https://xiweicheng.com/upload/img/0/f58ac129-0917-43c8-90c7-6a9eaeb89245.gif) 
+![团队博文](http://translation.sh1.newtouch.com/upload/img/0/a4f7127f-0d9e-4959-b7f7-d9c7349fb50b.gif) 
 
 **移动端响应式设计**
-![2017-05-09_17-38-11.gif](https://xiweicheng.com/upload/img/0/3691cc74-1740-4e71-8840-f252446cf2ce.gif) 
+![移动端响应式设计](http://translation.sh1.newtouch.com/upload/img/0/4c275019-07b3-4365-992c-b36418cc3069.gif) 
 
 ## 具有以下功能:
 - 团队协作沟通功能(类似于[slack](https://slack.com/) [bearychat](https://bearychat.com/))
