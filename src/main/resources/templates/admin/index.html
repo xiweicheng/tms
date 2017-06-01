@@ -33,9 +33,11 @@
     <div th:with="uri=${#httpServletRequest.requestURI}" th:fragment="sidebar-menu" class="ui left thin vertical inverted labeled icon sidebar menu ad-index-menu">
         <a th:classappend="(${#strings.contains(uri, '/admin/index')} or ${#strings.endsWith(uri,'/admin/')} or ${#strings.endsWith(uri,'/admin')}) ? 'active' : ''" class="item" th:href="@{/admin}" href="index.html"> <i class="home icon"></i> 主页
         </a>
-        <a class="item" target="_blank" th:href="${'/page/index.html#/chat/@' + #authentication.name}" href="/page/index.html#/chat/@admin"> <i class="chat icon"></i> 沟通频道
+        <a class="item" target="_blank" th:href="${'/page/index.html#/chat/@' + #authentication.name}" href="/page/index.html#/chat/@admin"> <i class="chat icon"></i> 团队沟通
         </a>
-        <a th:classappend="${#strings.contains(uri, '/admin/dynamic')} ? 'active' : ''" class="item mi-dynamic" th:href="@{/admin/dynamic}" href="dynamic.html"> <i class="at icon"></i> 沟通动态
+        <a class="item" target="_blank" th:href="${'/page/index.html#/blog'}" href="/page/index.html#/blog"> <i class="wikipedia icon"></i> 团队博文
+        </a>
+        <a th:classappend="${#strings.contains(uri, '/admin/dynamic')} ? 'active' : ''" class="item mi-dynamic" th:href="@{/admin/dynamic}" href="dynamic.html"> <i class="at icon"></i> 翻译动态
         </a>
         <a th:classappend="${#strings.contains(uri, '/admin/translate')} ? 'active' : ''" class="item mi-translate" th:href="@{/admin/translate}" href="translate.html"> <i class="world icon"></i> 翻译管理
         </a>
@@ -54,8 +56,8 @@
         <a class="item ad-index-btn-menu">
             <i class="content icon"></i> 菜单
         </a>
-        <a class="title item" th:href="@{/page/index.html#/blog}" href="/page/index.html#/blog">
-            <b>TMS博文</b>
+        <a class="title item" th:href="@{/}" href="/">
+            <b>TMS</b>
         </a>
         <div class="right menu">
             <div class="item link ad-item-feedback">
@@ -91,10 +93,13 @@
                         <i class="home icon"></i> 主页
                     </a>
                     <a class="item" target="_blank" th:href="${'/page/index.html#/chat/@' + #authentication.name}" href="/page/index.html#/chat/@admin">
-                        <i class="chat icon"></i> 沟通频道
+                        <i class="chat icon"></i> 团队沟通
+                    </a>
+                    <a class="item" target="_blank" th:href="${'/page/index.html#/blog'}" href="/page/index.html#/blog">
+                        <i class="wikipedia icon"></i> 团队博文
                     </a>
                     <a th:classappend="${#strings.contains(uri, '/admin/dynamic')} ? 'active' : ''" class="item mi-dynamic" th:href="@{/admin/dynamic}" href="dynamic.html">
-                        <i class="at icon"></i> 沟通动态
+                        <i class="at icon"></i> 翻译动态
                     </a>
                     <a th:classappend="${#strings.contains(uri, '/admin/translate')} ? 'active' : ''" class="item mi-translate" th:href="@{/admin/translate}" href="translate.html">
                         <i class="world icon"></i> 翻译管理
