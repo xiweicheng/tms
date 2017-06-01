@@ -6,7 +6,5 @@ public class MailTest {
 
 	@Test
 	public void get() {
-		String[] strings = Mail.instance().get();
-		System.out.println(strings);
 	}
 }

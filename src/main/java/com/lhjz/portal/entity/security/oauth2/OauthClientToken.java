@@ -2,6 +2,7 @@ package com.lhjz.portal.entity.security.oauth2;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -11,6 +12,7 @@ public class OauthClientToken implements Serializable {
 
 	private static final long serialVersionUID = -348913065531874292L;
 	@Id
+	@Column(length = 128)
 	private String authenticationId;
 	private String tokenId;
 	@Lob

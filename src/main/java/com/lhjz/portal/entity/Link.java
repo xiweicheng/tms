@@ -29,6 +29,9 @@ import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.LinkType;
 import com.lhjz.portal.pojo.Enum.Status;
 
+import lombok.Data;
+import lombok.ToString;
+
 /**
  * 
  * @author xi
@@ -38,6 +41,8 @@ import com.lhjz.portal.pojo.Enum.Status;
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Data
+@ToString
 public class Link implements Serializable {
 
 	private static final long serialVersionUID = 345113870112433814L;
@@ -51,6 +56,8 @@ public class Link implements Serializable {
 
 	@Column
 	private String title;
+	
+	private Long count;
 
 	@Column
 	private Long channelId;
@@ -83,100 +90,5 @@ public class Link implements Serializable {
 
 	@Version
 	private long version;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getHref() {
-		return href;
-	}
-
-	public void setHref(String href) {
-		this.href = href;
-	}
-
-	public Long getChannelId() {
-		return channelId;
-	}
-
-	public void setChannelId(Long channelId) {
-		this.channelId = channelId;
-	}
-
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
-	}
-
-	public User getUpdater() {
-		return updater;
-	}
-
-	public void setUpdater(User updater) {
-		this.updater = updater;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public Date getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-
-	public Date getUpdateDate() {
-		return updateDate;
-	}
-
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
-	}
-
-	public long getVersion() {
-		return version;
-	}
-
-	public void setVersion(long version) {
-		this.version = version;
-	}
-
-	public LinkType getType() {
-		return type;
-	}
-
-	public void setType(LinkType type) {
-		this.type = type;
-	}
-
-	@Override
-	public String toString() {
-		return "Link [id=" + id + ", href=" + href + ", title=" + title + ", channelId=" + channelId + ", creator="
-				+ creator + ", updater=" + updater + ", createDate=" + createDate + ", updateDate=" + updateDate
-				+ ", status=" + status + ", type=" + type + ", version=" + version + "]";
-	}
 
 }

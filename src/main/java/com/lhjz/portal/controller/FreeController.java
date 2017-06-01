@@ -4,6 +4,7 @@
 package com.lhjz.portal.controller;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jayway.jsonpath.JsonPath;
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
@@ -56,7 +57,6 @@ import com.lhjz.portal.util.JsonUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
-import com.lhjz.portal.util.ThreadUtil;
 import com.lhjz.portal.util.WebUtil;
 
 /**
@@ -73,7 +73,7 @@ public class FreeController extends BaseController {
 	static final Logger logger = LoggerFactory.getLogger(FreeController.class);
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	@Value("${lhjz.mail.to.addresses}")
 	private String toAddrArr;
@@ -140,11 +140,11 @@ public class FreeController extends BaseController {
 			sts = mailSender.sendHtml(
 					String.format("TMS-密码重置_%s",
 							DateUtil.format(new Date(), DateUtil.FORMAT7)),
-					content, user.getMails());
+					content, null, Mail.instance().addUsers(user).get());
 
 			logger.info("重置密码邮件发送状态: " + sts);
 			return sts ? RespBody.succeed() : RespBody.failed("重置邮件发送失败!");
-		} catch (MessagingException e) {
+		} catch (MessagingException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return RespBody.failed("重置邮件发送失败!");
 		}
@@ -244,11 +244,11 @@ public class FreeController extends BaseController {
 							String.format("TMS-账户激活_%s",
 									DateUtil.format(new Date(),
 											DateUtil.FORMAT7)),
-							content, newUser.getMails());
+							content, null, Mail.instance().addUsers(newUser).get());
 
 			logger.info("激活账户邮件发送状态: " + sts);
 			return sts ? RespBody.succeed() : RespBody.failed("激活账户邮件发送失败!");
-		} catch (MessagingException e) {
+		} catch (MessagingException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return RespBody.failed("激活账户邮件发送失败!");
 		}
@@ -279,16 +279,11 @@ public class FreeController extends BaseController {
 
 		if (StringUtil.isNotEmpty(toAddrArr)) {
 			try {
-				mailSender
-						.sendHtml(
-								String.format("TMS-新注册用户通知_%s",
-										DateUtil.format(new Date(),
-												DateUtil.FORMAT7)),
-								"注册用户: " + user.getUsername() + " - "
-										+ user.getMails(),
-								toAddrArr.split(","));
+				mailSender.sendHtml(String.format("TMS-新注册用户通知_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						"注册用户: " + user.getUsername() + " - " + user.getMails(),
+						null, Mail.instance().add(toAddrArr.split(",")).get());
 
-			} catch (MessagingException e) {
+			} catch (MessagingException | UnsupportedEncodingException e) {
 				e.printStackTrace();
 				logger.warn("新注册用户通知邮件发送失败!");
 			}
@@ -380,7 +375,7 @@ public class FreeController extends BaseController {
 			channel2.getMembers().forEach(item -> mail2.addUsers(item));
 		}
 		
-		mail2.addUsers(channel2.getSubscriber());
+		mail2.addUsers(channel2.getSubscriber(), getLoginUser());
 		
 		if (!mail2.isEmpty()) {
 			final User loginUser = getLoginUser();
@@ -388,22 +383,15 @@ public class FreeController extends BaseController {
 			
 			final String html = StringUtil.md2Html(sb.toString());
 
-			ThreadUtil.exec(() -> {
-
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(
-							String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
-							mail2.get());
-					logger.info("沟通频道来自第三方应用推送的消息邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("沟通频道来自第三方应用推送的消息邮件发送失败！");
-				}
-
-			});
+			try {
+				mailSender.sendHtmlByQueue(
+						String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
+						getLoginUserName(loginUser), mail2.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
 		runAsAuth.rest();
@@ -481,7 +469,7 @@ public class FreeController extends BaseController {
 			channel2.getMembers().forEach(item -> mail2.addUsers(item));
 		}
 		
-		mail2.addUsers(channel2.getSubscriber());
+		mail2.addUsers(channel2.getSubscriber(), getLoginUser());
 		
 		if (!mail2.isEmpty()) {
 
@@ -490,22 +478,15 @@ public class FreeController extends BaseController {
 
 			final String html = StringUtil.md2Html(sb.toString());
 
-			ThreadUtil.exec(() -> {
-
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(
-							String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
-							mail2.get());
-					logger.info("沟通频道来自第三方应用推送的消息邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("沟通频道来自第三方应用推送的消息邮件发送失败！");
-				}
-
-			});
+			try {
+				mailSender.sendHtmlByQueue(
+						String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
+						getLoginUserName(loginUser), mail2.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		runAsAuth.rest();

@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
@@ -108,7 +108,7 @@ public class ChatDirectController extends BaseController {
 	ChatStowRepository chatStowRepository;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -139,25 +139,14 @@ public class ChatDirectController extends BaseController {
 				+ loginUser.getUsername() + "?id="
 				+ chatDirect2.getId();
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(
-						String.format("TMS-私聊@消息_%s",
-								DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic",
-								MapUtil.objArr2Map("user", loginUser, "date",
-										new Date(), "href", href, "title",
-										"发给你的私聊消息", "content", contentHtml)),
-						chatToUser.getMails());
-				logger.info("私聊邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("私聊邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-私聊@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", "发给你的私聊消息", "content", contentHtml)),
+					getLoginUserName(loginUser), Mail.instance().addUsers(chatToUser).get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed();
 	}
@@ -205,25 +194,14 @@ public class ChatDirectController extends BaseController {
 			html = "<h3>编辑后内容:</h3>" + contentHtml + "<hr/><h3>编辑前内容:</h3>" + contentHtmlOld;
 		}
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(
-						String.format("TMS-私聊@消息更新_%s",
-								DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic",
-								MapUtil.objArr2Map("user", loginUser, "date",
-										new Date(), "href", href, "title",
-										"发给你的私聊消息更新", "content", html)),
-						chatDirect.getChatTo().getMails());
-				logger.info("私聊消息更新邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("私聊消息更新邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-私聊@消息更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", "发给你的私聊消息更新", "content", html)),
+					getLoginUserName(loginUser), Mail.instance().addUsers(chatDirect.getChatTo()).get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed();
 	}
@@ -590,7 +568,7 @@ public class ChatDirectController extends BaseController {
 						.sendHtml(String.format("TMS-沟通消息分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 								TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user",
 										loginUser, "date", new Date(), "href", href, "title", title, "content", html2)),
-								mail.get());
+								getLoginUserName(loginUser), mail.get());
 				logger.info("沟通消息分享邮件发送成功！");
 			} catch (Exception e) {
 				e.printStackTrace();

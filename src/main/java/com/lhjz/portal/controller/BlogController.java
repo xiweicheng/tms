@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.entity.BlogAuthority;
 import com.lhjz.portal.entity.BlogFollower;
@@ -149,7 +149,7 @@ public class BlogController extends BaseController {
 	TagRepository tagRepository;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -206,21 +206,16 @@ public class BlogController extends BaseController {
 				});
 			}
 
-			ThreadUtil.exec(() -> {
+			try {
+				mailSender.sendHtmlByQueue(
+						String.format("TMS-博文频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", "下面的博文消息中有@到你", "content", html)),
+						getLoginUserName(loginUser), mail.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(String.format("TMS-博文频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", "下面的博文消息中有@到你", "content", html)),
-							mail.get());
-					logger.info("博文邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("博文邮件发送失败！");
-				}
-
-			});
 		}
 
 		return RespBody.succeed(blog2);
@@ -341,23 +336,16 @@ public class BlogController extends BaseController {
 
 				followers.forEach(bf -> mail.addUsers(bf.getCreator()));
 
-				ThreadUtil.exec(() -> {
+				try {
+					mailSender.sendHtmlByQueue(
+							String.format("TMS-博文编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", href, "title", "下面编辑的博文消息中有@到你", "content", html)),
+							getLoginUserName(loginUser), mail.get());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 
-					try {
-						Thread.sleep(3000);
-						mailSender.sendHtml(
-								String.format("TMS-博文编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-								TemplateUtil.process("templates/mail/mail-dynamic",
-										MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
-												"下面编辑的博文消息中有@到你", "content", html)),
-								mail.get());
-						logger.info("博文编辑邮件发送成功！");
-					} catch (Exception e) {
-						e.printStackTrace();
-						logger.error("博文编辑邮件发送失败！");
-					}
-
-				});
 			}
 
 			return RespBody.succeed(blog2);
@@ -549,21 +537,15 @@ public class BlogController extends BaseController {
 		final Mail mail = Mail.instance().addUsers(blog.getCreator());
 		final String html = "<h3>投票博文消息内容:</h3><hr/>" + contentHtml;
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(String.format("TMS-博文消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", titleHtml, "content", html)),
-						mail.get());
-				logger.info("博文消息投票邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("博文消息投票邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-博文消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
+							getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed(blog);
 	}
@@ -618,21 +600,15 @@ public class BlogController extends BaseController {
 		final Mail mail = Mail.instance().addUsers(comment.getCreator());
 		final String html = "<h3>投票博文评论内容:</h3><hr/>" + contentHtml;
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(String.format("TMS-博文评论投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", titleHtml, "content", html)),
-						mail.get());
-				logger.info("博文评论投票邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("博文评论投票邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-博文评论投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
+							getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed(comment2);
 	}
@@ -732,7 +708,7 @@ public class BlogController extends BaseController {
 						.sendHtml(String.format("TMS-博文分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 								TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user",
 										loginUser, "date", new Date(), "href", href, "title", title, "content", html2)),
-								mail.get());
+								getLoginUserName(loginUser), mail.get());
 				logger.info("博文分享邮件发送成功！");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -814,7 +790,7 @@ public class BlogController extends BaseController {
 						.sendHtml(String.format("TMS-博文评论分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 								TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user",
 										loginUser, "date", new Date(), "href", href, "title", title, "content", html2)),
-								mail.get());
+								getLoginUserName(loginUser), mail.get());
 				logger.info("博文评论分享邮件发送成功！");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -883,21 +859,15 @@ public class BlogController extends BaseController {
 
 		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(String.format("TMS-博文评论_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", "下面博文评论涉及到你", "content", html)),
-						mail.get());
-				logger.info("博文评论邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("博文评论邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-博文评论_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", href, "title", "下面博文评论涉及到你", "content", html)),
+							getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed(comment2);
 	}
@@ -953,21 +923,15 @@ public class BlogController extends BaseController {
 		
 		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(String.format("TMS-博文评论更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", "下面更新博文评论涉及到你", "content", html)),
-						mail.get());
-				logger.info("博文评论更新邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("博文评论更新邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-博文评论更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", href, "title", "下面更新博文评论涉及到你", "content", html)),
+							getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed(comment2);
 	}

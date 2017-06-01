@@ -111,6 +111,18 @@ public abstract class BaseController {
 	protected boolean isSuperOrCreator(String creator) {
 		return isSuper() || isCreator(creator);
 	}
+	
+	protected String getLoginUserName(User user) {
+		return StringUtil.isEmpty(user.getName()) ? user.getUsername() : user.getName();
+	}
+	
+	protected String getLoginUserName() {
+		User user = getLoginUser();
+		if (user == null) {
+			return StringUtil.EMPTY;
+		}
+		return StringUtil.isEmpty(user.getName()) ? user.getUsername() : user.getName();
+	}
 
 	@SuppressWarnings("unchecked")
 	@ExceptionHandler(Exception.class)

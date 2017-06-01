@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -178,6 +179,15 @@ public class LinkController extends BaseController {
 				chatChannelRepository.saveAndFlush(chatChannel);
 			}
 		}
+
+		return RespBody.succeed(id);
+	}
+	
+	@PostMapping("count/inc")
+	@ResponseBody
+	public RespBody incCount(@RequestParam("id") Long id) {
+
+		linkRepository.incCount(id);
 
 		return RespBody.succeed(id);
 	}

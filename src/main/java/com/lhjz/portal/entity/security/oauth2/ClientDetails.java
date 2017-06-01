@@ -11,6 +11,7 @@ public class ClientDetails implements Serializable {
 
 	private static final long serialVersionUID = -4263737744993733373L;
 	@Id
+	@Column(length = 128)
 	private String appId;
 	private String resourceIds;
 	private String appSecret;

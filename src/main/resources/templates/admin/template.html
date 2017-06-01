@@ -29,7 +29,7 @@
                 {{if creator.iconName}}
                     <span style="display: inline-block; height: 35px; line-height: 35px; vertical-align: top;">${creator.iconName}</span>
                 {{else}}
-                    <img src="/img/head.png">
+                    <img src="/image/head.png">
                 {{/if}}
             </a>
             <div class="content">
@@ -117,7 +117,7 @@
                 {{if creator.iconName}}
                     <span style="display: inline-block; height: 35px; line-height: 35px; vertical-align: top;">${creator.iconName}</span>
                 {{else}}
-                    <img src="/img/head.png">
+                    <img src="/image/head.png">
                 {{/if}}
             </a>
             <div class="content">
@@ -178,7 +178,7 @@
                 {{if creator.iconName}}
                     <span style="display: inline-block; height: 35px; line-height: 35px; vertical-align: top;">${creator.iconName}</span>
                 {{else}}
-                    <img src="/img/head.png">
+                    <img src="/image/head.png">
                 {{/if}}
             </a>
             <div class="content">
@@ -231,7 +231,7 @@
                 {{if creator.iconName}}
                     <span style="display: inline-block; height: 35px; line-height: 35px; vertical-align: top;">${creator.iconName}</span>
                 {{else}}
-                    <img src="/img/head.png">
+                    <img src="/image/head.png">
                 {{/if}}
                 </a>
             </div>
@@ -524,7 +524,7 @@
                     {{if iconName}}
                         <span style="display: inline-block; height: 35px; line-height: 35px; vertical-align: top;">${iconName}</span>
                     {{else}}
-                        <img src="/img/head.png">
+                        <img src="/image/head.png">
                     {{/if}}
                 </a>
             </div>
@@ -551,7 +551,7 @@
                     {{if iconName}}
                         <span style="display: inline-block; height: 35px; line-height: 35px; vertical-align: top;">${iconName}</span>
                     {{else}}
-                        <img src="/img/head.png">
+                        <img src="/image/head.png">
                     {{/if}}
                 </a>
             </div>
@@ -583,7 +583,7 @@
                     {{if iconName}}
                         <span style="display: inline-block; height: 35px; line-height: 35px; vertical-align: top;">${iconName}</span>
                     {{else}}
-                        <img src="/img/head.png">
+                        <img src="/image/head.png">
                     {{/if}}
                 </a>
             </div>
@@ -1000,10 +1000,10 @@
                                 </div>
                             </div>
                             <div class="item" th:each="u : ${users}" th:if="${u.enabled}" th:attr="data-value=${u.username}, data-label=${#strings.isEmpty(u.name) ? u.username : u.name}">
-                                <!-- <img class="ui avatar image" th:src="@{/img/head.png}" src="/images/avatar/small/helen.jpg"> -->
+                                <!-- <img class="ui avatar image" th:src="@{/image/head.png}" src="/images/avatar/small/helen.jpg"> -->
                                 <a class="avatar ui mini circular image" style="width: 35px; height: 35px; font-size: 35px; background-color: rgba(150, 178, 183, 0.4); text-align: center; padding-right: 0px;">
                                     <span style="display: inline-block; height: 35px; line-height: 35px; vertical-align: top;" th:if="${not #strings.isEmpty(u.name)}" th:text="${#strings.toUpperCase(#strings.substring(u.name,#strings.length(u.name) - 1,#strings.length(u.name)))}">管理员</span>
-                                    <img style="height:35px;" th:if="${#strings.isEmpty(u.name)}" th:src="@{/img/head.png}" src="../../static/img/head.png">
+                                    <img style="height:35px;" th:if="${#strings.isEmpty(u.name)}" th:src="@{/image/head.png}" src="../../static/image/head.png">
                                 </a>
                                 <div class="content">
                                     <div class="header" th:text="${(#strings.isEmpty(u.name) ? u.username : u.name) + ' - ' + u.mails + ' (' + u.username + ')'}">张三 - weicheng.xi@newtouch.cn (xiweicheng)</div>

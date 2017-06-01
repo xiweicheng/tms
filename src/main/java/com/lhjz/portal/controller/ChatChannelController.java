@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatAt;
 import com.lhjz.portal.entity.ChatChannel;
@@ -65,7 +65,6 @@ import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
-import com.lhjz.portal.util.ThreadUtil;
 import com.lhjz.portal.util.ValidateUtil;
 import com.lhjz.portal.util.WebUtil;
 
@@ -110,7 +109,7 @@ public class ChatChannelController extends BaseController {
 	ScheduleRepository scheduleRepository;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -140,7 +139,7 @@ public class ChatChannelController extends BaseController {
 		final User loginUser = getLoginUser();
 
 		final Mail mail = Mail.instance();
-		mail.addUsers(channel.getSubscriber());
+		mail.addUsers(channel.getSubscriber(), loginUser);
 		
 		if (StringUtil.isNotEmpty(usernames)) {
 
@@ -171,23 +170,15 @@ public class ChatChannelController extends BaseController {
 			chatAtRepository.flush();
 
 		}
-		
-		if (!mail.isEmpty()) {
-			ThreadUtil.exec(() -> {
 
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(String.format("TMS-沟通频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-沟通频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", "下面的沟通频道消息中有@到你", "content", html)),
-							mail.get());
-					logger.info("沟通频道邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("沟通频道邮件发送失败！");
-				}
-
-			});
+							getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return RespBody.succeed(chatChannel2);
@@ -321,23 +312,14 @@ public class ChatChannelController extends BaseController {
 
 		}
 
-		if (!mail.isEmpty()) {
-			ThreadUtil.exec(() -> {
-
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(
-							String.format("TMS-沟通频道编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-沟通频道编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
 									"date", new Date(), "href", href, "title", "下面编辑的沟通频道消息中有@到你", "content", html)),
-							mail.get());
-					logger.info("沟通频道编辑邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("沟通频道编辑邮件发送失败！");
-				}
-
-			});
+							getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		
 		return RespBody.succeed(chatChannel2);
@@ -676,7 +658,7 @@ public class ChatChannelController extends BaseController {
 				chatChannel.setVoteZanCnt(++voteZanCnt);
 
 				chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
-				title = loginUser.getName() + "[" + loginUsername
+				title = getLoginUserName(loginUser) + "[" + loginUsername
 						+ "]赞了你的频道消息!";
 			}
 
@@ -695,7 +677,7 @@ public class ChatChannelController extends BaseController {
 				chatChannel.setVoteCaiCnt(++voteCaiCnt);
 				
 				chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
-				title = loginUser.getName() + "[" + loginUsername
+				title = getLoginUserName(loginUser) + "[" + loginUsername
 						+ "]踩了你的频道消息!";
 			}
 		}
@@ -705,24 +687,14 @@ public class ChatChannelController extends BaseController {
 		final Mail mail = Mail.instance().addUsers(chatChannel.getCreator());
 		final String html = "<h3>投票频道消息内容:</h3><hr/>" + contentHtml;
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(String.format("TMS-沟通频道消息投票@消息_%s",
-						DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic",
-								MapUtil.objArr2Map("user", loginUser, "date",
-										new Date(), "href", href, "title",
-										titleHtml, "content", html)), mail
-								.get());
-				logger.info("沟通频道消息投票邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("沟通频道消息投票邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-沟通频道消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", titleHtml, "content", html)),
+					getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		log(Action.Vote, Target.ChatChannel, chatChannel.getId(), chatChannel2);
 
@@ -947,22 +919,15 @@ public class ChatChannelController extends BaseController {
 			});
 		}
 
-		ThreadUtil.exec(() -> {
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-沟通消息分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", title, "content", html2)),
+					getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-			try {
-				Thread.sleep(3000);
-				mailSender
-						.sendHtml(String.format("TMS-沟通消息分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-								TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user",
-										loginUser, "date", new Date(), "href", href, "title", title, "content", html2)),
-								mail.get());
-				logger.info("沟通消息分享邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("沟通消息分享邮件发送失败！");
-			}
-
-		});
 		return RespBody.succeed();
 	}
 }

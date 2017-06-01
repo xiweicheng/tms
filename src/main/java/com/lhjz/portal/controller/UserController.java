@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.security.Authority;
 import com.lhjz.portal.entity.security.AuthorityId;
 import com.lhjz.portal.entity.security.Group;
@@ -50,7 +50,6 @@ import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
-import com.lhjz.portal.util.ThreadUtil;
 import com.lhjz.portal.util.WebUtil;
 
 /**
@@ -76,7 +75,7 @@ public class UserController extends BaseController {
 	PasswordEncoder passwordEncoder;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	@Autowired
 	GroupRepository groupRepository;
@@ -151,27 +150,14 @@ public class UserController extends BaseController {
 				+ userForm.getUsername() + "&password="
 				+ userForm.getPassword();
 
-		if (!mail.isEmpty()) {
-			ThreadUtil.exec(() -> {
-
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(
-							String.format("TMS-用户创建_%s",
-									DateUtil.format(new Date(),
-											DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/user-create",
-									MapUtil.objArr2Map("user", userForm2,
-											"userRole", userRole, "href", href,
-											"loginUrl", loginUrl, "baseUrl", baseUrl)),
-							mail.get());
-					logger.info("创建用户邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("创建用户翻译邮件发送失败！");
-				}
-
-			});
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-用户创建_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/user-create", MapUtil.objArr2Map("user", userForm2,
+									"userRole", userRole, "href", href, "loginUrl", loginUrl, "baseUrl", baseUrl)),
+							null, mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return RespBody.succeed(user.getUsername());
@@ -251,26 +237,14 @@ public class UserController extends BaseController {
 		final String title1 = title;
 		final String content1 = content;
 
-		if (!mail.isEmpty()) {
-			ThreadUtil.exec(() -> {
-
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(String.format("TMS-系统消息_%s",
-							DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-msg",
-									MapUtil.objArr2Map("user", loginUser,
-											"date", new Date(), "href", href,
-											"title", title1, "content",
-											content1)),
-							mail.get());
-					logger.info("邮件通知发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("邮件通知发送失败！");
-				}
-
-			});
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-系统消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-msg", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", href, "title", title1, "content", content1)),
+							getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return RespBody.succeed();

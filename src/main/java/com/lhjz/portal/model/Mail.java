@@ -37,7 +37,7 @@ public class Mail {
 
 	static Logger logger = LoggerFactory.getLogger(Mail.class);
 
-	private Set<String> set = new HashSet<String>();
+	private Set<MailAddr> set = new HashSet<>();
 
 	private Map<String, String> mapHref = new HashMap<String, String>();
 
@@ -130,11 +130,24 @@ public class Mail {
 	 * @param objs
 	 * @return
 	 */
+	public Mail add(MailAddr... mails) {
+
+		if (mails != null) {
+			for (MailAddr mail : mails) {
+				this.set.add(mail);
+			}
+		}
+
+		return this;
+	}
+	
 	public Mail add(String... mails) {
 
 		if (mails != null) {
 			for (String mail : mails) {
-				this.set.add(mail);
+				String[] arr = StringUtil.split(mail, "@");
+				String personal = (arr != null && arr.length > 0) ? arr[0] : mail;
+				this.add(new MailAddr(mail, personal));
 			}
 		}
 
@@ -152,7 +165,12 @@ public class Mail {
 		if (users != null) {
 			for (User user : users) {
 				if (user.isEnabled()) {
-					this.add(user.getMails());
+					String personal = user.getName();
+					if (StringUtil.isEmpty(personal)) {
+						personal = user.getUsername();
+					}
+
+					this.add(new MailAddr(user.getMails(), personal));
 				}
 			}
 		}
@@ -166,17 +184,35 @@ public class Mail {
 	 * @param users
 	 * @return
 	 */
-	public Mail addUsers(Collection<User> users) {
-		
+	public Mail addUsers(Collection<User> users, User... exclusive) {
+
 		if (users != null) {
 			for (User user : users) {
-				if (user.isEnabled()) {
-					this.add(user.getMails());
+				if (user.isEnabled() && !isContained(user, exclusive)) {
+					String personal = user.getName();
+					if (StringUtil.isEmpty(personal)) {
+						personal = user.getUsername();
+					}
+
+					this.add(new MailAddr(user.getMails(), personal));
 				}
 			}
 		}
-		
+
 		return this;
+	}
+	
+	private boolean isContained(User user, User... users) {
+
+		if (user != null && users != null && users.length > 0) {
+			for (int i = 0; i < users.length; i++) {
+				if (user.equals(users[i])) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	public Mail addWatchers(Translate translate) {
@@ -185,12 +221,9 @@ public class Mail {
 		this.addWatchers(translate.getProject());
 
 		// 翻译关注者
-		Set<User> watchers2 = translate.getWatchers();
-		Set<String> watcherMails2 = watchers2.stream().map((user) -> {
-			return user.isEnabled() ? user.getMails() : StringUtil.EMPTY;
-		}).collect(Collectors.toSet());
-
-		this.addAll(watcherMails2);
+		Set<User> watchers = translate.getWatchers();
+		Set<User> enabledUsers = watchers.stream().filter(user -> user.isEnabled()).collect(Collectors.toSet());
+		this.addUsers(enabledUsers);
 
 		return this;
 	}
@@ -199,22 +232,8 @@ public class Mail {
 
 		// 项目关注者
 		Set<User> watchers = project.getWatchers();
-		Set<String> watcherMails = watchers.stream().map((user) -> {
-			return user.isEnabled() ? user.getMails() : StringUtil.EMPTY;
-		}).collect(Collectors.toSet());
-
-		this.addAll(watcherMails);
-
-		return this;
-	}
-
-	public Mail addAll(Collection<String> mails) {
-
-		if (mails != null) {
-			for (String mail : mails) {
-				this.add(mail);
-			}
-		}
+		Set<User> enabledUsers = watchers.stream().filter(user -> user.isEnabled()).collect(Collectors.toSet());
+		this.addUsers(enabledUsers);
 
 		return this;
 	}
@@ -222,7 +241,7 @@ public class Mail {
 	public Mail removeUsers(User... users) {
 
 		for (User user : users) {
-			this.remove(user.getMails());
+			this.set.remove(new MailAddr(user.getMails(), null));
 		}
 
 		return this;
@@ -231,25 +250,17 @@ public class Mail {
 	public Mail remove(String... mails) {
 
 		for (String mail : mails) {
-			this.set.remove(mail);
+			this.set.remove(new MailAddr(mail, null));
 		}
 
 		return this;
 	}
-
-	public String[] get() {
-
-		this.remove(StringUtil.EMPTY);
-
-		String[] mails = this.set.toArray(new String[0]);
-
-		logger.info("发送邮件对象: {}", StringUtil.join(",", mails));
-
-		return mails;
+	
+	public MailAddr[] get() {
+		return this.set.toArray(new MailAddr[0]);
 	}
 
 	public boolean isEmpty() {
-		this.remove(StringUtil.EMPTY);
 		return this.set.size() == 0;
 	}
 

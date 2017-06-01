@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.Chat;
 import com.lhjz.portal.entity.Comment;
@@ -53,7 +53,6 @@ import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
-import com.lhjz.portal.util.ThreadUtil;
 import com.lhjz.portal.util.WebUtil;
 
 /**
@@ -88,15 +87,20 @@ public class RootController extends BaseController {
 	CommentRepository commentRepository;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	@Value("${lhjz.mail.to.addresses}")
 	private String toAddrArr;
 
 	@Autowired
 	Environment env;
-
+	
 	@RequestMapping()
+	public String index() {
+		return "forward:index.html";
+	}
+
+	@RequestMapping("home")
 	public String home(Model model, @RequestParam(value = "id", required = false) Long id,
 			@RequestParam(value = "search", required = false) String search,
 			@PageableDefault(size = 2, sort = { "createDate" }, direction = Direction.DESC) Pageable pageable) {
@@ -198,21 +202,14 @@ public class RootController extends BaseController {
 			loginUser = user;
 		}
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(String.format("TMS-博文回复_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", "博文回复消息", "content", content2)),
-						StringUtil.split(toAddrArr, ","));
-				logger.info("博文回复邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("博文回复邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-博文回复_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", "博文回复消息", "content", content2)),
+					getLoginUserName(loginUser), Mail.instance().add(StringUtil.split(toAddrArr, ",")).get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return RespBody.succeed(comment2);
 	}
@@ -304,21 +301,15 @@ public class RootController extends BaseController {
 		final Mail mail = Mail.instance().addUsers(chat.getCreator());
 		final String html = "<h3>投票博文内容:</h3><hr/>" + contentHtml;
 
-		ThreadUtil.exec(() -> {
-
-			try {
-				Thread.sleep(3000);
-				mailSender.sendHtml(String.format("TMS-博文投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", titleHtml, "content", html)),
-						mail.get());
-				logger.info("博文投票邮件发送成功！");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("博文投票邮件发送失败！");
-			}
-
-		});
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-博文投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
+							getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		log(Action.Vote, Target.Chat, chat.getId(), chat2);
 

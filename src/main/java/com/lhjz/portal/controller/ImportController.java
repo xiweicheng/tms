@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Label;
 import com.lhjz.portal.entity.Language;
 import com.lhjz.portal.entity.Project;
@@ -55,7 +55,6 @@ import com.lhjz.portal.util.JsonUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
-import com.lhjz.portal.util.ThreadUtil;
 import com.lhjz.portal.util.WebUtil;
 
 /**
@@ -93,7 +92,7 @@ public class ImportController extends BaseController {
 	AuthorityRepository authorityRepository;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	String translateAction = "admin/translate";
 
@@ -373,30 +372,13 @@ public class ImportController extends BaseController {
 			});
 		}
 
-		// 如果邮件通知
-		if (mail.get().length > 0) {
-
-			ThreadUtil.exec(() -> {
-
-				try {
-					mailSender.sendHtml(
-							String.format("TMS-翻译导入_%s",
-									DateUtil.format(new Date(),
-											DateUtil.FORMAT7)),
-							TemplateUtil.process(
-									"templates/mail/translate-import",
-									MapUtil.objArr2Map("user", loginUser,
-											"project", project, "importDate",
-											new Date(), "href", href, "body",
-											msg)),
-							mail.get());
-					logger.info("批量导入翻译邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("批量导入翻译邮件发送失败！");
-				}
-
-			});
+		try {
+			mailSender.sendHtmlByQueue(String.format("TMS-翻译导入_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/translate-import", MapUtil.objArr2Map("user", loginUser,
+							"project", project, "importDate", new Date(), "href", href, "body", msg)),
+					getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return RespBody.succeed(msg);

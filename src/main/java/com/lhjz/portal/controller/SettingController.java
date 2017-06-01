@@ -3,6 +3,7 @@
  */
 package com.lhjz.portal.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender2;
+import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Setting;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
@@ -32,7 +33,6 @@ import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.SettingRepository;
 import com.lhjz.portal.util.JsonUtil;
 import com.lhjz.portal.util.StringUtil;
-import com.lhjz.portal.util.ThreadUtil;
 
 /**
  * 
@@ -54,7 +54,7 @@ public class SettingController extends BaseController {
 	SettingRepository settingRepository;
 
 	@Autowired
-	MailSender2 mailSender;
+	MailSender mailSender;
 
 	@Value("${lhjz.mail.to.addresses}")
 	private String toAddrArr;
@@ -97,7 +97,7 @@ public class SettingController extends BaseController {
 		try {
 			boolean sendSts = mailSender.sendHtml(
 					"邮箱服务配置测试邮件-" + System.currentTimeMillis(),
-					"恭喜您,邮箱服务配置成功!", mail.get());
+					"恭喜您,邮箱服务配置成功!", null, mail.get());
 			logger.info("邮箱服务配置测试邮件发送成功！");
 
 			if (sendSts) {
@@ -105,7 +105,7 @@ public class SettingController extends BaseController {
 			} else {
 				return RespBody.failed();
 			}
-		} catch (MessagingException e) {
+		} catch (MessagingException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 			logger.error("邮箱服务配置测试邮件发送失败！");
 			return RespBody.failed(e.getMessage());
@@ -170,21 +170,10 @@ public class SettingController extends BaseController {
 				.add(StringUtil.split(toAddrArr, ","))
 				.add(StringUtil.split(addr, ","));
 
-		if (!mail.isEmpty()) {
-			ThreadUtil.exec(() -> {
-
-				try {
-					Thread.sleep(3000);
-					mailSender.sendHtml(
-							"邮箱服务配置测试邮件-" + System.currentTimeMillis(),
-							"恭喜您,邮箱服务配置成功!", mail.get());
-					logger.info("沟通邮件发送成功！");
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("沟通邮件发送失败！");
-				}
-
-			});
+		try {
+			mailSender.sendHtmlByQueue("邮箱服务配置测试邮件-" + System.currentTimeMillis(), "恭喜您,邮箱服务配置成功!", null, mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return RespBody.succeed();
