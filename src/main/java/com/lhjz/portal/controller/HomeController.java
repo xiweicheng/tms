@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Blog;
+import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.model.BlogInfo;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Status;
@@ -66,7 +67,22 @@ public class HomeController extends BaseController {
 
 		Page<Blog> blogs = blogRepository.findByStatusNotAndOpenedTrue(Status.Deleted, pageable);
 
-		blogs.forEach(b -> b.setBlogAuthorities(null));
+		blogs.forEach(b -> {
+			b.setBlogAuthorities(null);
+			Space space = b.getSpace();
+			if (space != null) {
+				Space spaceN = new Space();
+				spaceN.setId(space.getId());
+				spaceN.setName(space.getName());
+				b.setSpace(spaceN);
+			}
+
+			b.getTags().forEach(tag -> {
+				tag.setCreator(null);
+				tag.setUpdater(null);
+			});
+
+		});
 
 		return RespBody.succeed(blogs);
 	}
@@ -98,6 +114,14 @@ public class HomeController extends BaseController {
 		Blog pre = blogRepository.findTopByStatusNotAndOpenedTrueAndIdLessThanOrderByIdDesc(Status.Deleted, id);
 		Blog next = blogRepository.findTopByStatusNotAndOpenedTrueAndIdGreaterThanOrderByIdAsc(Status.Deleted, id);
 
+		// 博文阅读次数+1
+		Long readCnt = blog.getReadCnt();
+		readCnt = readCnt == null ? 1L : (readCnt + 1);
+		
+		blogRepository.updateReadCnt(readCnt, id);
+
+		blog.setReadCnt(readCnt);
+		
 		return RespBody.succeed(new BlogInfo(blog, pre, next));
 	}
 
