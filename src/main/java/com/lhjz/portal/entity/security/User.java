@@ -26,6 +26,7 @@ import javax.persistence.Version;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.Chat;
+import com.lhjz.portal.entity.ChatLabel;
 import com.lhjz.portal.entity.Project;
 import com.lhjz.portal.entity.Schedule;
 import com.lhjz.portal.entity.Translate;
@@ -124,6 +125,11 @@ public class User implements java.io.Serializable, Comparable<User> {
 	@ManyToMany
 	@JoinTable(name = "actor_schedule", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "schedule_id") })
 	private Set<Schedule> actSchedules = new HashSet<Schedule>();
+	
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "voter_chat_label", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "chat_label_id") })
+	private Set<ChatLabel> voterChatLabels = new HashSet<>();
 
 	public User() {
 	}

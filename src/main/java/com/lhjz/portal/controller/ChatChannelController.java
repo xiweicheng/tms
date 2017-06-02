@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,6 +47,7 @@ import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatAt;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
+import com.lhjz.portal.entity.ChatLabel;
 import com.lhjz.portal.entity.ChatStow;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
@@ -58,6 +61,7 @@ import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatAtRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
+import com.lhjz.portal.repository.ChatLabelRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.ScheduleRepository;
 import com.lhjz.portal.repository.UserRepository;
@@ -107,6 +111,9 @@ public class ChatChannelController extends BaseController {
 	
 	@Autowired
 	ScheduleRepository scheduleRepository;
+	
+	@Autowired
+	ChatLabelRepository chatLabelRepository;
 
 	@Autowired
 	MailSender mailSender;
@@ -929,5 +936,59 @@ public class ChatChannelController extends BaseController {
 		}
 
 		return RespBody.succeed();
+	}
+	
+	@PostMapping("label/toggle")
+	@ResponseBody
+	public RespBody toggleLabel(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
+			@RequestParam("name") String name) {
+
+		if (StringUtil.isEmpty(name)) {
+			return RespBody.failed("标签内容不能为空!");
+		}
+
+		if (name.length() > 10) {
+			return RespBody.failed("标签内容不能超过10个字符!");
+		}
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (chatChannel == null) {
+			return RespBody.failed("标签关联频道消息不存在!");
+		}
+
+		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatChannel(name, chatChannel);
+
+		User loginUser = getLoginUser();
+
+		if (chatLabel == null) {
+			chatLabel = new ChatLabel();
+			chatLabel.setName(name);
+			chatLabel.setChatChannel(chatChannel);
+
+			ChatLabel chatLabel2 = chatLabelRepository.saveAndFlush(chatLabel);
+
+			chatLabel2.getVoters().add(loginUser);
+
+			loginUser.getVoterChatLabels().add(chatLabel2);
+
+			userRepository.saveAndFlush(loginUser);
+
+			return RespBody.succeed(chatLabel2);
+		} else {
+
+			Set<User> voters = chatLabel.getVoters();
+			if (voters.contains(loginUser)) {
+				loginUser.getVoterChatLabels().remove(chatLabel);
+				voters.remove(loginUser);
+			} else {
+				loginUser.getVoterChatLabels().add(chatLabel);
+				voters.add(loginUser);
+			}
+			userRepository.saveAndFlush(loginUser);
+
+			return RespBody.succeed(chatLabel);
+		}
+
 	}
 }
