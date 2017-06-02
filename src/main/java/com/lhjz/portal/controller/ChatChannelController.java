@@ -940,8 +940,9 @@ public class ChatChannelController extends BaseController {
 	
 	@PostMapping("label/toggle")
 	@ResponseBody
-	public RespBody toggleLabel(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
-			@RequestParam("name") String name) {
+	public RespBody toggleLabel(@RequestParam("url") String url, @RequestParam("id") Long id,
+			@RequestParam("meta") String meta, @RequestParam("contentHtml") String contentHtml,
+			@RequestParam("name") String name, @RequestParam(value = "desc", required = false) String desc) {
 
 		if (StringUtil.isEmpty(name)) {
 			return RespBody.failed("标签内容不能为空!");
@@ -961,9 +962,16 @@ public class ChatChannelController extends BaseController {
 
 		User loginUser = getLoginUser();
 
+		String href = url + "?id=" + id;
+		Mail mail = Mail.instance().addUsers(chatChannel.getCreator());
+		String title = StringUtil.replace(
+				"{?1}对你的频道消息添加了表情: <img class=\"emoji\" style=\"width: 21px; height: 21px;\" src=\"{?2}\">",
+				getLoginUserName(loginUser), meta);
+
 		if (chatLabel == null) {
 			chatLabel = new ChatLabel();
 			chatLabel.setName(name);
+			chatLabel.setDescription(desc);
 			chatLabel.setChatChannel(chatChannel);
 
 			ChatLabel chatLabel2 = chatLabelRepository.saveAndFlush(chatLabel);
@@ -973,6 +981,18 @@ public class ChatChannelController extends BaseController {
 			loginUser.getVoterChatLabels().add(chatLabel2);
 
 			userRepository.saveAndFlush(loginUser);
+
+			try {
+				mailSender
+						.sendHtmlByQueue(
+								String.format("TMS-沟通频道消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+								TemplateUtil.process("templates/mail/mail-dynamic",
+										MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+												title, "content", contentHtml)),
+								getLoginUserName(loginUser), mail.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 			return RespBody.succeed(chatLabel2);
 		} else {
@@ -984,6 +1004,19 @@ public class ChatChannelController extends BaseController {
 			} else {
 				loginUser.getVoterChatLabels().add(chatLabel);
 				voters.add(loginUser);
+
+				try {
+					mailSender
+							.sendHtmlByQueue(
+									String.format("TMS-沟通频道消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+									TemplateUtil.process("templates/mail/mail-dynamic",
+											MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href,
+													"title", title, "content", contentHtml)),
+									getLoginUserName(loginUser), mail.get());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
 			}
 			userRepository.saveAndFlush(loginUser);
 
