@@ -4,9 +4,9 @@
 package com.lhjz.portal.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -106,6 +106,6 @@ public class ChatChannel implements Serializable {
 	private long version;
 
 	@OneToMany(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
-	Set<ChatLabel> chatLabels = new HashSet<>();
+	List<ChatLabel> chatLabels = new ArrayList<>();
 
 }
