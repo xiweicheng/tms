@@ -26,6 +26,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
 
@@ -82,6 +83,7 @@ public class ChatLabel implements Serializable {
 	@Version
 	private long version;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "chat_channel")
 	private ChatChannel chatChannel;
