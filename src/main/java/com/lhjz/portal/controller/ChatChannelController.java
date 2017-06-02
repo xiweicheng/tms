@@ -996,6 +996,9 @@ public class ChatChannelController extends BaseController {
 
 			return RespBody.succeed(chatLabel2);
 		} else {
+			
+			chatLabel.setDescription(desc);
+			chatLabel = chatLabelRepository.saveAndFlush(chatLabel);
 
 			Set<User> voters = chatLabel.getVoters();
 			if (voters.contains(loginUser)) {
