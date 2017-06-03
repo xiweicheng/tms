@@ -83,6 +83,11 @@ public class ChatLabel implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "chat_channel")
 	private ChatChannel chatChannel;
+	
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "chat_direct")
+	private ChatDirect chatDirect;
 
 	@ManyToMany(mappedBy = "voterChatLabels")
 	Set<User> voters = new HashSet<>();

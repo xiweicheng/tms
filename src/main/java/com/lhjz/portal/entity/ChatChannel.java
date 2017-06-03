@@ -47,7 +47,7 @@ import lombok.ToString;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@ToString
+@ToString(exclude = {"chatLabels"})
 @EqualsAndHashCode(of = "id")
 public class ChatChannel implements Serializable {
 

@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.lhjz.portal.entity.ChatChannel;
+import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.ChatLabel;
 
 /**
@@ -21,5 +22,9 @@ public interface ChatLabelRepository extends JpaRepository<ChatLabel, Long> {
 
 	ChatLabel findOneByNameAndChatChannel(String name, ChatChannel chatChannel);
 	
+	ChatLabel findOneByNameAndChatDirect(String name, ChatDirect chatDirect);
+	
 	List<ChatLabel> findByChatChannel(ChatChannel chatChannel);
+	
+	List<ChatLabel> findByChatDirect(ChatDirect chatDirect);
 }
