@@ -964,12 +964,18 @@ public class ChatChannelController extends BaseController {
 
 		User loginUser = getLoginUser();
 		ChatLabelType chatLabelType = ChatLabelType.valueOf(type);
-		
+
 		String href = url + "?id=" + id;
 		Mail mail = Mail.instance().addUsers(chatChannel.getCreator());
-		String title = StringUtil.replace(
-				"{?1}对你的频道消息添加了{?3}: <img class=\"emoji\" style=\"width: 21px; height: 21px;\" src=\"{?2}\">",
-				getLoginUserName(loginUser), meta, chatLabelType.equals(ChatLabelType.Emoji) ? "表情" : "标签");
+		String title = null;
+
+		if (chatLabelType.equals(ChatLabelType.Emoji)) {
+			title = StringUtil.replace(
+					"{?1}对你的频道消息添加了表情: <img class=\"emoji\" style=\"width: 21px; height: 21px;\" src=\"{?2}\">",
+					getLoginUserName(loginUser), meta);
+		} else {
+			title = StringUtil.replace("{?1}对你的频道消息添加了标签: {?2}", getLoginUserName(loginUser), meta);
+		}
 
 		if (chatLabel == null) {
 			chatLabel = new ChatLabel();
