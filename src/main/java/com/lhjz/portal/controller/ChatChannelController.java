@@ -358,8 +358,8 @@ public class ChatChannelController extends BaseController {
 			userRepository.save(voters);
 			userRepository.flush();
 		});
-		chatLabelRepository.delete(chatLabels);
-		chatLabelRepository.flush();
+//		chatLabelRepository.delete(chatLabels);
+//		chatLabelRepository.flush();
 
 		chatChannelRepository.delete(id);
 		
