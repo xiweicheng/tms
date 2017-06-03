@@ -992,6 +992,8 @@ public class ChatChannelController extends BaseController {
 
 			userRepository.saveAndFlush(loginUser);
 
+			logWithProperties(Action.Create, Target.ChatLabel, chatLabel2.getId(), "name", name);
+
 			try {
 				mailSender
 						.sendHtmlByQueue(
@@ -1014,9 +1016,13 @@ public class ChatChannelController extends BaseController {
 			if (voters.contains(loginUser)) {
 				loginUser.getVoterChatLabels().remove(chatLabel);
 				voters.remove(loginUser);
+
+				logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", name);
 			} else {
 				loginUser.getVoterChatLabels().add(chatLabel);
 				voters.add(loginUser);
+
+				logWithProperties(Action.UnVote, Target.ChatLabel, chatLabel.getId(), "name", name);
 
 				try {
 					mailSender
