@@ -28,6 +28,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.pojo.Enum.ChatLabelType;
 import com.lhjz.portal.pojo.Enum.Status;
 
 import lombok.Data;
@@ -76,6 +77,10 @@ public class ChatLabel implements Serializable {
 	// @LastModifiedDate
 	// private Date updateDate;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private ChatLabelType type = ChatLabelType.Emoji;
+	
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Status status = Status.New;

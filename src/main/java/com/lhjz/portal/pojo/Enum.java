@@ -89,6 +89,10 @@ public class Enum {
 		Task, Meeting;
 	}
 	
+	public static enum ChatLabelType {
+		Emoji, Tag;
+	}
+	
 	public static enum SchedulePriority {
 		High, Middle, Low;
 	}

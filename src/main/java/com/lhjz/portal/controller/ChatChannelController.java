@@ -54,6 +54,7 @@ import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.Poll;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
+import com.lhjz.portal.pojo.Enum.ChatLabelType;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
@@ -941,15 +942,16 @@ public class ChatChannelController extends BaseController {
 	@PostMapping("label/toggle")
 	@ResponseBody
 	public RespBody toggleLabel(@RequestParam("url") String url, @RequestParam("id") Long id,
-			@RequestParam("meta") String meta, @RequestParam("contentHtml") String contentHtml,
-			@RequestParam("name") String name, @RequestParam(value = "desc", required = false) String desc) {
+			@RequestParam(value = "type", defaultValue = "Emoji") String type, @RequestParam("meta") String meta,
+			@RequestParam("contentHtml") String contentHtml, @RequestParam("name") String name,
+			@RequestParam(value = "desc", required = false) String desc) {
 
 		if (StringUtil.isEmpty(name)) {
 			return RespBody.failed("标签内容不能为空!");
 		}
 
-		if (name.length() > 10) {
-			return RespBody.failed("标签内容不能超过10个字符!");
+		if (name.length() > 15) {
+			return RespBody.failed("标签内容不能超过15个字符!");
 		}
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
@@ -961,18 +963,20 @@ public class ChatChannelController extends BaseController {
 		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatChannel(name, chatChannel);
 
 		User loginUser = getLoginUser();
-
+		ChatLabelType chatLabelType = ChatLabelType.valueOf(type);
+		
 		String href = url + "?id=" + id;
 		Mail mail = Mail.instance().addUsers(chatChannel.getCreator());
 		String title = StringUtil.replace(
-				"{?1}对你的频道消息添加了表情: <img class=\"emoji\" style=\"width: 21px; height: 21px;\" src=\"{?2}\">",
-				getLoginUserName(loginUser), meta);
+				"{?1}对你的频道消息添加了{?3}: <img class=\"emoji\" style=\"width: 21px; height: 21px;\" src=\"{?2}\">",
+				getLoginUserName(loginUser), meta, chatLabelType.equals(ChatLabelType.Emoji) ? "表情" : "标签");
 
 		if (chatLabel == null) {
 			chatLabel = new ChatLabel();
 			chatLabel.setName(name);
 			chatLabel.setDescription(desc);
 			chatLabel.setChatChannel(chatChannel);
+			chatLabel.setType(chatLabelType);
 
 			ChatLabel chatLabel2 = chatLabelRepository.saveAndFlush(chatLabel);
 
@@ -996,7 +1000,7 @@ public class ChatChannelController extends BaseController {
 
 			return RespBody.succeed(chatLabel2);
 		} else {
-			
+
 			chatLabel.setDescription(desc);
 			chatLabel = chatLabelRepository.saveAndFlush(chatLabel);
 
