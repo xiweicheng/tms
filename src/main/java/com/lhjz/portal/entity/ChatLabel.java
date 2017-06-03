@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -64,18 +65,9 @@ public class ChatLabel implements Serializable {
 	@CreatedBy
 	private User creator;
 
-	// @ManyToOne
-	// @JoinColumn(name = "updater")
-	// @LastModifiedBy
-	// private User updater;
-
 	@Temporal(TemporalType.TIMESTAMP)
 	@CreatedDate
 	private Date createDate;
-	//
-	// @Temporal(TemporalType.TIMESTAMP)
-	// @LastModifiedDate
-	// private Date updateDate;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -93,7 +85,7 @@ public class ChatLabel implements Serializable {
 	@JoinColumn(name = "chat_channel")
 	private ChatChannel chatChannel;
 
-	@ManyToMany(mappedBy = "voterChatLabels")
+	@ManyToMany(mappedBy = "voterChatLabels", cascade = { CascadeType.REMOVE })
 	Set<User> voters = new HashSet<>();
 
 }
