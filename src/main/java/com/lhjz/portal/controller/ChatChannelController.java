@@ -480,7 +480,7 @@ public class ChatChannelController extends BaseController {
 				loginUser);
 
 		if (chatStow != null) {
-			return RespBody.failed("收藏频道消息重复!");
+			return RespBody.failed("收藏频道消息重复!").addMsg(chatStow);
 		}
 
 		ChatStow chatStow2 = new ChatStow();
