@@ -85,7 +85,7 @@ public class ChatLabel implements Serializable {
 	@JoinColumn(name = "chat_channel")
 	private ChatChannel chatChannel;
 
-	@ManyToMany(mappedBy = "voterChatLabels", cascade = { CascadeType.REMOVE })
+	@ManyToMany(mappedBy = "voterChatLabels")
 	Set<User> voters = new HashSet<>();
 
 }

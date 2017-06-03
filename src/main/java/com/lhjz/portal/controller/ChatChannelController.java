@@ -351,7 +351,13 @@ public class ChatChannelController extends BaseController {
 		chatStowRepository.delete(chatStows);
 		chatStowRepository.flush();
 		
-		List<ChatLabel> chatLabels = chatLabelRepository.findByChatChannel(chatChannel);
+		List<ChatLabel> chatLabels = chatChannel.getChatLabels();
+		chatLabels.forEach(cl -> {
+			Set<User> voters = cl.getVoters();
+			voters.forEach(voter -> voter.getVoterChatLabels().remove(cl));
+			userRepository.save(voters);
+			userRepository.flush();
+		});
 		chatLabelRepository.delete(chatLabels);
 		chatLabelRepository.flush();
 
