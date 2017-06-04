@@ -34,6 +34,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +49,7 @@ import com.lhjz.portal.entity.ChatAt;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.ChatLabel;
+import com.lhjz.portal.entity.ChatPin;
 import com.lhjz.portal.entity.ChatStow;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
@@ -55,6 +57,7 @@ import com.lhjz.portal.model.Poll;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.ChatLabelType;
+import com.lhjz.portal.pojo.Enum.Code;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
@@ -63,6 +66,7 @@ import com.lhjz.portal.repository.ChatAtRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.ChatLabelRepository;
+import com.lhjz.portal.repository.ChatPinRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.ScheduleRepository;
 import com.lhjz.portal.repository.UserRepository;
@@ -115,6 +119,9 @@ public class ChatChannelController extends BaseController {
 	
 	@Autowired
 	ChatLabelRepository chatLabelRepository;
+	
+	@Autowired
+	ChatPinRepository chatPinRepository;
 
 	@Autowired
 	MailSender mailSender;
@@ -1051,6 +1058,49 @@ public class ChatChannelController extends BaseController {
 
 			return RespBody.succeed(chatLabel);
 		}
+
+	}
+	
+	@PostMapping("pin/toggle")
+	@ResponseBody
+	public RespBody togglePin(@RequestParam("id") Long id, @RequestParam("cid") Long cid) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		Channel channel = channelRepository.findOne(cid);
+
+		ChatPin chatPin = chatPinRepository.findOneByChannelAndChatChannel(channel, chatChannel);
+
+		if (chatPin != null) {
+			chatPinRepository.delete(chatPin);
+			return RespBody.succeed(chatPin).code(Code.Deleted);
+		} else {
+			chatPin = new ChatPin();
+			chatPin.setChannel(channel);
+			chatPin.setChatChannel(chatChannel);
+
+			ChatPin chatPin2 = chatPinRepository.saveAndFlush(chatPin);
+			return RespBody.succeed(chatPin2).code(Code.Created);
+		}
+	}
+	
+	@GetMapping("pin/list")
+	@ResponseBody
+	public RespBody listPin(@RequestParam("cid") Long cid) {
+
+		Channel channel = channelRepository.findOne(cid);
+
+		if (!hasAuth(channel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		List<ChatPin> chatPins = chatPinRepository.findByChannel(channel);
+
+		return RespBody.succeed(chatPins);
 
 	}
 }

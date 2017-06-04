@@ -20,31 +20,31 @@ public class Enum {
 	public static enum FileType {
 		Image, Attachment;
 	}
-	
+
 	public static enum ChatType {
 		Wiki, Msg;
 	}
-	
+
 	public static enum BlogType {
 		Team, Own;
 	}
-	
+
 	public static enum TagType {
 		Blog;
 	}
-	
+
 	public static enum SpaceType {
 		Team, Own;
 	}
-	
+
 	public static enum ChannelType {
 		Common;
 	}
-	
+
 	public static enum CommentType {
 		Reply, Blog;
 	}
-	
+
 	public static enum Prop {
 		Key, Content, Name, Id, Watchers, Labels, TranslateItem, Title;
 	}
@@ -76,28 +76,52 @@ public class Enum {
 	public static enum SettingType {
 		Mail;
 	}
-	
+
 	public static enum ToType {
 		Channel, User, Blog, Feedback;
 	}
-	
+
 	public static enum LinkType {
 		Channel, User, App;
 	}
-	
+
 	public static enum ScheduleType {
 		Task, Meeting;
 	}
-	
+
 	public static enum ChatLabelType {
 		Emoji, Tag;
 	}
-	
+
 	public static enum SchedulePriority {
 		High, Middle, Low;
 	}
-	
+
 	public static enum ScheduleKnowStatus {
 		Yes, No;
 	}
+
+	public static enum Code {
+		Created(200), Readed(201), Updated(202), Deleted(203);
+		
+		private Integer value;
+
+		private Code(Integer value) {
+			this.value = value;
+		}
+
+		public Integer getValue() {
+			return value;
+		}
+
+		public void setValue(Integer value) {
+			this.value = value;
+		}
+		
+		public String toString() {
+			return String.valueOf(value);
+		}
+
+	}
+
 }

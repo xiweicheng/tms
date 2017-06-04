@@ -7,13 +7,16 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.BeanMap;
 
+import lombok.Data;
+
+@Data
 public class RespBody implements Serializable {
 
-	/** serialVersionUID long */
 	private static final long serialVersionUID = -1965817463440121331L;
 	private boolean success;
 	private Object data = "";
 	private List<Object> msgs = new ArrayList<>();
+	private Object code = 0;
 
 	public RespBody addMsg(Object msg) {
 		this.msgs.add(msg);
@@ -27,6 +30,11 @@ public class RespBody implements Serializable {
 
 	public RespBody status(boolean success) {
 		this.success = success;
+		return this;
+	}
+
+	public RespBody code(Object code) {
+		this.code = code;
 		return this;
 	}
 
@@ -62,30 +70,6 @@ public class RespBody implements Serializable {
 	public RespBody(boolean success, Object data) {
 		this.success = success;
 		this.data = data;
-	}
-
-	public boolean isSuccess() {
-		return success;
-	}
-
-	public void setSuccess(boolean success) {
-		this.success = success;
-	}
-
-	public Object getData() {
-		return data;
-	}
-
-	public void setData(Object data) {
-		this.data = data;
-	}
-
-	public List<Object> getMsgs() {
-		return msgs;
-	}
-
-	public void setMsgs(List<Object> msgs) {
-		this.msgs = msgs;
 	}
 
 }
