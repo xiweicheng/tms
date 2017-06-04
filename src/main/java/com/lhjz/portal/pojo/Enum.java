@@ -1,5 +1,7 @@
 package com.lhjz.portal.pojo;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * 
  * @author xi
@@ -110,6 +112,7 @@ public class Enum {
 			this.value = value;
 		}
 
+		@JsonValue
 		public Integer getValue() {
 			return value;
 		}
@@ -118,6 +121,7 @@ public class Enum {
 			this.value = value;
 		}
 		
+		@Override
 		public String toString() {
 			return String.valueOf(value);
 		}
