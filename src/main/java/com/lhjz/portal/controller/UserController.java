@@ -35,6 +35,7 @@ import com.lhjz.portal.entity.security.Group;
 import com.lhjz.portal.entity.security.GroupMember;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
+import com.lhjz.portal.model.MailAddr;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.Role;
@@ -148,7 +149,7 @@ public class UserController extends BaseController {
 
 		final String href = baseURL;
 
-		final Mail mail = Mail.instance().addUsers(user);
+//		final Mail mail = Mail.instance().add
 
 		final UserForm userForm2 = userForm;
 
@@ -161,7 +162,7 @@ public class UserController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-用户创建_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/user-create", MapUtil.objArr2Map("user", userForm2,
 									"userRole", userRole, "href", href, "loginUrl", loginUrl, "baseUrl", baseUrl)),
-							null, mail.get());
+							new MailAddr(user.getMails(), user.getName()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
