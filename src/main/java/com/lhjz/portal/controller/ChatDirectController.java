@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,13 +43,18 @@ import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
+import com.lhjz.portal.entity.ChatLabel;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.pojo.Enum.Action;
+import com.lhjz.portal.pojo.Enum.ChatLabelType;
+import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatAtRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
+import com.lhjz.portal.repository.ChatLabelRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.GroupMemberRepository;
 import com.lhjz.portal.repository.GroupRepository;
@@ -106,6 +113,9 @@ public class ChatDirectController extends BaseController {
 
 	@Autowired
 	ChatStowRepository chatStowRepository;
+	
+	@Autowired
+	ChatLabelRepository chatLabelRepository;
 
 	@Autowired
 	MailSender mailSender;
@@ -210,22 +220,30 @@ public class ChatDirectController extends BaseController {
 	@ResponseBody
 	public RespBody delete(@RequestParam("id") Long id) {
 
-		final ChatDirect chatDirect = chatDirectRepository.findOne(id);
+		ChatDirect chatDirect = chatDirectRepository.findOne(id);
 
 		if (chatDirect == null) {
 			return RespBody.failed("删除内容不存在!");
 		}
 
-		boolean isSuper = WebUtil.getUserAuthorities()
-				.contains(SysConstant.ROLE_SUPER);
-		boolean isCreator = chatDirect.getCreator().getUsername()
-				.equals(WebUtil.getUsername());
+		boolean isSuper = WebUtil.getUserAuthorities().contains(SysConstant.ROLE_SUPER);
+		boolean isCreator = chatDirect.getCreator().getUsername().equals(WebUtil.getUsername());
 
 		if (!isSuper && !isCreator) {
 			return RespBody.failed("您没有权限删除该消息内容!");
 		}
 
+		List<ChatLabel> chatLabels = chatDirect.getChatLabels();
+		chatLabels.forEach(cl -> {
+			Set<User> voters = cl.getVoters();
+			voters.forEach(voter -> voter.getVoterChatLabels().remove(cl));
+			userRepository.save(voters);
+			userRepository.flush();
+		});
+
 		chatDirectRepository.delete(chatDirect);
+
+		logWithProperties(Action.Delete, Target.ChatDirect, id, "content", chatDirect.getContent());
 
 		return RespBody.succeed();
 	}
@@ -577,6 +595,113 @@ public class ChatDirectController extends BaseController {
 
 		});
 		return RespBody.succeed();
+	}
+
+	@PostMapping("label/toggle")
+	@ResponseBody
+	public RespBody toggleLabel(@RequestParam("url") String url, @RequestParam("id") Long id,
+			@RequestParam(value = "type", defaultValue = "Emoji") String type, @RequestParam("meta") String meta,
+			@RequestParam("contentHtml") String contentHtml, @RequestParam("name") String name,
+			@RequestParam(value = "desc", required = false) String desc) {
+
+		if (StringUtil.isEmpty(name)) {
+			return RespBody.failed("标签内容不能为空!");
+		}
+
+		if (name.length() > 15) {
+			return RespBody.failed("标签内容不能超过15个字符!");
+		}
+
+		ChatDirect chatDirect = chatDirectRepository.findOne(id);
+
+		if (chatDirect == null) {
+			return RespBody.failed("标签关联私聊消息不存在!");
+		}
+
+		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatDirect(name, chatDirect);
+
+		User loginUser = getLoginUser();
+		ChatLabelType chatLabelType = ChatLabelType.valueOf(type);
+
+		String href = url + "#/chat/@" + loginUser.getUsername() + "?id=" + chatDirect.getId();
+		Mail mail = Mail.instance().addUsers(chatDirect.getCreator());
+		String title = null;
+
+		if (chatLabelType.equals(ChatLabelType.Emoji)) {
+			title = StringUtil.replace(
+					"{?1}对你的私聊消息添加了表情: <img class=\"emoji\" style=\"width: 21px; height: 21px;\" src=\"{?2}\">",
+					getLoginUserName(loginUser), meta);
+		} else {
+			title = StringUtil.replace("{?1}对你的私聊消息添加了标签: {?2}", getLoginUserName(loginUser), meta);
+		}
+
+		if (chatLabel == null) {
+			chatLabel = new ChatLabel();
+			chatLabel.setName(name);
+			chatLabel.setDescription(desc);
+			chatLabel.setChatDirect(chatDirect);
+			chatLabel.setType(chatLabelType);
+
+			ChatLabel chatLabel2 = chatLabelRepository.saveAndFlush(chatLabel);
+
+			chatLabel2.getVoters().add(loginUser);
+
+			loginUser.getVoterChatLabels().add(chatLabel2);
+
+			userRepository.saveAndFlush(loginUser);
+
+			logWithProperties(Action.Create, Target.ChatLabel, chatLabel2.getId(), "name", name);
+
+			try {
+				mailSender
+						.sendHtmlByQueue(
+								String.format("TMS-沟通私聊消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+								TemplateUtil.process("templates/mail/mail-dynamic",
+										MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+												title, "content", contentHtml)),
+								getLoginUserName(loginUser), mail.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return RespBody.succeed(chatLabel2);
+		} else {
+
+			if (!StringUtil.isNotEmpty(desc) && !desc.equals(chatLabel.getDescription())) {
+				chatLabel.setDescription(desc);
+				chatLabel = chatLabelRepository.saveAndFlush(chatLabel);
+			}
+
+			Set<User> voters = chatLabel.getVoters();
+			if (voters.contains(loginUser)) {
+				loginUser.getVoterChatLabels().remove(chatLabel);
+				voters.remove(loginUser);
+
+				logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", name);
+			} else {
+				loginUser.getVoterChatLabels().add(chatLabel);
+				voters.add(loginUser);
+
+				logWithProperties(Action.UnVote, Target.ChatLabel, chatLabel.getId(), "name", name);
+
+				try {
+					mailSender
+							.sendHtmlByQueue(
+									String.format("TMS-沟通私聊消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+									TemplateUtil.process("templates/mail/mail-dynamic",
+											MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href,
+													"title", title, "content", contentHtml)),
+									getLoginUserName(loginUser), mail.get());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			}
+			userRepository.saveAndFlush(loginUser);
+
+			return RespBody.succeed(chatLabel);
+		}
+
 	}
 
 }

@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +34,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,12 +48,16 @@ import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatAt;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
+import com.lhjz.portal.entity.ChatLabel;
+import com.lhjz.portal.entity.ChatPin;
 import com.lhjz.portal.entity.ChatStow;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.Poll;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
+import com.lhjz.portal.pojo.Enum.ChatLabelType;
+import com.lhjz.portal.pojo.Enum.Code;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
@@ -58,6 +65,8 @@ import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatAtRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
+import com.lhjz.portal.repository.ChatLabelRepository;
+import com.lhjz.portal.repository.ChatPinRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.ScheduleRepository;
 import com.lhjz.portal.repository.UserRepository;
@@ -107,6 +116,12 @@ public class ChatChannelController extends BaseController {
 	
 	@Autowired
 	ScheduleRepository scheduleRepository;
+	
+	@Autowired
+	ChatLabelRepository chatLabelRepository;
+	
+	@Autowired
+	ChatPinRepository chatPinRepository;
 
 	@Autowired
 	MailSender mailSender;
@@ -342,6 +357,14 @@ public class ChatChannelController extends BaseController {
 		List<ChatStow> chatStows = chatStowRepository.findByChatChannel(chatChannel);
 		chatStowRepository.delete(chatStows);
 		chatStowRepository.flush();
+		
+		List<ChatLabel> chatLabels = chatChannel.getChatLabels();
+		chatLabels.forEach(cl -> {
+			Set<User> voters = cl.getVoters();
+			voters.forEach(voter -> voter.getVoterChatLabels().remove(cl));
+			userRepository.save(voters);
+			userRepository.flush();
+		});
 
 		chatChannelRepository.delete(id);
 		
@@ -472,7 +495,7 @@ public class ChatChannelController extends BaseController {
 				loginUser);
 
 		if (chatStow != null) {
-			return RespBody.failed("收藏频道消息重复!");
+			return RespBody.failed("收藏频道消息重复!").addMsg(chatStow);
 		}
 
 		ChatStow chatStow2 = new ChatStow();
@@ -929,5 +952,155 @@ public class ChatChannelController extends BaseController {
 		}
 
 		return RespBody.succeed();
+	}
+	
+	@PostMapping("label/toggle")
+	@ResponseBody
+	public RespBody toggleLabel(@RequestParam("url") String url, @RequestParam("id") Long id,
+			@RequestParam(value = "type", defaultValue = "Emoji") String type, @RequestParam("meta") String meta,
+			@RequestParam("contentHtml") String contentHtml, @RequestParam("name") String name,
+			@RequestParam(value = "desc", required = false) String desc) {
+
+		if (StringUtil.isEmpty(name)) {
+			return RespBody.failed("标签内容不能为空!");
+		}
+
+		if (name.length() > 15) {
+			return RespBody.failed("标签内容不能超过15个字符!");
+		}
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (chatChannel == null) {
+			return RespBody.failed("标签关联频道消息不存在!");
+		}
+
+		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatChannel(name, chatChannel);
+
+		User loginUser = getLoginUser();
+		ChatLabelType chatLabelType = ChatLabelType.valueOf(type);
+
+		String href = url + "?id=" + id;
+		Mail mail = Mail.instance().addUsers(chatChannel.getCreator());
+		String title = null;
+
+		if (chatLabelType.equals(ChatLabelType.Emoji)) {
+			title = StringUtil.replace(
+					"{?1}对你的频道消息添加了表情: <img class=\"emoji\" style=\"width: 21px; height: 21px;\" src=\"{?2}\">",
+					getLoginUserName(loginUser), meta);
+		} else {
+			title = StringUtil.replace("{?1}对你的频道消息添加了标签: {?2}", getLoginUserName(loginUser), meta);
+		}
+
+		if (chatLabel == null) {
+			chatLabel = new ChatLabel();
+			chatLabel.setName(name);
+			chatLabel.setDescription(desc);
+			chatLabel.setChatChannel(chatChannel);
+			chatLabel.setType(chatLabelType);
+
+			ChatLabel chatLabel2 = chatLabelRepository.saveAndFlush(chatLabel);
+
+			chatLabel2.getVoters().add(loginUser);
+
+			loginUser.getVoterChatLabels().add(chatLabel2);
+
+			userRepository.saveAndFlush(loginUser);
+
+			logWithProperties(Action.Create, Target.ChatLabel, chatLabel2.getId(), "name", name);
+
+			try {
+				mailSender
+						.sendHtmlByQueue(
+								String.format("TMS-沟通频道消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+								TemplateUtil.process("templates/mail/mail-dynamic",
+										MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+												title, "content", contentHtml)),
+								getLoginUserName(loginUser), mail.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return RespBody.succeed(chatLabel2);
+		} else {
+
+			if (!StringUtil.isNotEmpty(desc) && !desc.equals(chatLabel.getDescription())) {
+				chatLabel.setDescription(desc);
+				chatLabel = chatLabelRepository.saveAndFlush(chatLabel);
+			}
+
+			Set<User> voters = chatLabel.getVoters();
+			if (voters.contains(loginUser)) {
+				loginUser.getVoterChatLabels().remove(chatLabel);
+				voters.remove(loginUser);
+
+				logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", name);
+			} else {
+				loginUser.getVoterChatLabels().add(chatLabel);
+				voters.add(loginUser);
+
+				logWithProperties(Action.UnVote, Target.ChatLabel, chatLabel.getId(), "name", name);
+
+				try {
+					mailSender
+							.sendHtmlByQueue(
+									String.format("TMS-沟通频道消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+									TemplateUtil.process("templates/mail/mail-dynamic",
+											MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href,
+													"title", title, "content", contentHtml)),
+									getLoginUserName(loginUser), mail.get());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			}
+			userRepository.saveAndFlush(loginUser);
+
+			return RespBody.succeed(chatLabel);
+		}
+
+	}
+	
+	@PostMapping("pin/toggle")
+	@ResponseBody
+	public RespBody togglePin(@RequestParam("id") Long id, @RequestParam("cid") Long cid) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		Channel channel = channelRepository.findOne(cid);
+
+		ChatPin chatPin = chatPinRepository.findOneByChannelAndChatChannel(channel, chatChannel);
+
+		if (chatPin != null) {
+			chatPinRepository.delete(chatPin);
+			return RespBody.succeed(chatPin).code(Code.Deleted);
+		} else {
+			chatPin = new ChatPin();
+			chatPin.setChannel(channel);
+			chatPin.setChatChannel(chatChannel);
+
+			ChatPin chatPin2 = chatPinRepository.saveAndFlush(chatPin);
+			return RespBody.succeed(chatPin2).code(Code.Created);
+		}
+	}
+	
+	@GetMapping("pin/list")
+	@ResponseBody
+	public RespBody listPin(@RequestParam("cid") Long cid) {
+
+		Channel channel = channelRepository.findOne(cid);
+
+		if (!hasAuth(channel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		List<ChatPin> chatPins = chatPinRepository.findByChannel(channel);
+
+		return RespBody.succeed(chatPins);
+
 	}
 }
