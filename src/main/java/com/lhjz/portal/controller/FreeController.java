@@ -38,6 +38,7 @@ import com.lhjz.portal.entity.security.Authority;
 import com.lhjz.portal.entity.security.AuthorityId;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
+import com.lhjz.portal.model.MailAddr;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.model.RunAsAuth;
 import com.lhjz.portal.pojo.Enum.Action;
@@ -263,7 +264,7 @@ public class FreeController extends BaseController {
 							String.format("TMS-账户激活_%s",
 									DateUtil.format(new Date(),
 											DateUtil.FORMAT7)),
-							content, null, Mail.instance().addUsers(newUser).get());
+							content, new MailAddr(mail, name));
 
 			logger.info("激活账户邮件发送状态: " + sts);
 			return sts ? RespBody.succeed() : RespBody.failed("激活账户邮件发送失败!");
