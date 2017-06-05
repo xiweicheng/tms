@@ -46,6 +46,7 @@ import com.lhjz.portal.repository.AuthorityRepository;
 import com.lhjz.portal.repository.GroupMemberRepository;
 import com.lhjz.portal.repository.GroupRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.ChannelService;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
@@ -83,6 +84,9 @@ public class UserController extends BaseController {
 	@Autowired
 	GroupMemberRepository groupMemberRepository;
 	
+	@Autowired
+	ChannelService channelService;
+	
 	@Value("${tms.base.url}")
 	private String baseUrl;
 
@@ -113,7 +117,7 @@ public class UserController extends BaseController {
 		user.setMails(StringUtils.trim(userForm.getMail()));
 		user.setCreator(WebUtil.getUsername());
 
-		userRepository.saveAndFlush(user);
+		User user2 = userRepository.saveAndFlush(user);
 
 		log(Action.Create, Target.User, user.getUsername());
 
@@ -137,6 +141,8 @@ public class UserController extends BaseController {
 
 			log(Action.Create, Target.Authority, authority2.getId().toString());
 		}
+		
+		channelService.joinAll(user2);
 
 		final String userRole = role;
 

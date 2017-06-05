@@ -51,6 +51,7 @@ import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.FileRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.ChannelService;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.ImageUtil;
 import com.lhjz.portal.util.JsonUtil;
@@ -95,6 +96,9 @@ public class FreeController extends BaseController {
 	
 	@Autowired
 	FileRepository fileRepository;
+	
+	@Autowired
+	ChannelService channelService;
 	
 	@Autowired
 	Environment env;
@@ -238,12 +242,14 @@ public class FreeController extends BaseController {
 		newUser.setResetPwdToken(UUID.randomUUID().toString());
 		newUser.setStatus(Status.New);
 
-		userRepository.saveAndFlush(newUser);
+		User user2 = userRepository.saveAndFlush(newUser);
 
 		Authority authority = new Authority();
 		authority.setId(new AuthorityId(username, Role.ROLE_USER.name()));
 
 		authorityRepository.saveAndFlush(authority);
+		
+		channelService.joinAll(user2);
 
 		final String content = StringUtil.replaceByKV(
 				"<a target='_blank' href='{baseUrl}{path}#/register?id={id}'>点击该链接激活账户</a>",
