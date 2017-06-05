@@ -149,8 +149,6 @@ public class UserController extends BaseController {
 
 		final String href = baseURL;
 
-//		final Mail mail = Mail.instance().add
-
 		final UserForm userForm2 = userForm;
 
 		final String loginUrl = baseURL + loginAction + "?username="
