@@ -1063,7 +1063,8 @@ public class ChatChannelController extends BaseController {
 	
 	@PostMapping("pin/toggle")
 	@ResponseBody
-	public RespBody togglePin(@RequestParam("id") Long id, @RequestParam("cid") Long cid) {
+	public RespBody togglePin(@RequestParam("id") Long id, @RequestParam("cid") Long cid,
+			@RequestParam(value = "pin", defaultValue = "false") Boolean pin) {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
@@ -1076,6 +1077,9 @@ public class ChatChannelController extends BaseController {
 		ChatPin chatPin = chatPinRepository.findOneByChannelAndChatChannel(channel, chatChannel);
 
 		if (chatPin != null) {
+			if (pin) {
+				return RespBody.succeed(chatPin).code(Code.Created);
+			}
 			chatPinRepository.delete(chatPin);
 			return RespBody.succeed(chatPin).code(Code.Deleted);
 		} else {
