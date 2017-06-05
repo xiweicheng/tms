@@ -187,11 +187,24 @@ public class FreeController extends BaseController {
 
 		// username(唯一行校验 & !all), mail(激活用户), name(可选,没有,设置为username),
 		// pwd(长度>=8)
-
+		
+		if (StringUtil.isEmpty(params.get("username"))) {
+			return RespBody.failed("注册用户名不能为空!");
+		}
+		if (StringUtil.isEmpty(params.get("mail"))) {
+			return RespBody.failed("注册邮箱不能为空!");
+		}
+		if (StringUtil.isEmpty(params.get("pwd"))) {
+			return RespBody.failed("注册登录密码不能为空!");
+		}
 		String username = params.get("username").toString().trim();
 		String mail = params.get("mail").toString().trim();
 		String name = null;
 		String pwd = params.get("pwd").toString().trim();
+
+		if (username != null && !username.matches("^[a-z][a-z0-9]{2,49}$")) {
+			return RespBody.failed("用户名必须是3到50位小写字母和数字组合,并且以字母开头!");
+		}
 
 		User user = userRepository.findOne(username);
 		if (user != null || "all".equalsIgnoreCase(username)) {
