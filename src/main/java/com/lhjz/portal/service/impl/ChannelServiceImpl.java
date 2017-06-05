@@ -87,12 +87,12 @@ public class ChannelServiceImpl implements ChannelService {
 		user.getJoinChannels().add(channel);
 		userRepository.saveAndFlush(user);
 
-		ThreadUtil.setCurrentAuditor(superUsername);
+		ThreadUtil.setCurrentAuditor(user.getUsername());
 
 		// 用户频道消息提醒
 		ChatChannel chatChannel = new ChatChannel();
 		chatChannel.setChannel(channel);
-		chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} 被**添加到**该频道!");
+		chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} **加入**该频道!");
 
 		chatChannelRepository.saveAndFlush(chatChannel);
 
