@@ -8,6 +8,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.jayway.jsonpath.JsonPath;
+import com.lhjz.portal.pojo.Enum.Code;
 import com.lhjz.portal.pojo.Enum.Prop;
 import com.lhjz.portal.pojo.Enum.SchedulePriority;
 import com.lhjz.portal.pojo.Enum.Status;
@@ -99,6 +100,10 @@ public class CommonUtilTest {
 	
 		String read = JsonPath.read("{}", "$.name");
 		System.out.println(read);
+		
+		System.out.println(Code.Created);
+		System.out.println(Code.Created.equals(Code.Readed));
+		System.out.println(Code.Created.equals(Code.Created));
 	
 	}
 

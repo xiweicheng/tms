@@ -103,6 +103,7 @@
         min-height: 100px;
         background-color: #D9EDF7;
         padding: 16px;
+        overflow-x: auto;
     }
     
     .tms-mail-tmpl-container > .footer {
@@ -135,12 +136,12 @@
         </div>
         <div class="main">
             <div class="title">
-                <a class="link" th:href="${href}" th:text="${title}">下面的沟通消息有分享到你</a>
+                <a class="link" th:href="${href}" th:utext="${title}">下面的沟通消息有分享到你</a>
             </div>
             <div class="divider"></div>
             <div class="content" th:utext="${content}">下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你</div>
         </div>
-        <div class="footer">© 2016-2017 这封邮件由TMS系统发出</div>
+        <div class="footer" style="margin-top: 16px; font-size: 12px; text-align: center; color: #bfbfcc;">© 2016-2017 这封邮件由TMS系统发出</div>
     </div>
 </body>
 
