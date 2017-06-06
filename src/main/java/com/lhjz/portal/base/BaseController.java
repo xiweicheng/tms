@@ -112,6 +112,13 @@ public abstract class BaseController {
 		return isSuper() || isCreator(creator);
 	}
 	
+	protected boolean isSuperOrCreator(User creator) {
+		if (creator == null) {
+			return false;
+		}
+		return isSuperOrCreator(creator.getUsername());
+	}
+	
 	protected String getLoginUserName(User user) {
 		return StringUtil.isEmpty(user.getName()) ? user.getUsername() : user.getName();
 	}

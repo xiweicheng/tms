@@ -50,6 +50,7 @@ import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.ChatLabel;
 import com.lhjz.portal.entity.ChatPin;
+import com.lhjz.portal.entity.ChatReply;
 import com.lhjz.portal.entity.ChatStow;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
@@ -57,6 +58,7 @@ import com.lhjz.portal.model.Poll;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.ChatLabelType;
+import com.lhjz.portal.pojo.Enum.ChatReplyType;
 import com.lhjz.portal.pojo.Enum.Code;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
@@ -67,6 +69,7 @@ import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.ChatLabelRepository;
 import com.lhjz.portal.repository.ChatPinRepository;
+import com.lhjz.portal.repository.ChatReplyRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.ScheduleRepository;
 import com.lhjz.portal.repository.UserRepository;
@@ -122,6 +125,9 @@ public class ChatChannelController extends BaseController {
 	
 	@Autowired
 	ChatPinRepository chatPinRepository;
+	
+	@Autowired
+	ChatReplyRepository chatReplyRepository;
 
 	@Autowired
 	MailSender mailSender;
@@ -1105,6 +1111,142 @@ public class ChatChannelController extends BaseController {
 		List<ChatPin> chatPins = chatPinRepository.findByChannel(channel);
 
 		return RespBody.succeed(chatPins);
+
+	}
+
+	@PostMapping("reply/add")
+	@ResponseBody
+	public RespBody addReply(@RequestParam("url") String url,
+			@RequestParam(value = "usernames", required = false) String usernames,
+			@RequestParam("content") String content, @RequestParam("contentHtml") String contentHtml,
+			@RequestParam("id") Long id) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		ChatReply chatReply = new ChatReply();
+		chatReply.setChatChannel(chatChannel);
+		chatReply.setContent(content);
+
+		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
+
+		final String href = url + "?id=" + chatChannel.getId();
+		final String html = contentHtml;
+		final User loginUser = getLoginUser();
+
+		final Mail mail = Mail.instance();
+		mail.addUsers(chatChannel.getChannel().getSubscriber(), loginUser);
+
+		if (StringUtil.isNotEmpty(usernames)) {
+
+			Map<String, User> atUserMap = new HashMap<String, User>();
+
+			if (StringUtil.isNotEmpty(usernames)) {
+				String[] usernameArr = usernames.split(",");
+				Arrays.asList(usernameArr).stream().forEach((username) -> {
+					User user = getUser(username);
+					if (user != null) {
+						mail.addUsers(user);
+						atUserMap.put(user.getUsername(), user);
+					}
+				});
+			}
+
+			List<ChatAt> chatAtList = new ArrayList<ChatAt>();
+			// 保存chatAt关系
+			atUserMap.values().forEach((user) -> {
+				ChatAt chatAt2 = chatAtRepository.findOneByChatChannelAndAtUser(chatChannel, user);
+				if (chatAt2 == null) {
+					ChatAt chatAt = new ChatAt();
+					chatAt.setChatChannel(chatChannel);
+					chatAt.setAtUser(user);
+
+					chatAtList.add(chatAt);
+				} else {
+					chatAt2.setStatus(Status.New);
+
+					chatAtList.add(chatAt2);
+				}
+			});
+
+			chatAtRepository.save(chatAtList);
+			chatAtRepository.flush();
+
+		}
+
+		try {
+			mailSender
+					.sendHtmlByQueue(String.format("TMS-沟通频道回复消息@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+							TemplateUtil.process("templates/mail/mail-dynamic",
+									MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+											"下面的沟通频道消息的回复消息中有@到你", "content", html)),
+							getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return RespBody.succeed(chatReply2);
+
+	}
+	
+	@PostMapping("reply/remove")
+	@ResponseBody
+	public RespBody removeReply(@RequestParam("rid") Long rid) {
+
+		ChatReply chatReply = chatReplyRepository.findOne(rid);
+
+		if (!isSuperOrCreator(chatReply.getCreator())) {
+			return RespBody.failed("权限不足!");
+		}
+
+		chatReply.setStatus(Status.Deleted);
+
+		chatReplyRepository.saveAndFlush(chatReply);
+
+		return RespBody.succeed(rid);
+
+	}
+	
+	@GetMapping("reply/list")
+	@ResponseBody
+	public RespBody listReply(@RequestParam("id") Long id) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		List<ChatReply> chatReplies = chatReplyRepository.findByChatChannelAndTypeAndStatusNot(chatChannel,
+				ChatReplyType.ChatChannel, Status.Deleted);
+
+		return RespBody.succeed(chatReplies);
+
+	}
+	
+	@GetMapping("reply/poll")
+	@ResponseBody
+	public RespBody pollReply(@RequestParam("id") Long id, @RequestParam(value = "rid", required = false) Long rid) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		List<ChatReply> chatReplies = null;
+		if (rid == null) {
+			chatReplies = chatReplyRepository.findByChatChannelAndTypeAndStatusNot(chatChannel,
+					ChatReplyType.ChatChannel, Status.Deleted);
+		} else {
+			chatReplies = chatReplyRepository.findByChatChannelAndTypeAndStatusNotAndIdGreaterThan(chatChannel,
+					ChatReplyType.ChatChannel, Status.Deleted, rid);
+		}
+
+		return RespBody.succeed(chatReplies);
 
 	}
 }

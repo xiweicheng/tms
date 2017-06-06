@@ -27,6 +27,10 @@ public class Enum {
 		Wiki, Msg;
 	}
 
+	public static enum ChatReplyType {
+		ChatChannel;
+	}
+
 	public static enum BlogType {
 		Team, Own;
 	}
@@ -105,7 +109,7 @@ public class Enum {
 
 	public static enum Code {
 		Created(200), Readed(201), Updated(202), Deleted(203);
-		
+
 		private Integer value;
 
 		private Code(Integer value) {
@@ -120,7 +124,7 @@ public class Enum {
 		public void setValue(Integer value) {
 			this.value = value;
 		}
-		
+
 		@Override
 		public String toString() {
 			return String.valueOf(value);
