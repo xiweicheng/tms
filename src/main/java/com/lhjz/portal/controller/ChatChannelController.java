@@ -156,7 +156,7 @@ public class ChatChannelController extends BaseController {
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 		
 		final String href = url + "?id=" + chatChannel2.getId();
-		final String html = contentHtml;
+		final String html = StringUtil.md2Html(contentHtml, false);
 		final User loginUser = getLoginUser();
 
 		final Mail mail = Mail.instance();
@@ -1134,7 +1134,7 @@ public class ChatChannelController extends BaseController {
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
 
 		final String href = url + "?id=" + chatChannel.getId();
-		final String html = contentHtml;
+		final String html = StringUtil.md2Html(contentHtml, false);;
 		final User loginUser = getLoginUser();
 
 		final Mail mail = Mail.instance();

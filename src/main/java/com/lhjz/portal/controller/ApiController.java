@@ -119,7 +119,7 @@ public class ApiController extends BaseController {
 			final User loginUser = getLoginUser();
 			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
 
-			final String html = StringUtil.md2Html(sb.toString());
+			final String html = StringUtil.md2Html(sb.toString(), true);
 
 			try {
 				mailSender.sendHtmlByQueue(
@@ -179,7 +179,7 @@ public class ApiController extends BaseController {
 			final User loginUser = getLoginUser();
 			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
 
-			final String html = StringUtil.md2Html(sb.toString());
+			final String html = StringUtil.md2Html(sb.toString(), true);
 
 			try {
 				mailSender.sendHtmlByQueue(
