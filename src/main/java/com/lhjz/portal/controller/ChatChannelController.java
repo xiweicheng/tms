@@ -1202,9 +1202,9 @@ public class ChatChannelController extends BaseController {
 			return RespBody.failed("权限不足!");
 		}
 
-		chatReply.setStatus(Status.Deleted);
+		chatReplyRepository.delete(chatReply);
 
-		chatReplyRepository.saveAndFlush(chatReply);
+		logWithProperties(Action.Delete, Target.ChatReply, rid, "content", chatReply.getContent());
 
 		return RespBody.succeed(rid);
 
