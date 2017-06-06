@@ -236,6 +236,7 @@ public class ChatChannelController extends BaseController {
 			Channel channel3 = new Channel();
 			channel3.setId(channel2.getId());
 			channel3.setName(channel2.getName());
+			channel3.setTitle(channel2.getTitle());
 			cc.setChannel(channel3);
 		});
 
@@ -409,6 +410,7 @@ public class ChatChannelController extends BaseController {
 			Channel channel3 = new Channel();
 			channel3.setId(channel2.getId());
 			channel3.setName(channel2.getName());
+			channel3.setTitle(channel2.getTitle());
 			cc.setChannel(channel3);
 		});
 		
@@ -442,6 +444,7 @@ public class ChatChannelController extends BaseController {
 			Channel channel3 = new Channel();
 			channel3.setId(channel2.getId());
 			channel3.setName(channel2.getName());
+			channel3.setTitle(channel2.getTitle());
 			cc.setChannel(channel3);
 		});
 
@@ -475,6 +478,7 @@ public class ChatChannelController extends BaseController {
 			Channel channel3 = new Channel();
 			channel3.setId(channel2.getId());
 			channel3.setName(channel2.getName());
+			channel3.setTitle(channel2.getTitle());
 			cc.setChannel(channel3);
 		});
 
@@ -540,6 +544,7 @@ public class ChatChannelController extends BaseController {
 			Channel channel3 = new Channel();
 			channel3.setId(channel.getId());
 			channel3.setName(channel.getName());
+			channel3.setTitle(channel.getTitle());
 			cs.getChatChannel().setChannel(channel3);
 		});
 
@@ -559,6 +564,7 @@ public class ChatChannelController extends BaseController {
 			Channel channel3 = new Channel();
 			channel3.setId(channel.getId());
 			channel3.setName(channel.getName());
+			channel3.setTitle(channel.getTitle());
 			ca.getChatChannel().setChannel(channel3);
 		});
 
