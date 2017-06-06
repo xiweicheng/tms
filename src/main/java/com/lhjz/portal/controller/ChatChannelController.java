@@ -1192,6 +1192,90 @@ public class ChatChannelController extends BaseController {
 
 	}
 	
+	@PostMapping("reply/update")
+	@ResponseBody
+	public RespBody updateReply(@RequestParam("url") String url,
+			@RequestParam(value = "usernames", required = false) String usernames,
+			@RequestParam("content") String content, @RequestParam(value = "diff", required = false) String diff,
+			@RequestParam("rid") Long rid) {
+
+		ChatReply chatReply = chatReplyRepository.findOne(rid);
+
+		if (!isSuperOrCreator(chatReply.getCreator())) {
+			return RespBody.failed("权限不足!");
+		}
+
+		String contentOld = chatReply.getContent();
+		chatReply.setContent(content);
+
+		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
+
+		logWithProperties(Action.Update, Target.ChatReply, rid, "content", contentOld);
+
+		final String href = url + "?id=" + chatReply.getChatChannel().getId();
+		final User loginUser = getLoginUser();
+		final String html;
+		if (StringUtil.isNotEmpty(diff)) {
+			html = "<h3>内容(Markdown)变更对比:</h3><b>原文链接:</b> <a href=\"" + href + "\">" + href + "</a><hr/>" + diff;
+		} else {
+			html = "";
+		}
+
+		final Mail mail = Mail.instance();
+		mail.addUsers(chatReply.getChatChannel().getChannel().getSubscriber(), loginUser);
+
+		if (StringUtil.isNotEmpty(usernames)) {
+
+			Map<String, User> atUserMap = new HashMap<String, User>();
+
+			if (StringUtil.isNotEmpty(usernames)) {
+				String[] usernameArr = usernames.split(",");
+				Arrays.asList(usernameArr).stream().forEach((username) -> {
+					User user = getUser(username);
+					if (user != null) {
+						mail.addUsers(user);
+						atUserMap.put(user.getUsername(), user);
+					}
+				});
+			}
+
+			List<ChatAt> chatAtList = new ArrayList<ChatAt>();
+			// 保存chatAt关系
+			atUserMap.values().forEach((user) -> {
+				ChatAt chatAt2 = chatAtRepository.findOneByChatChannelAndAtUser(chatReply.getChatChannel(), user);
+				if (chatAt2 == null) {
+					ChatAt chatAt = new ChatAt();
+					chatAt.setChatChannel(chatReply.getChatChannel());
+					chatAt.setAtUser(user);
+
+					chatAtList.add(chatAt);
+				} else {
+					chatAt2.setStatus(Status.New);
+
+					chatAtList.add(chatAt2);
+				}
+			});
+
+			chatAtRepository.save(chatAtList);
+			chatAtRepository.flush();
+
+		}
+
+		try {
+			mailSender.sendHtmlByQueue(
+					String.format("TMS-沟通频道回复消息编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic",
+							MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+									"下面编辑的沟通频道消息的回复消息中有@到你", "content", html)),
+					getLoginUserName(loginUser), mail.get());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return RespBody.succeed(chatReply2);
+
+	}
+	
 	@PostMapping("reply/remove")
 	@ResponseBody
 	public RespBody removeReply(@RequestParam("rid") Long rid) {
