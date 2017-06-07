@@ -1145,6 +1145,7 @@ public class ChatChannelController extends BaseController {
 
 		final Mail mail = Mail.instance();
 		mail.addUsers(chatChannel.getChannel().getSubscriber(), loginUser);
+		mail.addUsers(Arrays.asList(chatChannel.getCreator()), loginUser);
 
 		if (StringUtil.isNotEmpty(usernames)) {
 
@@ -1229,6 +1230,7 @@ public class ChatChannelController extends BaseController {
 
 		final Mail mail = Mail.instance();
 		mail.addUsers(chatReply.getChatChannel().getChannel().getSubscriber(), loginUser);
+		mail.addUsers(Arrays.asList(chatReply.getChatChannel().getCreator()), loginUser);
 
 		if (StringUtil.isNotEmpty(usernames)) {
 
