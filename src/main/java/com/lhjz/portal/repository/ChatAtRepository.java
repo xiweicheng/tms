@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.Query;
 import com.lhjz.portal.entity.Chat;
 import com.lhjz.portal.entity.ChatAt;
 import com.lhjz.portal.entity.ChatChannel;
+import com.lhjz.portal.entity.ChatReply;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
 
@@ -37,10 +38,14 @@ public interface ChatAtRepository extends JpaRepository<ChatAt, Long> {
 	List<ChatAt> findByChat(Chat chat);
 	
 	List<ChatAt> findByChatChannel(ChatChannel chatChannel);
+	
+	List<ChatAt> findByChatReply(ChatReply chatReply);
 
 	ChatAt findOneByChatAndAtUser(Chat chat, User atUser);
 	
 	ChatAt findOneByChatChannelAndAtUser(ChatChannel chatChannel, User atUser);
+	
+	ChatAt findOneByChatChannelAndChatReplyAndAtUser(ChatChannel chatChannel, ChatReply chatReply, User atUser);
 
 	@Query(value = "SELECT COUNT(*) FROM `chat_at` WHERE `chat_id` IS NOT NULL AND at_user = ?1 AND `status` = 'New';", nativeQuery = true)
 	long countChatAtUserNew(String atUser);
