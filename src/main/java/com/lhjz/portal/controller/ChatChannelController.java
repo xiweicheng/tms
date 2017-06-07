@@ -993,7 +993,7 @@ public class ChatChannelController extends BaseController {
 		ChatLabelType chatLabelType = ChatLabelType.valueOf(type);
 
 		String href = url + "?id=" + id;
-		Mail mail = Mail.instance().addUsers(chatChannel.getCreator());
+		Mail mail = Mail.instance().addUsers(Arrays.asList(chatChannel.getCreator()), loginUser);
 		String title = null;
 
 		if (chatLabelType.equals(ChatLabelType.Emoji)) {
