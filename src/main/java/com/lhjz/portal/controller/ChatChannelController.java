@@ -1139,7 +1139,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
 
-		final String href = url + "?id=" + chatChannel.getId();
+		final String href = url + "?id=" + chatChannel.getId() + "&rid=" + chatReply2.getId();
 		final String html = StringUtil.md2Html(contentHtml, false);;
 		final User loginUser = getLoginUser();
 
@@ -1165,10 +1165,11 @@ public class ChatChannelController extends BaseController {
 			List<ChatAt> chatAtList = new ArrayList<ChatAt>();
 			// 保存chatAt关系
 			atUserMap.values().forEach((user) -> {
-				ChatAt chatAt2 = chatAtRepository.findOneByChatChannelAndAtUser(chatChannel, user);
+				ChatAt chatAt2 = chatAtRepository.findOneByChatChannelAndChatReplyAndAtUser(chatChannel, chatReply2, user);
 				if (chatAt2 == null) {
 					ChatAt chatAt = new ChatAt();
 					chatAt.setChatChannel(chatChannel);
+					chatAt.setChatReply(chatReply2);
 					chatAt.setAtUser(user);
 
 					chatAtList.add(chatAt);
@@ -1203,7 +1204,7 @@ public class ChatChannelController extends BaseController {
 	@ResponseBody
 	public RespBody updateReply(@RequestParam("url") String url,
 			@RequestParam(value = "usernames", required = false) String usernames,
-			@RequestParam("content") String content, @RequestParam(value = "diff", required = false) String diff,
+			@RequestParam("content") String content, @RequestParam("diff") String diff,
 			@RequestParam("rid") Long rid) {
 
 		ChatReply chatReply = chatReplyRepository.findOne(rid);
@@ -1219,14 +1220,9 @@ public class ChatChannelController extends BaseController {
 
 		logWithProperties(Action.Update, Target.ChatReply, rid, "content", contentOld);
 
-		final String href = url + "?id=" + chatReply.getChatChannel().getId();
+		final String href = url + "?id=" + chatReply.getChatChannel().getId() + "&rid=" + chatReply2.getId();
 		final User loginUser = getLoginUser();
-		final String html;
-		if (StringUtil.isNotEmpty(diff)) {
-			html = "<h3>内容(Markdown)变更对比:</h3><b>原文链接:</b> <a href=\"" + href + "\">" + href + "</a><hr/>" + diff;
-		} else {
-			html = "";
-		}
+		final String html = "<h3>内容(Markdown)变更对比:</h3><b>原文链接:</b> <a href=\"" + href + "\">" + href + "</a><hr/>" + diff;
 
 		final Mail mail = Mail.instance();
 		mail.addUsers(chatReply.getChatChannel().getChannel().getSubscriber(), loginUser);
@@ -1250,10 +1246,11 @@ public class ChatChannelController extends BaseController {
 			List<ChatAt> chatAtList = new ArrayList<ChatAt>();
 			// 保存chatAt关系
 			atUserMap.values().forEach((user) -> {
-				ChatAt chatAt2 = chatAtRepository.findOneByChatChannelAndAtUser(chatReply.getChatChannel(), user);
+				ChatAt chatAt2 = chatAtRepository.findOneByChatChannelAndChatReplyAndAtUser(chatReply2.getChatChannel(), chatReply2, user);
 				if (chatAt2 == null) {
 					ChatAt chatAt = new ChatAt();
 					chatAt.setChatChannel(chatReply.getChatChannel());
+					chatAt.setChatReply(chatReply2);
 					chatAt.setAtUser(user);
 
 					chatAtList.add(chatAt);
@@ -1293,6 +1290,10 @@ public class ChatChannelController extends BaseController {
 		if (!isSuperOrCreator(chatReply.getCreator())) {
 			return RespBody.failed("权限不足!");
 		}
+		
+		List<ChatAt> chatAts = chatAtRepository.findByChatReply(chatReply);
+		chatAtRepository.delete(chatAts);
+		chatAtRepository.flush();
 
 		chatReplyRepository.delete(chatReply);
 
@@ -1339,6 +1340,24 @@ public class ChatChannelController extends BaseController {
 		}
 
 		return RespBody.succeed(chatReplies);
+
+	}
+
+	@GetMapping("changed/check")
+	@ResponseBody
+	public RespBody checkChanged(@RequestParam("id") Long id, @RequestParam("version") Long version,
+			@RequestParam("rcnt") Long cnt) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		boolean isVerEql = chatChannel.getVersion() == version.longValue();
+		boolean isRcntEql = chatChannel.getChatReplies().size() == cnt.longValue();
+
+		return RespBody.succeed(!isVerEql || !isRcntEql);
 
 	}
 }

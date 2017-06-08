@@ -12,6 +12,7 @@
     body {
         margin: 0;
         font-family: Arial, "Hiragino Sans GB", "Microsoft YaHei", 微软雅黑, STHeiti, "WenQuanYi Micro Hei", SimSun, sans-serif;
+        font-size: 14px;
     }
     
     .tms-mail-tmpl-container {
@@ -27,7 +28,7 @@
         height: 1px;
         background-color: #dcd1d1;
         position: absolute;
-        bottom: -16px;
+        bottom: -20px;
         left: 0;
         right: 0;
         box-shadow: 0 0px 1px 0px #ece3e3;
@@ -128,7 +129,7 @@
             <span class="logo">TMS</span>
             <div class="content">
                 <div class="title">系统消息</div>
-                <div class="meta">
+                <div class="meta" style="font-size: 12px;">
                     <a class="link" th:href="${'mailto:' + user.mails}" th:text="${(not #strings.isEmpty(user.name)) ? user.name : user.username}">席维成</a> <span style="color: #2185d0;">发送于</span> <span class="date" th:text="${#dates.format(date,'yyyy/MM/dd HH:mm:ss')}">2017/11/11 11:11:11</span>
                 </div>
             </div>
@@ -136,7 +137,7 @@
         </div>
         <div class="main">
             <div class="title">
-                <a class="link" th:href="${href}" th:utext="${title}">下面的沟通消息有分享到你</a>
+                <a class="link" style="font-size: 14px;" th:href="${href}" th:utext="${title}">下面的沟通消息有分享到你</a>
             </div>
             <div class="divider"></div>
             <div class="content" th:utext="${content}">下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你下面的沟通消息有分享到你</div>

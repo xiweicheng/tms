@@ -28,6 +28,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 /**
  * 
  * @author xi
@@ -37,6 +41,9 @@ import com.lhjz.portal.pojo.Enum.Status;
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Data
+@ToString
+@EqualsAndHashCode(of = "id")
 public class ChatAt implements Serializable {
 
 	private static final long serialVersionUID = 2468132151052038557L;
@@ -52,6 +59,10 @@ public class ChatAt implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "chat_channel_id")
 	private ChatChannel chatChannel;
+	
+	@ManyToOne
+	@JoinColumn(name = "chat_reply_id")
+	private ChatReply chatReply;
 
 	@ManyToOne
 	@JoinColumn(name = "chat_direct_id")
@@ -85,100 +96,5 @@ public class ChatAt implements Serializable {
 
 	@Version
 	private long version;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Chat getChat() {
-		return chat;
-	}
-
-	public void setChat(Chat chat) {
-		this.chat = chat;
-	}
-
-	public ChatChannel getChatChannel() {
-		return chatChannel;
-	}
-
-	public void setChatChannel(ChatChannel chatChannel) {
-		this.chatChannel = chatChannel;
-	}
-
-	public ChatDirect getChatDirect() {
-		return chatDirect;
-	}
-
-	public void setChatDirect(ChatDirect chatDirect) {
-		this.chatDirect = chatDirect;
-	}
-
-	public User getAtUser() {
-		return atUser;
-	}
-
-	public void setAtUser(User atUser) {
-		this.atUser = atUser;
-	}
-
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
-	}
-
-	public User getUpdater() {
-		return updater;
-	}
-
-	public void setUpdater(User updater) {
-		this.updater = updater;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public Date getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-
-	public Date getUpdateDate() {
-		return updateDate;
-	}
-
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
-	}
-
-	public long getVersion() {
-		return version;
-	}
-
-	public void setVersion(long version) {
-		this.version = version;
-	}
-
-	@Override
-	public String toString() {
-		return "ChatAt [id=" + id + ", chat=" + chat + ", chatChannel=" + chatChannel + ", chatDirect=" + chatDirect
-				+ ", atUser=" + atUser + ", creator=" + creator + ", updater=" + updater + ", createDate=" + createDate
-				+ ", updateDate=" + updateDate + ", status=" + status + ", version=" + version + "]";
-	}
 
 }
