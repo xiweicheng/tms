@@ -144,7 +144,7 @@ public class ChatDirectController extends BaseController {
 
 		ChatDirect chatDirect2 = chatDirectRepository.saveAndFlush(chatDirect);
 
-		final String html = StringUtil.md2Html(contentHtml, false);
+		final String html = contentHtml; // StringUtil.md2Html(contentHtml, false, true);
 		final User loginUser = getLoginUser();
 		final String href = baseUrl + path + "#/chat/@"
 				+ loginUser.getUsername() + "?id="
