@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +48,7 @@ import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatAt;
 import com.lhjz.portal.entity.ChatChannel;
+import com.lhjz.portal.entity.ChatChannelFollower;
 import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.ChatLabel;
 import com.lhjz.portal.entity.ChatPin;
@@ -65,6 +67,7 @@ import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatAtRepository;
+import com.lhjz.portal.repository.ChatChannelFollowerRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.ChatLabelRepository;
@@ -128,6 +131,9 @@ public class ChatChannelController extends BaseController {
 	
 	@Autowired
 	ChatReplyRepository chatReplyRepository;
+	
+	@Autowired
+	ChatChannelFollowerRepository chatChannelFollowerRepository;
 
 	@Autowired
 	MailSender mailSender;
@@ -295,7 +301,9 @@ public class ChatChannelController extends BaseController {
 		}
 
 		final Mail mail = Mail.instance();
-		mail.addUsers(chatChannel.getChannel().getSubscriber());
+		mail.addUsers(chatChannel.getChannel().getSubscriber(), loginUser);
+		mail.addUsers(chatChannel.getChatChannelFollowers().stream().map(ccf -> ccf.getCreator())
+				.collect(Collectors.toList()), loginUser);
 
 		if (StringUtil.isNotEmpty(usernames)) {
 
@@ -1146,6 +1154,8 @@ public class ChatChannelController extends BaseController {
 		final Mail mail = Mail.instance();
 		mail.addUsers(chatChannel.getChannel().getSubscriber(), loginUser);
 		mail.addUsers(Arrays.asList(chatChannel.getCreator()), loginUser);
+		mail.addUsers(chatChannel.getChatChannelFollowers().stream().map(ccf -> ccf.getCreator())
+				.collect(Collectors.toList()), loginUser);
 
 		if (StringUtil.isNotEmpty(usernames)) {
 
@@ -1227,7 +1237,9 @@ public class ChatChannelController extends BaseController {
 		final Mail mail = Mail.instance();
 		mail.addUsers(chatReply.getChatChannel().getChannel().getSubscriber(), loginUser);
 		mail.addUsers(Arrays.asList(chatReply.getChatChannel().getCreator()), loginUser);
-
+		mail.addUsers(chatReply.getChatChannel().getChatChannelFollowers().stream().map(ccf -> ccf.getCreator())
+				.collect(Collectors.toList()), loginUser);
+		
 		if (StringUtil.isNotEmpty(usernames)) {
 
 			Map<String, User> atUserMap = new HashMap<String, User>();
@@ -1358,6 +1370,67 @@ public class ChatChannelController extends BaseController {
 		boolean isRcntEql = chatChannel.getChatReplies().size() == cnt.longValue();
 
 		return RespBody.succeed(!isVerEql || !isRcntEql);
+
+	}
+	
+	@PostMapping("follower/add")
+	@ResponseBody
+	public RespBody addFollower(@RequestParam("id") Long id) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		ChatChannelFollower chatChannelFollower = chatChannelFollowerRepository
+				.findOneByChatChannelAndCreator(chatChannel, getLoginUser());
+
+		if (chatChannelFollower != null) {
+			return RespBody.failed("已经关注过!");
+		}
+
+		chatChannelFollower = new ChatChannelFollower();
+		chatChannelFollower.setChatChannel(chatChannel);
+
+		ChatChannelFollower chatChannelFollower2 = chatChannelFollowerRepository.saveAndFlush(chatChannelFollower);
+
+		return RespBody.succeed(chatChannelFollower2);
+
+	}
+	
+	@PostMapping("follower/remove")
+	@ResponseBody
+	public RespBody removeFollower(@RequestParam("id") Long id) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		ChatChannelFollower chatChannelFollower = chatChannelFollowerRepository
+				.findOneByChatChannelAndCreator(chatChannel, getLoginUser());
+
+		chatChannelFollowerRepository.delete(chatChannelFollower);
+
+		return RespBody.succeed(chatChannelFollower);
+
+	}
+	
+	@GetMapping("follower/list")
+	@ResponseBody
+	public RespBody listFollower(@RequestParam("id") Long id) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!hasAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		List<ChatChannelFollower> followers = chatChannelFollowerRepository.findByChatChannel(chatChannel);
+
+		return RespBody.succeed(followers);
 
 	}
 }
