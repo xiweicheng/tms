@@ -540,9 +540,18 @@ public class ChatChannelController extends BaseController {
 		List<ChatStow> chatStows = chatStowRepository.findByChatChannelNotNullAndStowUserAndStatus(
 				getLoginUser(), Status.New);
 		
-		chatStows.forEach(cs -> reduceChatchannel(cs.getChatChannel()));
+		chatStows.forEach(cs -> reduceChatStow(cs));
 
 		return RespBody.succeed(chatStows);
+	}
+	
+	private void reduceChatStow(ChatStow chatStow) {
+		reduceChatchannel(chatStow.getChatChannel());
+		chatStow.setStowUser(null);
+		chatStow.setCreator(null);
+		chatStow.setUpdateDate(null);
+		chatStow.setUpdater(null);
+		chatStow.setStatus(null);
 	}
 	
 	@RequestMapping(value = "getAts", method = RequestMethod.GET)
@@ -553,9 +562,17 @@ public class ChatChannelController extends BaseController {
 		Page<ChatAt> chatAts = chatAtRepository.findByChatChannelNotNullAndAtUserAndStatus(
 				getLoginUser(), Status.New, pageable);
 		
-		chatAts.forEach(ca -> reduceChatchannel(ca.getChatChannel()));
+		chatAts.forEach(ca -> reduceChatAt(ca));
 
 		return RespBody.succeed(chatAts);
+	}
+	
+	private void reduceChatAt(ChatAt chatAt) {
+		reduceChatchannel(chatAt.getChatChannel());
+		chatAt.setAtUser(null);
+		chatAt.setUpdateDate(null);
+		chatAt.setUpdater(null);
+		chatAt.setStatus(null);
 	}
 
 	@RequestMapping(value = "markAsReaded", method = RequestMethod.POST)
