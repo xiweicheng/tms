@@ -237,16 +237,21 @@ public class ChatChannelController extends BaseController {
 		}
 
 		Page<ChatChannel> page = chatChannelRepository.findByChannel(channel, pageable);
-		page.forEach(cc -> {
-			Channel channel2 = cc.getChannel();
-			Channel channel3 = new Channel();
-			channel3.setId(channel2.getId());
-			channel3.setName(channel2.getName());
-			channel3.setTitle(channel2.getTitle());
-			cc.setChannel(channel3);
-		});
+		page.forEach(cc -> reduceChatchannel(cc));
 
 		return RespBody.succeed(page);
+	}
+	
+	private void reduceChatchannel(ChatChannel chatChannel) {
+		Channel channel = chatChannel.getChannel();
+		Channel channel2 = new Channel();
+		channel2.setId(channel.getId());
+		channel2.setName(channel.getName());
+		channel2.setTitle(channel.getTitle());
+		chatChannel.setChannel(channel2);
+
+		chatChannel.setUpdater(null);
+		chatChannel.setUpdateDate(null);
 	}
 
 	@RequestMapping(value = "update", method = RequestMethod.POST)
@@ -413,14 +418,7 @@ public class ChatChannelController extends BaseController {
 		}
 
 		List<ChatChannel> chats = chatChannelRepository.latest(channel, id);
-		chats.forEach(cc -> {
-			Channel channel2 = cc.getChannel();
-			Channel channel3 = new Channel();
-			channel3.setId(channel2.getId());
-			channel3.setName(channel2.getName());
-			channel3.setTitle(channel2.getTitle());
-			cc.setChannel(channel3);
-		});
+		chats.forEach(cc -> reduceChatchannel(cc));
 		
 		return RespBody.succeed(chats);
 	}
@@ -447,14 +445,7 @@ public class ChatChannelController extends BaseController {
 			chats = chatChannelRepository.queryMoreNew(channel, start, size);
 		}
 		
-		chats.forEach(cc -> {
-			Channel channel2 = cc.getChannel();
-			Channel channel3 = new Channel();
-			channel3.setId(channel2.getId());
-			channel3.setName(channel2.getName());
-			channel3.setTitle(channel2.getTitle());
-			cc.setChannel(channel3);
-		});
+		chats.forEach(cc -> reduceChatchannel(cc));
 
 		return RespBody.succeed(chats).addMsg(count);
 	}
@@ -481,14 +472,7 @@ public class ChatChannelController extends BaseController {
 
 		Page<ChatChannel> page = new PageImpl<>(chats, pageable, cnt);
 		
-		page.forEach(cc -> {
-			Channel channel2 = cc.getChannel();
-			Channel channel3 = new Channel();
-			channel3.setId(channel2.getId());
-			channel3.setName(channel2.getName());
-			channel3.setTitle(channel2.getTitle());
-			cc.setChannel(channel3);
-		});
+		page.forEach(cc -> reduceChatchannel(cc));
 
 		return RespBody.succeed(page);
 	}
@@ -547,14 +531,7 @@ public class ChatChannelController extends BaseController {
 		List<ChatStow> chatStows = chatStowRepository.findByChatChannelNotNullAndStowUserAndStatus(
 				getLoginUser(), Status.New);
 		
-		chatStows.forEach(cs -> {
-			Channel channel = cs.getChatChannel().getChannel();
-			Channel channel3 = new Channel();
-			channel3.setId(channel.getId());
-			channel3.setName(channel.getName());
-			channel3.setTitle(channel.getTitle());
-			cs.getChatChannel().setChannel(channel3);
-		});
+		chatStows.forEach(cs -> reduceChatchannel(cs.getChatChannel()));
 
 		return RespBody.succeed(chatStows);
 	}
@@ -567,14 +544,7 @@ public class ChatChannelController extends BaseController {
 		Page<ChatAt> chatAts = chatAtRepository.findByChatChannelNotNullAndAtUserAndStatus(
 				getLoginUser(), Status.New, pageable);
 		
-		chatAts.forEach(ca -> {
-			Channel channel = ca.getChatChannel().getChannel();
-			Channel channel3 = new Channel();
-			channel3.setId(channel.getId());
-			channel3.setName(channel.getName());
-			channel3.setTitle(channel.getTitle());
-			ca.getChatChannel().setChannel(channel3);
-		});
+		chatAts.forEach(ca -> reduceChatchannel(ca.getChatChannel()));
 
 		return RespBody.succeed(chatAts);
 	}
