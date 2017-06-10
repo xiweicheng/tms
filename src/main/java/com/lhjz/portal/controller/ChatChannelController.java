@@ -878,6 +878,10 @@ public class ChatChannelController extends BaseController {
 	
 	private boolean hasAuth(ChatChannel cc) {
 
+		if (cc == null) {
+			return false;
+		}
+
 		if (isSuperOrCreator(cc.getCreator().getUsername())) {
 			return true;
 		}
@@ -886,6 +890,10 @@ public class ChatChannelController extends BaseController {
 	}
 	
 	private boolean hasAuth(Channel c) {
+
+		if (c == null) {
+			return false;
+		}
 
 		if (!c.getPrivated()) {
 			return true;
