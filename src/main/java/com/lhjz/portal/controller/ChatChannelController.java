@@ -248,10 +248,19 @@ public class ChatChannelController extends BaseController {
 		channel2.setId(channel.getId());
 		channel2.setName(channel.getName());
 		channel2.setTitle(channel.getTitle());
+		channel2.setMembers(null);
+		channel2.setPrivated(null);
+		channel2.setStatus(null);
+		channel2.setSubscriber(null);
+		channel2.setType(null);
+		
 		chatChannel.setChannel(channel2);
 
 		chatChannel.setUpdater(null);
 		chatChannel.setUpdateDate(null);
+		chatChannel.setChatChannelFollowers(null);
+		chatChannel.setStatus(null);
+		chatChannel.setType(null);
 	}
 
 	@RequestMapping(value = "update", method = RequestMethod.POST)
