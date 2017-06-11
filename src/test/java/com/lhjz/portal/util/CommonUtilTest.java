@@ -8,6 +8,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.jayway.jsonpath.JsonPath;
+import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Code;
 import com.lhjz.portal.pojo.Enum.Prop;
 import com.lhjz.portal.pojo.Enum.SchedulePriority;
@@ -92,19 +93,32 @@ public class CommonUtilTest {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(ToType.valueOf("Channel"));
-		System.out.println(SchedulePriority.Middle.name());
-		System.out.println(StringUtil.replace("xx{~{?1}}xxx", "cccc"));
+//		System.out.println(ToType.valueOf("Channel"));
+//		System.out.println(SchedulePriority.Middle.name());
+//		System.out.println(StringUtil.replace("xx{~{?1}}xxx", "cccc"));
+//		
+//		System.out.println(StringUtil.parseUrl("http://jira00.sh1.newtouch.com/rest/api/2/issue/13701"));
+//	
+//		String read = JsonPath.read("{}", "$.name");
+//		System.out.println(read);
+//		
+//		System.out.println(Code.Created);
+//		System.out.println(Code.Created.equals(Code.Readed));
+//		System.out.println(Code.Created.equals(Code.Created));
 		
-		System.out.println(StringUtil.parseUrl("http://jira00.sh1.newtouch.com/rest/api/2/issue/13701"));
-	
-		String read = JsonPath.read("{}", "$.name");
-		System.out.println(read);
+		System.out.println("a-dsdf".matches("^[a-z][a-z0-9]{2,49}$"));
+		System.out.println("adsdf121".matches("^[a-z][a-z0-9]{2,49}$"));
+		System.out.println("af".matches("^[a-z][a-z0-9]{2,49}$"));
 		
-		System.out.println(Code.Created);
-		System.out.println(Code.Created.equals(Code.Readed));
-		System.out.println(Code.Created.equals(Code.Created));
+		System.out.println(JsonUtil.toJson(RespBody.succeed().code(Code.Created)));
 	
+		System.out.println(ThreadUtil.getCurrentAuditor());
+		ThreadUtil.setCurrentAuditor("all");
+		ThreadUtil.setCurrentAuditor("all2");
+		System.out.println(ThreadUtil.getCurrentAuditor());
+		System.out.println(ThreadUtil.getCurrentAuditor());
+		ThreadUtil.clearCurrentAuditor();
+		System.out.println(ThreadUtil.getCurrentAuditor());
 	}
 
 	// public static void main(String[] args) {

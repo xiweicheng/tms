@@ -4,11 +4,8 @@
 package com.lhjz.portal.entity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -18,8 +15,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
@@ -32,7 +27,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.security.User;
-import com.lhjz.portal.pojo.Enum.ChatType;
+import com.lhjz.portal.pojo.Enum.ChatReplyType;
 import com.lhjz.portal.pojo.Enum.Status;
 
 import lombok.Data;
@@ -49,24 +44,23 @@ import lombok.ToString;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@ToString(exclude = { "chatLabels", "chatReplies" })
+@ToString
 @EqualsAndHashCode(of = "id")
-public class ChatChannel implements Serializable {
+public class ChatReply implements Serializable {
 
-	private static final long serialVersionUID = 2823425313949085614L;
+	private static final long serialVersionUID = 5859047469372750499L;
 
 	@Id
 	@GeneratedValue
 	private Long id;
 
+	@JsonIgnore
 	@ManyToOne
-	@JoinColumn(name = "channel")
-	private Channel channel;
+	@JoinColumn(name = "chat_channel")
+	private ChatChannel chatChannel;
 
 	@Column(length = 16777216)
 	private String content;
-
-	private Boolean openEdit;
 
 	@ManyToOne
 	@JoinColumn(name = "creator")
@@ -92,33 +86,9 @@ public class ChatChannel implements Serializable {
 
 	@Enumerated(EnumType.STRING)
 	@Column
-	private ChatType type = ChatType.Msg;
-
-	@Column(length = 16777216)
-	private String voteZan;
-
-	@Column(length = 16777216)
-	private String voteCai;
-
-	private Integer voteZanCnt;
-
-	private Integer voteCaiCnt;
+	private ChatReplyType type = ChatReplyType.ChatChannel;
 
 	@Version
 	private long version;
-
-	@OneToMany(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
-	List<ChatLabel> chatLabels = new ArrayList<>();
-
-	@JsonIgnore
-	@OneToOne(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
-	ChatPin chatPin;
-
-	@OneToMany(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
-	List<ChatReply> chatReplies = new ArrayList<>();
-	
-	@JsonIgnore
-	@OneToMany(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
-	List<ChatChannelFollower> ChatChannelFollowers = new ArrayList<>();
 
 }

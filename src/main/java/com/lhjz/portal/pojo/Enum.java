@@ -27,6 +27,10 @@ public class Enum {
 		Wiki, Msg;
 	}
 
+	public static enum ChatReplyType {
+		ChatChannel;
+	}
+
 	public static enum BlogType {
 		Team, Own;
 	}
@@ -52,7 +56,7 @@ public class Enum {
 	}
 
 	public static enum Target {
-		Translate, Label, TranslateItem, Language, Chat, ChatChannel, ChatLabel, Blog, Comment, ChatDirect, Project, Article, File, Feedback, Diagnose, Settings, Page, User, Authority, Config, Feature, Case, Product, Env, Health, Job, JobApply, Import;
+		Translate, Label, TranslateItem, Language, Chat, ChatChannel, ChatLabel, ChatReply, Blog, Comment, ChatDirect, Project, Article, File, Feedback, Diagnose, Settings, Page, User, Authority, Config, Feature, Case, Product, Env, Health, Job, JobApply, Import;
 	}
 
 	public static enum Page {
@@ -105,7 +109,7 @@ public class Enum {
 
 	public static enum Code {
 		Created(200), Readed(201), Updated(202), Deleted(203);
-		
+
 		private Integer value;
 
 		private Code(Integer value) {
@@ -120,7 +124,7 @@ public class Enum {
 		public void setValue(Integer value) {
 			this.value = value;
 		}
-		
+
 		@Override
 		public String toString() {
 			return String.valueOf(value);

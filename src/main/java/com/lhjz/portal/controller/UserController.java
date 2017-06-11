@@ -35,6 +35,7 @@ import com.lhjz.portal.entity.security.Group;
 import com.lhjz.portal.entity.security.GroupMember;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
+import com.lhjz.portal.model.MailAddr;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.Role;
@@ -46,6 +47,7 @@ import com.lhjz.portal.repository.AuthorityRepository;
 import com.lhjz.portal.repository.GroupMemberRepository;
 import com.lhjz.portal.repository.GroupRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.ChannelService;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
@@ -83,6 +85,9 @@ public class UserController extends BaseController {
 	@Autowired
 	GroupMemberRepository groupMemberRepository;
 	
+	@Autowired
+	ChannelService channelService;
+	
 	@Value("${tms.base.url}")
 	private String baseUrl;
 
@@ -113,7 +118,7 @@ public class UserController extends BaseController {
 		user.setMails(StringUtils.trim(userForm.getMail()));
 		user.setCreator(WebUtil.getUsername());
 
-		userRepository.saveAndFlush(user);
+		User user2 = userRepository.saveAndFlush(user);
 
 		log(Action.Create, Target.User, user.getUsername());
 
@@ -137,12 +142,12 @@ public class UserController extends BaseController {
 
 			log(Action.Create, Target.Authority, authority2.getId().toString());
 		}
+		
+		channelService.joinAll(user2);
 
 		final String userRole = role;
 
 		final String href = baseURL;
-
-		final Mail mail = Mail.instance().addUsers(user);
 
 		final UserForm userForm2 = userForm;
 
@@ -155,7 +160,7 @@ public class UserController extends BaseController {
 					.sendHtmlByQueue(String.format("TMS-用户创建_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 							TemplateUtil.process("templates/mail/user-create", MapUtil.objArr2Map("user", userForm2,
 									"userRole", userRole, "href", href, "loginUrl", loginUrl, "baseUrl", baseUrl)),
-							null, mail.get());
+							new MailAddr(user.getMails(), user.getName()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
