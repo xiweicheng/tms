@@ -1150,6 +1150,18 @@ public class ChatChannelController extends BaseController {
 		chatReply.setContent(content);
 
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
+		
+		// auto follow this chatchannel
+		ChatChannelFollower chatChannelFollower = chatChannelFollowerRepository
+				.findOneByChatChannelAndCreator(chatChannel, getLoginUser());
+
+		if (chatChannelFollower == null) {
+			chatChannelFollower = new ChatChannelFollower();
+			chatChannelFollower.setChatChannel(chatChannel);
+
+			chatChannelFollowerRepository.saveAndFlush(chatChannelFollower);
+
+		}
 
 		final String href = url + "?id=" + chatChannel.getId() + "&rid=" + chatReply2.getId();
 		final String html = contentHtml; // StringUtil.md2Html(contentHtml, false, true);
@@ -1333,6 +1345,20 @@ public class ChatChannelController extends BaseController {
 				ChatReplyType.ChatChannel, Status.Deleted);
 
 		return RespBody.succeed(chatReplies);
+
+	}
+	
+	@GetMapping("reply/get")
+	@ResponseBody
+	public RespBody getReply(@RequestParam("rid") Long rid) {
+
+		ChatReply chatReply = chatReplyRepository.findOne(rid);
+
+		if (!hasAuth(chatReply.getChatChannel())) {
+			return RespBody.failed("权限不足!");
+		}
+
+		return RespBody.succeed(chatReply);
 
 	}
 	
