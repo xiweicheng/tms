@@ -489,7 +489,7 @@ public class ChatChannelController extends BaseController {
 
 	@RequestMapping(value = "stow", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody stow(@RequestParam("id") Long id) {
+	public RespBody stow(@RequestParam("id") Long id, @RequestParam(value = "rid", required = false) Long rid) {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
@@ -502,8 +502,15 @@ public class ChatChannelController extends BaseController {
 		}
 
 		User loginUser = getLoginUser();
-		ChatStow chatStow = chatStowRepository.findOneByChatChannelAndStowUser(chatChannel,
-				loginUser);
+		ChatStow chatStow = null;
+		ChatReply chatReply = null;
+		if (rid == null) {
+			chatStow = chatStowRepository.findOneByChatChannelAndStowUser(chatChannel, loginUser);
+		} else {
+			chatReply = chatReplyRepository.findOne(rid);
+			chatStow = chatStowRepository.findOneByChatChannelAndChatReplyAndStowUser(chatChannel, chatReply,
+					loginUser);
+		}
 
 		if (chatStow != null) {
 			return RespBody.failed("收藏频道消息重复!").addMsg(chatStow);
@@ -512,6 +519,7 @@ public class ChatChannelController extends BaseController {
 		ChatStow chatStow2 = new ChatStow();
 		chatStow2.setChatChannel(chatChannel);
 		chatStow2.setStowUser(loginUser);
+		chatStow2.setChatReply(chatReply);
 
 		ChatStow chatStow3 = chatStowRepository.saveAndFlush(chatStow2);
 
