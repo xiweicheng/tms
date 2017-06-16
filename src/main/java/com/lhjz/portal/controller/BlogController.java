@@ -317,24 +317,19 @@ public class BlogController extends BaseController {
 
 			final Mail mail = Mail.instance();
 			
-			boolean isCreator = blog2.getCreator().equals(loginUser);
-			
 			List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog2, Status.Deleted);
-
-			if (!isCreator || StringUtil.isNotEmpty(usernames) || followers.size() > 0) {
-				
-				if (!isCreator) {
-					mail.addUsers(blog2.getCreator());
-				}
-				
-				if (StringUtil.isNotEmpty(usernames)) {
-					String[] usernameArr = usernames.split(",");
-					Arrays.asList(usernameArr).stream().forEach((username) -> {
-						mail.addUsers(getUser(username));
-					});
-				}
-
-				followers.forEach(bf -> mail.addUsers(bf.getCreator()));
+			
+			mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
+			mail.addUsers(Arrays.asList(blog2.getCreator()), loginUser);
+			
+			if (StringUtil.isNotEmpty(usernames)) {
+				String[] usernameArr = usernames.split(",");
+				Arrays.asList(usernameArr).stream().forEach((username) -> {
+					mail.addUsers(getUser(username));
+				});
+			}
+			
+			if (!mail.isEmpty()) {
 
 				try {
 					mailSender.sendHtmlByQueue(
@@ -825,9 +820,8 @@ public class BlogController extends BaseController {
 		Blog blog = blogRepository.findOne(id);
 
 		Mail mail = Mail.instance();
-		if (!blog.getCreator().equals(loginUser)) {
-			mail.addUsers(blog.getCreator());
-		}
+		mail.addUsers(Arrays.asList(blog.getCreator()), loginUser);
+		
 		if (StringUtil.isNotEmpty(users)) {
 			Stream.of(users.split(",")).forEach(username -> {
 				User user = getUser(username);
@@ -836,7 +830,7 @@ public class BlogController extends BaseController {
 		}
 
 		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
-		followers.forEach(bf -> mail.addUsers(bf.getCreator()));
+		mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 		
 		// auto follow blog
 		boolean isFollower = followers.stream().anyMatch(f -> f.getCreator().equals(loginUser));
@@ -908,9 +902,8 @@ public class BlogController extends BaseController {
 		Blog blog = blogRepository.findOne(id);
 
 		Mail mail = Mail.instance();
-		if (!blog.getCreator().equals(loginUser)) {
-			mail.addUsers(blog.getCreator());
-		}
+		mail.addUsers(Arrays.asList(blog.getCreator()), loginUser);
+		
 		if (StringUtil.isNotEmpty(users)) {
 			Stream.of(users.split(",")).forEach(username -> {
 				User user = getUser(username);
@@ -919,7 +912,7 @@ public class BlogController extends BaseController {
 		}
 		
 		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
-		followers.forEach(bf -> mail.addUsers(bf.getCreator()));
+		mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 		
 		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
 

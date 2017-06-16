@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.util.StringUtil;
+import com.lhjz.portal.util.ThreadUtil;
 import com.lhjz.portal.util.WebUtil;
 
 @Component
@@ -17,7 +19,11 @@ public class SpringSecurityAuditorAware implements AuditorAware<User> {
 	@Override
 	public User getCurrentAuditor() {
 
-		return userRepository.findOne(WebUtil.getUsername());
+		String username = ThreadUtil.getCurrentAuditor();
+
+		username = StringUtil.isEmpty(username) ? WebUtil.getUsername() : username;
+
+		return userRepository.findOne(username);
 
 	}
 

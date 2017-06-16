@@ -38,6 +38,7 @@ import com.lhjz.portal.entity.security.Authority;
 import com.lhjz.portal.entity.security.AuthorityId;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
+import com.lhjz.portal.model.MailAddr;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.model.RunAsAuth;
 import com.lhjz.portal.pojo.Enum.Action;
@@ -51,6 +52,7 @@ import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.FileRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.ChannelService;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.ImageUtil;
 import com.lhjz.portal.util.JsonUtil;
@@ -95,6 +97,9 @@ public class FreeController extends BaseController {
 	
 	@Autowired
 	FileRepository fileRepository;
+	
+	@Autowired
+	ChannelService channelService;
 	
 	@Autowired
 	Environment env;
@@ -187,11 +192,24 @@ public class FreeController extends BaseController {
 
 		// username(唯一行校验 & !all), mail(激活用户), name(可选,没有,设置为username),
 		// pwd(长度>=8)
-
+		
+		if (StringUtil.isEmpty(params.get("username"))) {
+			return RespBody.failed("注册用户名不能为空!");
+		}
+		if (StringUtil.isEmpty(params.get("mail"))) {
+			return RespBody.failed("注册邮箱不能为空!");
+		}
+		if (StringUtil.isEmpty(params.get("pwd"))) {
+			return RespBody.failed("注册登录密码不能为空!");
+		}
 		String username = params.get("username").toString().trim();
 		String mail = params.get("mail").toString().trim();
 		String name = null;
 		String pwd = params.get("pwd").toString().trim();
+
+		if (username != null && !username.matches("^[a-z][a-z0-9]{2,49}$")) {
+			return RespBody.failed("用户名必须是3到50位小写字母和数字组合,并且以字母开头!");
+		}
 
 		User user = userRepository.findOne(username);
 		if (user != null || "all".equalsIgnoreCase(username)) {
@@ -225,12 +243,14 @@ public class FreeController extends BaseController {
 		newUser.setResetPwdToken(UUID.randomUUID().toString());
 		newUser.setStatus(Status.New);
 
-		userRepository.saveAndFlush(newUser);
+		User user2 = userRepository.saveAndFlush(newUser);
 
 		Authority authority = new Authority();
 		authority.setId(new AuthorityId(username, Role.ROLE_USER.name()));
 
 		authorityRepository.saveAndFlush(authority);
+		
+		channelService.joinAll(user2);
 
 		final String content = StringUtil.replaceByKV(
 				"<a target='_blank' href='{baseUrl}{path}#/register?id={id}'>点击该链接激活账户</a>",
@@ -244,7 +264,7 @@ public class FreeController extends BaseController {
 							String.format("TMS-账户激活_%s",
 									DateUtil.format(new Date(),
 											DateUtil.FORMAT7)),
-							content, null, Mail.instance().addUsers(newUser).get());
+							content, new MailAddr(mail, name));
 
 			logger.info("激活账户邮件发送状态: " + sts);
 			return sts ? RespBody.succeed() : RespBody.failed("激活账户邮件发送失败!");
@@ -381,7 +401,7 @@ public class FreeController extends BaseController {
 			final User loginUser = getLoginUser();
 			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
 			
-			final String html = StringUtil.md2Html(sb.toString());
+			final String html = StringUtil.md2Html(sb.toString(), true, true);
 
 			try {
 				mailSender.sendHtmlByQueue(
@@ -476,7 +496,7 @@ public class FreeController extends BaseController {
 			final User loginUser = getLoginUser();
 			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
 
-			final String html = StringUtil.md2Html(sb.toString());
+			final String html = StringUtil.md2Html(sb.toString(), true, true);
 
 			try {
 				mailSender.sendHtmlByQueue(

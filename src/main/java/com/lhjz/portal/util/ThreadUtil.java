@@ -15,7 +15,21 @@ import java.util.concurrent.Executors;
  */
 public final class ThreadUtil {
 
+	private static ThreadLocal<String> tl = new ThreadLocal<>();
+
 	private static ExecutorService pool = Executors.newCachedThreadPool();
+
+	public static void setCurrentAuditor(String username) {
+		tl.set(username);
+	}
+
+	public static String getCurrentAuditor() {
+		return tl.get();
+	}
+
+	public static void clearCurrentAuditor() {
+		tl.remove();
+	}
 
 	/**
 	 * 执行线程池任务.

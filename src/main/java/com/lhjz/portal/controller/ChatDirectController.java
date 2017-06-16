@@ -126,7 +126,7 @@ public class ChatDirectController extends BaseController {
 			@RequestParam("path") String path,
 			@RequestParam("chatTo") String chatTo,
 			@RequestParam("content") String content,
-			@RequestParam("contentHtml") final String contentHtml) {
+			@RequestParam("contentHtml") String contentHtml) {
 
 		if (StringUtil.isEmpty(content)) {
 			return RespBody.failed("提交内容不能为空!");
@@ -144,6 +144,7 @@ public class ChatDirectController extends BaseController {
 
 		ChatDirect chatDirect2 = chatDirectRepository.saveAndFlush(chatDirect);
 
+		final String html = contentHtml; // StringUtil.md2Html(contentHtml, false, true);
 		final User loginUser = getLoginUser();
 		final String href = baseUrl + path + "#/chat/@"
 				+ loginUser.getUsername() + "?id="
@@ -152,7 +153,7 @@ public class ChatDirectController extends BaseController {
 		try {
 			mailSender.sendHtmlByQueue(String.format("TMS-私聊@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
-							new Date(), "href", href, "title", "发给你的私聊消息", "content", contentHtml)),
+							new Date(), "href", href, "title", "发给你的私聊消息", "content", html)),
 					getLoginUserName(loginUser), Mail.instance().addUsers(chatToUser).get());
 		} catch (Exception e) {
 			e.printStackTrace();
