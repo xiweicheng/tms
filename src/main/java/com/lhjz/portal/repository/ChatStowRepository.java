@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.lhjz.portal.entity.Chat;
 import com.lhjz.portal.entity.ChatChannel;
+import com.lhjz.portal.entity.ChatReply;
 import com.lhjz.portal.entity.ChatStow;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
@@ -37,6 +38,8 @@ public interface ChatStowRepository extends JpaRepository<ChatStow, Long> {
 	ChatStow findOneByChatAndStowUser(Chat chat, User stowUser);
 	
 	ChatStow findOneByChatChannelAndStowUser(ChatChannel chatChannel, User stowUser);
+	
+	ChatStow findOneByChatChannelAndChatReplyAndStowUser(ChatChannel chatChannel, ChatReply chatReply, User stowUser);
 	
 	Long deleteByChatChannel(ChatChannel chatChannel);
 	
