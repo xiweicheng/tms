@@ -294,6 +294,10 @@ public class UserController extends BaseController {
 			logger.error("更新用户不存在! ID: {}", userForm.getUsername());
 			return RespBody.failed("更新用户不存在!");
 		}
+		
+		if (Boolean.TRUE.equals(user.getLocked())) {
+			return RespBody.failed("用户信息被锁定,不能修改!");
+		}
 
 		if (StringUtil.isNotEmpty(userForm.getPassword())) {
 
@@ -392,6 +396,10 @@ public class UserController extends BaseController {
 		if (user == null) {
 			logger.error("更新用户不存在! ID: {}", userForm.getUsername());
 			return RespBody.failed("更新用户不存在!");
+		}
+		
+		if (Boolean.TRUE.equals(user.getLocked())) {
+			return RespBody.failed("用户信息被锁定,不能修改!");
 		}
 
 		if (StringUtil.isNotEmpty(userForm.getPassword())) {

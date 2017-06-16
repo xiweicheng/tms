@@ -84,6 +84,8 @@ public class User implements java.io.Serializable, Comparable<User> {
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date resetPwdDate;
+	
+	private Boolean locked;
 
 	@Version
 	private long version;
