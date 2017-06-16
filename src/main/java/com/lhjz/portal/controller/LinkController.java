@@ -4,11 +4,13 @@
 package com.lhjz.portal.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +27,7 @@ import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.LinkRepository;
+import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.WebUtil;
 
@@ -43,10 +46,10 @@ public class LinkController extends BaseController {
 
 	@Autowired
 	LinkRepository linkRepository;
-	
+
 	@Autowired
 	ChatChannelRepository chatChannelRepository;
-	
+
 	@Autowired
 	ChannelRepository channelRepository;
 
@@ -71,7 +74,7 @@ public class LinkController extends BaseController {
 		link.setType(LinkType.valueOf(type));
 
 		Link link2 = linkRepository.saveAndFlush(link);
-		
+
 		if (channelId != null) {
 			Channel channel = channelRepository.findOne(channelId);
 			if (channel != null) {
@@ -79,7 +82,7 @@ public class LinkController extends BaseController {
 				chatChannel.setChannel(channel);
 				chatChannel.setContent(StringUtil.replace("## ~频道消息播报~\n\n> {~{?1}} 添加了频道外链: [**{?2}**]({?3})\n\n",
 						WebUtil.getUsername(), title, href));
-				
+
 				chatChannelRepository.saveAndFlush(chatChannel);
 			}
 		}
@@ -92,6 +95,18 @@ public class LinkController extends BaseController {
 	public RespBody listBy(@RequestParam("channelId") Long channelId) {
 
 		List<Link> links = linkRepository.findByChannelIdAndStatus(channelId, Status.New);
+
+		return RespBody.succeed(links);
+	}
+
+	@GetMapping("listByType")
+	@ResponseBody
+	public RespBody listByType(@RequestParam("type") String type) {
+
+		List<Link> links = linkRepository.findByTypeAndStatus(LinkType.valueOf(type), Status.New);
+
+		links = links.stream().filter(l -> AuthUtil.hasChannelAuth(channelRepository.findOne(l.getChannelId())))
+				.collect(Collectors.toList());
 
 		return RespBody.succeed(links);
 	}
@@ -126,7 +141,7 @@ public class LinkController extends BaseController {
 		}
 
 		Link link = linkRepository.findOne(id);
-		
+
 		String hrefOld = link.getHref();
 		String titleOld = link.getTitle();
 
@@ -134,9 +149,9 @@ public class LinkController extends BaseController {
 		link.setTitle(title);
 
 		Link link2 = linkRepository.saveAndFlush(link);
-		
+
 		Long channelId = link2.getChannelId();
-		
+
 		if (channelId != null) {
 			Channel channel = channelRepository.findOne(channelId);
 			if (channel != null) {
@@ -158,23 +173,22 @@ public class LinkController extends BaseController {
 	public RespBody delete(@RequestParam("id") Long id) {
 
 		Link link = linkRepository.findOne(id);
-		
-		if(link == null) {
+
+		if (link == null) {
 			return RespBody.failed("删除频道外链不存在!");
 		}
-		
+
 		linkRepository.delete(id);
-		
+
 		Long channelId = link.getChannelId();
 		if (channelId != null) {
-			
+
 			Channel channel = channelRepository.findOne(channelId);
 			if (channel != null) {
 				ChatChannel chatChannel = new ChatChannel();
 				chatChannel.setChannel(channel);
-				chatChannel.setContent(
-						StringUtil.replace("## ~频道消息播报~\n\n> {~{?1}} 删除了频道外链: [**{?2}**]({?3})\n\n",
-								WebUtil.getUsername(), link.getTitle(), link.getHref()));
+				chatChannel.setContent(StringUtil.replace("## ~频道消息播报~\n\n> {~{?1}} 删除了频道外链: [**{?2}**]({?3})\n\n",
+						WebUtil.getUsername(), link.getTitle(), link.getHref()));
 
 				chatChannelRepository.saveAndFlush(chatChannel);
 			}
@@ -182,7 +196,7 @@ public class LinkController extends BaseController {
 
 		return RespBody.succeed(id);
 	}
-	
+
 	@PostMapping("count/inc")
 	@ResponseBody
 	public RespBody incCount(@RequestParam("id") Long id) {

@@ -76,6 +76,7 @@ import com.lhjz.portal.repository.ChatReplyRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.ScheduleRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
@@ -151,7 +152,7 @@ public class ChatChannelController extends BaseController {
 
 		Channel channel = channelRepository.findOne(channelId);
 		
-		if (!hasAuth(channel)) {
+		if (!AuthUtil.hasChannelAuth(channel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -219,7 +220,7 @@ public class ChatChannelController extends BaseController {
 
 		Channel channel = channelRepository.findOne(channelId);
 		
-		if (!hasAuth(channel)) {
+		if (!AuthUtil.hasChannelAuth(channel)) {
 			return RespBody.failed("权限不足!");
 		}
 		
@@ -285,7 +286,7 @@ public class ChatChannelController extends BaseController {
 			return RespBody.failed("您没有权限编辑该消息内容!");
 		}
 		
-		if (isOpenEdit && !hasAuth(chatChannel)) {
+		if (isOpenEdit && !AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("您没有权限编辑该消息内容!");
 		}
 		
@@ -408,7 +409,7 @@ public class ChatChannelController extends BaseController {
 		
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 		
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("您没有权限查看该频道消息内容!");
 		}
 	
@@ -422,7 +423,7 @@ public class ChatChannelController extends BaseController {
 		
 		Channel channel = channelRepository.findOne(channelId);
 		
-		if (!hasAuth(channel)) {
+		if (!AuthUtil.hasChannelAuth(channel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -442,7 +443,7 @@ public class ChatChannelController extends BaseController {
 		
 		Channel channel = channelRepository.findOne(channelId);
 		
-		if (!hasAuth(channel)) {
+		if (!AuthUtil.hasChannelAuth(channel)) {
 			return RespBody.failed("权限不足!");
 		}
 		
@@ -470,7 +471,7 @@ public class ChatChannelController extends BaseController {
 		
 		Channel channel = channelRepository.findOne(channelId);
 		
-		if (!hasAuth(channel)) {
+		if (!AuthUtil.hasChannelAuth(channel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -497,7 +498,7 @@ public class ChatChannelController extends BaseController {
 			return RespBody.failed("收藏频道消息不存在,可能已经被删除!");
 		}
 		
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -611,7 +612,7 @@ public class ChatChannelController extends BaseController {
 			return RespBody.failed("@頻道消息不存在,可能已经被删除!");
 		}
 		
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("权限不足!");
 		}
 		
@@ -679,7 +680,7 @@ public class ChatChannelController extends BaseController {
 			return RespBody.failed("投票频道消息不存在!");
 		}
 		
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("权限不足!");
 		}
 		
@@ -785,7 +786,7 @@ public class ChatChannelController extends BaseController {
 			}
 		}
 		
-		if(!hasAuth(chatChannel)) {
+		if(!AuthUtil.hasChannelAuth(chatChannel)) {
 			try {
 				response.sendError(401, "没有权限下载该频道消息!");
 				return;
@@ -880,32 +881,32 @@ public class ChatChannelController extends BaseController {
 		}
 	}
 	
-	private boolean hasAuth(ChatChannel cc) {
-
-		if (cc == null) {
-			return false;
-		}
-
-		if (isSuperOrCreator(cc.getCreator().getUsername())) {
-			return true;
-		}
-
-		return hasAuth(cc.getChannel());
-	}
+//	private boolean hasAuth(ChatChannel cc) {
+//
+//		if (cc == null) {
+//			return false;
+//		}
+//
+//		if (isSuperOrCreator(cc.getCreator().getUsername())) {
+//			return true;
+//		}
+//
+//		return AuthUtil.hasChannelAuth(cc.getChannel());
+//	}
 	
-	private boolean hasAuth(Channel c) {
-
-		if (c == null) {
-			return false;
-		}
-
-		if (!c.getPrivated()) {
-			return true;
-		}
-
-		User loginUser = new User(WebUtil.getUsername());
-		return c.getMembers().contains(loginUser);
-	}
+//	private boolean hasAuth(Channel c) {
+//
+//		if (c == null) {
+//			return false;
+//		}
+//
+//		if (!c.getPrivated()) {
+//			return true;
+//		}
+//
+//		User loginUser = new User(WebUtil.getUsername());
+//		return c.getMembers().contains(loginUser);
+//	}
 
 	@RequestMapping(value = "share", method = RequestMethod.POST)
 	@ResponseBody
@@ -918,7 +919,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel2 = chatChannelRepository.findOne(id);
 
-		if (!hasAuth(chatChannel2)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel2)) {
 			return RespBody.failed("您没有权限分享该沟通消息!");
 		}
 
@@ -1100,7 +1101,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -1130,7 +1131,7 @@ public class ChatChannelController extends BaseController {
 
 		Channel channel = channelRepository.findOne(cid);
 
-		if (!hasAuth(channel)) {
+		if (!AuthUtil.hasChannelAuth(channel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -1149,7 +1150,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -1345,7 +1346,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -1362,7 +1363,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatReply chatReply = chatReplyRepository.findOne(rid);
 
-		if (!hasAuth(chatReply.getChatChannel())) {
+		if (!AuthUtil.hasChannelAuth(chatReply.getChatChannel())) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -1376,7 +1377,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -1400,7 +1401,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -1417,7 +1418,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -1443,7 +1444,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -1462,7 +1463,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
-		if (!hasAuth(chatChannel)) {
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
 			return RespBody.failed("权限不足!");
 		}
 
