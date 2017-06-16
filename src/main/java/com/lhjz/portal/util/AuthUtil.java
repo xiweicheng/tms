@@ -52,5 +52,15 @@ public class AuthUtil {
 		User loginUser = new User(WebUtil.getUsername());
 		return c.getMembers().contains(loginUser);
 	}
+	
+	public static boolean isChannelMember(Channel c) {
+
+		if (c == null) {
+			return false;
+		}
+
+		User loginUser = new User(WebUtil.getUsername());
+		return c.getMembers().contains(loginUser);
+	}
 
 }

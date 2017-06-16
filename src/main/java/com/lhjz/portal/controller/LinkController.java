@@ -105,7 +105,7 @@ public class LinkController extends BaseController {
 
 		List<Link> links = linkRepository.findByTypeAndStatus(LinkType.valueOf(type), Status.New);
 
-		links = links.stream().filter(l -> AuthUtil.hasChannelAuth(channelRepository.findOne(l.getChannelId())))
+		links = links.stream().filter(l -> AuthUtil.isChannelMember(channelRepository.findOne(l.getChannelId())))
 				.collect(Collectors.toList());
 
 		return RespBody.succeed(links);
