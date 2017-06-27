@@ -112,6 +112,9 @@ public class FileController extends BaseController {
 		if (file.getStatus() == Status.Bultin) {
 			return RespBody.failed("内置文件，不能修改！");
 		}
+		if (!hasAuth(file)) {
+			return RespBody.failed("没有该文件的编辑权限！");
+		}
 
 		String oldName = file.getName();
 
@@ -121,6 +124,10 @@ public class FileController extends BaseController {
 				oldName);
 
 		return RespBody.succeed(fileRepository.save(file));
+	}
+	
+	private boolean hasAuth(com.lhjz.portal.entity.File file) {
+		return isSuperOrCreator(file.getUsername());
 	}
 
 	@RequestMapping(value = "delete", method = RequestMethod.POST)
@@ -132,6 +139,9 @@ public class FileController extends BaseController {
 		com.lhjz.portal.entity.File file = fileRepository.findOne(id);
 		if (file.getStatus() == Status.Bultin) {
 			return RespBody.failed("内置文件，不能删除！");
+		}
+		if (!hasAuth(file)) {
+			return RespBody.failed("没有该文件的删除权限！");
 		}
 
 		fileRepository.delete(id);
