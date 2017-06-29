@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Blog;
+import com.lhjz.portal.entity.Comment;
 import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.model.BlogInfo;
 import com.lhjz.portal.model.RespBody;
@@ -144,4 +145,19 @@ public class HomeController extends BaseController {
 		return RespBody.succeed(blogs);
 	}
 
+	@GetMapping("blog/{id}/comments")
+	public RespBody listBlogComments(@PathVariable("id") Long id,
+			@PageableDefault(sort = { "id" }, direction = Direction.ASC) Pageable pageable) {
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (Status.Deleted.equals(blog.getStatus()) || !Boolean.TRUE.equals(blog.getOpened())) {
+			return RespBody.failed("博文不存在或者权限不足!");
+		}
+
+		Page<Comment> page = commentRepository.findByTargetIdAndStatusNot(String.valueOf(id), Status.Deleted, pageable);
+
+		return RespBody.succeed(page);
+
+	}
 }
