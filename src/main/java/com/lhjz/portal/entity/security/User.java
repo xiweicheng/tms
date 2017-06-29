@@ -29,6 +29,7 @@ import com.lhjz.portal.entity.Chat;
 import com.lhjz.portal.entity.ChatLabel;
 import com.lhjz.portal.entity.Project;
 import com.lhjz.portal.entity.Schedule;
+import com.lhjz.portal.entity.TProject;
 import com.lhjz.portal.entity.Translate;
 import com.lhjz.portal.pojo.Enum.Status;
 
@@ -132,6 +133,11 @@ public class User implements java.io.Serializable, Comparable<User> {
 	@ManyToMany
 	@JoinTable(name = "voter_chat_label", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "chat_label_id") })
 	private Set<ChatLabel> voterChatLabels = new HashSet<>();
+	
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "member_t_project", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "t_project_id") })
+	private Set<TProject> joinTProjects = new HashSet<>();
 
 	public User() {
 	}

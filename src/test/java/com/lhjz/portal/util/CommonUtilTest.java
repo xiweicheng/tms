@@ -7,11 +7,9 @@ import java.util.Date;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.jayway.jsonpath.JsonPath;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Code;
 import com.lhjz.portal.pojo.Enum.Prop;
-import com.lhjz.portal.pojo.Enum.SchedulePriority;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.ToType;
 

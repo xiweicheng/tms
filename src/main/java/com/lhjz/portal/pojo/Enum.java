@@ -107,6 +107,14 @@ public class Enum {
 		Yes, No;
 	}
 
+	public static enum TLinkType {
+		Task, External;
+	}
+	
+	public static enum TAttachmentType {
+		Image, File;
+	}
+
 	public static enum Code {
 		Created(200), Readed(201), Updated(202), Deleted(203);
 
