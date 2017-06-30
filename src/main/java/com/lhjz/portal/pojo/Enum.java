@@ -114,6 +114,10 @@ public class Enum {
 	public static enum TAttachmentType {
 		Image, File;
 	}
+	
+	public static enum TaskType {
+		Task, Epic, Story, Improvement, Feature, Issue;
+	}
 
 	public static enum Code {
 		Created(200), Readed(201), Updated(202), Deleted(203);
