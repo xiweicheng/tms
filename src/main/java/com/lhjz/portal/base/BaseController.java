@@ -103,6 +103,10 @@ public abstract class BaseController {
 	protected boolean isSuper() {
 		return WebUtil.getUserAuthorities().contains(SysConstant.ROLE_SUPER);
 	}
+	
+	protected boolean isAdmin() {
+		return WebUtil.getUserAuthorities().contains(SysConstant.ROLE_ADMIN);
+	}
 
 	protected boolean isCreator(String creator) {
 		return WebUtil.getUsername().equals(creator);
