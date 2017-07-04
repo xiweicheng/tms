@@ -58,6 +58,9 @@ public class TStatus implements Serializable {
 	@Column(length = 1000)
 	private String description;
 	
+	@Column(name = "_order")
+	private Long order;
+	
 	@ManyToOne
 	@JoinColumn(name = "creator")
 	@CreatedBy

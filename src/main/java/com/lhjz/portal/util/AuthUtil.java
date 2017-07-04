@@ -88,6 +88,10 @@ public class AuthUtil {
 		if (project.getLeader().equals(loginUser)) { // leader
 			return true;
 		}
+		// 过滤掉没有权限的
+		if (project.getOperator().equals(loginUser)) { // Operator
+			return true;
+		}
 
 		return project.getMembers().contains(loginUser);
 	}

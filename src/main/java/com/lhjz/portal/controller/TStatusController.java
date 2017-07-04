@@ -59,8 +59,8 @@ public class TStatusController extends BaseController {
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody create(@RequestParam("name") String name, @RequestParam("pid") Long pid,
-			@RequestParam(value = "description", required = false) String description) {
+	public RespBody create(@RequestParam("name") String name, @RequestParam("order") Long order,
+			@RequestParam("pid") Long pid, @RequestParam(value = "description", required = false) String description) {
 
 		if (!isAdmin()) {
 			return RespBody.failed("权限不足!");
@@ -69,6 +69,7 @@ public class TStatusController extends BaseController {
 		TStatus status = new TStatus();
 		status.setName(name);
 		status.setDescription(description);
+		status.setOrder(order);
 		status.setProject(projectRepository.findOne(pid));
 
 		TStatus status2 = statusRepository.saveAndFlush(status);
@@ -94,6 +95,7 @@ public class TStatusController extends BaseController {
 	@RequestMapping(value = "update", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody update(@RequestParam("id") Long id, @RequestParam("name") String name,
+			@RequestParam("order") Long order,
 			@RequestParam(value = "description", required = false) String description) {
 
 		TStatus status = statusRepository.findOne(id);
@@ -104,6 +106,7 @@ public class TStatusController extends BaseController {
 
 		status.setName(name);
 		status.setDescription(description);
+		status.setOrder(order);
 
 		TStatus status2 = statusRepository.saveAndFlush(status);
 

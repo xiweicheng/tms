@@ -60,7 +60,7 @@ public class TProject implements Serializable {
 
 	private String name;
 	
-	@Column(length = 20)
+	@Column(length = 20, name="_key")
 	private String key;
 	
 	@Column(length = 1000)
