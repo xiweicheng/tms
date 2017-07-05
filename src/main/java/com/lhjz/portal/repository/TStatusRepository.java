@@ -22,4 +22,6 @@ public interface TStatusRepository extends JpaRepository<TStatus, Long> {
 	
 	List<TStatus> findByStatusNot(Status status);
 	List<TStatus> findByStatusNotAndProject(Status status, TProject project);
+	
+	TStatus findOneByStatusNotAndProjectAndName(Status status, TProject project, String name);
 }

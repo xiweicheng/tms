@@ -59,18 +59,31 @@ public class TStatusController extends BaseController {
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody create(@RequestParam("name") String name, @RequestParam("order") Long order,
-			@RequestParam("pid") Long pid, @RequestParam(value = "description", required = false) String description) {
+	public RespBody create(@RequestParam("name") String name,
+			@RequestParam(value = "order", required = false) Long order, @RequestParam("pid") Long pid,
+			@RequestParam(value = "description", required = false) String description) {
 
 		if (!isAdmin()) {
 			return RespBody.failed("权限不足!");
 		}
 
-		TStatus status = new TStatus();
+		TProject project = projectRepository.findOne(pid);
+
+		TStatus status = statusRepository.findOneByStatusNotAndProjectAndName(Status.Deleted, project, name);
+		List<TStatus> states = statusRepository.findByStatusNotAndProject(Status.Deleted, project);
+
+		if (status != null) {
+			return RespBody.failed("该项目下同名状态已经存在!");
+		}
+		status = new TStatus();
 		status.setName(name);
 		status.setDescription(description);
+
+		if (order == null) {
+			order = (long) (states.size() + 1);
+		}
 		status.setOrder(order);
-		status.setProject(projectRepository.findOne(pid));
+		status.setProject(project);
 
 		TStatus status2 = statusRepository.saveAndFlush(status);
 
@@ -94,8 +107,8 @@ public class TStatusController extends BaseController {
 
 	@RequestMapping(value = "update", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody update(@RequestParam("id") Long id, @RequestParam("name") String name,
-			@RequestParam("order") Long order,
+	public RespBody update(@RequestParam("id") Long id, @RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "order", required = false) Long order,
 			@RequestParam(value = "description", required = false) String description) {
 
 		TStatus status = statusRepository.findOne(id);
@@ -104,9 +117,15 @@ public class TStatusController extends BaseController {
 			return RespBody.failed("权限不足!");
 		}
 
-		status.setName(name);
-		status.setDescription(description);
-		status.setOrder(order);
+		if (name != null) {
+			status.setName(name);
+		}
+		if (description != null) {
+			status.setDescription(description);
+		}
+		if (order != null) {
+			status.setOrder(order);
+		}
 
 		TStatus status2 = statusRepository.saveAndFlush(status);
 
