@@ -4,6 +4,7 @@
 package com.lhjz.portal.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,19 @@ public class TStatusController extends BaseController {
 	@Autowired
 	MailSender mailSender;
 
+	private Long getMaxOrder(List<TStatus> states) {
+		if (states == null) {
+			return 0L;
+		}
+
+		if (states.size() == 0) {
+			return 0L;
+		}
+
+		Optional<TStatus> max = states.stream().max((s1, s2) -> (int) (s1.getOrder() - s2.getOrder()));
+		return max.get().getOrder();
+	}
+
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody create(@RequestParam("name") String name,
@@ -80,7 +94,7 @@ public class TStatusController extends BaseController {
 		status.setDescription(description);
 
 		if (order == null) {
-			order = (long) (states.size() + 1);
+			order = (long) (getMaxOrder(states) + 1);
 		}
 		status.setOrder(order);
 		status.setProject(project);
