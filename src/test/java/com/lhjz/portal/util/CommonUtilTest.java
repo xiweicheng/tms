@@ -104,19 +104,23 @@ public class CommonUtilTest {
 //		System.out.println(Code.Created.equals(Code.Readed));
 //		System.out.println(Code.Created.equals(Code.Created));
 		
-		System.out.println("a-dsdf".matches("^[a-z][a-z0-9]{2,49}$"));
-		System.out.println("adsdf121".matches("^[a-z][a-z0-9]{2,49}$"));
-		System.out.println("af".matches("^[a-z][a-z0-9]{2,49}$"));
+//		System.out.println("a-dsdf".matches("^[a-z][a-z0-9]{2,49}$"));
+//		System.out.println("adsdf121".matches("^[a-z][a-z0-9]{2,49}$"));
+//		System.out.println("af".matches("^[a-z][a-z0-9]{2,49}$"));
+//		
+//		System.out.println(JsonUtil.toJson(RespBody.succeed().code(Code.Created)));
+//	
+//		System.out.println(ThreadUtil.getCurrentAuditor());
+//		ThreadUtil.setCurrentAuditor("all");
+//		ThreadUtil.setCurrentAuditor("all2");
+//		System.out.println(ThreadUtil.getCurrentAuditor());
+//		System.out.println(ThreadUtil.getCurrentAuditor());
+//		ThreadUtil.clearCurrentAuditor();
+//		System.out.println(ThreadUtil.getCurrentAuditor());
 		
-		System.out.println(JsonUtil.toJson(RespBody.succeed().code(Code.Created)));
-	
-		System.out.println(ThreadUtil.getCurrentAuditor());
-		ThreadUtil.setCurrentAuditor("all");
-		ThreadUtil.setCurrentAuditor("all2");
-		System.out.println(ThreadUtil.getCurrentAuditor());
-		System.out.println(ThreadUtil.getCurrentAuditor());
-		ThreadUtil.clearCurrentAuditor();
-		System.out.println(ThreadUtil.getCurrentAuditor());
+		System.out.println("A".matches("^[A-Z]{2,10}$"));
+		System.out.println("AX".matches("^[A-Z]{2,10}$"));
+		System.out.println("AXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX".matches("^[A-Z]{2,10}$"));
 	}
 
 	// public static void main(String[] args) {
