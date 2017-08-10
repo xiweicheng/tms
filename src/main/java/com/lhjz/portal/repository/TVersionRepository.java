@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.lhjz.portal.entity.TProject;
 import com.lhjz.portal.entity.TVersion;
 import com.lhjz.portal.pojo.Enum.Status;
 
@@ -20,4 +21,8 @@ import com.lhjz.portal.pojo.Enum.Status;
 public interface TVersionRepository extends JpaRepository<TVersion, Long> {
 	
 	List<TVersion> findByStatusNot(Status status);
+	
+	List<TVersion> findByStatusNotAndProject(Status status, TProject project);
+	
+	TVersion findOneByStatusNotAndProjectAndName(Status status, TProject project, String name);
 }
