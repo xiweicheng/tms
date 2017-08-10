@@ -1,7 +1,6 @@
 package com.lhjz.portal.component.core.impl;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.springframework.stereotype.Component;
 
@@ -14,27 +13,18 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 public class MailQueueImpl implements MailQueue {
 
-	BlockingQueue<MailItem> mailQueue = new LinkedBlockingQueue<MailItem>();
-
-	@Override
-	public void put(MailItem mailItem) throws InterruptedException {
-		log.info("邮件入队列!");
-		this.mailQueue.put(mailItem);
-	}
-
-	@Override
-	public MailItem take() throws InterruptedException {
-		log.info("邮件出队列!");
-		return this.mailQueue.take();
-	}
+	// BlockingQueue<MailItem> mailQueue = new LinkedBlockingQueue<MailItem>();
+	ConcurrentLinkedQueue<MailItem> mailQueue = new ConcurrentLinkedQueue<MailItem>();
 
 	@Override
 	public MailItem poll() {
+		log.info("邮件出队列!");
 		return this.mailQueue.poll();
 	}
 
 	@Override
 	public boolean offer(MailItem mailItem) {
+		log.info("邮件入队列!");
 		return this.mailQueue.offer(mailItem);
 	}
 
