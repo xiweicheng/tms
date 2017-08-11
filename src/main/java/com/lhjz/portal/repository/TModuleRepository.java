@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.lhjz.portal.entity.TModule;
+import com.lhjz.portal.entity.TProject;
 import com.lhjz.portal.pojo.Enum.Status;
 
 /**
@@ -20,4 +21,8 @@ import com.lhjz.portal.pojo.Enum.Status;
 public interface TModuleRepository extends JpaRepository<TModule, Long> {
 	
 	List<TModule> findByStatusNot(Status status);
+	
+	TModule findOneByStatusNotAndProjectAndName(Status status, TProject project, String name);
+	
+	List<TModule> findByStatusNotAndProject(Status status, TProject project);
 }
