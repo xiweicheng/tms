@@ -33,6 +33,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.pojo.Enum.TaskPriority;
 import com.lhjz.portal.pojo.Enum.TaskType;
 
 import lombok.Data;
@@ -126,6 +127,10 @@ public class Task implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private TaskType type = TaskType.Task;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private TaskPriority priority = TaskPriority.Medium;
 
 	@OneToMany(mappedBy = "task", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	private Set<TLink> links = new HashSet<>();
