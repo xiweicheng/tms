@@ -18,6 +18,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -50,7 +51,7 @@ import lombok.ToString;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@ToString(exclude = { "subtasks", "labels", "links", "attachments", "comments" })
+@ToString(exclude = { "subtasks", "labels", "links", "attachments", "modules", "comments", "effectVersions", "resolvedVersions" })
 @EqualsAndHashCode(of = "id")
 public class Task implements Serializable {
 
@@ -75,20 +76,17 @@ public class Task implements Serializable {
 	@JoinColumn(name = "state")
 	private TStatus state;
 
-	@ManyToOne
-	@JoinColumn(name = "module")
-	private TModule module;
+	@ManyToMany(mappedBy = "tasks")
+	private Set<TModule> modules;
 
 	@OneToMany(mappedBy = "task", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	private Set<TLabel> labels = new HashSet<>();
 
-	@ManyToOne
-	@JoinColumn(name = "effect_version")
-	private TVersion effectVersion;
+	@ManyToMany(mappedBy = "effectTasks")
+	private Set<TVersion> effectVersions;
 
-	@ManyToOne
-	@JoinColumn(name = "resolved_version")
-	private TVersion resolvedVersion;
+	@ManyToMany(mappedBy = "resolvedTasks")
+	private Set<TVersion> resolvedVersions;
 
 	@ManyToOne
 	@JoinColumn(name = "epic")
@@ -127,7 +125,7 @@ public class Task implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private TaskType type = TaskType.Task;
-	
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private TaskPriority priority = TaskPriority.Medium;

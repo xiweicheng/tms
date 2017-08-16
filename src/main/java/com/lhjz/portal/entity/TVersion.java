@@ -5,6 +5,8 @@ package com.lhjz.portal.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +16,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -43,7 +47,7 @@ import lombok.ToString;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@ToString
+@ToString(exclude = { "effectTasks", "resolvedTasks" })
 @EqualsAndHashCode(of = "id")
 public class TVersion implements Serializable {
 
@@ -54,16 +58,16 @@ public class TVersion implements Serializable {
 	private Long id;
 
 	private String name;
-	
+
 	@Column(length = 1000)
 	private String description;
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date startDate;
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date endDate;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "creator")
 	@CreatedBy
@@ -88,10 +92,22 @@ public class TVersion implements Serializable {
 
 	@Version
 	private long version;
-	
+
 	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "project")
 	private TProject project;
+
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "task_effect_version", joinColumns = { @JoinColumn(name = "version_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "task_id") })
+	private Set<Task> effectTasks = new HashSet<>();
+
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "task_resolved_version", joinColumns = {
+			@JoinColumn(name = "version_id") }, inverseJoinColumns = { @JoinColumn(name = "task_id") })
+	private Set<Task> resolvedTasks = new HashSet<>();
 
 }

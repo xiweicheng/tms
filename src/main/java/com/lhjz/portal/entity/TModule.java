@@ -5,6 +5,8 @@ package com.lhjz.portal.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +16,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -43,7 +47,7 @@ import lombok.ToString;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@ToString
+@ToString(exclude = { "tasks" })
 @EqualsAndHashCode(of = "id")
 public class TModule implements Serializable {
 
@@ -54,18 +58,18 @@ public class TModule implements Serializable {
 	private Long id;
 
 	private String name;
-	
+
 	@Column(length = 1000)
 	private String description;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "leader")
 	private User leader;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "operator")
 	private User operator;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "creator")
 	@CreatedBy
@@ -90,10 +94,16 @@ public class TModule implements Serializable {
 
 	@Version
 	private long version;
-	
+
 	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "project")
 	private TProject project;
+
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "module_task", joinColumns = { @JoinColumn(name = "module_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "task_id") })
+	private Set<Task> tasks = new HashSet<>();
 
 }
