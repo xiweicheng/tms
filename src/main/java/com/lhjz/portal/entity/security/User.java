@@ -43,7 +43,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "users")
 @Data
-@ToString(exclude = {"projects", "authorities", "watcherProjects", "watcherTranslates", "voterChats", "joinChannels", "subscribeChannels", "actSchedules"})
+@ToString(exclude = {"projects", "authorities", "watcherProjects", "watcherTranslates", "voterChats", "joinChannels", "subscribeChannels", "actSchedules", "voterChatLabels", "joinTProjects"})
 @EqualsAndHashCode(of = { "username" })
 public class User implements java.io.Serializable, Comparable<User> {
 

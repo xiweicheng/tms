@@ -18,7 +18,7 @@ public class MailQueueImpl implements MailQueue {
 
 	@Override
 	public MailItem poll() {
-		log.info("邮件出队列!");
+//		log.info("邮件出队列!");
 		return this.mailQueue.poll();
 	}
 

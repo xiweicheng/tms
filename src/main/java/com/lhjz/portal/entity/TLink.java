@@ -55,7 +55,7 @@ public class TLink implements Serializable {
 	private Long id;
 
 	@Column(length = 1000)
-	private String href;
+	private String link;
 
 	@Column(length = 2000)
 	private String description;
