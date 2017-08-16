@@ -23,7 +23,7 @@ public class TaskRepositoryTest extends AbstractTestNGSpringContextTests {
 		Page<Task> page = taskRepository.findAll(TaskSpecs.search(), new PageRequest(0, 10));
 
 		page.forEach(t -> {
-			System.out.println(t);
+			System.out.println(t.getTitle());
 		});
 	}
 }
