@@ -84,7 +84,7 @@ public class Enum {
 	}
 
 	public static enum ToType {
-		Channel, User, Blog, Feedback;
+		Channel, User, Blog, Feedback, Task;
 	}
 
 	public static enum LinkType {
