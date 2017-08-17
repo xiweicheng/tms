@@ -93,20 +93,20 @@ public class TaskController extends BaseController {
 
 	@Autowired
 	TLinkRepository linkRepository;
-	
+
 	@Autowired
 	TProjectRepository projectRepository;
 
 	@Autowired
 	MailSender mailSender;
-	
+
 	@Autowired
 	TProjectService projectService;
 
 	@PostMapping("create")
 	public RespBody create(@RequestParam("pid") Long pid, @RequestParam("title") String title,
 			@RequestParam(value = "description", required = false) String description,
-			@RequestParam(value = "state", required = false) Long state,
+			// @RequestParam(value = "state", required = false) Long state,
 			@RequestParam(value = "modules", required = false) String modules,
 			@RequestParam(value = "labels", required = false) String labels,
 			@RequestParam(value = "effectVersions", required = false) String effectVersions,
@@ -124,11 +124,11 @@ public class TaskController extends BaseController {
 	) {
 
 		TProject project = projectRepository.findOne(pid);
-		
-		if(project == null) {
+
+		if (project == null) {
 			return RespBody.failed("对应项目不存在!");
 		}
-		
+
 		Task task = new Task();
 		task.setProject(project);
 		task.setTitle(title);
@@ -136,8 +136,10 @@ public class TaskController extends BaseController {
 		task.setProjectTaskId(projectService.getTaskIncId(pid));
 
 		// TODO 如果用户没有设置,设置默认值(项目对应状态列表的第一个状态)
-		task.setState(statusRepository.findOne(state));
-		task.setEpic(epicRepository.findOne(epic));
+		// task.setState(statusRepository.findOne(state));
+		if(StringUtil.isNotEmpty(epic)) {
+			task.setEpic(epicRepository.findOne(epic));
+		}
 
 		User r = getUser(reporter);
 		task.setReporter(r != null ? r : getLoginUser());
@@ -152,7 +154,9 @@ public class TaskController extends BaseController {
 		}
 		task.setPriority(tp);
 
-		task.setParentTask(taskRepository.findOne(parentTask));
+		if (StringUtil.isNotEmpty(parentTask)) {
+			task.setParentTask(taskRepository.findOne(parentTask));
+		}
 
 		Task task2 = taskRepository.saveAndFlush(task);
 
@@ -224,7 +228,7 @@ public class TaskController extends BaseController {
 	public RespBody listMy(@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
 		Page<Task> taskPage = taskRepository.findByStatusNot(Status.Deleted, pageable);
-		
+
 		return RespBody.succeed(taskPage);
 	}
 }
