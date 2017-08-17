@@ -470,6 +470,25 @@ public final class StringUtil {
 
 		return null;
 	}
+	
+	/**
+	 * 字符串分割.
+	 * 
+	 * @author xiweicheng
+	 * @creation 2013年11月30日 下午6:33:03
+	 * @modification 2013年11月30日 下午6:33:03
+	 * @param val
+	 * @param decollator
+	 * @return
+	 */
+	public static String[] split2(String val, String decollator) {
+
+		if (!isEmpty(val)) {
+			return val.split(decollator);
+		}
+
+		return new String[0];
+	}
 
 	/**
 	 * 获取一组值.

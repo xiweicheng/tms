@@ -106,7 +106,6 @@ public class TaskController extends BaseController {
 	@PostMapping("create")
 	public RespBody create(@RequestParam("pid") Long pid, @RequestParam("title") String title,
 			@RequestParam(value = "description", required = false) String description,
-			// @RequestParam(value = "state", required = false) Long state,
 			@RequestParam(value = "modules", required = false) String modules,
 			@RequestParam(value = "labels", required = false) String labels,
 			@RequestParam(value = "effectVersions", required = false) String effectVersions,
@@ -117,11 +116,7 @@ public class TaskController extends BaseController {
 			@RequestParam(value = "priority", required = false) String priority,
 			@RequestParam(value = "links", required = false) String links,
 			@RequestParam(value = "attachments", required = false) String attachments,
-			// @RequestParam(value = "comments", required = false) String
-			// comments,
-			@RequestParam(value = "parentTask", required = false) Long parentTask
-	// @RequestParam(value = "subtasks", required = false) String subtasks
-	) {
+			@RequestParam(value = "parentTask", required = false) Long parentTask) {
 
 		TProject project = projectRepository.findOne(pid);
 
@@ -135,9 +130,7 @@ public class TaskController extends BaseController {
 		task.setDescription(description);
 		task.setProjectTaskId(projectService.getTaskIncId(pid));
 
-		// TODO 如果用户没有设置,设置默认值(项目对应状态列表的第一个状态)
-		// task.setState(statusRepository.findOne(state));
-		if(StringUtil.isNotEmpty(epic)) {
+		if (StringUtil.isNotEmpty(epic)) {
 			task.setEpic(epicRepository.findOne(epic));
 		}
 
@@ -170,7 +163,7 @@ public class TaskController extends BaseController {
 		});
 
 		// labels
-		Stream.of(StringUtil.split(labels, SysConstant.COMMA)).forEach(l -> {
+		Stream.of(StringUtil.split2(labels, SysConstant.COMMA)).forEach(l -> {
 			TLabel label = new TLabel();
 
 			label.setName(l);
@@ -181,7 +174,7 @@ public class TaskController extends BaseController {
 		});
 
 		// effectVersions
-		Stream.of(StringUtil.split(effectVersions, SysConstant.COMMA)).forEach(v -> {
+		Stream.of(StringUtil.split2(effectVersions, SysConstant.COMMA)).forEach(v -> {
 			TVersion version = versionRepository.findOne(Long.valueOf(v));
 			version.getEffectTasks().add(task2);
 
@@ -190,7 +183,7 @@ public class TaskController extends BaseController {
 		});
 
 		// resolvedVersions
-		Stream.of(StringUtil.split(resolvedVersions, SysConstant.COMMA)).forEach(v -> {
+		Stream.of(StringUtil.split2(resolvedVersions, SysConstant.COMMA)).forEach(v -> {
 			TVersion version = versionRepository.findOne(Long.valueOf(v));
 			version.getResolvedTasks().add(task2);
 
@@ -199,7 +192,7 @@ public class TaskController extends BaseController {
 		});
 
 		// links
-		Stream.of(StringUtil.split(links, SysConstant.COMMA)).forEach(l -> {
+		Stream.of(StringUtil.split2(links, SysConstant.COMMA)).forEach(l -> {
 			TLink link = new TLink();
 
 			link.setLink(l);
@@ -211,7 +204,7 @@ public class TaskController extends BaseController {
 		});
 
 		// attachments
-		Stream.of(StringUtil.split(attachments, SysConstant.COMMA)).forEach(a -> {
+		Stream.of(StringUtil.split2(attachments, SysConstant.COMMA)).forEach(a -> {
 			TAttachment attachment = attachmentRepository.findOne(Long.valueOf(a));
 
 			attachment.setTask(task2);
