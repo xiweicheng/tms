@@ -57,6 +57,8 @@ public class TProject implements Serializable {
 	@Id
 	@GeneratedValue
 	private Long id;
+	
+	private Long taskIncId;
 
 	private String name;
 	

@@ -25,6 +25,7 @@ import com.lhjz.portal.entity.TAttachment;
 import com.lhjz.portal.entity.TLabel;
 import com.lhjz.portal.entity.TLink;
 import com.lhjz.portal.entity.TModule;
+import com.lhjz.portal.entity.TProject;
 import com.lhjz.portal.entity.TVersion;
 import com.lhjz.portal.entity.Task;
 import com.lhjz.portal.entity.security.User;
@@ -39,10 +40,12 @@ import com.lhjz.portal.repository.TEpicRepository;
 import com.lhjz.portal.repository.TLabelRepository;
 import com.lhjz.portal.repository.TLinkRepository;
 import com.lhjz.portal.repository.TModuleRepository;
+import com.lhjz.portal.repository.TProjectRepository;
 import com.lhjz.portal.repository.TStatusRepository;
 import com.lhjz.portal.repository.TVersionRepository;
 import com.lhjz.portal.repository.TaskRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.TProjectService;
 import com.lhjz.portal.util.StringUtil;
 
 /**
@@ -90,9 +93,15 @@ public class TaskController extends BaseController {
 
 	@Autowired
 	TLinkRepository linkRepository;
+	
+	@Autowired
+	TProjectRepository projectRepository;
 
 	@Autowired
 	MailSender mailSender;
+	
+	@Autowired
+	TProjectService projectService;
 
 	@PostMapping("create")
 	public RespBody create(@RequestParam("pid") Long pid, @RequestParam("title") String title,
@@ -114,9 +123,17 @@ public class TaskController extends BaseController {
 	// @RequestParam(value = "subtasks", required = false) String subtasks
 	) {
 
+		TProject project = projectRepository.findOne(pid);
+		
+		if(project == null) {
+			return RespBody.failed("对应项目不存在!");
+		}
+		
 		Task task = new Task();
+		task.setProject(project);
 		task.setTitle(title);
 		task.setDescription(description);
+		task.setProjectTaskId(projectService.getTaskIncId(pid));
 
 		// TODO 如果用户没有设置,设置默认值(项目对应状态列表的第一个状态)
 		task.setState(statusRepository.findOne(state));
@@ -126,7 +143,8 @@ public class TaskController extends BaseController {
 		task.setReporter(r != null ? r : getLoginUser());
 
 		User o = getUser(operator);
-		task.setOperator(o != null ? o : getLoginUser());
+		User po = project.getOperator();
+		task.setOperator(o != null ? o : (po != null ? po : project.getLeader()));
 
 		TaskPriority tp = TaskPriority.Medium;
 		if (StringUtil.isNotEmpty(priority)) {
