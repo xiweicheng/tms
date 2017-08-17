@@ -77,16 +77,16 @@ public class Task implements Serializable {
 	private TStatus state;
 
 	@ManyToMany(mappedBy = "tasks")
-	private Set<TModule> modules;
+	private Set<TModule> modules = new HashSet<>();
 
 	@OneToMany(mappedBy = "task", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	private Set<TLabel> labels = new HashSet<>();
 
 	@ManyToMany(mappedBy = "effectTasks")
-	private Set<TVersion> effectVersions;
+	private Set<TVersion> effectVersions = new HashSet<>();
 
 	@ManyToMany(mappedBy = "resolvedTasks")
-	private Set<TVersion> resolvedVersions;
+	private Set<TVersion> resolvedVersions = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "epic")

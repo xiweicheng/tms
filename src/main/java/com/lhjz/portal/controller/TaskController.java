@@ -134,7 +134,7 @@ public class TaskController extends BaseController {
 			task.setEpic(epicRepository.findOne(epic));
 		}
 
-		User r = getUser(reporter);
+		User r = StringUtil.isNotEmpty(reporter) ? getUser(reporter) : null;
 		task.setReporter(r != null ? r : getLoginUser());
 
 		User o = getUser(operator);
@@ -154,7 +154,7 @@ public class TaskController extends BaseController {
 		Task task2 = taskRepository.saveAndFlush(task);
 
 		// modules
-		Stream.of(StringUtil.split(modules, SysConstant.COMMA)).forEach(m -> {
+		Stream.of(StringUtil.split2(modules, SysConstant.COMMA)).forEach(m -> {
 			TModule module = moduleRepository.findOne(Long.valueOf(m));
 			module.getTasks().add(task2);
 
