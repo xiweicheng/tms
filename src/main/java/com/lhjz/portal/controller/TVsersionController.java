@@ -112,7 +112,7 @@ public class TVsersionController extends BaseController {
 
 		TVersion version = versionRepository.findOne(id);
 
-		if (!AuthUtil.isTProjectLeader(version.getProject()) && !isSuperOrCreator(WebUtil.getUsername())) {
+		if (!AuthUtil.isTProjectLeader(version.getProject()) && !isSuperOrCreator(version.getCreator())) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -141,7 +141,7 @@ public class TVsersionController extends BaseController {
 
 		TVersion version = versionRepository.findOne(id);
 
-		if (!AuthUtil.isTProjectLeader(version.getProject()) && !isSuperOrCreator(WebUtil.getUsername())) {
+		if (!AuthUtil.isTProjectLeader(version.getProject()) && !isSuperOrCreator(version.getCreator())) {
 			return RespBody.failed("权限不足!");
 		}
 

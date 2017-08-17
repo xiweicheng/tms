@@ -111,7 +111,7 @@ public class TModuleController extends BaseController {
 
 		TModule module = moduleRepository.findOne(id);
 
-		if (!AuthUtil.isTProjectLeader(module.getProject()) && !isSuperOrCreator(WebUtil.getUsername())) {
+		if (!AuthUtil.isTProjectLeader(module.getProject()) && !isSuperOrCreator(module.getCreator())) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -140,7 +140,7 @@ public class TModuleController extends BaseController {
 
 		TModule module = moduleRepository.findOne(id);
 
-		if (!AuthUtil.isTProjectLeader(module.getProject()) && !isSuperOrCreator(WebUtil.getUsername())) {
+		if (!AuthUtil.isTProjectLeader(module.getProject()) && !isSuperOrCreator(module.getCreator())) {
 			return RespBody.failed("权限不足!");
 		}
 

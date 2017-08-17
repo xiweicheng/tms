@@ -117,7 +117,7 @@ public class TPojectController extends BaseController {
 
 		TProject project = projectRepository.findOne(id);
 
-		if (!AuthUtil.isTProjectLeader(project) && !isSuperOrCreator(WebUtil.getUsername())) {
+		if (!AuthUtil.isTProjectLeader(project) && !isSuperOrCreator(project.getCreator())) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -139,7 +139,7 @@ public class TPojectController extends BaseController {
 
 		TProject project = projectRepository.findOne(id);
 
-		if (!AuthUtil.isTProjectLeader(project) && !isSuperOrCreator(WebUtil.getUsername())) {
+		if (!AuthUtil.isTProjectLeader(project) && !isSuperOrCreator(project.getCreator())) {
 			return RespBody.failed("权限不足!");
 		}
 

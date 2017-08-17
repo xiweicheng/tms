@@ -59,6 +59,8 @@ public class TAttachment implements Serializable {
 
 	@Column(length = 2000)
 	private String description;
+	
+	private Long fileId;
 
 	@ManyToOne
 	@JoinColumn(name = "creator")

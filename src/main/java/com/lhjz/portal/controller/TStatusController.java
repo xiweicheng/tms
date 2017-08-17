@@ -127,7 +127,7 @@ public class TStatusController extends BaseController {
 
 		TStatus status = statusRepository.findOne(id);
 
-		if (!AuthUtil.isTProjectLeader(status.getProject()) && !isSuperOrCreator(WebUtil.getUsername())) {
+		if (!AuthUtil.isTProjectLeader(status.getProject()) && !isSuperOrCreator(status.getCreator())) {
 			return RespBody.failed("权限不足!");
 		}
 
@@ -153,7 +153,7 @@ public class TStatusController extends BaseController {
 
 		TStatus status = statusRepository.findOne(id);
 
-		if (!AuthUtil.isTProjectLeader(status.getProject()) && !isSuperOrCreator(WebUtil.getUsername())) {
+		if (!AuthUtil.isTProjectLeader(status.getProject()) && !isSuperOrCreator(status.getCreator())) {
 			return RespBody.failed("权限不足!");
 		}
 
