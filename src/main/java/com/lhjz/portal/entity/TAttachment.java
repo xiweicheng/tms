@@ -56,6 +56,8 @@ public class TAttachment implements Serializable {
 
 	@Column(length = 1000)
 	private String href;
+	
+	private String name;
 
 	@Column(length = 2000)
 	private String description;
