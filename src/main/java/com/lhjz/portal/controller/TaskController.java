@@ -158,8 +158,7 @@ public class TaskController extends BaseController {
 			TModule module = moduleRepository.findOne(Long.valueOf(m));
 			module.getTasks().add(task2);
 
-			moduleRepository.saveAndFlush(module);
-			task2.getModules().add(module);
+			task2.getModules().add(moduleRepository.saveAndFlush(module));
 		});
 
 		// labels
@@ -178,8 +177,7 @@ public class TaskController extends BaseController {
 			TVersion version = versionRepository.findOne(Long.valueOf(v));
 			version.getEffectTasks().add(task2);
 
-			versionRepository.saveAndFlush(version);
-			task2.getEffectVersions().add(version);
+			task2.getEffectVersions().add(versionRepository.saveAndFlush(version));
 		});
 
 		// resolvedVersions
@@ -187,8 +185,7 @@ public class TaskController extends BaseController {
 			TVersion version = versionRepository.findOne(Long.valueOf(v));
 			version.getResolvedTasks().add(task2);
 
-			versionRepository.saveAndFlush(version);
-			task2.getResolvedVersions().add(version);
+			task2.getResolvedVersions().add(versionRepository.saveAndFlush(version));
 		});
 
 		// links
@@ -209,8 +206,8 @@ public class TaskController extends BaseController {
 
 			attachment.setTask(task2);
 
-			attachmentRepository.saveAndFlush(attachment);
-			task2.getAttachments().add(attachment);
+			TAttachment attachment2 = attachmentRepository.saveAndFlush(attachment);
+			task2.getAttachments().add(attachment2);
 
 		});
 
