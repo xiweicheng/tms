@@ -40,9 +40,9 @@ import com.lhjz.portal.util.AuthUtil;
  */
 @Controller
 @RequestMapping("admin/task/project")
-public class TPojectController extends BaseController {
+public class TProjectController extends BaseController {
 
-	static Logger logger = LoggerFactory.getLogger(TPojectController.class);
+	static Logger logger = LoggerFactory.getLogger(TProjectController.class);
 
 	@Autowired
 	UserRepository userRepository;

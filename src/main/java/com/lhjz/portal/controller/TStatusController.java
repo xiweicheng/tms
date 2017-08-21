@@ -3,8 +3,10 @@
  */
 package com.lhjz.portal.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
+import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.TProject;
 import com.lhjz.portal.entity.TStatus;
 import com.lhjz.portal.model.RespBody;
@@ -28,6 +31,7 @@ import com.lhjz.portal.repository.TProjectRepository;
 import com.lhjz.portal.repository.TStatusRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.AuthUtil;
+import com.lhjz.portal.util.StringUtil;
 
 /**
  * 
@@ -114,6 +118,34 @@ public class TStatusController extends BaseController {
 		}
 
 		List<TStatus> states = statusRepository.findByStatusNotAndProject(Status.Deleted, project);
+
+		return RespBody.succeed(states);
+	}
+	
+	private boolean containSameNameStatus(List<TStatus> states, TStatus status) {
+		return states.stream().anyMatch(s -> s.getName().equals(status.getName()));
+	}
+	
+	@RequestMapping(value = "listByProjects", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody listByProject(@RequestParam("pids") String pids) {
+
+		String[] pidArr = StringUtil.split2(pids, SysConstant.COMMA);
+
+		List<TStatus> states = new ArrayList<>();
+
+		Stream.of(pidArr).forEach(pid -> {
+			TProject project = projectRepository.findOne(Long.valueOf(pid));
+			if (AuthUtil.hasTProjectAuth(project)) {
+				List<TStatus> states2 = statusRepository.findByStatusNotAndProject(Status.Deleted, project);
+
+				states2.stream().forEach(s -> {
+					if (!containSameNameStatus(states, s)) {
+						states.add(s);
+					}
+				});
+			}
+		});
 
 		return RespBody.succeed(states);
 	}
