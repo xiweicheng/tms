@@ -3,6 +3,8 @@
  */
 package com.lhjz.portal.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -26,13 +28,16 @@ import com.lhjz.portal.entity.TLabel;
 import com.lhjz.portal.entity.TLink;
 import com.lhjz.portal.entity.TModule;
 import com.lhjz.portal.entity.TProject;
+import com.lhjz.portal.entity.TStatus;
 import com.lhjz.portal.entity.TVersion;
 import com.lhjz.portal.entity.Task;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.model.TaskSearchParams;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.TLinkType;
 import com.lhjz.portal.pojo.Enum.TaskPriority;
+import com.lhjz.portal.pojo.Enum.TaskType;
 import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.TAttachmentRepository;
 import com.lhjz.portal.repository.TCommentRepository;
@@ -46,6 +51,7 @@ import com.lhjz.portal.repository.TVersionRepository;
 import com.lhjz.portal.repository.TaskRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.TProjectService;
+import com.lhjz.portal.specs.TaskSpecs;
 import com.lhjz.portal.util.StringUtil;
 
 /**
@@ -221,4 +227,43 @@ public class TaskController extends BaseController {
 
 		return RespBody.succeed(taskPage);
 	}
+
+	@GetMapping("search")
+	public RespBody search(@RequestParam(value = "projects", required = false) String projects,
+			@RequestParam(value = "types", required = false) String types,
+			@RequestParam(value = "states", required = false) String states,
+			@RequestParam(value = "operators", required = false) String operators,
+			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
+
+		List<TProject> ps = Stream.of(StringUtil.split2(projects, SysConstant.COMMA)).map(item -> {
+			TProject p = new TProject();
+			p.setId(Long.valueOf(item));
+			return p;
+		}).collect(Collectors.toList());
+
+		List<TaskType> ts = Stream.of(StringUtil.split2(types, SysConstant.COMMA)).map(item -> {
+			return TaskType.valueOf(item);
+		}).collect(Collectors.toList());
+
+		List<TStatus> ss = Stream.of(StringUtil.split2(states, SysConstant.COMMA)).map(item -> {
+			TStatus status = new TStatus();
+			status.setId(Long.valueOf(item));
+			return status;
+		}).collect(Collectors.toList());
+
+		List<User> os = Stream.of(StringUtil.split2(operators, SysConstant.COMMA)).map(item -> {
+			return new User(item);
+		}).collect(Collectors.toList());
+
+		TaskSearchParams params = new TaskSearchParams();
+		params.getProjects().addAll(ps);
+		params.getTaskTypes().addAll(ts);
+		params.getStates().addAll(ss);
+		params.getOperator().addAll(os);
+
+		Page<Task> pageTasks = taskRepository.findAll(TaskSpecs.search(params), pageable);
+
+		return RespBody.succeed(pageTasks);
+	}
+
 }
