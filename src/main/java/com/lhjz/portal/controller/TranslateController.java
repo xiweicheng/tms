@@ -158,6 +158,8 @@ public class TranslateController extends BaseController {
 		translate.setProject(project);
 		translate.setCreateDate(new Date());
 		translate.setCreator(WebUtil.getUsername());
+		translate.setUpdater(WebUtil.getUsername());
+		translate.setUpdateDate(new Date());
 		translate.setDescription(translateForm.getDesc());
 		translate.setStatus(Status.New);
 		if (labels != null) {
