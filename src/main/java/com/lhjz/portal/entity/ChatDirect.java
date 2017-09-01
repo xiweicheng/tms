@@ -62,6 +62,9 @@ public class ChatDirect implements Serializable {
 
 	@Column(length = 16777216)
 	private String content;
+	
+	@Column(length = 1000)
+	private String ua;
 
 	@ManyToOne
 	@JoinColumn(name = "creator")
