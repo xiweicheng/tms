@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,6 +53,7 @@ import com.lhjz.portal.repository.TaskRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.TProjectService;
 import com.lhjz.portal.specs.TaskSpecs;
+import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.StringUtil;
 
 /**
@@ -220,6 +222,82 @@ public class TaskController extends BaseController {
 		return RespBody.succeed(task2);
 	}
 
+	@PostMapping("update")
+	public RespBody update(@RequestParam("id") Long id, @RequestParam(value = "title", required = false) String title,
+			@RequestParam(value = "description", required = false) String description,
+//			@RequestParam(value = "modules", required = false) String modules,
+//			@RequestParam(value = "labels", required = false) String labels,
+//			@RequestParam(value = "effectVersions", required = false) String effectVersions,
+//			@RequestParam(value = "resolvedVersions", required = false) String resolvedVersions,
+			@RequestParam(value = "epic", required = false) Long epic,
+			@RequestParam(value = "reporter", required = false) String reporter,
+			@RequestParam(value = "operator", required = false) String operator,
+			@RequestParam(value = "priority", required = false) String priority,
+//			@RequestParam(value = "links", required = false) String links,
+//			@RequestParam(value = "attachments", required = false) String attachments,
+			@RequestParam(value = "parentTask", required = false) Long parentTask) {
+
+		Task task = taskRepository.findOne(id);
+
+		if (!AuthUtil.hasTProjectAuth(task.getProject())) {
+			return RespBody.failed("项目权限不足!");
+		}
+
+		if (!StringUtil.isEmpty(title)) {
+			task.setTitle(title);
+		}
+
+		if (description != null) {
+			task.setDescription(description);
+		}
+
+		if (StringUtil.isNotEmpty(epic)) {
+			task.setEpic(epicRepository.findOne(epic));
+		}
+
+		if (!StringUtil.isNotEmpty(reporter)) {
+			task.setReporter(getUser(reporter));
+		}
+
+		if (!StringUtil.isNotEmpty(operator)) {
+			task.setOperator(getUser(operator));
+		}
+
+		if (StringUtil.isNotEmpty(priority)) {
+			task.setPriority(TaskPriority.valueOf(priority));
+		}
+
+		if (StringUtil.isNotEmpty(parentTask)) {
+			task.setParentTask(taskRepository.findOne(parentTask));
+		}
+
+		Task task2 = taskRepository.saveAndFlush(task);
+
+//		// modules
+//		if (!StringUtil.isNotEmpty(modules)) {
+//			Set<TModule> modules2 = task2.getModules();
+//			List<Long> mds = modules2.stream().map(m -> m.getId()).collect(Collectors.toList());
+//			String[] mids = StringUtil.split2(modules, SysConstant.COMMA);
+//			modules2.forEach(m -> { // delete
+//				if (!Stream.of(mids).anyMatch(mid -> mid.equals(m.getId().toString()))) {
+//					m.getTasks().remove(task2);
+//					moduleRepository.saveAndFlush(m);
+//					task2.getModules().remove(m);
+//				}
+//			});
+//			Stream.of(mids).forEach(mid -> { // add
+//				if (!mds.contains(Long.valueOf(mid))) {
+//					TModule module = moduleRepository.findOne(Long.valueOf(mid));
+//					module.getTasks().add(task2);
+//					moduleRepository.saveAndFlush(module);
+//					task2.getModules().add(module);
+//				}
+//			});
+//		}
+
+		return RespBody.succeed(task2);
+	}
+
 	@GetMapping("listMy")
 	public RespBody listMy(@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
@@ -266,4 +344,30 @@ public class TaskController extends BaseController {
 		return RespBody.succeed(pageTasks);
 	}
 
+	@GetMapping("get/{id}")
+	public RespBody get(@PathVariable("id") Long id) {
+
+		Task task = taskRepository.findOne(id);
+
+		if (!AuthUtil.hasTProjectAuth(task.getProject())) {
+			return RespBody.failed("项目权限不足!");
+		}
+
+		return RespBody.succeed(task);
+	}
+
+	@PostMapping("delete/{id}")
+	public RespBody delete(@PathVariable("id") Long id) {
+
+		Task task = taskRepository.findOne(id);
+
+		if (!AuthUtil.hasTProjectAuth(task.getProject())) {
+			return RespBody.failed("项目权限不足!");
+		}
+
+		task.setStatus(Status.Deleted);
+		taskRepository.saveAndFlush(task);
+
+		return RespBody.succeed(id);
+	}
 }
