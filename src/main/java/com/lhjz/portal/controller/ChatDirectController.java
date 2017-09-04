@@ -126,6 +126,7 @@ public class ChatDirectController extends BaseController {
 			@RequestParam("path") String path,
 			@RequestParam("chatTo") String chatTo,
 			@RequestParam("content") String content,
+			@RequestParam(value = "ua", required = false) String ua,
 			@RequestParam("contentHtml") String contentHtml) {
 
 		if (StringUtil.isEmpty(content)) {
@@ -141,6 +142,7 @@ public class ChatDirectController extends BaseController {
 		ChatDirect chatDirect = new ChatDirect();
 		chatDirect.setChatTo(chatToUser);
 		chatDirect.setContent(content);
+		chatDirect.setUa(ua);
 
 		ChatDirect chatDirect2 = chatDirectRepository.saveAndFlush(chatDirect);
 

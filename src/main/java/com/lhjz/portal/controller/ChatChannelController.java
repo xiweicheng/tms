@@ -143,6 +143,7 @@ public class ChatChannelController extends BaseController {
 	@ResponseBody
 	public RespBody create(@RequestParam("url") String url,
 			@RequestParam(value = "usernames", required = false) String usernames,
+			@RequestParam(value = "ua", required = false) String ua,
 			@RequestParam("channelId") Long channelId, @RequestParam("content") String content,
 			@RequestParam("contentHtml") String contentHtml) {
 		
@@ -159,6 +160,7 @@ public class ChatChannelController extends BaseController {
 		ChatChannel chatChannel = new ChatChannel();
 		chatChannel.setChannel(channel);
 		chatChannel.setContent(content);
+		chatChannel.setUa(ua);
 
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 		
@@ -1145,6 +1147,7 @@ public class ChatChannelController extends BaseController {
 	@ResponseBody
 	public RespBody addReply(@RequestParam("url") String url,
 			@RequestParam(value = "usernames", required = false) String usernames,
+			@RequestParam(value = "ua", required = false) String ua,
 			@RequestParam("content") String content, @RequestParam("contentHtml") String contentHtml,
 			@RequestParam("id") Long id) {
 
@@ -1157,6 +1160,7 @@ public class ChatChannelController extends BaseController {
 		ChatReply chatReply = new ChatReply();
 		chatReply.setChatChannel(chatChannel);
 		chatReply.setContent(content);
+		chatReply.setUa(ua);
 
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
 		
