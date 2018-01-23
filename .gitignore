@@ -15,3 +15,8 @@ log/
 src/main/webapp/upload/
 /.apt_generated/
 src/main/resources/md2pdf/node_modules/
+.classpath
+.externalToolBuilders/
+.settings/
+.factorypath
+.project
