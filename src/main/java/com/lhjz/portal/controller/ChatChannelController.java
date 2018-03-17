@@ -477,10 +477,23 @@ public class ChatChannelController extends BaseController {
 			return RespBody.failed("权限不足!");
 		}
 
-		String _search = "%" + search + "%";
-		List<ChatChannel> chats = chatChannelRepository.queryAboutMe(channel, _search, pageable.getOffset(),
-				pageable.getPageSize());
-		long cnt = chatChannelRepository.countAboutMe(channel, _search);
+		List<ChatChannel> chats = new ArrayList<>();
+		long cnt = 0;
+
+		// 按标签检索
+		if (search.toLowerCase().startsWith("tags:") || search.toLowerCase().startsWith("tag:")) {
+			String[] arr = search.split(":", 2);
+			if (StringUtil.isNotEmpty(arr[1].trim())) {
+				String[] tags = arr[1].trim().split("\\s+");
+				chats = chatChannelRepository.queryAboutMeByTags(channel, Arrays.asList(tags), pageable.getOffset(),
+						pageable.getPageSize());
+				cnt = chatChannelRepository.countAboutMeByTags(channel, Arrays.asList(tags));
+			}
+		} else {
+			String _search = "%" + search + "%";
+			chats = chatChannelRepository.queryAboutMe(channel, _search, pageable.getOffset(), pageable.getPageSize());
+			cnt = chatChannelRepository.countAboutMe(channel, _search);
+		}
 
 		Page<ChatChannel> page = new PageImpl<>(chats, pageable, cnt);
 		
