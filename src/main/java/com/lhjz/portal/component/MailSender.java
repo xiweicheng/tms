@@ -50,6 +50,9 @@ public class MailSender {
 	@Value("${tms.mail.sender.from.personal}")
 	String personal;
 	
+	@Value("${tms.mail.switch.off}")
+	Boolean off;
+	
 	static ExecutorService pool = Executors.newSingleThreadExecutor();
 
 	public JavaMailSenderImpl getMailSender() {
@@ -57,6 +60,10 @@ public class MailSender {
 	}
 
 	public boolean sendText(String subject, String text, String... toAddr) {
+
+		if (off) {
+			return false;
+		}
 
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom(((JavaMailSenderImpl) mailSender).getUsername());
@@ -71,6 +78,10 @@ public class MailSender {
 
 	public boolean sendHtml(String subject, String html, MailAddr... toAddr)
 			throws MessagingException, UnsupportedEncodingException {
+		
+		if (off) {
+			return false;
+		}
 
 		if (toAddr == null || toAddr.length == 0) {
 			return false;
@@ -93,6 +104,10 @@ public class MailSender {
 
 	public boolean sendHtml(String subject, String html, String from, MailAddr... toAddr)
 			throws MessagingException, UnsupportedEncodingException {
+		
+		if (off) {
+			return false;
+		}
 
 		if (toAddr == null || toAddr.length == 0) {
 			return false;
@@ -117,6 +132,10 @@ public class MailSender {
 	public boolean sendHtmlWithAttachment(String subject, String html,
 			String[] attachmentPaths, String... toAddr)
 			throws MessagingException, IOException {
+		
+		if (off) {
+			return false;
+		}
 
 		MimeMessage mimeMessage = mailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true,
@@ -144,6 +163,10 @@ public class MailSender {
 	}
 	
 	public void sendHtmlByQueue(String subject, String html, MailAddr... toAddr) {
+		
+		if (off) {
+			return;
+		}
 
 		if (StringUtil.isEmpty(subject) || StringUtil.isEmpty(html)) {
 			return;
@@ -168,6 +191,10 @@ public class MailSender {
 	}
 	
 	public void sendHtmlByQueue(String subject, String html, String from, MailAddr... toAddr) {
+		
+		if (off) {
+			return;
+		}
 
 		if (StringUtil.isEmpty(subject) || StringUtil.isEmpty(html)) {
 			return;
@@ -193,6 +220,11 @@ public class MailSender {
 	
 	@Scheduled(fixedRate = 60000)
 	public void mailQueueScheduledTask() {
+		
+		if (off) {
+			return;
+		}
+		
 		MailItem mailItem = mailQueue.poll();
 		if (mailItem != null) {
 			this.sendHtmlByQueue(mailItem);
