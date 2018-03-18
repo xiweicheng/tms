@@ -236,7 +236,8 @@ public class SpaceController extends BaseController {
 	@ResponseBody
 	public RespBody listMy() {
 
-		List<Space> spaces = spaceRepository.findAll().stream().filter(s -> hasAuth(s)).collect(Collectors.toList());
+		List<Space> spaces = spaceRepository.findAll().stream().filter(s -> s.getStatus() != Status.Deleted)
+				.filter(s -> hasAuth(s)).collect(Collectors.toList());
 
 		return RespBody.succeed(spaces);
 	}
