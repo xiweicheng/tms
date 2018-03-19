@@ -30,6 +30,8 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 
 	Page<Blog> findByStatusNot(Status status, Pageable pageable);
 	
+	List<Blog> findByStatusNotAndTags_nameIn(Status status, List<String> tags, Sort sort);
+	
 	List<Blog> findByStatusNot(Status status, Sort sort);
 
 	Page<Blog> findByTitleContainingOrContentContaining(String searchT, String searchC, Pageable pageable);
