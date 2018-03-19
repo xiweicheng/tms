@@ -109,8 +109,6 @@ public class HomeController extends BaseController {
 			return RespBody.failed("博文不存在或者权限不足!");
 		}
 
-		blog.setBlogAuthorities(null);
-
 		Blog pre = blogRepository.findTopByStatusNotAndOpenedTrueAndIdLessThanOrderByIdDesc(Status.Deleted, id);
 		Blog next = blogRepository.findTopByStatusNotAndOpenedTrueAndIdGreaterThanOrderByIdAsc(Status.Deleted, id);
 
@@ -121,6 +119,8 @@ public class HomeController extends BaseController {
 		blogRepository.updateReadCnt(readCnt, id);
 
 		blog.setReadCnt(readCnt);
+		
+		blog.setBlogAuthorities(null);
 		
 		return RespBody.succeed(new BlogInfo(blog, pre, next));
 	}
