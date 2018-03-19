@@ -409,6 +409,7 @@ public class BlogController extends BaseController {
 		}
 
 		List<Blog> blogs = new ArrayList<>();
+		List<Comment> comments = new ArrayList<>();
 
 		// 按标签检索
 		if (search.toLowerCase().startsWith("tags:") || search.toLowerCase().startsWith("tag:")) {
@@ -421,6 +422,10 @@ public class BlogController extends BaseController {
 							b.setBlogAuthorities(null);
 						}).collect(Collectors.toList());
 			}
+
+			if (comment) {
+				return RespBody.succeed(new BlogSearchResult(blogs, comments));
+			}
 		} else {
 			blogs = blogRepository.findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status.Deleted,
 					search, Status.Deleted, search, sort).stream().filter(b -> hasAuth(b)).peek(b -> {
@@ -429,7 +434,7 @@ public class BlogController extends BaseController {
 					}).collect(Collectors.toList());
 
 			if (comment) {
-				List<Comment> comments = commentRepository
+				comments = commentRepository
 						.findByTypeAndStatusNotAndContentContaining(CommentType.Blog, Status.Deleted, search, sort)
 						.stream().filter(c -> hasAuth(Long.valueOf(c.getTargetId()))).peek(c -> {
 							c.setContent(StringUtil.limitLength(c.getContent(), ellipsis));
