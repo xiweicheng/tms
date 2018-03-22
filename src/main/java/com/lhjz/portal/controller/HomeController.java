@@ -144,6 +144,27 @@ public class HomeController extends BaseController {
 
 		return RespBody.succeed(blogs);
 	}
+	
+	@GetMapping("blog/page/search")
+	public RespBody searchBlogByPage(@RequestParam("search") String search,
+			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
+
+		if (StringUtil.isEmpty(search.trim())) {
+			return listBlog(pageable);
+		}
+
+		Page<Blog> blogs = blogRepository
+				.findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(
+						Status.Deleted, search, Status.Deleted, search, pageable);
+
+		blogs.forEach(b -> {
+			b.setBlogAuthorities(null);
+			b.setContent(null);
+		});
+
+		return RespBody.succeed(blogs);
+
+	}
 
 	@GetMapping("blog/{id}/comments")
 	public RespBody listBlogComments(@PathVariable("id") Long id,
