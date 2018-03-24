@@ -10,16 +10,16 @@
 **着陆页** 
 ![着陆页](http://imagizer.imageshack.us/a/img923/7662/AC8F68.gif)
 
-**国际化翻译**
+**国际化翻译**  
 ![国际化翻译](http://imageshack.com/a/img924/7042/t1Lto8.gif) 
 
-**团队沟通**
+**团队沟通**  
 ![团队沟通](http://imageshack.com/a/img923/9146/CaecMK.gif) 
 
-**团队博文(wiki)**
+**团队博文(wiki)**  
 ![团队博文](http://imageshack.com/a/img922/9337/yhtpMU.gif) 
 
-**移动端响应式设计**
+**移动端响应式设计**  
 ![移动端响应式设计](http://imageshack.com/a/img923/4710/QkXzJb.gif) 
 
 ## 具有以下功能:

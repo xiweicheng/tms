@@ -30,6 +30,8 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 
 	Page<Blog> findByStatusNot(Status status, Pageable pageable);
 	
+	List<Blog> findByStatusNotAndTags_nameIn(Status status, List<String> tags, Sort sort);
+	
 	List<Blog> findByStatusNot(Status status, Sort sort);
 
 	Page<Blog> findByTitleContainingOrContentContaining(String searchT, String searchC, Pageable pageable);
@@ -37,6 +39,8 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	List<Blog> findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status status, String searchT, Status status2, String searchC, Sort sort);
 	
 	List<Blog> findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(Status status, String searchT, Status status2, String searchC, Sort sort);
+	
+	Page<Blog> findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(Status status, String searchT, Status status2, String searchC, Pageable pageable);
 
 	Page<Blog> findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status status, User creator, Status status2,
 			Pageable pageable);

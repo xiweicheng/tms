@@ -408,22 +408,40 @@ public class BlogController extends BaseController {
 			return RespBody.failed("检索条件不能为空!");
 		}
 
-		List<Blog> blogs = blogRepository
-				.findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status.Deleted, search,
-						Status.Deleted, search, sort)
-				.stream().filter(b -> hasAuth(b)).peek(b -> {
-					b.setContent(StringUtil.limitLength(b.getContent(), ellipsis));
-					b.setBlogAuthorities(null);
-				}).collect(Collectors.toList());
-		
-		if (comment) {
-			List<Comment> comments = commentRepository
-					.findByTypeAndStatusNotAndContentContaining(CommentType.Blog, Status.Deleted, search, sort).stream()
-					.filter(c -> hasAuth(Long.valueOf(c.getTargetId()))).peek(c -> {
-						c.setContent(StringUtil.limitLength(c.getContent(), ellipsis));
+		List<Blog> blogs = new ArrayList<>();
+		List<Comment> comments = new ArrayList<>();
+
+		// 按标签检索
+		if (search.toLowerCase().startsWith("tags:") || search.toLowerCase().startsWith("tag:")) {
+			String[] arr = search.split(":", 2);
+			if (StringUtil.isNotEmpty(arr[1].trim())) {
+				String[] tags = arr[1].trim().split("\\s+");
+				blogs = blogRepository.findByStatusNotAndTags_nameIn(Status.Deleted, Arrays.asList(tags), sort).stream()
+						.filter(b -> hasAuth(b)).peek(b -> {
+							b.setContent(StringUtil.limitLength(b.getContent(), ellipsis));
+							b.setBlogAuthorities(null);
+						}).collect(Collectors.toList());
+			}
+
+			if (comment) {
+				return RespBody.succeed(new BlogSearchResult(blogs, comments));
+			}
+		} else {
+			blogs = blogRepository.findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status.Deleted,
+					search, Status.Deleted, search, sort).stream().filter(b -> hasAuth(b)).peek(b -> {
+						b.setContent(StringUtil.limitLength(b.getContent(), ellipsis));
+						b.setBlogAuthorities(null);
 					}).collect(Collectors.toList());
 
-			return RespBody.succeed(new BlogSearchResult(blogs, comments));
+			if (comment) {
+				comments = commentRepository
+						.findByTypeAndStatusNotAndContentContaining(CommentType.Blog, Status.Deleted, search, sort)
+						.stream().filter(c -> hasAuth(Long.valueOf(c.getTargetId()))).peek(c -> {
+							c.setContent(StringUtil.limitLength(c.getContent(), ellipsis));
+						}).collect(Collectors.toList());
+
+				return RespBody.succeed(new BlogSearchResult(blogs, comments));
+			}
 		}
 
 		return RespBody.succeed(blogs);

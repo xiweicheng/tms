@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -375,10 +377,24 @@ public class ChatDirectController extends BaseController {
 		}
 
 		User loginUser = getLoginUser();
-		String _search = "%" + search + "%";
-		List<ChatDirect> chats = chatDirectRepository.queryAboutMe(loginUser,
-				_search, pageable.getOffset(), pageable.getPageSize());
-		long cnt = chatDirectRepository.countAboutMe(loginUser, _search);
+
+		List<ChatDirect> chats = new ArrayList<>();
+		long cnt = 0;
+
+		// 按标签检索
+		if (search.toLowerCase().startsWith("tags:") || search.toLowerCase().startsWith("tag:")) {
+			String[] arr = search.split(":", 2);
+			if (StringUtil.isNotEmpty(arr[1].trim())) {
+				String[] tags = arr[1].trim().split("\\s+");
+				chats = chatDirectRepository.queryAboutMeByTags(loginUser, Arrays.asList(tags), pageable.getOffset(),
+						pageable.getPageSize());
+				cnt = chatDirectRepository.countAboutMeByTags(loginUser, Arrays.asList(tags));
+			}
+		} else {
+			String _search = "%" + search + "%";
+			chats = chatDirectRepository.queryAboutMe(loginUser, _search, pageable.getOffset(), pageable.getPageSize());
+			cnt = chatDirectRepository.countAboutMe(loginUser, _search);
+		}
 
 		Page<ChatDirect> page = new PageImpl<>(chats, pageable, cnt);
 

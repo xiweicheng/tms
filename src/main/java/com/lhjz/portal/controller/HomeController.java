@@ -109,8 +109,6 @@ public class HomeController extends BaseController {
 			return RespBody.failed("博文不存在或者权限不足!");
 		}
 
-		blog.setBlogAuthorities(null);
-
 		Blog pre = blogRepository.findTopByStatusNotAndOpenedTrueAndIdLessThanOrderByIdDesc(Status.Deleted, id);
 		Blog next = blogRepository.findTopByStatusNotAndOpenedTrueAndIdGreaterThanOrderByIdAsc(Status.Deleted, id);
 
@@ -121,6 +119,8 @@ public class HomeController extends BaseController {
 		blogRepository.updateReadCnt(readCnt, id);
 
 		blog.setReadCnt(readCnt);
+		
+		blog.setBlogAuthorities(null);
 		
 		return RespBody.succeed(new BlogInfo(blog, pre, next));
 	}
@@ -143,6 +143,27 @@ public class HomeController extends BaseController {
 				}).collect(Collectors.toList());
 
 		return RespBody.succeed(blogs);
+	}
+	
+	@GetMapping("blog/page/search")
+	public RespBody searchBlogByPage(@RequestParam("search") String search,
+			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
+
+		if (StringUtil.isEmpty(search.trim())) {
+			return listBlog(pageable);
+		}
+
+		Page<Blog> blogs = blogRepository
+				.findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(
+						Status.Deleted, search, Status.Deleted, search, pageable);
+
+		blogs.forEach(b -> {
+			b.setBlogAuthorities(null);
+			b.setContent(null);
+		});
+
+		return RespBody.succeed(blogs);
+
 	}
 
 	@GetMapping("blog/{id}/comments")
