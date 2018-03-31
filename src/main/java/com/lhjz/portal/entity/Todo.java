@@ -29,9 +29,11 @@ import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.TodoPriority;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * 
@@ -45,6 +47,8 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id")
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Todo implements Serializable {
 
 	private static final long serialVersionUID = 88481289672497561L;
@@ -52,7 +56,7 @@ public class Todo implements Serializable {
 	@Id
 	@GeneratedValue
 	private Long id;
-	
+
 	private Long sortIndex;
 
 	@Column(length = 2000)
@@ -83,7 +87,7 @@ public class Todo implements Serializable {
 	@Column(nullable = false)
 	@Builder.Default
 	private Status status = Status.New;
-	
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	@Builder.Default
