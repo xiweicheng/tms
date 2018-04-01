@@ -99,7 +99,7 @@ public class TodoController extends BaseController {
 		}
 
 		if (StringUtil.isNotEmpty(content)) {
-			todo.setTitle(content);
+			todo.setContent(content);
 		}
 
 		if (sortIndex != null) {
