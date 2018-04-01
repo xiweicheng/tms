@@ -94,24 +94,35 @@ public class TodoController extends BaseController {
 			return RespBody.failed("权限不足！");
 		}
 
+		boolean needUpdate = false;
+
 		if (StringUtil.isNotEmpty(title)) {
 			todo.setTitle(title);
+			needUpdate = true;
 		}
 
 		if (StringUtil.isNotEmpty(content)) {
 			todo.setContent(content);
+			needUpdate = true;
 		}
 
 		if (sortIndex != null) {
 			todo.setSortIndex(sortIndex);
+			needUpdate = true;
 		}
 
 		if (priority != null) {
 			todo.setPriority(priority);
+			needUpdate = true;
 		}
 
 		if (status != null) {
 			todo.setStatus(status);
+			needUpdate = true;
+		}
+
+		if (!needUpdate) {
+			return RespBody.failed("没有更新内容！");
 		}
 
 		Todo todo2 = todoRepository.saveAndFlush(todo);
