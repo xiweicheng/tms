@@ -18,7 +18,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
@@ -30,8 +29,8 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.security.User;
-import com.lhjz.portal.pojo.Enum.ChannelType;
 import com.lhjz.portal.pojo.Enum.Status;
 
 import lombok.Data;
@@ -48,11 +47,11 @@ import lombok.ToString;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@ToString(exclude = { "members", "subscriber", "channelGroups" })
+@ToString(exclude = "members")
 @EqualsAndHashCode(of = { "id" })
-public class Channel implements Serializable {
+public class ChannelGroup implements Serializable {
 
-	private static final long serialVersionUID = 1864577736341309316L;
+	private static final long serialVersionUID = -8833903408119901655L;
 
 	@Id
 	@GeneratedValue
@@ -64,12 +63,6 @@ public class Channel implements Serializable {
 
 	@Column
 	private String title;
-
-	@Column(length = 2000)
-	private String description;
-
-	@Column
-	private Boolean privated = Boolean.FALSE;
 
 	@ManyToOne
 	@JoinColumn(name = "creator")
@@ -89,28 +82,19 @@ public class Channel implements Serializable {
 	@LastModifiedDate
 	private Date updateDate;
 
-	@ManyToOne
-	@JoinColumn(name = "owner")
-	private User owner;
-
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Status status = Status.New;
 
-	@Enumerated(EnumType.STRING)
-	@Column
-	private ChannelType type = ChannelType.Common;
-
 	@Version
 	private long version;
 
-	@ManyToMany(mappedBy = "joinChannels")
+	@ManyToOne
+	@JoinColumn(name = "channel")
+	@JsonIgnore
+	private Channel channel;
+
+	@ManyToMany(mappedBy = "joinChannelGroups")
 	Set<User> members = new HashSet<User>();
-
-	@ManyToMany(mappedBy = "subscribeChannels")
-	Set<User> subscriber = new HashSet<User>();
-
-	@OneToMany(mappedBy = "channel")
-	Set<ChannelGroup> channelGroups = new HashSet<>();
 
 }
