@@ -27,6 +27,8 @@ import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.WebUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 
  * @author xi
@@ -34,6 +36,7 @@ import com.lhjz.portal.util.WebUtil;
  * @date 2015年3月28日 下午1:19:05
  * 
  */
+@Slf4j
 @Controller
 @RequestMapping("admin/channel/group")
 public class ChannelGroupController extends BaseController {
@@ -62,7 +65,17 @@ public class ChannelGroupController extends BaseController {
 			return RespBody.failed("标识不能为空!");
 		}
 
-		return RespBody.succeed();
+		Channel channel = channelRepository.findOne(channelId);
+
+		if (!isSuperOrCreator(channel.getCreator())) {
+			return RespBody.failed("权限不足!");
+		}
+
+		ChannelGroup channelGroup = ChannelGroup.builder().name(name).title(title).channel(channel).build();
+
+		ChannelGroup channelGroup2 = channelGroupRepository.saveAndFlush(channelGroup);
+
+		return RespBody.succeed(channelGroup2);
 	}
 
 	@RequestMapping(value = "get", method = RequestMethod.GET)
@@ -70,6 +83,10 @@ public class ChannelGroupController extends BaseController {
 	public RespBody get(@RequestParam("id") Long id) {
 
 		ChannelGroup channelGroup = channelGroupRepository.findOne(id);
+
+		if (!isSuperOrCreator(channelGroup.getCreator()) && !isChannelMember(channelGroup.getChannel())) {
+			return RespBody.failed("权限不足!");
+		}
 
 		return RespBody.succeed(channelGroup);
 	}
@@ -79,7 +96,28 @@ public class ChannelGroupController extends BaseController {
 	public RespBody update(@RequestParam("id") Long id, @RequestParam(value = "title", required = false) String title,
 			@RequestParam(value = "name", required = false) String name) {
 
-		return RespBody.succeed();
+		ChannelGroup channelGroup = channelGroupRepository.findOne(id);
+
+		if (!isSuperOrCreator(channelGroup.getCreator())) {
+			return RespBody.failed("权限不足!");
+		}
+
+		boolean updated = false;
+		if (StringUtil.isNotEmpty(name)) {
+			channelGroup.setName(name);
+			updated = true;
+		}
+
+		if (title != null) {
+			channelGroup.setTitle(title);
+			updated = true;
+		}
+
+		if (updated) {
+			RespBody.succeed(channelGroupRepository.saveAndFlush(channelGroup));
+		}
+
+		return RespBody.succeed(channelGroup);
 	}
 
 	@RequestMapping(value = "delete", method = RequestMethod.POST)

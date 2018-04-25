@@ -33,8 +33,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -49,6 +52,9 @@ import lombok.ToString;
 @Data
 @ToString(exclude = "members")
 @EqualsAndHashCode(of = { "id" })
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChannelGroup implements Serializable {
 
 	private static final long serialVersionUID = -8833903408119901655L;
@@ -82,6 +88,7 @@ public class ChannelGroup implements Serializable {
 	@LastModifiedDate
 	private Date updateDate;
 
+	@Builder.Default
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Status status = Status.New;
@@ -94,6 +101,7 @@ public class ChannelGroup implements Serializable {
 	@JsonIgnore
 	private Channel channel;
 
+	@Builder.Default
 	@ManyToMany(mappedBy = "joinChannelGroups")
 	Set<User> members = new HashSet<User>();
 
