@@ -6,6 +6,9 @@ package com.lhjz.portal.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.lhjz.portal.entity.ChannelGroup;
+import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.entity.Channel;
+import java.util.List;
 
 /**
  * 
@@ -15,5 +18,9 @@ import com.lhjz.portal.entity.ChannelGroup;
  * 
  */
 public interface ChannelGroupRepository extends JpaRepository<ChannelGroup, Long> {
+
+	ChannelGroup findOneByNameAndStatusNot(String name, Status status);
+
+	List<ChannelGroup> findByChannelAndStatusNot(Channel channel, Status status);
 
 }

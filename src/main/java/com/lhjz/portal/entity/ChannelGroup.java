@@ -64,7 +64,7 @@ public class ChannelGroup implements Serializable {
 	private Long id;
 
 	@Pattern(regexp = "^[a-z][a-z0-9_\\-]{2,49}$", message = "频道名称必须是3到50位小写字母数字_-组合,并且以字母开头!")
-	@Column(unique = true, nullable = false)
+	@Column(nullable = false)
 	private String name;
 
 	@Column

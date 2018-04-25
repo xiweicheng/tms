@@ -3,6 +3,7 @@
  */
 package com.lhjz.portal.controller;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,11 +72,34 @@ public class ChannelGroupController extends BaseController {
 			return RespBody.failed("权限不足!");
 		}
 
+		if (channelGroupRepository.findOneByNameAndStatusNot(name, Status.Deleted) != null) {
+			return RespBody.failed("同名标识已经存在!");
+		}
+
 		ChannelGroup channelGroup = ChannelGroup.builder().name(name).title(title).channel(channel).build();
 
 		ChannelGroup channelGroup2 = channelGroupRepository.saveAndFlush(channelGroup);
 
 		return RespBody.succeed(channelGroup2);
+	}
+
+	@RequestMapping(value = "listBy", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody listBy(@RequestParam("channelId") Long channelId) {
+
+		Channel channel = channelRepository.findOne(channelId);
+
+		if (channel == null) {
+			return RespBody.failed("频道不存在!");
+		}
+
+		if (!isSuperOrCreator(channel.getCreator()) && !isChannelMember(channel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		List<ChannelGroup> channelGroups = channelGroupRepository.findByChannelAndStatusNot(channel, Status.Deleted);
+
+		return RespBody.succeed(channelGroups);
 	}
 
 	@RequestMapping(value = "get", method = RequestMethod.GET)
@@ -104,6 +128,12 @@ public class ChannelGroupController extends BaseController {
 
 		boolean updated = false;
 		if (StringUtil.isNotEmpty(name)) {
+
+			ChannelGroup channelGroup2 = channelGroupRepository.findOneByNameAndStatusNot(name, Status.Deleted);
+			if (channelGroup2 != null && !channelGroup2.equals(channelGroup)) {
+				return RespBody.failed("同名标识已经存在!");
+			}
+
 			channelGroup.setName(name);
 			updated = true;
 		}
@@ -114,6 +144,7 @@ public class ChannelGroupController extends BaseController {
 		}
 
 		if (updated) {
+			log.info("update to {} {}", name, title);
 			RespBody.succeed(channelGroupRepository.saveAndFlush(channelGroup));
 		}
 
