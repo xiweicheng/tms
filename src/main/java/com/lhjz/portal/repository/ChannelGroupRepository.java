@@ -19,7 +19,7 @@ import java.util.List;
  */
 public interface ChannelGroupRepository extends JpaRepository<ChannelGroup, Long> {
 
-	ChannelGroup findOneByNameAndStatusNot(String name, Status status);
+	ChannelGroup findOneByChannelAndNameAndStatusNot(Channel channel, String name, Status status);
 
 	List<ChannelGroup> findByChannelAndStatusNot(Channel channel, Status status);
 

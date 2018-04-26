@@ -72,7 +72,7 @@ public class ChannelGroupController extends BaseController {
 			return RespBody.failed("权限不足!");
 		}
 
-		if (channelGroupRepository.findOneByNameAndStatusNot(name, Status.Deleted) != null) {
+		if (channelGroupRepository.findOneByChannelAndNameAndStatusNot(channel, name, Status.Deleted) != null) {
 			return RespBody.failed("同名标识已经存在!");
 		}
 
@@ -129,7 +129,8 @@ public class ChannelGroupController extends BaseController {
 		boolean updated = false;
 		if (StringUtil.isNotEmpty(name)) {
 
-			ChannelGroup channelGroup2 = channelGroupRepository.findOneByNameAndStatusNot(name, Status.Deleted);
+			ChannelGroup channelGroup2 = channelGroupRepository
+					.findOneByChannelAndNameAndStatusNot(channelGroup.getChannel(), name, Status.Deleted);
 			if (channelGroup2 != null && !channelGroup2.equals(channelGroup)) {
 				return RespBody.failed("同名标识已经存在!");
 			}
