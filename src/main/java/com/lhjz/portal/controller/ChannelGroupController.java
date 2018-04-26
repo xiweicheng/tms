@@ -191,8 +191,8 @@ public class ChannelGroupController extends BaseController {
 				// 用户频道消息提醒
 				ChatChannel chatChannel = new ChatChannel();
 				chatChannel.setChannel(channelGroup.getChannel());
-				chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} 被**添加到**该频道下的【"
-						+ channelGroup.getName() + "】频道组!");
+				chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} 被**添加到**该频道下的 {!~"
+						+ channelGroup.getName() + "} 频道组!");
 
 				chatChannelRepository.saveAndFlush(chatChannel);
 			}
@@ -223,8 +223,8 @@ public class ChannelGroupController extends BaseController {
 				// 用户频道消息提醒
 				ChatChannel chatChannel = new ChatChannel();
 				chatChannel.setChannel(channelGroup.getChannel());
-				chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} 被**移除出**该频道下的【"
-						+ channelGroup.getName() + "】频道组!");
+				chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} 被**移除出**该频道下的 {!~"
+						+ channelGroup.getName() + "} 频道组!");
 
 				chatChannelRepository.saveAndFlush(chatChannel);
 			}
@@ -248,8 +248,8 @@ public class ChannelGroupController extends BaseController {
 			// 用户频道消息提醒
 			ChatChannel chatChannel = new ChatChannel();
 			chatChannel.setChannel(channelGroup.getChannel());
-			chatChannel.setContent("## ~频道消息播报~\n> {~" + loginUser.getUsername() + "} **加入**该频道下的【"
-					+ channelGroup.getName() + "】频道组!");
+			chatChannel.setContent("## ~频道消息播报~\n> {~" + loginUser.getUsername() + "} **加入**该频道下的 {!~"
+					+ channelGroup.getName() + "} 频道组!");
 
 			chatChannelRepository.saveAndFlush(chatChannel);
 		}
@@ -266,15 +266,15 @@ public class ChannelGroupController extends BaseController {
 		final User loginUser = getLoginUser();
 
 		if (channelGroup.getMembers().contains(loginUser)) {
-			loginUser.getJoinChannelGroups().add(channelGroup);
+			loginUser.getJoinChannelGroups().remove(channelGroup);
 			userRepository.saveAndFlush(loginUser);
 			channelGroup.getMembers().remove(loginUser);
 
 			// 用户频道消息提醒
 			ChatChannel chatChannel = new ChatChannel();
 			chatChannel.setChannel(channelGroup.getChannel());
-			chatChannel.setContent("## ~频道消息播报~\n> {~" + loginUser.getUsername() + "} **离开**该频道下的【"
-					+ channelGroup.getName() + "】频道组!");
+			chatChannel.setContent("## ~频道消息播报~\n> {~" + loginUser.getUsername() + "} **离开**该频道下的 {!~"
+					+ channelGroup.getName() + "} 频道组!");
 
 			chatChannelRepository.saveAndFlush(chatChannel);
 		}
