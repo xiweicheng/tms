@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TOMCAT=/usr/local/tomcat
+TOMCAT=/data/apps/tomcat
 echo "TOMCAT PATH: $TOMCAT"
 ROOT=$TOMCAT/webapps/ROOT
 echo "ROOT PATH: $ROOT"
@@ -30,4 +30,5 @@ cp -rf static $CLASS
 
 #startup tomcat
 echo "startup tomcat..."
-sh $TOMCAT/bin/startup.sh
+echo "请手动执行【$TOMCAT/bin/startup.sh】脚本启动tomcat"
+#sh $TOMCAT/bin/startup.sh
