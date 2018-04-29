@@ -3,8 +3,11 @@
  */
 package com.lhjz.portal.repository;
 
+import java.util.Collection;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -22,5 +25,9 @@ import com.lhjz.portal.pojo.Enum.Status;
 public interface TodoRepository extends JpaRepository<Todo, Long> {
 
 	List<Todo> findByStatusNotAndCreator(Status status, User creator, Sort sort);
+	
+	List<Todo> findByStatusInAndCreator(Collection<Status> status, User creator, Sort sort);
+
+	Page<Todo> findByStatusAndCreator(Status status, User creator, Pageable pageable);
 
 }
