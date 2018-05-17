@@ -34,26 +34,30 @@ public class ChatMsgImpl implements IChatMsg {
 			return;
 		}
 
-		if (!map.containsKey(cid)) {
-			log.debug("put map key {}", cid);
-			map.putIfAbsent(cid, new CopyOnWriteArrayList<>());
-		}
+		try {
+			if (!map.containsKey(cid)) {
+				log.debug("put map key {}", cid);
+				map.putIfAbsent(cid, new CopyOnWriteArrayList<>());
+			}
 
-		CopyOnWriteArrayList<ChatMsgItem> msgs = map.get(cid);
+			CopyOnWriteArrayList<ChatMsgItem> msgs = map.get(cid);
 
-		if (!msgs.contains(chatMsgItem)) {
-			log.debug("add map key {}; list item {}", cid, chatMsgItem);
-			msgs.addIfAbsent(chatMsgItem);
-		} else {
-			for (ChatMsgItem msg : msgs) {
-				if (msg.equals(chatMsgItem)) {
-					log.debug("update list item {} to {}", msg, chatMsgItem);
-					msg.setAction(chatMsgItem.getAction());
-					msg.setVersion(chatMsgItem.getVersion());
-					msg.setExpire(chatMsgItem.getExpire());
-					break;
+			if (!msgs.contains(chatMsgItem)) {
+				log.debug("add map key {}; list item {}", cid, chatMsgItem);
+				msgs.addIfAbsent(chatMsgItem);
+			} else {
+				for (ChatMsgItem msg : msgs) {
+					if (msg.equals(chatMsgItem)) {
+						log.debug("update list item {} to {}", msg, chatMsgItem);
+						msg.setAction(chatMsgItem.getAction());
+						msg.setVersion(chatMsgItem.getVersion());
+						msg.setExpire(chatMsgItem.getExpire());
+						break;
+					}
 				}
 			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
 
 	}
@@ -87,13 +91,17 @@ public class ChatMsgImpl implements IChatMsg {
 
 		log.debug("scheduled task: {}, rate: {}", "chatmsg", 6000);
 
-		map.forEachValue(1, list -> {
-			list.removeIf(msg -> {
-				boolean expired = msg.getExpire().isBefore(LocalDateTime.now());
-				log.debug("expired status {}, chatmsg {}", expired, msg);
-				return expired;
+		try {
+			map.forEachValue(1, list -> {
+				list.removeIf(msg -> {
+					boolean expired = msg.getExpire().isBefore(LocalDateTime.now());
+					log.debug("expired status {}, chatmsg {}", expired, msg);
+					return expired;
+				});
 			});
-		});
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
 	}
 
 }
