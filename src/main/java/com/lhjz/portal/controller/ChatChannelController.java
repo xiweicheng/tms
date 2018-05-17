@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
+import com.lhjz.portal.component.core.IChatMsg;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatAt;
 import com.lhjz.portal.entity.ChatChannel;
@@ -138,6 +139,9 @@ public class ChatChannelController extends BaseController {
 
 	@Autowired
 	MailSender mailSender;
+	
+	@Autowired
+	IChatMsg chatMsg;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -306,6 +310,8 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 		
+		chatMsg.put(chatChannel2, Action.Update);
+		
 		logWithProperties(Action.Update, Target.ChatChannel, chatChannel2.getId(), "content", contentOld);
 
 		final User loginUser = getLoginUser();
@@ -399,6 +405,8 @@ public class ChatChannelController extends BaseController {
 		});
 
 		chatChannelRepository.delete(id);
+		
+		chatMsg.put(chatChannel, Action.Delete);
 		
 		logWithProperties(Action.Delete, Target.ChatChannel, id, "content", chatChannel.getContent());
 
@@ -780,7 +788,7 @@ public class ChatChannelController extends BaseController {
 		
 		long countMyRecentSchedule = scheduleRepository.countRecentScheduleByUser(WebUtil.getUsername());
 
-		return RespBody.succeed(new Poll(channelId, lastChatChannelId, isAt, cnt, cntAtUserNew, countMyRecentSchedule));
+		return RespBody.succeed(new Poll(channelId, lastChatChannelId, isAt, cnt, cntAtUserNew, countMyRecentSchedule, chatMsg.get(channelId)));
 	}
 	
 	@RequestMapping(value = "download/{id}", method = RequestMethod.GET)
@@ -895,33 +903,6 @@ public class ChatChannelController extends BaseController {
 			}
 		}
 	}
-	
-//	private boolean hasAuth(ChatChannel cc) {
-//
-//		if (cc == null) {
-//			return false;
-//		}
-//
-//		if (isSuperOrCreator(cc.getCreator().getUsername())) {
-//			return true;
-//		}
-//
-//		return AuthUtil.hasChannelAuth(cc.getChannel());
-//	}
-	
-//	private boolean hasAuth(Channel c) {
-//
-//		if (c == null) {
-//			return false;
-//		}
-//
-//		if (!c.getPrivated()) {
-//			return true;
-//		}
-//
-//		User loginUser = new User(WebUtil.getUsername());
-//		return c.getMembers().contains(loginUser);
-//	}
 
 	@RequestMapping(value = "share", method = RequestMethod.POST)
 	@ResponseBody
