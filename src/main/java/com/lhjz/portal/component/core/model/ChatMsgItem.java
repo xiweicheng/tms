@@ -1,7 +1,8 @@
 package com.lhjz.portal.component.core.model;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.pojo.Enum.Action;
 
 import lombok.Builder;
@@ -19,5 +20,6 @@ public class ChatMsgItem {
 
 	long version;
 
-	LocalTime expire;
+	@JsonIgnore
+	LocalDateTime expire;
 }

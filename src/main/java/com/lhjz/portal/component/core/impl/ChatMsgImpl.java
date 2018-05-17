@@ -1,10 +1,11 @@
 package com.lhjz.portal.component.core.impl;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,10 +22,17 @@ public class ChatMsgImpl implements IChatMsg {
 
 	private final ConcurrentHashMap<Long, CopyOnWriteArrayList<ChatMsgItem>> map = new ConcurrentHashMap<>();
 
-	private final static long EXPIRE = 5 * 60 * 1000L; // 过期时间间隔 5min
+	private final static long EXPIRE = 5L; // 过期时间间隔 5min
+
+	@Value("${tms.chat.channel.chatmsg.off}")
+	Boolean off; // 是否关闭
 
 	@Override
 	public void put(Long cid, ChatMsgItem chatMsgItem) {
+
+		if (off) {
+			return;
+		}
 
 		if (!map.containsKey(cid)) {
 			log.debug("put map key {}", cid);
@@ -52,11 +60,16 @@ public class ChatMsgImpl implements IChatMsg {
 
 	@Override
 	public void put(ChatChannel chatChannel, Action action) {
+
+		if (off) {
+			return;
+		}
+
 		if (chatChannel == null) {
 			return;
 		}
 		put(chatChannel.getChannel().getId(), ChatMsgItem.builder().id(chatChannel.getId()).action(action)
-				.version(chatChannel.getVersion()).expire(LocalTime.now().plusNanos(EXPIRE)).build());
+				.version(chatChannel.getVersion()).expire(LocalDateTime.now().plusMinutes(EXPIRE)).build());
 	}
 
 	@Override
@@ -68,11 +81,15 @@ public class ChatMsgImpl implements IChatMsg {
 	@Scheduled(fixedRate = 6000)
 	public void chatMsgScheduledTask() {
 
+		if (off) {
+			return;
+		}
+
 		log.debug("scheduled task: {}, rate: {}", "chatmsg", 6000);
 
 		map.forEachValue(1, list -> {
 			list.removeIf(msg -> {
-				boolean expired = msg.getExpire().isBefore(LocalTime.now());
+				boolean expired = msg.getExpire().isBefore(LocalDateTime.now());
 				log.debug("expired status {}, chatmsg {}", expired, msg);
 				return expired;
 			});
