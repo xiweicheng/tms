@@ -50,7 +50,7 @@ public interface ChatAtRepository extends JpaRepository<ChatAt, Long> {
 	@Query(value = "SELECT COUNT(*) FROM `chat_at` WHERE `chat_id` IS NOT NULL AND at_user = ?1 AND `status` = 'New';", nativeQuery = true)
 	long countChatAtUserNew(String atUser);
 	
-	@Query(value = "SELECT COUNT(*) FROM `chat_at` WHERE `chat_channel_id` IS NOT NULL AND at_user = ?1 AND `status` = 'New';", nativeQuery = true)
+	@Query(value = "SELECT COUNT(*) FROM `chat_at` WHERE `chat_channel_id` IS NOT NULL AND creator <> ?1 AND at_user = ?1 AND `status` = 'New';", nativeQuery = true)
 	long countChatChannelAtUserNew(String atUser);
 
 	@Transactional
