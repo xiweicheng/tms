@@ -1172,7 +1172,7 @@ public class ChatChannelController extends BaseController {
 		chatChannel.setUpdateDate(new Date());
 		chatChannelRepository.saveAndFlush(chatChannel);
 		
-		chatMsg.put(chatChannel, Action.Update, ChatMsgType.Reply);
+		chatMsg.put(chatChannel, Action.Create, ChatMsgType.Reply);
 		
 		// auto follow this chatchannel
 		ChatChannelFollower chatChannelFollower = chatChannelFollowerRepository
@@ -1360,7 +1360,7 @@ public class ChatChannelController extends BaseController {
 		chatChannel.setUpdateDate(new Date());
 		chatChannelRepository.saveAndFlush(chatChannel);
 		
-		chatMsg.put(chatChannel, Action.Update, ChatMsgType.Reply);
+		chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Reply);
 
 		return RespBody.succeed(rid);
 
