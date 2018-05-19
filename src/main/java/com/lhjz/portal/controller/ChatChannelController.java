@@ -1037,6 +1037,11 @@ public class ChatChannelController extends BaseController {
 			userRepository.saveAndFlush(loginUser);
 
 			logWithProperties(Action.Create, Target.ChatLabel, chatLabel2.getId(), "name", name);
+			
+			chatChannel.setUpdateDate(new Date());
+			chatChannelRepository.saveAndFlush(chatChannel);
+			
+			chatMsg.put(chatChannel, Action.Update);
 
 			try {
 				mailSender
@@ -1084,6 +1089,11 @@ public class ChatChannelController extends BaseController {
 
 			}
 			userRepository.saveAndFlush(loginUser);
+			
+			chatChannel.setUpdateDate(new Date());
+			chatChannelRepository.saveAndFlush(chatChannel);
+			
+			chatMsg.put(chatChannel, Action.Update);
 
 			return RespBody.succeed(chatLabel);
 		}
@@ -1157,6 +1167,11 @@ public class ChatChannelController extends BaseController {
 		chatReply.setUa(ua);
 
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
+		
+		chatChannel.setUpdateDate(new Date());
+		chatChannelRepository.saveAndFlush(chatChannel);
+		
+		chatMsg.put(chatChannel, Action.Update);
 		
 		// auto follow this chatchannel
 		ChatChannelFollower chatChannelFollower = chatChannelFollowerRepository
@@ -1252,6 +1267,12 @@ public class ChatChannelController extends BaseController {
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
 
 		logWithProperties(Action.Update, Target.ChatReply, rid, "content", contentOld);
+		
+		ChatChannel chatChannel = chatReply.getChatChannel();
+		chatChannel.setUpdateDate(new Date());
+		chatChannelRepository.saveAndFlush(chatChannel);
+		
+		chatMsg.put(chatChannel, Action.Update);
 
 		final String href = url + "?id=" + chatReply.getChatChannel().getId() + "&rid=" + chatReply2.getId();
 		final User loginUser = getLoginUser();
@@ -1333,6 +1354,12 @@ public class ChatChannelController extends BaseController {
 		chatReplyRepository.delete(chatReply);
 
 		logWithProperties(Action.Delete, Target.ChatReply, rid, "content", chatReply.getContent());
+		
+		ChatChannel chatChannel = chatReply.getChatChannel();
+		chatChannel.setUpdateDate(new Date());
+		chatChannelRepository.saveAndFlush(chatChannel);
+		
+		chatMsg.put(chatChannel, Action.Update);
 
 		return RespBody.succeed(rid);
 
