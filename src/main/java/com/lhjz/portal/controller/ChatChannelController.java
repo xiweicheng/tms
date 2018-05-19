@@ -61,6 +61,7 @@ import com.lhjz.portal.model.Poll;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.ChatLabelType;
+import com.lhjz.portal.pojo.Enum.ChatMsgType;
 import com.lhjz.portal.pojo.Enum.ChatReplyType;
 import com.lhjz.portal.pojo.Enum.Code;
 import com.lhjz.portal.pojo.Enum.Status;
@@ -310,7 +311,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 		
-		chatMsg.put(chatChannel2, Action.Update);
+		chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content);
 		
 		logWithProperties(Action.Update, Target.ChatChannel, chatChannel2.getId(), "content", contentOld);
 
@@ -406,7 +407,7 @@ public class ChatChannelController extends BaseController {
 
 		chatChannelRepository.delete(id);
 		
-		chatMsg.put(chatChannel, Action.Delete);
+		chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Content);
 		
 		logWithProperties(Action.Delete, Target.ChatChannel, id, "content", chatChannel.getContent());
 
@@ -1041,7 +1042,7 @@ public class ChatChannelController extends BaseController {
 			chatChannel.setUpdateDate(new Date());
 			chatChannelRepository.saveAndFlush(chatChannel);
 			
-			chatMsg.put(chatChannel, Action.Update);
+			chatMsg.put(chatChannel, Action.Update, ChatMsgType.Label);
 
 			try {
 				mailSender
@@ -1093,7 +1094,7 @@ public class ChatChannelController extends BaseController {
 			chatChannel.setUpdateDate(new Date());
 			chatChannelRepository.saveAndFlush(chatChannel);
 			
-			chatMsg.put(chatChannel, Action.Update);
+			chatMsg.put(chatChannel, Action.Update, ChatMsgType.Label);
 
 			return RespBody.succeed(chatLabel);
 		}
@@ -1171,7 +1172,7 @@ public class ChatChannelController extends BaseController {
 		chatChannel.setUpdateDate(new Date());
 		chatChannelRepository.saveAndFlush(chatChannel);
 		
-		chatMsg.put(chatChannel, Action.Update);
+		chatMsg.put(chatChannel, Action.Update, ChatMsgType.Reply);
 		
 		// auto follow this chatchannel
 		ChatChannelFollower chatChannelFollower = chatChannelFollowerRepository
@@ -1272,7 +1273,7 @@ public class ChatChannelController extends BaseController {
 		chatChannel.setUpdateDate(new Date());
 		chatChannelRepository.saveAndFlush(chatChannel);
 		
-		chatMsg.put(chatChannel, Action.Update);
+		chatMsg.put(chatChannel, Action.Update, ChatMsgType.Reply);
 
 		final String href = url + "?id=" + chatReply.getChatChannel().getId() + "&rid=" + chatReply2.getId();
 		final User loginUser = getLoginUser();
@@ -1359,7 +1360,7 @@ public class ChatChannelController extends BaseController {
 		chatChannel.setUpdateDate(new Date());
 		chatChannelRepository.saveAndFlush(chatChannel);
 		
-		chatMsg.put(chatChannel, Action.Update);
+		chatMsg.put(chatChannel, Action.Update, ChatMsgType.Reply);
 
 		return RespBody.succeed(rid);
 

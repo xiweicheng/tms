@@ -13,6 +13,8 @@ import com.lhjz.portal.component.core.IChatMsg;
 import com.lhjz.portal.component.core.model.ChatMsgItem;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.pojo.Enum.Action;
+import com.lhjz.portal.pojo.Enum.ChatMsgType;
+import com.lhjz.portal.util.WebUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,7 +65,7 @@ public class ChatMsgImpl implements IChatMsg {
 	}
 
 	@Override
-	public void put(ChatChannel chatChannel, Action action) {
+	public void put(ChatChannel chatChannel, Action action, ChatMsgType type) {
 
 		if (off) {
 			return;
@@ -72,8 +74,9 @@ public class ChatMsgImpl implements IChatMsg {
 		if (chatChannel == null) {
 			return;
 		}
-		put(chatChannel.getChannel().getId(), ChatMsgItem.builder().id(chatChannel.getId()).action(action)
-				.version(chatChannel.getVersion()).expire(LocalDateTime.now().plusMinutes(EXPIRE)).build());
+		put(chatChannel.getChannel().getId(),
+				ChatMsgItem.builder().id(chatChannel.getId()).action(action).type(type).username(WebUtil.getUsername())
+						.version(chatChannel.getVersion()).expire(LocalDateTime.now().plusMinutes(EXPIRE)).build());
 	}
 
 	@Override

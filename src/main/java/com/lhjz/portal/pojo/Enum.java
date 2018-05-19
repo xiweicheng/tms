@@ -27,6 +27,10 @@ public class Enum {
 		Wiki, Msg;
 	}
 
+	public static enum ChatMsgType {
+		Content, Label, Reply;
+	}
+	
 	public static enum ChatReplyType {
 		ChatChannel;
 	}

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.pojo.Enum.Action;
+import com.lhjz.portal.pojo.Enum.ChatMsgType;
 
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,10 @@ public class ChatMsgItem {
 	Action action;
 
 	long version;
+	
+	String username;
+	
+	ChatMsgType type;
 
 	@JsonIgnore
 	LocalDateTime expire;
