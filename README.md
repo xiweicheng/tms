@@ -2,7 +2,7 @@
 > TMS是开源团队协作(沟通,博文,国际化翻译)web系统(响应式界面设计,移动端适配).
 >    
 > **repo:**  
-> http://git.oschina.net/xiweicheng/tms  
+> http://gitee.com/xiweicheng/tms  
 > https://github.com/xiweicheng/tms  
 
 ## GIF show 
