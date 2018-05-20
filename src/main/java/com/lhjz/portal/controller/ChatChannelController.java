@@ -1498,4 +1498,12 @@ public class ChatChannelController extends BaseController {
 		return RespBody.succeed(followers);
 
 	}
+
+	@GetMapping("label/listMy")
+	@ResponseBody
+	public RespBody listMyLabels() {
+
+		return RespBody.succeed(chatLabelRepository.queryTagsByUser(WebUtil.getUsername()));
+
+	}
 }
