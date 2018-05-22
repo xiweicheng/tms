@@ -463,7 +463,7 @@ public class FileController extends BaseController {
 	@ResponseBody
 	public RespBody csv2md(HttpServletRequest request, @RequestParam("file") MultipartFile[] files) {
 
-		logger.debug("csv2md start...");
+		logger.info("csv2md start...");
 
 		String realPath = WebUtil.getRealPath(request);
 
@@ -530,7 +530,7 @@ public class FileController extends BaseController {
 		try {
 			Process process = Runtime.getRuntime().exec(nodeCmd);
 
-			out = IOUtils.toString(process.getInputStream());
+			out = IOUtils.toString(process.getInputStream(), "UTF-8");
 
 			logger.info("csv2md output: {}", out);
 

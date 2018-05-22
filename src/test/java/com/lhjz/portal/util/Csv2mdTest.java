@@ -21,7 +21,7 @@ public class Csv2mdTest {
 		try {
 			Process process = Runtime.getRuntime().exec(nodeCmd);
 
-			String out = IOUtils.toString(process.getInputStream());
+			String out = IOUtils.toString(process.getInputStream(), "UTF-8");
 
 			System.out.println(out);
 
