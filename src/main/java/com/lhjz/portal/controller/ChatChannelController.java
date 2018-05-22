@@ -1042,7 +1042,7 @@ public class ChatChannelController extends BaseController {
 			chatChannel.setUpdateDate(new Date());
 			chatChannelRepository.saveAndFlush(chatChannel);
 			
-			chatMsg.put(chatChannel, Action.Update, ChatMsgType.Label);
+			chatMsg.put(chatChannel, Action.Create, ChatMsgType.Label);
 
 			try {
 				mailSender
@@ -1070,12 +1070,22 @@ public class ChatChannelController extends BaseController {
 				voters.remove(loginUser);
 
 				logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", name);
+				
+				chatChannel.setUpdateDate(new Date());
+				chatChannelRepository.saveAndFlush(chatChannel);
+				
+				chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Label);
 			} else {
 				loginUser.getVoterChatLabels().add(chatLabel);
 				voters.add(loginUser);
 
 				logWithProperties(Action.UnVote, Target.ChatLabel, chatLabel.getId(), "name", name);
-
+				
+				chatChannel.setUpdateDate(new Date());
+				chatChannelRepository.saveAndFlush(chatChannel);
+				
+				chatMsg.put(chatChannel, Action.Update, ChatMsgType.Label);
+				
 				try {
 					mailSender
 							.sendHtmlByQueue(
@@ -1091,11 +1101,6 @@ public class ChatChannelController extends BaseController {
 			}
 			userRepository.saveAndFlush(loginUser);
 			
-			chatChannel.setUpdateDate(new Date());
-			chatChannelRepository.saveAndFlush(chatChannel);
-			
-			chatMsg.put(chatChannel, Action.Update, ChatMsgType.Label);
-
 			return RespBody.succeed(chatLabel);
 		}
 
