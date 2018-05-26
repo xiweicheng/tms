@@ -38,6 +38,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 * @author Nick Burch
 */
 public class XLS2CSVmra implements HSSFListener {
+	
 	private int minColumns;
 	private POIFSFileSystem fs;
 	private PrintStream output;
@@ -301,7 +302,7 @@ public class XLS2CSVmra implements HSSFListener {
 //		XLS2CSVmra xls2csv = new XLS2CSVmra(args[0], minColumns);
 //		xls2csv.process();
 		
-		XLS2CSVmra xls2csv = new XLS2CSVmra("/Users/xiweicheng/temp/test.xlsx", -1);
+		XLS2CSVmra xls2csv = new XLS2CSVmra("/Users/xiweicheng/temp/test.xls", -1);
 		xls2csv.process();
 	}
 }
