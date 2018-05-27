@@ -27,7 +27,7 @@ public class ExcelUtil {
 
 	private static XSSFExcelExtractor extractor;
 
-	public static void main(String[] args) {
+	public static void main_(String[] args) {
 		read("");
 	}
 
