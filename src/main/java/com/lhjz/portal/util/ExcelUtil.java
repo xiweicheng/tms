@@ -1,14 +1,15 @@
 package com.lhjz.portal.util;
 
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.extractor.XSSFExcelExtractor;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,34 +24,77 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * 
  */
+@Slf4j
 public class ExcelUtil {
 
-	private static XSSFExcelExtractor extractor;
+	public static List<List<List<String>>> read(String path) {
 
-	public static void main_(String[] args) {
-		read("");
+		if (path.toLowerCase().endsWith(".xls")) {
+			return readXls(path);
+		} else {
+			return readXlsx(path);
+		}
 	}
 
-	public static List<?> read(String path) {
-
-		// Use a file
-		try {
-			try (InputStream inp = new FileInputStream("/Users/xiweicheng/temp/test.xlsx")) {
-				XSSFWorkbook wb = (XSSFWorkbook) WorkbookFactory.create(inp);
-				extractor = new XSSFExcelExtractor(wb);
-
-				extractor.setFormulasNotResults(true);
-				extractor.setIncludeSheetNames(false);
-				String text = extractor.getText();
-
-				System.out.println(text);
-				wb.close();
+	public static List<List<List<String>>> readXls(String filePath) {
+		List<List<List<String>>> tables = new ArrayList<>();
+		try (HSSFWorkbook workbook = new HSSFWorkbook(new FileInputStream(new File(filePath)))) {
+			HSSFSheet sheet = null;
+			for (int i = 0; i < workbook.getNumberOfSheets(); i++) {// 获取每个Sheet表
+				sheet = workbook.getSheetAt(i);
+				List<List<String>> table = new ArrayList<>();
+				for (int j = 0; j < sheet.getLastRowNum() + 1; j++) {// getLastRowNum，获取最后一行的行标
+					HSSFRow row = sheet.getRow(j);
+					List<String> tr = new ArrayList<>();
+					if (row != null) {
+						for (int k = 0; k < row.getLastCellNum(); k++) {// getLastCellNum，是获取最后一个不为空的列是第几个
+							if (row.getCell(k) != null) { // getCell 获取单元格数据
+								tr.add(row.getCell(k).getStringCellValue());
+							} else {
+								tr.add("");
+							}
+						}
+					}
+					table.add(tr);
+				}
+				tables.add(table);
 			}
-		} catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
 
-		return null;
+		return tables;
+	}
+
+	public static List<List<List<String>>> readXlsx(String filePath) {
+
+		List<List<List<String>>> tables = new ArrayList<>();
+		try (XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(new File(filePath)))) {
+			XSSFSheet sheet = null;
+			for (int i = 0; i < workbook.getNumberOfSheets(); i++) {// 获取每个Sheet表
+				sheet = workbook.getSheetAt(i);
+				List<List<String>> table = new ArrayList<>();
+				for (int j = 0; j < sheet.getLastRowNum() + 1; j++) {// getLastRowNum，获取最后一行的行标
+					XSSFRow row = sheet.getRow(j);
+					List<String> tr = new ArrayList<>();
+					if (row != null) {
+						for (int k = 0; k < row.getLastCellNum(); k++) {// getLastCellNum，是获取最后一个不为空的列是第几个
+							if (row.getCell(k) != null) { // getCell 获取单元格数据
+								tr.add(row.getCell(k).getStringCellValue());
+							} else {
+								tr.add("");
+							}
+						}
+					}
+					table.add(tr);
+				}
+				tables.add(table);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+
+		return tables;
 	}
 
 }

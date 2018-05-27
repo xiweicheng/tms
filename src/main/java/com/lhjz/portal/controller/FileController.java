@@ -27,7 +27,6 @@ import javax.validation.Valid;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 
 import com.google.common.collect.Lists;
 import com.lhjz.portal.base.BaseController;
@@ -60,6 +58,7 @@ import com.lhjz.portal.pojo.Enum.ToType;
 import com.lhjz.portal.pojo.FileForm;
 import com.lhjz.portal.repository.FileRepository;
 import com.lhjz.portal.util.ChineseUtil;
+import com.lhjz.portal.util.ExcelUtil;
 import com.lhjz.portal.util.FileUtil;
 import com.lhjz.portal.util.ImageUtil;
 import com.lhjz.portal.util.StringUtil;
@@ -446,7 +445,8 @@ public class FileController extends BaseController {
 			int lIndex = originalFileName.lastIndexOf(".");
 			String type = lIndex == -1 ? SysConstant.EMPTY : originalFileName.substring(lIndex);
 
-			if (StringUtils.equalsIgnoreCase(".csv", type)) { // check is csv file
+			if (StringUtils.equalsIgnoreCase(".csv", type) || StringUtils.equalsIgnoreCase(".xls", type)
+					|| StringUtils.equalsIgnoreCase(".xlsx", type)) { // check is csv or excel file
 
 				String uuid = UUID.randomUUID().toString();
 
@@ -473,7 +473,16 @@ public class FileController extends BaseController {
 
 					log(Action.Upload, Target.File, file2.getId());
 
-					list.add(csv2md2(filePath));
+					if (StringUtils.equalsIgnoreCase(".csv", type)) {
+						list.add(csv2md2(filePath));
+					} else {
+						List<List<List<String>>> tables = ExcelUtil.read(filePath);
+						for (List<List<String>> table : tables) {
+							List<String[]> rows = table.stream().map(item -> item.toArray(new String[0]))
+									.collect(Collectors.toList());
+							list.add(toMdTable(rows));
+						}
+					}
 
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
@@ -511,25 +520,7 @@ public class FileController extends BaseController {
 				}
 			}
 
-			List<String[]> rows = rowAll;
-
-			List<String> row = Arrays.asList(rows.get(0));
-			List<Integer> colWidths = row.stream().map(cell -> maxColWitdh(rows, row.indexOf(cell)))
-					.collect(Collectors.toList());
-
-			List<String> rows2 = rows.stream().map(item -> {
-				List<String> cells = Arrays.asList(item);
-				return "| " + cells.stream().map(cell -> {
-					return StringUtils.rightPad(cell, colWidths.get(cells.indexOf(cell)) - cell.length() + 1);
-				}).collect(Collectors.joining(" | ")) + " |";
-			}).collect(Collectors.toList());
-
-			String headerSplit = "|" + colWidths.stream().map(item -> StringUtils.rightPad("", item + 3, "-"))
-					.collect(Collectors.joining("|")) + "|";
-
-			rows2.add(1, headerSplit);
-
-			return StringUtils.join(rows2, "\n");
+			return toMdTable(rowAll);
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -538,7 +529,31 @@ public class FileController extends BaseController {
 		return "";
 
 	}
+
+	private String toMdTable(List<String[]> rowAll) {
+		
+		List<String[]> rows = rowAll;
+
+		List<String> row = Arrays.asList(rows.get(0));
+		List<Integer> colWidths = row.stream().map(cell -> maxColWitdh(rows, row.indexOf(cell)))
+				.collect(Collectors.toList());
+
+		List<String> rows2 = rows.stream().map(item -> {
+			List<String> cells = Arrays.asList(item);
+			return "| " + cells.stream().map(cell -> {
+				return StringUtils.rightPad(cell, colWidths.get(cells.indexOf(cell)) - cell.length() + 1);
+			}).collect(Collectors.joining(" | ")) + " |";
+		}).collect(Collectors.toList());
+
+		String headerSplit = "|" + colWidths.stream().map(item -> StringUtils.rightPad("", item + 3, "-"))
+				.collect(Collectors.joining("|")) + "|";
+
+		rows2.add(1, headerSplit);
+
+		return StringUtils.join(rows2, "\n");
+	}
 	
+	@SuppressWarnings("unused")
 	private String csv2md(String csvPath) {
 
 		String path = StringUtil.isNotEmpty(csv2mdPath) ? csv2mdPath
