@@ -36,6 +36,30 @@ public class ExcelUtil {
 		}
 	}
 
+	private static int maxCols(HSSFSheet sheet) {
+		int maxCol = 0;
+		for (int j = 0; j < sheet.getLastRowNum() + 1; j++) {
+			HSSFRow row = sheet.getRow(j);
+			if (row != null) {
+				int num = row.getLastCellNum();
+				maxCol = num > maxCol ? num : maxCol;
+			}
+		}
+		return maxCol;
+	}
+
+	private static int maxCols(XSSFSheet sheet) {
+		int maxCol = 0;
+		for (int j = 0; j < sheet.getLastRowNum() + 1; j++) {
+			XSSFRow row = sheet.getRow(j);
+			if (row != null) {
+				int num = row.getLastCellNum();
+				maxCol = num > maxCol ? num : maxCol;
+			}
+		}
+		return maxCol;
+	}
+
 	public static List<List<List<String>>> readXls(String filePath) {
 		List<List<List<String>>> tables = new ArrayList<>();
 		try (HSSFWorkbook workbook = new HSSFWorkbook(new FileInputStream(new File(filePath)))) {
@@ -45,17 +69,17 @@ public class ExcelUtil {
 				List<List<String>> table = new ArrayList<>();
 				for (int j = 0; j < sheet.getLastRowNum() + 1; j++) {// getLastRowNum，获取最后一行的行标
 					HSSFRow row = sheet.getRow(j);
-					List<String> tr = new ArrayList<>();
 					if (row != null) {
-						for (int k = 0; k < row.getLastCellNum(); k++) {// getLastCellNum，是获取最后一个不为空的列是第几个
+						List<String> tr = new ArrayList<>();
+						for (int k = 0; k < maxCols(sheet); k++) {// getLastCellNum，是获取最后一个不为空的列是第几个
 							if (row.getCell(k) != null) { // getCell 获取单元格数据
 								tr.add(row.getCell(k).getStringCellValue());
 							} else {
 								tr.add("");
 							}
 						}
+						table.add(tr);
 					}
-					table.add(tr);
 				}
 				tables.add(table);
 			}
@@ -76,17 +100,17 @@ public class ExcelUtil {
 				List<List<String>> table = new ArrayList<>();
 				for (int j = 0; j < sheet.getLastRowNum() + 1; j++) {// getLastRowNum，获取最后一行的行标
 					XSSFRow row = sheet.getRow(j);
-					List<String> tr = new ArrayList<>();
 					if (row != null) {
-						for (int k = 0; k < row.getLastCellNum(); k++) {// getLastCellNum，是获取最后一个不为空的列是第几个
+						List<String> tr = new ArrayList<>();
+						for (int k = 0; k < maxCols(sheet); k++) {// getLastCellNum，是获取最后一个不为空的列是第几个
 							if (row.getCell(k) != null) { // getCell 获取单元格数据
 								tr.add(row.getCell(k).getStringCellValue());
 							} else {
 								tr.add("");
 							}
 						}
+						table.add(tr);
 					}
-					table.add(tr);
 				}
 				tables.add(table);
 			}

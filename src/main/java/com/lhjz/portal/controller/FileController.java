@@ -550,7 +550,7 @@ public class FileController extends BaseController {
 
 		rows2.add(1, headerSplit);
 
-		return StringUtils.join(rows2, "\n");
+		return StringUtils.join(rows2, "\n") + "\n";
 	}
 	
 	@SuppressWarnings("unused")
