@@ -27,6 +27,7 @@ import javax.validation.Valid;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 
 import com.google.common.collect.Lists;
 import com.lhjz.portal.base.BaseController;
@@ -57,6 +59,7 @@ import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.ToType;
 import com.lhjz.portal.pojo.FileForm;
 import com.lhjz.portal.repository.FileRepository;
+import com.lhjz.portal.util.ChineseUtil;
 import com.lhjz.portal.util.FileUtil;
 import com.lhjz.portal.util.ImageUtil;
 import com.lhjz.portal.util.StringUtil;
@@ -470,8 +473,7 @@ public class FileController extends BaseController {
 
 					log(Action.Upload, Target.File, file2.getId());
 
-//					list.add(csv2md2(filePath, "GBK"));
-					list.add(csv2md2(filePath, "UTF-8"));
+					list.add(csv2md2(filePath));
 
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
@@ -487,13 +489,29 @@ public class FileController extends BaseController {
 		logger.debug(String.valueOf(colIndex));
 		return rows.stream().mapToInt(row -> row[colIndex].length()).max().getAsInt();
 	}
+	
+	private boolean isMessyCode(List<String[]> rows) {
+		return rows.stream()
+				.anyMatch(row -> Arrays.asList(row).stream().anyMatch(cell -> ChineseUtil.isMessyCode3(cell)));
+	}
 
-	private String csv2md2(String csvPath, String charset) {
+	private String csv2md2(String csvPath) {
 
 		try (CSVReader csvReader = new CSVReader(
-				new InputStreamReader(new FileInputStream(csvPath), Charset.forName(charset)))) {
+				new InputStreamReader(new FileInputStream(csvPath), Charset.forName("UTF-8")))) {
 
-			List<String[]> rows = csvReader.readAll();
+			List<String[]> rowAll = csvReader.readAll();
+
+			csvReader.close();
+
+			if (isMessyCode(rowAll)) {
+				try (CSVReader csvReader2 = new CSVReader(
+						new InputStreamReader(new FileInputStream(csvPath), Charset.forName("GBK")))) {
+					rowAll = csvReader2.readAll();
+				}
+			}
+
+			List<String[]> rows = rowAll;
 
 			List<String> row = Arrays.asList(rows.get(0));
 			List<Integer> colWidths = row.stream().map(cell -> maxColWitdh(rows, row.indexOf(cell)))
