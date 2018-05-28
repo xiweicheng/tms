@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -73,6 +74,7 @@ public class ExcelUtil {
 						List<String> tr = new ArrayList<>();
 						for (int k = 0; k < maxCols(sheet); k++) {// getLastCellNum，是获取最后一个不为空的列是第几个
 							if (row.getCell(k) != null) { // getCell 获取单元格数据
+								row.getCell(k).setCellType(CellType.STRING);
 								tr.add(row.getCell(k).getStringCellValue());
 							} else {
 								tr.add("");
@@ -104,6 +106,7 @@ public class ExcelUtil {
 						List<String> tr = new ArrayList<>();
 						for (int k = 0; k < maxCols(sheet); k++) {// getLastCellNum，是获取最后一个不为空的列是第几个
 							if (row.getCell(k) != null) { // getCell 获取单元格数据
+								row.getCell(k).setCellType(CellType.STRING);
 								tr.add(row.getCell(k).getStringCellValue());
 							} else {
 								tr.add("");
