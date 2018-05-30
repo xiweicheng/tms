@@ -531,7 +531,11 @@ public class FileController extends BaseController {
 	}
 
 	private String toMdTable(List<String[]> rowAll) {
-		
+
+		if (rowAll == null || rowAll.isEmpty()) {
+			return "";
+		}
+
 		List<String[]> rows = rowAll;
 
 		List<String> row = Arrays.asList(rows.get(0));
