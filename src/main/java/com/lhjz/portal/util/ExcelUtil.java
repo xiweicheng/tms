@@ -2,12 +2,15 @@ package com.lhjz.portal.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -61,6 +64,65 @@ public class ExcelUtil {
 		return maxCol;
 	}
 
+	private static String getNumericCellValue(Cell cell) {
+
+		short format = cell.getCellStyle().getDataFormat();
+
+		SimpleDateFormat sdf = null;
+
+		if (format == 14 || format == 31 || format == 57 || format == 58 || (176 <= format && format <= 178)
+				|| (182 <= format && format <= 196) || (210 <= format && format <= 213) || (208 == format)) { // 日期
+			sdf = new SimpleDateFormat("yyyy-MM-dd");
+		} else if (format == 20 || format == 32 || format == 183 || (200 <= format && format <= 209)) { // 时间
+			sdf = new SimpleDateFormat("HH:mm");
+		} else { // 不是日期格式
+			cell.setCellType(CellType.STRING);
+			return cell.getStringCellValue();
+			//			return String.valueOf(cell.getNumericCellValue());
+		}
+
+		double value = cell.getNumericCellValue();
+		Date date = org.apache.poi.ss.usermodel.DateUtil.getJavaDate(value);
+		if (date == null) {
+			return "";
+		}
+		String result = "";
+		try {
+			result = sdf.format(date);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return result;
+	}
+
+	private static String getCellValue(Cell cell) {
+
+		if (cell == null) {
+			return "";
+		}
+
+		try {
+			switch (cell.getCellTypeEnum()) {
+			case STRING:
+				return cell.getStringCellValue();
+			case NUMERIC:
+				return getNumericCellValue(cell);
+			case BOOLEAN:
+				return String.valueOf(cell.getBooleanCellValue());
+			case BLANK:
+				return "";
+			case FORMULA:
+				return cell.getCellFormula();
+			default:
+				return String.valueOf(cell);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+
+		return "";
+	}
+
 	public static List<List<List<String>>> readXls(String filePath) {
 		List<List<List<String>>> tables = new ArrayList<>();
 		try (HSSFWorkbook workbook = new HSSFWorkbook(new FileInputStream(new File(filePath)))) {
@@ -73,12 +135,7 @@ public class ExcelUtil {
 					if (row != null) {
 						List<String> tr = new ArrayList<>();
 						for (int k = 0; k < maxCols(sheet); k++) {// getLastCellNum，是获取最后一个不为空的列是第几个
-							if (row.getCell(k) != null) { // getCell 获取单元格数据
-								row.getCell(k).setCellType(CellType.STRING);
-								tr.add(row.getCell(k).getStringCellValue());
-							} else {
-								tr.add("");
-							}
+							tr.add(getCellValue(row.getCell(k)));
 						}
 						table.add(tr);
 					}
@@ -105,12 +162,7 @@ public class ExcelUtil {
 					if (row != null) {
 						List<String> tr = new ArrayList<>();
 						for (int k = 0; k < maxCols(sheet); k++) {// getLastCellNum，是获取最后一个不为空的列是第几个
-							if (row.getCell(k) != null) { // getCell 获取单元格数据
-								row.getCell(k).setCellType(CellType.STRING);
-								tr.add(row.getCell(k).getStringCellValue());
-							} else {
-								tr.add("");
-							}
+							tr.add(getCellValue(row.getCell(k)));
 						}
 						table.add(tr);
 					}
