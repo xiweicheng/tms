@@ -185,7 +185,12 @@
 		    <artifactId>opencsv</artifactId>
 		    <version>4.1</version>
 		</dependency>
-		
+		<!-- https://mvnrepository.com/artifact/junit/junit -->
+		<dependency>
+		    <groupId>junit</groupId>
+		    <artifactId>junit</artifactId>
+		    <scope>test</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
