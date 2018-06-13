@@ -18,5 +18,5 @@ services:
       - db
     links:
       - db:tms-db
-
-
+    environment:
+      ENV_TMS_DB: 172.18.0.2
