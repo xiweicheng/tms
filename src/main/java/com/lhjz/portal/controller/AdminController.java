@@ -458,7 +458,9 @@ public class AdminController extends BaseController {
 				}
 			}
 		} else {
-			languages2.addAll(languages);
+			if (languages != null) {
+				languages2.addAll(languages);
+			}
 		}
 
 		// login user labels
