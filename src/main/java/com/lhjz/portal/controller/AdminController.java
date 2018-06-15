@@ -425,6 +425,11 @@ public class AdminController extends BaseController {
 			@RequestParam(value = "projectId", required = false) Long projectId) {
 
 		List<Project> projects = projectRepository.findAll();
+		
+		if (projects.size() == 0) {
+			throw new RuntimeException("系统中不存在项目,请先创建项目后再尝试访问本页面!");
+		}
+		
 		Set<Language> languages = null;
 		Project project = null;
 		if (projectId != null) {
@@ -458,7 +463,9 @@ public class AdminController extends BaseController {
 				}
 			}
 		} else {
-			languages2.addAll(languages);
+			if (languages != null) {
+				languages2.addAll(languages);
+			}
 		}
 
 		// login user labels

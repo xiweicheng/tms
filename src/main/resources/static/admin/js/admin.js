@@ -105,7 +105,7 @@ jQuery(function($) {
 
         if (settings.url.lastIndexOf('/poll/unmask') == -1) {
             // $('.ad-page-dimmer').addClass('active');
-            NProgress && NProgress.start();
+        		window.NProgress && NProgress.start();
         }
 
         var csrf = {};
@@ -123,7 +123,7 @@ jQuery(function($) {
     // });
     $(document).on('ajaxStop', function() {
         // $('.ad-page-dimmer').removeClass('active');
-        NProgress && NProgress.done();
+    		window.NProgress && NProgress.done();
     });
 
     $(document).ajaxError(function(event, xhr, settings) {

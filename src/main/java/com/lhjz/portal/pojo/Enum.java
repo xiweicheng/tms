@@ -76,7 +76,7 @@ public class Enum {
 	}
 
 	public static enum Role {
-		ROLE_USER, ROLE_ADMIN;
+		ROLE_USER, ROLE_ADMIN, ROLE_SUPER;
 	}
 
 	public static enum VoteType {
