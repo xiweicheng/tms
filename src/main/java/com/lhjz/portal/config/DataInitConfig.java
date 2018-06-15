@@ -16,9 +16,12 @@ import com.lhjz.portal.pojo.Enum.SettingType;
 import com.lhjz.portal.repository.SettingRepository;
 import com.lhjz.portal.util.JsonUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
 @EnableJpaAuditing
 @EnableScheduling
+@Slf4j
 public class DataInitConfig {
 
 	@Autowired
@@ -30,23 +33,20 @@ public class DataInitConfig {
 	@PostConstruct
 	public void init() {
 
-		System.out.println("应用程序启动数据初始化 start...");
+		log.info("初始化配置邮箱服务 start...");
 
-		Setting setting = settingRepository
-				.findOneBySettingType(SettingType.Mail);
+		Setting setting = settingRepository.findOneBySettingType(SettingType.Mail);
 
 		if (setting != null) {
-			Map<?, ?> mailSettings = JsonUtil.json2Object(setting.getContent(),
-					Map.class);
+			Map<?, ?> mailSettings = JsonUtil.json2Object(setting.getContent(), Map.class);
 			JavaMailSenderImpl sender = mailSender.getMailSender();
 			sender.setHost(String.valueOf(mailSettings.get("host")));
-			sender.setPort((int) Double.parseDouble(String.valueOf(mailSettings
-					.get("port"))));
+			sender.setPort((int) Double.parseDouble(String.valueOf(mailSettings.get("port"))));
 			sender.setUsername(String.valueOf(mailSettings.get("username")));
 			sender.setPassword(String.valueOf(mailSettings.get("password")));
 			sender.setDefaultEncoding("UTF-8");
 
-			System.out.println("初始化配置邮箱服务成功...");
+			log.info("初始化配置邮箱服务 end...");
 		}
 
 	}

@@ -25,6 +25,8 @@ import javax.persistence.Version;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.pojo.Enum.Status;
 
+import lombok.Data;
+
 /**
  * 
  * @author xi
@@ -33,6 +35,7 @@ import com.lhjz.portal.pojo.Enum.Status;
  * 
  */
 @Entity
+@Data
 public class Language implements Serializable {
 
 	private static final long serialVersionUID = -4972944149048452619L;
@@ -67,108 +70,5 @@ public class Language implements Serializable {
 	@JsonIgnore
 	@OneToMany(mappedBy = "language")
 	private Set<TranslateItem> translateItems = new HashSet<TranslateItem>();
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getCreator() {
-		return creator;
-	}
-
-	public void setCreator(String creator) {
-		this.creator = creator;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public Date getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-
-	public long getVersion() {
-		return version;
-	}
-
-	public void setVersion(long version) {
-		this.version = version;
-	}
-
-	public Set<Project> getProjects() {
-		return projects;
-	}
-
-	public void setProjects(Set<Project> projects) {
-		this.projects = projects;
-	}
-
-	public Set<TranslateItem> getTranslateItems() {
-		return translateItems;
-	}
-
-	public void setTranslateItems(Set<TranslateItem> translateItems) {
-		this.translateItems = translateItems;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Language other = (Language) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Language [id=" + id + ", name=" + name + ", description=" + description + ", creator=" + creator
-				+ ", status=" + status + ", createDate=" + createDate + ", version=" + version + "]";
-	}
 
 }
