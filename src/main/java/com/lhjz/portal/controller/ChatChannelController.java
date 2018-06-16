@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
+import com.lhjz.portal.component.core.IChatMsg;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatAt;
 import com.lhjz.portal.entity.ChatChannel;
@@ -60,6 +61,7 @@ import com.lhjz.portal.model.Poll;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.ChatLabelType;
+import com.lhjz.portal.pojo.Enum.ChatMsgType;
 import com.lhjz.portal.pojo.Enum.ChatReplyType;
 import com.lhjz.portal.pojo.Enum.Code;
 import com.lhjz.portal.pojo.Enum.Status;
@@ -138,6 +140,9 @@ public class ChatChannelController extends BaseController {
 
 	@Autowired
 	MailSender mailSender;
+	
+	@Autowired
+	IChatMsg chatMsg;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -306,6 +311,8 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 		
+		chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content);
+		
 		logWithProperties(Action.Update, Target.ChatChannel, chatChannel2.getId(), "content", contentOld);
 
 		final User loginUser = getLoginUser();
@@ -399,6 +406,8 @@ public class ChatChannelController extends BaseController {
 		});
 
 		chatChannelRepository.delete(id);
+		
+		chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Content);
 		
 		logWithProperties(Action.Delete, Target.ChatChannel, id, "content", chatChannel.getContent());
 
@@ -780,7 +789,7 @@ public class ChatChannelController extends BaseController {
 		
 		long countMyRecentSchedule = scheduleRepository.countRecentScheduleByUser(WebUtil.getUsername());
 
-		return RespBody.succeed(new Poll(channelId, lastChatChannelId, isAt, cnt, cntAtUserNew, countMyRecentSchedule));
+		return RespBody.succeed(new Poll(channelId, lastChatChannelId, isAt, cnt, cntAtUserNew, countMyRecentSchedule, chatMsg.get(channelId)));
 	}
 	
 	@RequestMapping(value = "download/{id}", method = RequestMethod.GET)
@@ -895,33 +904,6 @@ public class ChatChannelController extends BaseController {
 			}
 		}
 	}
-	
-//	private boolean hasAuth(ChatChannel cc) {
-//
-//		if (cc == null) {
-//			return false;
-//		}
-//
-//		if (isSuperOrCreator(cc.getCreator().getUsername())) {
-//			return true;
-//		}
-//
-//		return AuthUtil.hasChannelAuth(cc.getChannel());
-//	}
-	
-//	private boolean hasAuth(Channel c) {
-//
-//		if (c == null) {
-//			return false;
-//		}
-//
-//		if (!c.getPrivated()) {
-//			return true;
-//		}
-//
-//		User loginUser = new User(WebUtil.getUsername());
-//		return c.getMembers().contains(loginUser);
-//	}
 
 	@RequestMapping(value = "share", method = RequestMethod.POST)
 	@ResponseBody
@@ -1056,6 +1038,11 @@ public class ChatChannelController extends BaseController {
 			userRepository.saveAndFlush(loginUser);
 
 			logWithProperties(Action.Create, Target.ChatLabel, chatLabel2.getId(), "name", name);
+			
+			chatChannel.setUpdateDate(new Date());
+			chatChannelRepository.saveAndFlush(chatChannel);
+			
+			chatMsg.put(chatChannel, Action.Create, ChatMsgType.Label);
 
 			try {
 				mailSender
@@ -1083,12 +1070,22 @@ public class ChatChannelController extends BaseController {
 				voters.remove(loginUser);
 
 				logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", name);
+				
+				chatChannel.setUpdateDate(new Date());
+				chatChannelRepository.saveAndFlush(chatChannel);
+				
+				chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Label);
 			} else {
 				loginUser.getVoterChatLabels().add(chatLabel);
 				voters.add(loginUser);
 
 				logWithProperties(Action.UnVote, Target.ChatLabel, chatLabel.getId(), "name", name);
-
+				
+				chatChannel.setUpdateDate(new Date());
+				chatChannelRepository.saveAndFlush(chatChannel);
+				
+				chatMsg.put(chatChannel, Action.Update, ChatMsgType.Label);
+				
 				try {
 					mailSender
 							.sendHtmlByQueue(
@@ -1103,7 +1100,7 @@ public class ChatChannelController extends BaseController {
 
 			}
 			userRepository.saveAndFlush(loginUser);
-
+			
 			return RespBody.succeed(chatLabel);
 		}
 
@@ -1176,6 +1173,11 @@ public class ChatChannelController extends BaseController {
 		chatReply.setUa(ua);
 
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
+		
+		chatChannel.setUpdateDate(new Date());
+		chatChannelRepository.saveAndFlush(chatChannel);
+		
+		chatMsg.put(chatChannel, Action.Create, ChatMsgType.Reply);
 		
 		// auto follow this chatchannel
 		ChatChannelFollower chatChannelFollower = chatChannelFollowerRepository
@@ -1271,6 +1273,12 @@ public class ChatChannelController extends BaseController {
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
 
 		logWithProperties(Action.Update, Target.ChatReply, rid, "content", contentOld);
+		
+		ChatChannel chatChannel = chatReply.getChatChannel();
+		chatChannel.setUpdateDate(new Date());
+		chatChannelRepository.saveAndFlush(chatChannel);
+		
+		chatMsg.put(chatChannel, Action.Update, ChatMsgType.Reply);
 
 		final String href = url + "?id=" + chatReply.getChatChannel().getId() + "&rid=" + chatReply2.getId();
 		final User loginUser = getLoginUser();
@@ -1352,6 +1360,12 @@ public class ChatChannelController extends BaseController {
 		chatReplyRepository.delete(chatReply);
 
 		logWithProperties(Action.Delete, Target.ChatReply, rid, "content", chatReply.getContent());
+		
+		ChatChannel chatChannel = chatReply.getChatChannel();
+		chatChannel.setUpdateDate(new Date());
+		chatChannelRepository.saveAndFlush(chatChannel);
+		
+		chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Reply);
 
 		return RespBody.succeed(rid);
 
@@ -1487,6 +1501,14 @@ public class ChatChannelController extends BaseController {
 		List<ChatChannelFollower> followers = chatChannelFollowerRepository.findByChatChannel(chatChannel);
 
 		return RespBody.succeed(followers);
+
+	}
+
+	@GetMapping("label/listMy")
+	@ResponseBody
+	public RespBody listMyLabels() {
+
+		return RespBody.succeed(chatLabelRepository.queryTagsByUser(WebUtil.getUsername()));
 
 	}
 }

@@ -2,7 +2,7 @@
 > TMS是开源团队协作(沟通,博文,国际化翻译)web系统(响应式界面设计,移动端适配).
 >    
 > **repo:**  
-> http://git.oschina.net/xiweicheng/tms  
+> https://gitee.com/xiweicheng/tms  
 > https://github.com/xiweicheng/tms  
 
 ## GIF show 
@@ -32,7 +32,10 @@
 - 私聊(一对一)
 - markdown语法支持(内容排版不再单调)
 - @消息 收藏消息 富文本消息目录
+- 频道固定消息
 - 日程安排(提醒)
+- 待办事项
+- 沟通消息标记表情&标签
 - 剪贴板上传图片, 拖拽文件上传(就是这么便捷)
 - 邮件通知 桌面通知(不用担心错过什么)
 - 热键支持(鼠标点多了也累不是)

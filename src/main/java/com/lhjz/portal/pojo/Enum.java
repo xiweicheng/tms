@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public class Enum {
 
 	public static enum Status {
-		Updated, Unknow, Normal, Deleted, Bultin, New, Opening, Analyzing, Accepted, Processing, Resolved, Closed, Ignored, Failed, Checked, Readed, Disabled;
+		Updated, Unknow, Normal, Deleted, Bultin, New, Opening, Analyzing, Accepted, Processing, Resolved, Closed, Ignored, Failed, Checked, Readed, Disabled, Doing, Done;
 	}
 
 	public static enum Action {
@@ -27,6 +27,10 @@ public class Enum {
 		Wiki, Msg;
 	}
 
+	public static enum ChatMsgType {
+		Content, Label, Reply;
+	}
+	
 	public static enum ChatReplyType {
 		ChatChannel;
 	}
@@ -72,7 +76,7 @@ public class Enum {
 	}
 
 	public static enum Role {
-		ROLE_USER, ROLE_ADMIN;
+		ROLE_USER, ROLE_ADMIN, ROLE_SUPER;
 	}
 
 	public static enum VoteType {
@@ -101,6 +105,10 @@ public class Enum {
 
 	public static enum SchedulePriority {
 		High, Middle, Low;
+	}
+
+	public static enum TodoPriority {
+		Default, ZyJj, ZyBjj, BzyJi, BzyBjj;
 	}
 
 	public static enum ScheduleKnowStatus {

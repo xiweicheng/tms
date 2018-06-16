@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.Lists;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Blog;
@@ -115,13 +117,13 @@ public class HomeController extends BaseController {
 		// 博文阅读次数+1
 		Long readCnt = blog.getReadCnt();
 		readCnt = readCnt == null ? 1L : (readCnt + 1);
-		
+
 		blogRepository.updateReadCnt(readCnt, id);
 
 		blog.setReadCnt(readCnt);
-		
+
 		blog.setBlogAuthorities(null);
-		
+
 		return RespBody.succeed(new BlogInfo(blog, pre, next));
 	}
 
@@ -144,7 +146,7 @@ public class HomeController extends BaseController {
 
 		return RespBody.succeed(blogs);
 	}
-	
+
 	@GetMapping("blog/page/search")
 	public RespBody searchBlogByPage(@RequestParam("search") String search,
 			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
@@ -153,9 +155,25 @@ public class HomeController extends BaseController {
 			return listBlog(pageable);
 		}
 
-		Page<Blog> blogs = blogRepository
-				.findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(
-						Status.Deleted, search, Status.Deleted, search, pageable);
+		Page<Blog> blogs = new PageImpl<>(Lists.newArrayList());
+
+		// 按标签检索
+		if (search.toLowerCase().startsWith("title:")) {
+			String[] arr = search.split(":", 2);
+			if (StringUtil.isNotEmpty(arr[1].trim())) {
+				blogs = blogRepository.findByStatusNotAndTitleContainingAndOpenedTrue(Status.Deleted, arr[1], pageable);
+			}
+		} else if (search.toLowerCase().startsWith("content:")) {
+			String[] arr = search.split(":", 2);
+			if (StringUtil.isNotEmpty(arr[1].trim())) {
+				blogs = blogRepository.findByStatusNotAndContentContainingAndOpenedTrue(Status.Deleted, arr[1],
+						pageable);
+			}
+		} else {
+			blogs = blogRepository
+					.findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(
+							Status.Deleted, search, Status.Deleted, search, pageable);
+		}
 
 		blogs.forEach(b -> {
 			b.setBlogAuthorities(null);

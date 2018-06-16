@@ -20,3 +20,4 @@ src/main/resources/md2pdf/node_modules/
 .settings/
 .factorypath
 .project
+node_modules/

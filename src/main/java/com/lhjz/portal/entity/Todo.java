@@ -5,8 +5,6 @@ package com.lhjz.portal.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,13 +14,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
-import javax.validation.constraints.Pattern;
 
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,12 +26,14 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.lhjz.portal.entity.security.User;
-import com.lhjz.portal.pojo.Enum.ChannelType;
 import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.pojo.Enum.TodoPriority;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 /**
  * 
@@ -48,28 +45,25 @@ import lombok.ToString;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@ToString(exclude = { "members", "subscriber", "channelGroups" })
-@EqualsAndHashCode(of = { "id" })
-public class Channel implements Serializable {
+@EqualsAndHashCode(of = "id")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Todo implements Serializable {
 
-	private static final long serialVersionUID = 1864577736341309316L;
+	private static final long serialVersionUID = 88481289672497561L;
 
 	@Id
 	@GeneratedValue
 	private Long id;
 
-	@Pattern(regexp = "^[a-z][a-z0-9_\\-]{2,49}$", message = "频道名称必须是3到50位小写字母数字_-组合,并且以字母开头!")
-	@Column(unique = true, nullable = false)
-	private String name;
-
-	@Column
-	private String title;
+	private Long sortIndex;
 
 	@Column(length = 2000)
-	private String description;
+	private String title;
 
-	@Column
-	private Boolean privated = Boolean.FALSE;
+	@Column(length = 16777216)
+	private String content;
 
 	@ManyToOne
 	@JoinColumn(name = "creator")
@@ -89,28 +83,17 @@ public class Channel implements Serializable {
 	@LastModifiedDate
 	private Date updateDate;
 
-	@ManyToOne
-	@JoinColumn(name = "owner")
-	private User owner;
-
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
+	@Builder.Default
 	private Status status = Status.New;
 
 	@Enumerated(EnumType.STRING)
-	@Column
-	private ChannelType type = ChannelType.Common;
+	@Column(nullable = false)
+	@Builder.Default
+	private TodoPriority priority = TodoPriority.Default;
 
 	@Version
 	private long version;
-
-	@ManyToMany(mappedBy = "joinChannels")
-	Set<User> members = new HashSet<User>();
-
-	@ManyToMany(mappedBy = "subscribeChannels")
-	Set<User> subscriber = new HashSet<User>();
-
-	@OneToMany(mappedBy = "channel")
-	Set<ChannelGroup> channelGroups = new HashSet<>();
 
 }

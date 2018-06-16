@@ -25,6 +25,7 @@ import javax.persistence.Version;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.Channel;
+import com.lhjz.portal.entity.ChannelGroup;
 import com.lhjz.portal.entity.Chat;
 import com.lhjz.portal.entity.ChatLabel;
 import com.lhjz.portal.entity.Project;
@@ -43,13 +44,13 @@ import lombok.ToString;
 @Entity
 @Table(name = "users")
 @Data
-@ToString(exclude = {"projects", "authorities", "watcherProjects", "watcherTranslates", "voterChats", "joinChannels", "subscribeChannels", "actSchedules", "voterChatLabels", "joinTProjects"})
+@ToString(exclude = {"projects", "authorities", "watcherProjects", "watcherTranslates", "voterChats", "joinChannels", "subscribeChannels", "actSchedules", "joinChannelGroups", "voterChatLabels", "joinTProjects"})
 @EqualsAndHashCode(of = { "username" })
 public class User implements java.io.Serializable, Comparable<User> {
 
 	/** serialVersionUID long */
 	private static final long serialVersionUID = -5501393570981445761L;
-	
+
 	@Id
 	@Column(name = "username", unique = true, nullable = false, length = 50)
 	private String username;
@@ -85,7 +86,7 @@ public class User implements java.io.Serializable, Comparable<User> {
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date resetPwdDate;
-	
+
 	private Boolean locked;
 
 	@Version
@@ -93,7 +94,8 @@ public class User implements java.io.Serializable, Comparable<User> {
 
 	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name = "user_project", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "project_id") })
+	@JoinTable(name = "user_project", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "project_id") })
 	private Set<Project> projects = new HashSet<Project>();
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
@@ -101,43 +103,56 @@ public class User implements java.io.Serializable, Comparable<User> {
 
 	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name = "watcher_project", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "project_id") })
+	@JoinTable(name = "watcher_project", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "project_id") })
 	private Set<Project> watcherProjects = new HashSet<Project>();
 
 	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name = "watcher_translate", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "translate_id") })
+	@JoinTable(name = "watcher_translate", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "translate_id") })
 	private Set<Translate> watcherTranslates = new HashSet<Translate>();
 
 	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name = "voter_chat", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "chat_id") })
+	@JoinTable(name = "voter_chat", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "chat_id") })
 	private Set<Chat> voterChats = new HashSet<Chat>();
-	
+
 	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name = "member_channel", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "channel_id") })
+	@JoinTable(name = "member_channel", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "channel_id") })
 	private Set<Channel> joinChannels = new HashSet<Channel>();
-	
+
 	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name = "subscriber_channel", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "channel_id") })
+	@JoinTable(name = "subscriber_channel", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "channel_id") })
 	private Set<Channel> subscribeChannels = new HashSet<Channel>();
-	
+
 	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name = "actor_schedule", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "schedule_id") })
+	@JoinTable(name = "actor_schedule", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "schedule_id") })
 	private Set<Schedule> actSchedules = new HashSet<Schedule>();
-	
+
 	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name = "voter_chat_label", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "chat_label_id") })
+	@JoinTable(name = "voter_chat_label", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "chat_label_id") })
 	private Set<ChatLabel> voterChatLabels = new HashSet<>();
 	
 	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "member_t_project", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "t_project_id") })
 	private Set<TProject> joinTProjects = new HashSet<>();
+
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "member_channel_group", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "channel_group_id") })
+	private Set<ChannelGroup> joinChannelGroups = new HashSet<>();
 
 	public User() {
 	}
@@ -152,8 +167,7 @@ public class User implements java.io.Serializable, Comparable<User> {
 		this.enabled = enabled;
 	}
 
-	public User(String username, String password, boolean enabled,
-			Set<Authority> authorities) {
+	public User(String username, String password, boolean enabled, Set<Authority> authorities) {
 		this.username = username;
 		this.password = password;
 		this.enabled = enabled;

@@ -43,7 +43,7 @@
                     </div>
                     选择语言:
                     <div class="ui selection compact dropdown dd-language">
-                        <input type="hidden" name="language" th:value="${languages[0].id}" value="1">
+                        <input th:unless="${#sets.isEmpty(languages)}" type="hidden" name="language" th:value="${languages[0].id}" value="1">
                         <i class="dropdown icon"></i>
                         <div class="default text">语言</div>
                         <div class="menu" th:remove="all-but-first">

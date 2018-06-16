@@ -6,6 +6,7 @@ package com.lhjz.portal.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
@@ -21,6 +22,7 @@ import com.lhjz.portal.util.ThreadUtil;
  *
  */
 @Service
+@Transactional
 public class ChannelServiceImpl implements ChannelService {
 
 	@Value("${tms.super.username}")
@@ -84,8 +86,11 @@ public class ChannelServiceImpl implements ChannelService {
 		if (channel == null) {
 			return;
 		}
-		user.getJoinChannels().add(channel);
-		userRepository.saveAndFlush(user);
+
+		if (!user.getJoinChannels().contains(channel)) {
+			user.getJoinChannels().add(channel);
+			userRepository.saveAndFlush(user);
+		}
 
 		ThreadUtil.setCurrentAuditor(user.getUsername());
 
