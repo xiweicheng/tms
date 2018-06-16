@@ -1,22 +1,14 @@
 version: '2'
-
 services:
-
   db:
     image: xiwc/tms-mysql
     environment:
       MYSQL_ROOT_PASSWORD: pingan
     expose:
-      - "3306"
-    ports:
-      - "3307:3306"
+    - '3306'
   web:
     image: xiwc/tms
     ports:
-      - "8090:8080"
+    - 8090:8080
     depends_on:
-      - db
-    links:
-      - db:tms-db
-    environment:
-      ENV_TMS_DB: 172.18.0.2
+    - db
