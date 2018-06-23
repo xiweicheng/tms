@@ -147,7 +147,7 @@ public class SecurityConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			
-			http.authorizeRequests().antMatchers("/", "/free/**").permitAll().and().csrf().disable();
+			http.authorizeRequests().antMatchers("/", "/free/**", "/ws/**").permitAll().and().csrf().disable();
 
 		}
 
