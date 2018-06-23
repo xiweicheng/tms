@@ -12,8 +12,10 @@ public class ChannelPayload {
 	private Long id;
 
 	private Long cid;
+	
+	private String username;
 
 	public static enum Cmd {
-		C, U, D;
+		R, C, U, D;
 	}
 }

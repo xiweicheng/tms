@@ -25,8 +25,10 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 		if (sha.getCommand() == null) {
 			return;
 		}
+
 		//判断客户端的连接状态  
 		log.debug("cmd: " + sha.getCommand().name());
+
 		switch (sha.getCommand()) {
 		case CONNECT:
 			break;

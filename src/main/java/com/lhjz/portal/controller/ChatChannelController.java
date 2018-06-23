@@ -34,6 +34,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -222,10 +223,18 @@ public class ChatChannelController extends BaseController {
 			e.printStackTrace();
 		}
 
-		messagingTemplate.convertAndSend("/channel/update",
-				ChannelPayload.builder().cmd(Cmd.C).id(channel.getId()).cid(chatChannel2.getId()).build());
+		wsSend(chatChannel2);
 
 		return RespBody.succeed(chatChannel2);
+	}
+
+	private void wsSend(ChatChannel chatChannel) {
+		try {
+			messagingTemplate.convertAndSend("/channel/update", ChannelPayload.builder().username(WebUtil.getUsername())
+					.cmd(Cmd.R).id(chatChannel.getChannel().getId()).cid(chatChannel.getId()).build());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 	@RequestMapping(value = "listBy", method = RequestMethod.GET)
@@ -320,6 +329,7 @@ public class ChatChannelController extends BaseController {
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 
 		chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content);
+		wsSend(chatChannel2);
 
 		logWithProperties(Action.Update, Target.ChatChannel, chatChannel2.getId(), "content", contentOld);
 
@@ -417,6 +427,7 @@ public class ChatChannelController extends BaseController {
 		chatChannelRepository.delete(id);
 
 		chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Content);
+		wsSend(chatChannel);
 
 		logWithProperties(Action.Delete, Target.ChatChannel, id, "content", chatChannel.getContent());
 
@@ -1041,6 +1052,7 @@ public class ChatChannelController extends BaseController {
 			chatChannelRepository.saveAndFlush(chatChannel);
 
 			chatMsg.put(chatChannel, Action.Create, ChatMsgType.Label);
+			wsSend(chatChannel);
 
 			try {
 				mailSender
@@ -1073,6 +1085,7 @@ public class ChatChannelController extends BaseController {
 				chatChannelRepository.saveAndFlush(chatChannel);
 
 				chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Label);
+				wsSend(chatChannel);
 			} else {
 				loginUser.getVoterChatLabels().add(chatLabel);
 				voters.add(loginUser);
@@ -1083,6 +1096,7 @@ public class ChatChannelController extends BaseController {
 				chatChannelRepository.saveAndFlush(chatChannel);
 
 				chatMsg.put(chatChannel, Action.Update, ChatMsgType.Label);
+				wsSend(chatChannel);
 
 				try {
 					mailSender
@@ -1175,6 +1189,7 @@ public class ChatChannelController extends BaseController {
 		chatChannelRepository.saveAndFlush(chatChannel);
 
 		chatMsg.put(chatChannel, Action.Create, ChatMsgType.Reply);
+		wsSend(chatChannel);
 
 		// auto follow this chatchannel
 		ChatChannelFollower chatChannelFollower = chatChannelFollowerRepository
@@ -1276,6 +1291,7 @@ public class ChatChannelController extends BaseController {
 		chatChannelRepository.saveAndFlush(chatChannel);
 
 		chatMsg.put(chatChannel, Action.Update, ChatMsgType.Reply);
+		wsSend(chatChannel);
 
 		final String href = url + "?id=" + chatReply.getChatChannel().getId() + "&rid=" + chatReply2.getId();
 		final User loginUser = getLoginUser();
@@ -1365,6 +1381,7 @@ public class ChatChannelController extends BaseController {
 		chatChannelRepository.saveAndFlush(chatChannel);
 
 		chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Reply);
+		wsSend(chatChannel);
 
 		return RespBody.succeed(rid);
 
