@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.cache.CacheManager;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
+import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.security.Authority;
 import com.lhjz.portal.entity.security.AuthorityId;
 import com.lhjz.portal.entity.security.Group;
@@ -38,6 +41,7 @@ import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.MailAddr;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
+import com.lhjz.portal.pojo.Enum.OnlineStatus;
 import com.lhjz.portal.pojo.Enum.Role;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
@@ -84,21 +88,22 @@ public class UserController extends BaseController {
 
 	@Autowired
 	GroupMemberRepository groupMemberRepository;
-	
+
 	@Autowired
 	ChannelService channelService;
-	
+
+	@Autowired
+	CacheManager cacheManager;
+
 	@Value("${tms.base.url}")
 	private String baseUrl;
 
 	String loginAction = "admin/login";
 
-	private RespBody createUser(String role, String baseURL,
-			UserForm userForm) {
+	private RespBody createUser(String role, String baseURL, UserForm userForm) {
 
 		if (userRepository.exists(StringUtils.trim(userForm.getUsername()))) {
-			logger.error("添加用户已经存在, ID: {}",
-					StringUtils.trim(userForm.getUsername()));
+			logger.error("添加用户已经存在, ID: {}", StringUtils.trim(userForm.getUsername()));
 			return RespBody.failed("添加用户已经存在!");
 		}
 
@@ -110,8 +115,7 @@ public class UserController extends BaseController {
 		// save username and password
 		final User user = new User();
 		user.setUsername(StringUtils.trim(userForm.getUsername()));
-		user.setPassword(passwordEncoder
-				.encode(StringUtils.trim(userForm.getPassword())));
+		user.setPassword(passwordEncoder.encode(StringUtils.trim(userForm.getPassword())));
 		user.setEnabled(userForm.getEnabled());
 		user.setCreateDate(new Date());
 		user.setName(StringUtils.trim(userForm.getName()));
@@ -124,9 +128,7 @@ public class UserController extends BaseController {
 
 		// save default authority `ROLE_USER`
 		Authority authority = new Authority();
-		authority
-				.setId(new AuthorityId(StringUtils.trim(userForm.getUsername()),
-						Role.ROLE_USER.name()));
+		authority.setId(new AuthorityId(StringUtils.trim(userForm.getUsername()), Role.ROLE_USER.name()));
 
 		authorityRepository.saveAndFlush(authority);
 
@@ -134,15 +136,13 @@ public class UserController extends BaseController {
 
 		if (role.equalsIgnoreCase("admin")) {
 			Authority authority2 = new Authority();
-			authority2.setId(
-					new AuthorityId(StringUtils.trim(userForm.getUsername()),
-							Role.ROLE_ADMIN.name()));
+			authority2.setId(new AuthorityId(StringUtils.trim(userForm.getUsername()), Role.ROLE_ADMIN.name()));
 
 			authorityRepository.saveAndFlush(authority2);
 
 			log(Action.Create, Target.Authority, authority2.getId().toString());
 		}
-		
+
 		channelService.joinAll(user2);
 
 		final String userRole = role;
@@ -151,15 +151,15 @@ public class UserController extends BaseController {
 
 		final UserForm userForm2 = userForm;
 
-		final String loginUrl = baseURL + loginAction + "?username="
-				+ userForm.getUsername() + "&password="
+		final String loginUrl = baseURL + loginAction + "?username=" + userForm.getUsername() + "&password="
 				+ userForm.getPassword();
 
 		try {
 			mailSender
 					.sendHtmlByQueue(String.format("TMS-用户创建_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/user-create", MapUtil.objArr2Map("user", userForm2,
-									"userRole", userRole, "href", href, "loginUrl", loginUrl, "baseUrl", baseUrl)),
+							TemplateUtil.process("templates/mail/user-create",
+									MapUtil.objArr2Map("user", userForm2, "userRole", userRole, "href", href,
+											"loginUrl", loginUrl, "baseUrl", baseUrl)),
 							new MailAddr(user.getMails(), user.getName()));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -171,8 +171,7 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "batchCreate", method = RequestMethod.POST)
 	@ResponseBody
 	@Secured({ "ROLE_ADMIN" })
-	public RespBody batchCreate(@RequestParam("baseURL") String baseURL,
-			@RequestParam("data") String data) {
+	public RespBody batchCreate(@RequestParam("baseURL") String baseURL, @RequestParam("data") String data) {
 
 		// test,88888,user,测试用户,test@test.com,true
 		String[] lines = data.split("\n");
@@ -186,12 +185,9 @@ public class UserController extends BaseController {
 				userForm.setName(StringUtils.trim(infos[3]));
 				userForm.setPassword(StringUtils.trim(infos[1]));
 				userForm.setUsername(StringUtils.trim(infos[0]));
-				userForm.setEnabled(
-						"true".equalsIgnoreCase(StringUtils.trim(infos[5]))
-								? true : false);
+				userForm.setEnabled("true".equalsIgnoreCase(StringUtils.trim(infos[5])) ? true : false);
 
-				RespBody respBody = createUser(StringUtils.trim(infos[2]),
-						baseURL, userForm);
+				RespBody respBody = createUser(StringUtils.trim(infos[2]), baseURL, userForm);
 				if (respBody.isSuccess()) {
 					cnt = cnt + 1;
 				}
@@ -208,10 +204,8 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "batchMail", method = RequestMethod.POST)
 	@ResponseBody
 	@Secured({ "ROLE_SUPER", "ROLE_ADMIN", "ROLE_USER" })
-	public RespBody batchMail(@RequestParam("baseURL") String baseURL,
-			@RequestParam("users") String users,
-			@RequestParam("title") String title,
-			@RequestParam("content") String content) {
+	public RespBody batchMail(@RequestParam("baseURL") String baseURL, @RequestParam("users") String users,
+			@RequestParam("title") String title, @RequestParam("content") String content) {
 
 		if (StringUtil.isEmpty(users)) {
 			return RespBody.failed("发送用户不能为空!");
@@ -243,11 +237,10 @@ public class UserController extends BaseController {
 		final String content1 = content;
 
 		try {
-			mailSender
-					.sendHtmlByQueue(String.format("TMS-系统消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-msg", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", title1, "content", content1)),
-							getLoginUserName(loginUser), mail.get());
+			mailSender.sendHtmlByQueue(String.format("TMS-系统消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-msg", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", title1, "content", content1)),
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -258,13 +251,11 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "save", method = RequestMethod.POST)
 	@ResponseBody
 	@Secured({ "ROLE_ADMIN" })
-	public RespBody save(@RequestParam("role") String role,
-			@RequestParam("baseURL") String baseURL, @Valid UserForm userForm,
-			BindingResult bindingResult) {
+	public RespBody save(@RequestParam("role") String role, @RequestParam("baseURL") String baseURL,
+			@Valid UserForm userForm, BindingResult bindingResult) {
 
 		if (bindingResult.hasErrors()) {
-			return RespBody.failed(bindingResult.getAllErrors().stream()
-					.map(err -> err.getDefaultMessage())
+			return RespBody.failed(bindingResult.getAllErrors().stream().map(err -> err.getDefaultMessage())
 					.collect(Collectors.joining("<br/>")));
 		}
 
@@ -274,17 +265,15 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "update", method = RequestMethod.POST)
 	@ResponseBody
 	@Secured({ "ROLE_ADMIN" })
-	public RespBody update(
-			@RequestParam(value = "role", required = false) String role,
-			@Valid UserForm userForm, BindingResult bindingResult) {
+	public RespBody update(@RequestParam(value = "role", required = false) String role, @Valid UserForm userForm,
+			BindingResult bindingResult) {
 
 		if (WebUtil.isRememberMeAuthenticated()) {
 			return RespBody.failed("因为当前是通过[记住我]登录,为了安全需要,请退出重新登录再尝试修改用户信息!");
 		}
 
 		if (bindingResult.hasErrors()) {
-			return RespBody.failed(bindingResult.getAllErrors().stream()
-					.map(err -> err.getDefaultMessage())
+			return RespBody.failed(bindingResult.getAllErrors().stream().map(err -> err.getDefaultMessage())
 					.collect(Collectors.joining("<br/>")));
 		}
 
@@ -294,7 +283,7 @@ public class UserController extends BaseController {
 			logger.error("更新用户不存在! ID: {}", userForm.getUsername());
 			return RespBody.failed("更新用户不存在!");
 		}
-		
+
 		if (Boolean.TRUE.equals(user.getLocked()) && !isSuper()) {
 			return RespBody.failed("用户信息被锁定,不能修改!");
 		}
@@ -309,8 +298,7 @@ public class UserController extends BaseController {
 			user.setPassword(passwordEncoder.encode(userForm.getPassword()));
 		}
 
-		if (userForm.getEnabled() != null
-				&& user.getStatus() != Status.Bultin) {
+		if (userForm.getEnabled() != null && user.getStatus() != Status.Bultin) {
 			user.setEnabled(userForm.getEnabled());
 		}
 
@@ -337,26 +325,20 @@ public class UserController extends BaseController {
 			// 附加新的权限
 			// add role_user
 			Authority authority = new Authority();
-			authority.setId(
-					new AuthorityId(StringUtils.trim(userForm.getUsername()),
-							Role.ROLE_USER.name()));
+			authority.setId(new AuthorityId(StringUtils.trim(userForm.getUsername()), Role.ROLE_USER.name()));
 			authority.setUser(user);
 
-			Authority saveAndFlush = authorityRepository
-					.saveAndFlush(authority);
+			Authority saveAndFlush = authorityRepository.saveAndFlush(authority);
 
 			user.getAuthorities().add(saveAndFlush);
 
 			// add role_user
 			if ("admin".equalsIgnoreCase(role)) {
 				Authority authority2 = new Authority();
-				authority2.setId(new AuthorityId(
-						StringUtils.trim(userForm.getUsername()),
-						Role.ROLE_ADMIN.name()));
+				authority2.setId(new AuthorityId(StringUtils.trim(userForm.getUsername()), Role.ROLE_ADMIN.name()));
 				authority2.setUser(user);
 
-				Authority saveAndFlush2 = authorityRepository
-						.saveAndFlush(authority2);
+				Authority saveAndFlush2 = authorityRepository.saveAndFlush(authority2);
 
 				user.getAuthorities().add(saveAndFlush2);
 			}
@@ -373,16 +355,14 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "update2", method = RequestMethod.POST)
 	@ResponseBody
 	@Secured({ "ROLE_USER" })
-	public RespBody update2(HttpServletRequest request,
-			@Valid UserForm userForm, BindingResult bindingResult) {
+	public RespBody update2(HttpServletRequest request, @Valid UserForm userForm, BindingResult bindingResult) {
 
 		if (WebUtil.isRememberMeAuthenticated()) {
 			return RespBody.failed("因为当前是通过[记住我]登录,为了安全需要,请退出重新登录再尝试修改用户信息!");
 		}
 
 		if (bindingResult.hasErrors()) {
-			return RespBody.failed(bindingResult.getAllErrors().stream()
-					.map(err -> err.getDefaultMessage())
+			return RespBody.failed(bindingResult.getAllErrors().stream().map(err -> err.getDefaultMessage())
 					.collect(Collectors.joining("<br/>")));
 		}
 
@@ -397,7 +377,7 @@ public class UserController extends BaseController {
 			logger.error("更新用户不存在! ID: {}", userForm.getUsername());
 			return RespBody.failed("更新用户不存在!");
 		}
-		
+
 		if (Boolean.TRUE.equals(user.getLocked()) && !isSuper()) {
 			return RespBody.failed("用户信息被锁定,不能修改!");
 		}
@@ -412,8 +392,7 @@ public class UserController extends BaseController {
 			user.setPassword(passwordEncoder.encode(userForm.getPassword()));
 		}
 
-		if (userForm.getEnabled() != null
-				&& user.getStatus() != Status.Bultin) {
+		if (userForm.getEnabled() != null && user.getStatus() != Status.Bultin) {
 			user.setEnabled(userForm.getEnabled());
 		}
 
@@ -477,6 +456,8 @@ public class UserController extends BaseController {
 			return gm.getGroup().getGroupName();
 		}).collect(Collectors.toList());
 
+		setOnlineStatus(user);
+
 		return RespBody.succeed(user).addMsg(gns);
 	}
 
@@ -491,18 +472,32 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "all", method = RequestMethod.GET)
 	@ResponseBody
 	@Secured({ "ROLE_ADMIN", "ROLE_USER" })
-	public RespBody getAllUsers(
-			@RequestParam(value = "enabled", required = false) Boolean enabled) {
-		
+	public RespBody getAllUsers(@RequestParam(value = "enabled", required = false) Boolean enabled) {
+
 		List<User> users = null;
-		
+
 		if (enabled != null) {
 			users = userRepository.findByEnabled(enabled);
 		} else {
 			users = userRepository.findAll();
 		}
-		
+
+		users.forEach(this::setOnlineStatus);
+
 		return RespBody.succeed(users);
+	}
+
+	private void setOnlineStatus(User user) {
+		ValueWrapper valueWrapper = cacheManager.getCache(SysConstant.ONLINE_USERS).get(user.getUsername());
+		if (valueWrapper != null && valueWrapper.get() != null) {
+			user.setOnlineStatus(OnlineStatus.Online);
+			user.setOnlineDate((Date) valueWrapper.get());
+		} else {
+			if (user.getUsername().equals(WebUtil.getUsername())) {
+				user.setOnlineStatus(OnlineStatus.Online);
+				user.setOnlineDate(new Date());
+			}
+		}
 	}
 
 	@RequestMapping(value = "getGroup", method = RequestMethod.GET)
@@ -542,8 +537,7 @@ public class UserController extends BaseController {
 			return RespBody.failed("用户组不存在!");
 		}
 
-		List<GroupMember> groupMembers = groupMemberRepository
-				.findByGroup(group);
+		List<GroupMember> groupMembers = groupMemberRepository.findByGroup(group);
 
 		return RespBody.succeed(groupMembers);
 	}
@@ -551,17 +545,14 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "createGroup", method = RequestMethod.POST)
 	@ResponseBody
 	@Secured({ "ROLE_ADMIN", "ROLE_USER" })
-	public RespBody createGroup(@Valid GroupForm groupForm,
-			BindingResult bindingResult) {
+	public RespBody createGroup(@Valid GroupForm groupForm, BindingResult bindingResult) {
 
 		if (bindingResult.hasErrors()) {
-			return RespBody.failed(bindingResult.getAllErrors().stream()
-					.map(err -> err.getDefaultMessage())
+			return RespBody.failed(bindingResult.getAllErrors().stream().map(err -> err.getDefaultMessage())
 					.collect(Collectors.joining("<br/>")));
 		}
 
-		List<Group> groups = groupRepository
-				.findByGroupName(groupForm.getGroupName());
+		List<Group> groups = groupRepository.findByGroupName(groupForm.getGroupName());
 		if (groups.size() > 0) {
 			return RespBody.failed("该用户组已经存在!");
 		}
@@ -579,8 +570,7 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "updateGroup", method = RequestMethod.POST)
 	@ResponseBody
 	@Secured({ "ROLE_ADMIN", "ROLE_USER" })
-	public RespBody updateGroup(@RequestParam("groupId") Long groupId,
-			@RequestParam("groupName") String groupName) {
+	public RespBody updateGroup(@RequestParam("groupId") Long groupId, @RequestParam("groupName") String groupName) {
 
 		Group group = groupRepository.findOne(groupId);
 
@@ -612,8 +602,7 @@ public class UserController extends BaseController {
 			return RespBody.failed("用户组不存在!");
 		}
 
-		List<GroupMember> groupMembers = groupMemberRepository
-				.findByGroup(group);
+		List<GroupMember> groupMembers = groupMemberRepository.findByGroup(group);
 
 		groupMemberRepository.deleteInBatch(groupMembers);
 		groupMemberRepository.flush();
@@ -642,8 +631,7 @@ public class UserController extends BaseController {
 		List<GroupMember> groupMembers = new ArrayList<>();
 		Stream.of(usernameArr).forEach((un) -> {
 
-			List<GroupMember> gms = groupMemberRepository
-					.findByGroupAndUsername(group, un);
+			List<GroupMember> gms = groupMemberRepository.findByGroupAndUsername(group, un);
 			if (gms.size() == 0) {
 				GroupMember gm = new GroupMember(group, un);
 				gm.setCreateDate(new Date());
@@ -654,8 +642,7 @@ public class UserController extends BaseController {
 			}
 		});
 
-		List<GroupMember> groupMembers2 = groupMemberRepository
-				.save(groupMembers);
+		List<GroupMember> groupMembers2 = groupMemberRepository.save(groupMembers);
 		groupMemberRepository.flush();
 
 		return RespBody.succeed(groupMembers2);
@@ -678,8 +665,7 @@ public class UserController extends BaseController {
 
 		List<GroupMember> groupMembers = new ArrayList<>();
 		Stream.of(usernameArr).forEach((un) -> {
-			List<GroupMember> gms = groupMemberRepository
-					.findByGroupAndUsername(group, un);
+			List<GroupMember> gms = groupMemberRepository.findByGroupAndUsername(group, un);
 			groupMembers.addAll(gms);
 		});
 
@@ -702,8 +688,7 @@ public class UserController extends BaseController {
 			return RespBody.failed("用户组不存在!");
 		}
 
-		List<GroupMember> groupMembers2 = groupMemberRepository
-				.findByGroup(group);
+		List<GroupMember> groupMembers2 = groupMemberRepository.findByGroup(group);
 
 		groupMemberRepository.deleteInBatch(groupMembers2);
 		groupMemberRepository.flush();
@@ -713,8 +698,7 @@ public class UserController extends BaseController {
 		List<GroupMember> groupMembers = new ArrayList<>();
 		Stream.of(usernameArr).forEach((un) -> {
 
-			List<GroupMember> gms = groupMemberRepository
-					.findByGroupAndUsername(group, un);
+			List<GroupMember> gms = groupMemberRepository.findByGroupAndUsername(group, un);
 			if (gms.size() == 0) {
 				GroupMember gm = new GroupMember(group, un);
 				gm.setCreateDate(new Date());
@@ -725,8 +709,7 @@ public class UserController extends BaseController {
 			}
 		});
 
-		List<GroupMember> groupMembers3 = groupMemberRepository
-				.save(groupMembers);
+		List<GroupMember> groupMembers3 = groupMemberRepository.save(groupMembers);
 		groupMemberRepository.flush();
 
 		return RespBody.succeed(groupMembers3);

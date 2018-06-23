@@ -21,6 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -31,6 +32,7 @@ import com.lhjz.portal.entity.ChatLabel;
 import com.lhjz.portal.entity.Project;
 import com.lhjz.portal.entity.Schedule;
 import com.lhjz.portal.entity.Translate;
+import com.lhjz.portal.pojo.Enum.OnlineStatus;
 import com.lhjz.portal.pojo.Enum.Status;
 
 import lombok.Data;
@@ -91,6 +93,12 @@ public class User implements java.io.Serializable, Comparable<User> {
 
 	@Version
 	private long version;
+
+	@Transient
+	private OnlineStatus onlineStatus;
+
+	@Transient
+	private Date onlineDate;
 
 	@JsonIgnore
 	@ManyToMany
