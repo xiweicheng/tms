@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.collect.Lists;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.constant.SysConstant;
@@ -485,6 +487,25 @@ public class UserController extends BaseController {
 		users.forEach(this::setOnlineStatus);
 
 		return RespBody.succeed(users);
+	}
+
+	@RequestMapping(value = "online", method = RequestMethod.GET)
+	@ResponseBody
+	@Secured({ "ROLE_ADMIN", "ROLE_USER" })
+	public RespBody getOnlineUsers() {
+
+		List<String> usernames = Lists.newArrayList();
+		try {
+			@SuppressWarnings("unchecked")
+			ConcurrentHashMap<Object, Object> cache = (ConcurrentHashMap<Object, Object>) cacheManager
+					.getCache(SysConstant.ONLINE_USERS).getNativeCache();
+
+			cache.forEachKey(1, key -> usernames.add(String.valueOf(key)));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		return RespBody.succeed(usernames);
 	}
 
 	private void setOnlineStatus(User user) {
