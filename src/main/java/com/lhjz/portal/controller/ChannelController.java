@@ -28,9 +28,9 @@ import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatAtRepository;
-import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
@@ -54,9 +54,6 @@ public class ChannelController extends BaseController {
 	ChannelRepository channelRepository;
 	
 	@Autowired
-	ChatChannelRepository chatChannelRepository;
-
-	@Autowired
 	UserRepository userRepository;
 	
 	@Autowired
@@ -67,6 +64,9 @@ public class ChannelController extends BaseController {
 
 	@Autowired
 	MailSender mailSender;
+	
+	@Autowired
+	ChatChannelService chatChannelService;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -204,7 +204,7 @@ public class ChannelController extends BaseController {
 				chatChannel.setChannel(channel);
 				chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} 被**添加到**该频道!");
 				
-				chatChannelRepository.saveAndFlush(chatChannel);
+				chatChannelService.save(chatChannel);
 			}
 		});
 		
@@ -250,7 +250,7 @@ public class ChannelController extends BaseController {
 				chatChannel.setChannel(channel);
 				chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} 被**移除出**该频道!");
 				
-				chatChannelRepository.saveAndFlush(chatChannel);
+				chatChannelService.save(chatChannel);
 			}
 		});
 
@@ -300,7 +300,7 @@ public class ChannelController extends BaseController {
 			chatChannel.setChannel(channel);
 			chatChannel.setContent("## ~频道消息播报~\n> {~" + loginUser.getUsername() + "} **加入**该频道!");
 			
-			chatChannelRepository.saveAndFlush(chatChannel);
+			chatChannelService.save(chatChannel);
 		}
 		
 		return RespBody.succeed(channel);
@@ -328,7 +328,7 @@ public class ChannelController extends BaseController {
 			chatChannel.setChannel(channel);
 			chatChannel.setContent("## ~频道消息播报~\n> {~" + loginUser.getUsername() + "} **离开**该频道!");
 			
-			chatChannelRepository.saveAndFlush(chatChannel);
+			chatChannelService.save(chatChannel);
 		}
 		
 		return RespBody.succeed(channel);

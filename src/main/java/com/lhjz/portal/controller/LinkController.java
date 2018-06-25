@@ -25,8 +25,8 @@ import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.LinkType;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.repository.ChannelRepository;
-import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.LinkRepository;
+import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.WebUtil;
@@ -48,10 +48,10 @@ public class LinkController extends BaseController {
 	LinkRepository linkRepository;
 
 	@Autowired
-	ChatChannelRepository chatChannelRepository;
-
-	@Autowired
 	ChannelRepository channelRepository;
+	
+	@Autowired
+	ChatChannelService chatChannelService;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -83,7 +83,7 @@ public class LinkController extends BaseController {
 				chatChannel.setContent(StringUtil.replace("## ~频道消息播报~\n\n> {~{?1}} 添加了频道外链: [**{?2}**]({?3})\n\n",
 						WebUtil.getUsername(), title, href));
 
-				chatChannelRepository.saveAndFlush(chatChannel);
+				chatChannelService.save(chatChannel);
 			}
 		}
 
@@ -161,7 +161,7 @@ public class LinkController extends BaseController {
 						StringUtil.replace("## ~频道消息播报~\n\n> {~{?1}} 将频道外链 [**{?2}**]({?3}) 更新为 [**{?4}**]({?5})\n\n",
 								WebUtil.getUsername(), titleOld, hrefOld, title, href));
 
-				chatChannelRepository.saveAndFlush(chatChannel);
+				chatChannelService.save(chatChannel);
 			}
 		}
 
@@ -190,7 +190,7 @@ public class LinkController extends BaseController {
 				chatChannel.setContent(StringUtil.replace("## ~频道消息播报~\n\n> {~{?1}} 删除了频道外链: [**{?2}**]({?3})\n\n",
 						WebUtil.getUsername(), link.getTitle(), link.getHref()));
 
-				chatChannelRepository.saveAndFlush(chatChannel);
+				chatChannelService.save(chatChannel);
 			}
 		}
 

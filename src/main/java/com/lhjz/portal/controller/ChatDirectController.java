@@ -57,7 +57,6 @@ import com.lhjz.portal.pojo.Enum.ChatLabelType;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatAtRepository;
-import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.ChatLabelRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
@@ -65,6 +64,7 @@ import com.lhjz.portal.repository.GroupMemberRepository;
 import com.lhjz.portal.repository.GroupRepository;
 import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
@@ -99,7 +99,7 @@ public class ChatDirectController extends BaseController {
 	ChatDirectRepository chatDirectRepository;
 
 	@Autowired
-	ChatChannelRepository chatChannelRepository;
+	ChatChannelService chatChannelService;
 
 	@Autowired
 	UserRepository userRepository;
@@ -581,7 +581,7 @@ public class ChatDirectController extends BaseController {
 							StringUtil.replace("## ~频道消息播报~\n> 来自 {~{?1}} 的沟通消息分享:  [{?2}]({?3})\n\n---\n\n{?4}",
 									loginUser.getUsername(), "沟通消息链接", href, chatDirect2.getContent()));
 
-					chatChannelRepository.saveAndFlush(chatChannel);
+					chatChannelService.save(chatChannel);
 				}
 			});
 		}

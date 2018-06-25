@@ -81,6 +81,7 @@ import com.lhjz.portal.repository.ChatReplyRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.ScheduleRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
@@ -150,6 +151,9 @@ public class ChatChannelController extends BaseController {
 	@Autowired
 	SimpMessagingTemplate messagingTemplate;
 
+	@Autowired
+	ChatChannelService chatChannelService;
+
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody create(@RequestParam("url") String url,
@@ -172,7 +176,7 @@ public class ChatChannelController extends BaseController {
 		chatChannel.setContent(content);
 		chatChannel.setUa(ua);
 
-		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
+		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
 
 		final String href = url + "?id=" + chatChannel2.getId();
 		final String html = contentHtml; // StringUtil.md2Html(contentHtml, false, true);
@@ -221,8 +225,6 @@ public class ChatChannelController extends BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		wsSend(chatChannel2);
 
 		return RespBody.succeed(chatChannel2);
 	}
@@ -967,7 +969,7 @@ public class ChatChannelController extends BaseController {
 							StringUtil.replace("## ~频道消息播报~\n> 来自 {~{?1}} 的沟通消息分享:  [{?2}]({?3})\n\n---\n\n{?4}",
 									loginUser.getUsername(), "沟通消息链接", href, chatChannel2.getContent()));
 
-					chatChannelRepository.saveAndFlush(chatChannel);
+					chatChannelService.save(chatChannel);
 				}
 			});
 		}

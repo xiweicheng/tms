@@ -26,8 +26,8 @@ import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.repository.ChannelRepository;
-import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
@@ -50,7 +50,7 @@ public class ApiController extends BaseController {
 	ChannelRepository channelRepository;
 
 	@Autowired
-	ChatChannelRepository chatChannelRepository;
+	ChatChannelService chatChannelService;
 
 	@Autowired
 	UserRepository userRepository;
@@ -66,8 +66,7 @@ public class ApiController extends BaseController {
 	public RespBody sendChannelJenkinsMsg(@RequestParam("channel") String channel,
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
-			@RequestParam(value = "web", required = false) String web,
-			@RequestBody String reqBody) {
+			@RequestParam(value = "web", required = false) String web, @RequestBody String reqBody) {
 
 		Channel channel2 = channelRepository.findOneByName(channel);
 		if (channel2 == null) {
@@ -104,7 +103,7 @@ public class ApiController extends BaseController {
 		chatChannel.setChannel(channel2);
 		chatChannel.setContent(sb.toString());
 
-		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
+		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
 
 		final Mail mail2 = Mail.instance();
 
@@ -124,8 +123,9 @@ public class ApiController extends BaseController {
 			try {
 				mailSender.sendHtmlByQueue(
 						String.format("TMS-Jenkins发版报告沟通频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", "Jenkins发版报告频道消息有@到你", "content", html)),
+						TemplateUtil.process("templates/mail/mail-dynamic",
+								MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+										"Jenkins发版报告频道消息有@到你", "content", html)),
 						getLoginUserName(loginUser), mail2.get());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -135,13 +135,12 @@ public class ApiController extends BaseController {
 
 		return RespBody.succeed();
 	}
-	
+
 	@RequestMapping(value = "channel/send", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody sendChannelMsg(@RequestParam("channel") String channel,
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
-			@RequestParam(value = "web", required = false) String web,
-			@RequestBody String reqBody) {
+			@RequestParam(value = "web", required = false) String web, @RequestBody String reqBody) {
 
 		Channel channel2 = channelRepository.findOneByName(channel);
 		if (channel2 == null) {
@@ -164,7 +163,7 @@ public class ApiController extends BaseController {
 		chatChannel.setChannel(channel2);
 		chatChannel.setContent(sb.toString());
 
-		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
+		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
 
 		final Mail mail2 = Mail.instance();
 
@@ -184,8 +183,9 @@ public class ApiController extends BaseController {
 			try {
 				mailSender.sendHtmlByQueue(
 						String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
+						TemplateUtil.process("templates/mail/mail-dynamic",
+								MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+										"来自第三方应用推送的消息有@到你", "content", html)),
 						getLoginUserName(loginUser), mail2.get());
 			} catch (Exception e) {
 				e.printStackTrace();

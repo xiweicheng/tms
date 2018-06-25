@@ -75,13 +75,13 @@ import com.lhjz.portal.repository.BlogHistoryRepository;
 import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.BlogStowRepository;
 import com.lhjz.portal.repository.ChannelRepository;
-import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.CommentRepository;
 import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.TagRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
@@ -125,9 +125,6 @@ public class BlogController extends BaseController {
 	ChannelRepository channelRepository;
 	
 	@Autowired
-	ChatChannelRepository chatChannelRepository;
-	
-	@Autowired
 	ChatDirectRepository chatDirectRepository;
 
 	@Autowired
@@ -150,6 +147,9 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	MailSender mailSender;
+	
+	@Autowired
+	ChatChannelService chatChannelService;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -700,7 +700,7 @@ public class BlogController extends BaseController {
 							StringUtil.replace("## ~频道消息播报~\n> 来自 {~{?1}} 的博文分享:  [{?2}]({?3})\n\n---\n\n{?4}",
 									loginUser.getUsername(), blog.getTitle(), href, blog.getContent()));
 
-					chatChannelRepository.saveAndFlush(chatChannel);
+					chatChannelService.save(chatChannel);
 				}
 			});
 		}
@@ -782,7 +782,7 @@ public class BlogController extends BaseController {
 							StringUtil.replace("## ~频道消息播报~\n> 来自 {~{?1}} 的博文评论分享:  [{?2}]({?3})\n\n---\n\n{?4}",
 									loginUser.getUsername(), "博文评论链接", href, comment.getContent()));
 
-					chatChannelRepository.saveAndFlush(chatChannel);
+					chatChannelService.save(chatChannel);
 				}
 			});
 		}
