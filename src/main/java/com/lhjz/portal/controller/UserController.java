@@ -41,6 +41,7 @@ import com.lhjz.portal.entity.security.GroupMember;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.MailAddr;
+import com.lhjz.portal.model.OnlineUser;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.OnlineStatus;
@@ -494,18 +495,21 @@ public class UserController extends BaseController {
 	@Secured({ "ROLE_ADMIN", "ROLE_USER" })
 	public RespBody getOnlineUsers() {
 
-		List<String> usernames = Lists.newArrayList();
+		List<OnlineUser> users = Lists.newArrayList();
 		try {
 			@SuppressWarnings("unchecked")
 			ConcurrentHashMap<Object, Object> cache = (ConcurrentHashMap<Object, Object>) cacheManager
 					.getCache(SysConstant.ONLINE_USERS).getNativeCache();
 
-			cache.forEachKey(1, key -> usernames.add(String.valueOf(key)));
+			cache.forEachKey(1, key -> {
+				users.add(new OnlineUser(String.valueOf(key),
+						(Date) cacheManager.getCache(SysConstant.ONLINE_USERS).get(key).get()));
+			});
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 
-		return RespBody.succeed(usernames);
+		return RespBody.succeed(users);
 	}
 
 	private void setOnlineStatus(User user) {
