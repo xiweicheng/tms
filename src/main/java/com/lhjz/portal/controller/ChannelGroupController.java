@@ -25,6 +25,7 @@ import com.lhjz.portal.repository.ChannelGroupRepository;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.WebUtil;
 
@@ -56,6 +57,9 @@ public class ChannelGroupController extends BaseController {
 
 	@Autowired
 	MailSender mailSender;
+
+	@Autowired
+	ChatChannelService chatChannelService;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -194,7 +198,7 @@ public class ChannelGroupController extends BaseController {
 				chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} 被**添加到**该频道下的 {!~"
 						+ channelGroup.getName() + "} 频道组!");
 
-				chatChannelRepository.saveAndFlush(chatChannel);
+				chatChannelService.save(chatChannel);
 			}
 		});
 
@@ -226,7 +230,7 @@ public class ChannelGroupController extends BaseController {
 				chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} 被**移除出**该频道下的 {!~"
 						+ channelGroup.getName() + "} 频道组!");
 
-				chatChannelRepository.saveAndFlush(chatChannel);
+				chatChannelService.save(chatChannel);
 			}
 		});
 
@@ -251,7 +255,7 @@ public class ChannelGroupController extends BaseController {
 			chatChannel.setContent("## ~频道消息播报~\n> {~" + loginUser.getUsername() + "} **加入**该频道下的 {!~"
 					+ channelGroup.getName() + "} 频道组!");
 
-			chatChannelRepository.saveAndFlush(chatChannel);
+			chatChannelService.save(chatChannel);
 		}
 
 		return RespBody.succeed(channelGroup);
@@ -276,7 +280,7 @@ public class ChannelGroupController extends BaseController {
 			chatChannel.setContent("## ~频道消息播报~\n> {~" + loginUser.getUsername() + "} **离开**该频道下的 {!~"
 					+ channelGroup.getName() + "} 频道组!");
 
-			chatChannelRepository.saveAndFlush(chatChannel);
+			chatChannelService.save(chatChannel);
 		}
 
 		return RespBody.succeed(channelGroup);

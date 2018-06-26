@@ -49,10 +49,10 @@ import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.ToType;
 import com.lhjz.portal.repository.AuthorityRepository;
 import com.lhjz.portal.repository.ChannelRepository;
-import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.FileRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.ChannelService;
+import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.ImageUtil;
 import com.lhjz.portal.util.JsonUtil;
@@ -93,13 +93,13 @@ public class FreeController extends BaseController {
 	ChannelRepository channelRepository;
 	
 	@Autowired
-	ChatChannelRepository chatChannelRepository;
-	
-	@Autowired
 	FileRepository fileRepository;
 	
 	@Autowired
 	ChannelService channelService;
+	
+	@Autowired
+	ChatChannelService chatChannelService;
 	
 	@Autowired
 	Environment env;
@@ -387,7 +387,8 @@ public class FreeController extends BaseController {
 		chatChannel.setChannel(channel2);
 		chatChannel.setContent(sb.toString());
 
-		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
+		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
+		
 
 		final Mail mail2 = Mail.instance();
 		
@@ -481,7 +482,7 @@ public class FreeController extends BaseController {
 		chatChannel.setChannel(channel2);
 		chatChannel.setContent(sb.toString());
 
-		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
+		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
 		
 		final Mail mail2 = Mail.instance();
 		

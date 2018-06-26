@@ -38,12 +38,12 @@ import com.lhjz.portal.component.LoginSuccessHandler;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
-	
+
 	static final int order = -10;
 
 	@Autowired
 	DataSource dataSource;
-	
+
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
@@ -78,7 +78,7 @@ public class SecurityConfig {
 		public AuthenticationEntryPoint authenticationEntryPoint() {
 			return new AjaxAwareLoginUrlAuthenticationEntryPoint("/admin/login");
 		}
-		
+
 		@Bean
 		public LogoutSuccessHandler logoutSuccessHandler() {
 			return new AjaxSimpleUrlLogoutSuccessHandler("/admin/login?logout");
@@ -109,7 +109,7 @@ public class SecurityConfig {
 			// @formatter:off
 			http
 				.authorizeRequests()
-				.antMatchers("/admin/**", "/api/**")
+				.antMatchers("/admin/**", "/api/**", "/ws/**")
 					.authenticated()
 				.and()
 					.exceptionHandling()
@@ -146,7 +146,7 @@ public class SecurityConfig {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			
+
 			http.authorizeRequests().antMatchers("/", "/free/**").permitAll().and().csrf().disable();
 
 		}

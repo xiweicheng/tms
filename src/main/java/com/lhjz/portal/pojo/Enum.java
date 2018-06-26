@@ -19,6 +19,10 @@ public class Enum {
 		Create, Read, Update, Delete, Upload, Visit, Import, Export, Vote, UnVote;
 	}
 
+	public static enum OnlineStatus {
+		Online, Busy, Left, Offline;
+	}
+
 	public static enum FileType {
 		Image, Attachment;
 	}
@@ -30,7 +34,7 @@ public class Enum {
 	public static enum ChatMsgType {
 		Content, Label, Reply;
 	}
-	
+
 	public static enum ChatReplyType {
 		ChatChannel;
 	}

@@ -199,5 +199,7 @@ public final class SysConstant {
 	
 	public static final String USER_VISITOR = "visitor";
 	public static final String USER_NAME_VISITOR = "游客";
+	
+	public static final String ONLINE_USERS = "online_users";
 
 }
