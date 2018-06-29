@@ -1121,7 +1121,7 @@ public class ChatChannelController extends BaseController {
 
 	@PostMapping("pin/toggle")
 	@ResponseBody
-	public RespBody togglePin(@RequestParam("id") Long id, @RequestParam("cid") Long cid,
+	public RespBody togglePin(@RequestParam("id") Long id,
 			@RequestParam(value = "pin", defaultValue = "false") Boolean pin) {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
@@ -1130,7 +1130,7 @@ public class ChatChannelController extends BaseController {
 			return RespBody.failed("权限不足!");
 		}
 
-		Channel channel = channelRepository.findOne(cid);
+		Channel channel = chatChannel.getChannel();
 
 		ChatPin chatPin = chatPinRepository.findOneByChannelAndChatChannel(channel, chatChannel);
 
