@@ -6,6 +6,8 @@ services:
       MYSQL_ROOT_PASSWORD: pingan
     expose:
     - '3306'
+    ports:
+    - 3307:3306
   web:
     image: xiwc/tms
     ports:
