@@ -54,10 +54,10 @@ public final class HtmlUtil {
 		try {
 			URL loc = new URL(url);
 			if (loc.getPort() == -1) {
-				return loc.getProtocol() + "://" + loc.getHost() + (path ? baseUrlPath(loc.getPath()) : "");
+				return loc.getProtocol() + "://" + loc.getHost() + (path ? baseUrlPath(loc.getPath()) : "/");
 			} else {
 				return loc.getProtocol() + "://" + loc.getHost() + ":" + loc.getPort()
-						+ (path ? baseUrlPath(loc.getPath()) : "");
+						+ (path ? baseUrlPath(loc.getPath()) : "/");
 			}
 		} catch (Exception e) {
 			return StringUtils.EMPTY;
@@ -75,7 +75,7 @@ public final class HtmlUtil {
 		}
 
 		int index = path.lastIndexOf("/");
-		return path.substring(0, index);
+		return path.substring(0, index + 1);
 	}
 
 	public static String summary(String url) {
