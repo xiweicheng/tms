@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -593,6 +594,15 @@ public class ChatChannelController extends BaseController {
 				Status.New);
 
 		chatStows.forEach(cs -> reduceChatStow(cs));
+
+		return RespBody.succeed(chatStows);
+	}
+	
+	@GetMapping("stow/list")
+	@ResponseBody
+	public RespBody listStow(Principal principal) {
+
+		List<Object> chatStows = chatStowRepository.listChatChannels(principal.getName());
 
 		return RespBody.succeed(chatStows);
 	}

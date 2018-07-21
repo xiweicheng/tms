@@ -48,4 +48,7 @@ public interface ChatStowRepository extends JpaRepository<ChatStow, Long> {
 	@Query(value = "DELETE FROM chat_stow WHERE EXISTS(SELECT id FROM chat_channel b WHERE chat_stow.chat_channel_id = b.id AND b.channel = ?1);", nativeQuery = true)
 	void deleteByChannel(Long channelId);
 
+	@Query(value = "SELECT chat_stow.id, chat_stow.chat_channel_id FROM chat_stow WHERE stow_user = ?1 and `status` = 'New';", nativeQuery = true)
+	List<Object> listChatChannels(String username);
+
 }

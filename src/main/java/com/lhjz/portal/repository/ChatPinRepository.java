@@ -6,6 +6,7 @@ package com.lhjz.portal.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
@@ -19,9 +20,12 @@ import com.lhjz.portal.entity.ChatPin;
  * 
  */
 public interface ChatPinRepository extends JpaRepository<ChatPin, Long> {
-	
+
 	ChatPin findOneByChannelAndChatChannel(Channel channel, ChatChannel chatChannel);
 
 	List<ChatPin> findByChannel(Channel channel);
-	
+
+	@Query(value = "SELECT chat_pin.id, chat_pin.chat_channel FROM chat_pin WHERE channel = ?1 and `status` = 'New';", nativeQuery = true)
+	List<Object> listByChannel(Long channelId);
+
 }

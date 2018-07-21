@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,9 +29,11 @@ import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatAtRepository;
+import com.lhjz.portal.repository.ChatPinRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.ChatChannelService;
+import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
@@ -61,6 +64,9 @@ public class ChannelController extends BaseController {
 	
 	@Autowired
 	ChatStowRepository chatStowRepository;
+	
+	@Autowired
+	ChatPinRepository chatPinRepository;
 
 	@Autowired
 	MailSender mailSender;
@@ -266,6 +272,21 @@ public class ChannelController extends BaseController {
 		}).collect(Collectors.toList());
 
 		return RespBody.succeed(channels);
+	}
+
+	@GetMapping("pin/listBy")
+	@ResponseBody
+	public RespBody listPinBy(@RequestParam("id") Long id) {
+
+		Channel channel = channelRepository.findOne(id);
+
+		if (!AuthUtil.isChannelMember(channel)) {
+			return RespBody.failed("权限不足！");
+		}
+
+		List<Object> pins = chatPinRepository.listByChannel(id);
+
+		return RespBody.succeed(pins);
 	}
 	
 	@RequestMapping(value = "listPublic", method = RequestMethod.GET)
