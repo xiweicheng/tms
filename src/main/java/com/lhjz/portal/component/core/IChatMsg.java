@@ -11,7 +11,7 @@ public interface IChatMsg {
 
 	void put(Long cid, ChatMsgItem chatMsgItem);
 	
-	void put(ChatChannel chatChannel, Action action, ChatMsgType type);
+	void put(ChatChannel chatChannel, Action action, ChatMsgType type, String username);
 	
 	List<ChatMsgItem> get(Long cid);
 }

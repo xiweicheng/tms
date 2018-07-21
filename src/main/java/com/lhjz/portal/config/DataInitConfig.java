@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.lhjz.portal.component.MailSender;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @EnableJpaAuditing
 @EnableScheduling
+@EnableAsync
 @Slf4j
 public class DataInitConfig {
 

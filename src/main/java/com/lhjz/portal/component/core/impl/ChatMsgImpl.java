@@ -64,7 +64,7 @@ public class ChatMsgImpl implements IChatMsg {
 	}
 
 	@Override
-	public void put(ChatChannel chatChannel, Action action, ChatMsgType type) {
+	public void put(ChatChannel chatChannel, Action action, ChatMsgType type, String username) {
 
 		if (off) {
 			return;
@@ -73,8 +73,11 @@ public class ChatMsgImpl implements IChatMsg {
 		if (chatChannel == null) {
 			return;
 		}
+		
+		username = username == null ? WebUtil.getUsername() : username;
+		
 		put(chatChannel.getChannel().getId(),
-				ChatMsgItem.builder().id(chatChannel.getId()).action(action).type(type).username(WebUtil.getUsername())
+				ChatMsgItem.builder().id(chatChannel.getId()).action(action).type(type).username(username)
 						.version(chatChannel.getVersion()).expire(LocalDateTime.now().plusMinutes(EXPIRE)).build());
 	}
 
@@ -91,7 +94,7 @@ public class ChatMsgImpl implements IChatMsg {
 			return;
 		}
 
-		log.debug("scheduled task: {}, rate: {}", "chatmsg", 6000);
+//		log.debug("scheduled task: {}, rate: {}", "chatmsg", 6000);
 
 		try {
 			map.forEachValue(1, list -> {
