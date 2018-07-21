@@ -12,6 +12,9 @@ import org.jsoup.select.Elements;
 
 import com.google.common.collect.Maps;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public final class HtmlUtil {
 
 	private HtmlUtil() {
@@ -104,6 +107,7 @@ public final class HtmlUtil {
 
 			return StringUtil.replaceByMap(tpl, map);
 		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 			return StringUtils.EMPTY;
 		}
 

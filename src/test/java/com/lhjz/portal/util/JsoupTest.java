@@ -109,5 +109,16 @@ public class JsoupTest {
 		System.out.println(StringUtil.replaceByMap(tpl, map));
 
 	}
+	
+	@Test
+	public void test2() {
+		String url = "https://github.com/socketio/socket.io-redis/issues/210";
+		boolean is = HtmlUtil.isUrl(url);
+		System.out.println(is);
+		
+		String summary = HtmlUtil.summary(url);
+		System.out.println(summary);
+		
+	}
 
 }
