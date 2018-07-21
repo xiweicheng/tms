@@ -104,6 +104,10 @@ public final class HtmlUtil {
 			String tpl = "> <img style=\"width: 16px; height:16px;\" src=\"{icon}\" /> [{host}]({baseUrl})\n> [**{title}**]({loc})\n"
 					+ "> {desc}";
 
+			if (StringUtils.isBlank(doc.title()) && StringUtils.isBlank(desc.attr("content"))) {
+				return StringUtils.EMPTY;
+			}
+
 			HashMap<String, Object> map = Maps.newHashMap();
 			map.put("loc", doc.location());
 			map.put("title", doc.title());
