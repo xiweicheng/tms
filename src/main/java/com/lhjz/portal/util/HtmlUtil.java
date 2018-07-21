@@ -45,6 +45,15 @@ public final class HtmlUtil {
 			return icon;
 		}
 
+		if (StringUtils.startsWith(icon, "//")) {
+			try {
+				return new URL(url).getProtocol() + ":" + icon;
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+				return "http:" + icon;
+			}
+		}
+
 		if (StringUtils.startsWith(icon, "/")) {
 			return baseUrl(url, false) + icon;
 		}

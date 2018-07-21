@@ -113,6 +113,8 @@ public class JsoupTest {
 	@Test
 	public void test2() {
 		String url = "https://github.com/socketio/socket.io-redis/issues/210";
+		url = "http://fanyi.baidu.com/";
+		
 		boolean is = HtmlUtil.isUrl(url);
 		System.out.println(is);
 		
