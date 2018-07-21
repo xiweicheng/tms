@@ -6,6 +6,8 @@ ROOT=$TOMCAT/webapps/ROOT
 echo "ROOT PATH: $ROOT"
 CLASS=$ROOT/WEB-INF/classes
 echo "CLASS PATH: $CLASS"
+WEB=$ROOT/WEB-INF
+echo "WEB-INF PATH: $WEB"
 
 NOW_DATE=`date +"%Y%m%d-%H%M%S-%N"`
 
@@ -22,11 +24,15 @@ echo "rm $CLASS/com"
 rm -rf $CLASS/com
 echo "rm $CLASS/static"
 rm -rf $CLASS/static
+echo "rm $WEB/lib"
+rm -rf $LIB/lib
 
 echo "cp com to $CLASS"
 cp -rf com $CLASS
 echo "cp static to $CLASS"
 cp -rf static $CLASS
+echo "cp ../lib to $WEB"
+cp -rf ../lib $WEB
 
 #startup tomcat
 echo "startup tomcat..."
