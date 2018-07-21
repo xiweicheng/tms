@@ -127,6 +127,10 @@ public class AsyncTask {
 		try {
 			messagingTemplate.convertAndSendToUser(chatDirect.getChatTo().getUsername(), "/direct/update",
 					DirectPayload.builder().cmd(cmd).username(username).id(chatDirect.getId()).build());
+			if (!StringUtils.equals(chatDirect.getChatTo().getUsername(), username)) {
+				messagingTemplate.convertAndSendToUser(username, "/direct/update",
+						DirectPayload.builder().cmd(cmd).username(username).id(chatDirect.getId()).build());
+			}
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
