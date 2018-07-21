@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
+import com.lhjz.portal.component.AsyncTask;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.Channel;
@@ -128,6 +129,9 @@ public class ChatDirectController extends BaseController {
 	@Autowired
 	SimpMessagingTemplate messagingTemplate;
 
+	@Autowired
+	AsyncTask asyncTask;
+
 	private void wsSend(ChatDirect chatDirect, Cmd cmd) {
 		try {
 			messagingTemplate.convertAndSendToUser(chatDirect.getChatTo().getUsername(), "/direct/update",
@@ -159,6 +163,8 @@ public class ChatDirectController extends BaseController {
 		chatDirect.setUa(ua);
 
 		ChatDirect chatDirect2 = chatDirectRepository.saveAndFlush(chatDirect);
+
+		asyncTask.updateChatDirect(content, chatDirect2.getId(), messagingTemplate, WebUtil.getUsername());
 
 		wsSend(chatDirect2, Cmd.C);
 
