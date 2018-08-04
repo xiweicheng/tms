@@ -40,6 +40,9 @@
         opacity: 0;*/
         display: none;
     }
+    .fr-placeholder {
+        margin-top: 1px!important;
+    }
 
     </style>
 </head>
@@ -60,6 +63,8 @@
     <script>
     $(function() {
         $('#edit').froalaEditor({
+            // enter: $.FroalaEditor.ENTER_BR,
+            enter: $.FroalaEditor.ENTER_DIV,
             language: 'zh_cn'
         })
     });
