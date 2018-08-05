@@ -15,8 +15,10 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,7 +39,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,6 +52,7 @@ import com.google.common.collect.Lists;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.model.UploadResult;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.FileType;
 import com.lhjz.portal.pojo.Enum.Status;
@@ -55,6 +60,7 @@ import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.ToType;
 import com.lhjz.portal.pojo.FileForm;
 import com.lhjz.portal.repository.FileRepository;
+import com.lhjz.portal.service.FileService;
 import com.lhjz.portal.util.ChineseUtil;
 import com.lhjz.portal.util.ExcelUtil;
 import com.lhjz.portal.util.FileUtil;
@@ -78,6 +84,9 @@ public class FileController extends BaseController {
 
 	@Autowired
 	FileRepository fileRepository;
+
+	@Autowired
+	FileService fileService;
 
 	@RequestMapping(value = "list", method = RequestMethod.POST)
 	@ResponseBody
@@ -233,7 +242,6 @@ public class FileController extends BaseController {
 				log(Action.Upload, Target.File, file2.getId());
 
 			} catch (Exception e) {
-				e.printStackTrace();
 				logger.error(e.getMessage(), e);
 				return RespBody.failed(e.getMessage());
 			}
@@ -315,7 +323,6 @@ public class FileController extends BaseController {
 
 			return RespBody.succeed(file);
 		} catch (Exception e) {
-			e.printStackTrace();
 			logger.error(e.getMessage(), e);
 			return RespBody.failed(e.getMessage());
 		}
@@ -332,7 +339,7 @@ public class FileController extends BaseController {
 				returnFileName = StringUtils.replace(returnFileName, " ", "%20");
 			}
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return returnFileName;
 	}
@@ -349,7 +356,7 @@ public class FileController extends BaseController {
 				response.sendError(404, "下载文件不存在!");
 				return;
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 		}
 
@@ -365,7 +372,7 @@ public class FileController extends BaseController {
 				response.sendError(404, "下载文件不存在!");
 				return;
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 		}
 
@@ -389,7 +396,7 @@ public class FileController extends BaseController {
 				bos.write(buff, 0, bytesRead);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} finally {
 			if (bis != null) {
 				bis.close();
@@ -488,12 +495,12 @@ public class FileController extends BaseController {
 
 		return RespBody.succeed(list);
 	}
-	
+
 	private int maxColWitdh(List<String[]> rows, int colIndex) {
 		logger.debug(String.valueOf(colIndex));
 		return rows.stream().mapToInt(row -> row[colIndex].length()).max().getAsInt();
 	}
-	
+
 	private boolean isMessyCode(List<String[]> rows) {
 		return rows.stream()
 				.anyMatch(row -> Arrays.asList(row).stream().anyMatch(cell -> ChineseUtil.isMessyCode3(cell)));
@@ -551,5 +558,99 @@ public class FileController extends BaseController {
 
 		return StringUtils.join(rows2, "\n") + "\n";
 	}
-	
+
+	@ResponseBody
+	@PostMapping("upload/img")
+	public UploadResult uploadImg(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
+
+		logger.debug("upload img start...");
+
+		try {
+			com.lhjz.portal.entity.File uploadImg = fileService.uploadImg(request, file);
+			return UploadResult.builder().link("/" + uploadImg.getPath() + uploadImg.getUuidName()).build();
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return UploadResult.builder().error(e.getMessage()).build();
+		}
+
+	}
+
+	@ResponseBody
+	@PostMapping("upload/file")
+	public UploadResult uploadFile(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
+
+		logger.debug("upload file start...");
+
+		try {
+			com.lhjz.portal.entity.File uploadFile = fileService.uploadFile(request, file);
+			return UploadResult.builder().link("/admin/file/download/" + uploadFile.getId()).build();
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return UploadResult.builder().error(e.getMessage()).build();
+		}
+
+	}
+
+	@ResponseBody
+	@PostMapping("upload/img/remove")
+	public String uploadImgRemove(@RequestParam("src") String src) {
+
+		logger.debug("upload img remove start...");
+
+		try {
+			fileService.removeImg(src);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		return "Success";
+
+	}
+
+	@ResponseBody
+	@PostMapping("upload/file/remove")
+	public String uploadFileRemove(@RequestParam("src") String src) {
+
+		logger.debug("upload file remove start...");
+
+		try {
+			fileService.removeFile(src);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		return "Success";
+
+	}
+
+	@ResponseBody
+	@GetMapping("upload/img/list")
+	public Object uploadImgList() {
+
+		logger.debug("upload img list start...");
+
+		try {
+			return fileService.listImg().stream().map(img -> {
+				Map<Object, Object> imgs = new HashMap<Object, Object>();
+				imgs.put("url", "/" + img.getPath() + img.getUuidName());
+
+				String storePath = env.getProperty("lhjz.upload.img.store.path");
+				int thumb = env.getProperty("lhjz.upload.img.scale.size.large", Integer.class);
+				//				int thumb = env.getProperty("lhjz.upload.img.scale.size.huge", Integer.class);
+
+				imgs.put("thumb", "/" + storePath + thumb + "/" + img.getUuidName());
+				imgs.put("name", img.getName());
+
+				return imgs;
+			}).collect(Collectors.toList());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		return new ArrayList<>();
+
+	}
+
 }

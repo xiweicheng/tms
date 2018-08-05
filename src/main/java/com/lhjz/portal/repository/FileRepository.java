@@ -9,12 +9,14 @@ import javax.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import com.lhjz.portal.entity.File;
 import com.lhjz.portal.pojo.Enum.FileType;
+import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.ToType;
 
 /**
@@ -49,4 +51,7 @@ public interface FileRepository extends JpaRepository<File, Long> {
 	@Modifying
 	@Query(value = "UPDATE file SET to_type = 'User', to_id = ?1 WHERE id = ?2", nativeQuery = true)
 	int updateFileToUser(String toId, Long id);
+	
+	List<File> findTop40ByTypeAndStatusNot(FileType type, Status status, Sort sort);
+	
 }
