@@ -141,7 +141,7 @@
         if (query) {
             let arr = query.split('id=');
             if (arr.length == 2) {
-                $.get('admin/blog/get', { id: arr[1] }, function(data) {
+                $.get('/admin/blog/get', { id: arr[1] }, function(data) {
                     if (data.success) {
                         blog = data.data;
                         $('#title').val(blog.title);
