@@ -40,6 +40,7 @@
         opacity: 0;*/
         display: none;
     }
+
     .fr-placeholder {
         margin-top: 1px!important;
     }
@@ -63,10 +64,53 @@
     <script>
     $(function() {
         $('#edit').froalaEditor({
-            // enter: $.FroalaEditor.ENTER_BR,
-            enter: $.FroalaEditor.ENTER_DIV,
-            language: 'zh_cn'
-        })
+                // enter: $.FroalaEditor.ENTER_BR,
+                enter: $.FroalaEditor.ENTER_DIV,
+                language: 'zh_cn',
+                fileMaxSize: 1024 * 1024 * 10,
+                imageUploadURL: '/admin/file/upload/img',
+                imageUploadParams: {
+                    toType: 'Blog'
+                },
+                fileUploadURL: '/admin/file/upload/file',
+                fileUploadParams: {
+                    toType: 'Blog'
+                },
+                imageManagerLoadURL: '/admin/file/upload/img/list',
+                imageManagerDeleteURL: "/admin/file/upload/img/remove",
+                imageManagerDeleteMethod: "POST"
+            }) // Catch image removal from the editor.
+            .on('froalaEditor.image.removed', function(e, editor, $img) {
+                $.ajax({
+                        method: "POST",
+                        url: "/admin/file/upload/img/remove",
+                        data: {
+                            src: $img.attr('src')
+                        }
+                    })
+                    .done(function(data) {
+                        console.log('image was deleted');
+                    })
+                    .fail(function(err) {
+                        console.log('image delete problem: ' + JSON.stringify(err));
+                    });
+            })
+            // Catch image removal from the editor.
+            .on('froalaEditor.file.unlink', function(e, editor, link) {
+                $.ajax({
+                        method: "POST",
+                        url: "/admin/file/upload/file/remove",
+                        data: {
+                            src: link.getAttribute('href')
+                        }
+                    })
+                    .done(function(data) {
+                        console.log('file was deleted');
+                    })
+                    .fail(function(err) {
+                        console.log('file delete problem: ' + JSON.stringify(err));
+                    });
+            });
     });
 
     </script>
