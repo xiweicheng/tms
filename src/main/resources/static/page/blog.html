@@ -28,6 +28,7 @@
         width: 81%;
         margin: auto;
         text-align: left;
+        position: relative;
     }
 
     .ss {
@@ -45,12 +46,33 @@
         margin-top: 1px!important;
     }
 
+    .topbar {
+        position: absolute;
+        top: -50px;
+    }
+
+    .topbar>input {
+        width: 300px;
+        font-size: 26px;
+    }
+
+    .topbar>button {
+        font-size: 18px;
+        position: relative;
+        top: -4px;
+    }
+
     </style>
 </head>
 
 <body>
     <div id="editor">
-        <div id='edit' style="margin-top: 30px;"></div>
+        <div class="topbar">
+            <input id="title" type="text" placeholder="标题">
+            <button id="save">保存</button>
+            <span id="msg" style="color: red; padding-left: 16px;"></span>
+        </div>
+        <div id='edit' style="margin-top: 60px;"></div>
     </div>
     <!-- Include jQuery lib. -->
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script> -->
@@ -63,6 +85,9 @@
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/js/languages/zh_cn.js"></script> -->
     <script>
     $(function() {
+
+        var blog = null;
+
         $('#edit').froalaEditor({
                 // enter: $.FroalaEditor.ENTER_BR,
                 enter: $.FroalaEditor.ENTER_DIV,
@@ -111,6 +136,76 @@
                         console.log('file delete problem: ' + JSON.stringify(err));
                     });
             });
+
+        var query = location.search;
+        if (query) {
+            let arr = query.split('id=');
+            if (arr.length == 2) {
+                $.get('admin/blog/get', { id: arr[1] }, function(data) {
+                    if (data.success) {
+                        blog = data.data;
+                        $('#title').val(blog.title);
+                        $('#edit').froalaEditor('html.set', blog.content);
+                    }
+                });
+            }
+        }
+
+        $('#save').click(function(event) {
+
+            var title = $('#title').val();
+            var content = $('#edit').froalaEditor('html.get', true);
+
+            if (!title || !$.trim(title)) {
+                alert('博文标题不能为空！');
+                return;
+            }
+
+            if (!content || !$.trim(content)) {
+                alert('博文内容不能为空！');
+                return;
+            }
+
+            if (blog == null) {
+                $.post('/admin/blog/create', {
+                    url: location.protocol + '//' + location.host + '/page/index.html',
+                    // usernames: '',
+                    // spaceId: '',
+                    title: title,
+                    content: content,
+                    privated: true,
+                    contentHtml: content
+                }, function(data, textStatus, xhr) {
+                    if (data.success) {
+                        blog = data.data;
+                        // alert('博文保存成功！');
+                        $('#msg').html('博文保存成功！');
+                    } else {
+                        // alert('博文保存失败！');
+                        $('#msg').html('博文保存失败！【' + data.data + '】');
+                    }
+                });
+            } else {
+                $.post('/admin/blog/update', {
+                    url: location.protocol + '//' + location.host + '/page/index.html',
+                    id: blog.id,
+                    version: blog.version,
+                    // usernames: '',
+                    // diff: ''
+                    title: title,
+                    content: content
+                }, function(data, textStatus, xhr) {
+                    if (data.success) {
+                        blog = data.data;
+                        // alert('博文更新成功！');
+                        $('#msg').html('博文更新成功！');
+                    } else {
+                        // alert('博文更新失败！');
+                        $('#msg').html('博文更新失败！【' + data.data + '】');
+                    }
+                });
+            }
+        });
     });
 
     </script>
