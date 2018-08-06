@@ -47,6 +47,10 @@
         margin-top: 1px!important;
     }
 
+    #toast-container {
+        z-index: 9999999999!important;
+    }
+
     .topbar {
         position: absolute;
         top: -50px;
@@ -57,15 +61,16 @@
         font-size: 26px;
         box-sizing: border-box;
         box-shadow: none;
+        outline: 0;
     }
 
     .topbar>button {
         font-size: 18px;
         position: relative;
         top: -4px;
-        color: #FFFFFF;
-        box-shadow: none;
-        background: #416dea;
+        /*color: #FFFFFF;*/
+        /*box-shadow: none;*/
+        /*background: #416dea;*/
     }
 
     </style>
@@ -101,7 +106,7 @@
 
         $.FroalaEditor.DefineIcon('save', { NAME: 'save' });
         $.FroalaEditor.RegisterCommand('save', {
-            title: '保存博文',
+            title: '保存博文 (Ctrl+Shift+S)',
             focus: false,
             undo: false,
             refreshAfterCallback: false,
@@ -166,6 +171,11 @@
                         console.log('file delete problem: ' + JSON.stringify(err));
                         toastr && toastr.error(JSON.stringify(err), '文件删除失败！');
                     });
+            }).on('froalaEditor.keydown', function(e, editor, keydownEvent) {
+                // console.log(keydownEvent);
+                if (keydownEvent.ctrlKey && keydownEvent.shiftKey && keydownEvent.keyCode === 83) { // ctrl+shift+s
+                    $('#save').click();
+                }
             });
 
         var query = location.search;
@@ -177,6 +187,8 @@
                         blog = data.data;
                         $('#title').val(blog.title);
                         $('#edit').froalaEditor('html.set', blog.content);
+                    } else {
+                        toastr.error(data.data);
                     }
                 });
             }
@@ -204,6 +216,7 @@
                     // spaceId: '',
                     title: title,
                     content: content,
+                    editor: 'Html',
                     privated: true,
                     contentHtml: content
                 }, function(data, textStatus, xhr) {
@@ -211,7 +224,7 @@
                         blog = data.data;
                         toastr && toastr.success('博文保存成功！');
                     } else {
-                        toastr && toastr.error(data.data, '博文保存失败！');
+                        toastr && toastr.error(data.data);
                     }
                 });
             } else {
@@ -228,7 +241,7 @@
                         blog = data.data;
                         toastr && toastr.success('博文更新成功！');
                     } else {
-                        toastr && toastr.error(data.data, '博文更新失败！');
+                        toastr && toastr.error(data.data);
                     }
                 });
             }
