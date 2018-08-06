@@ -383,7 +383,7 @@ public class BlogController extends BaseController {
 		Blog blog = blogRepository.findOne(id);
 
 		if (blog == null || Status.Deleted.equals(blog.getStatus())) {
-			return RespBody.failed("博文消息不存在或者已经被删除!");
+			return RespBody.failed("博文不存在或者已经被删除!");
 		}
 
 		if (!hasAuth(blog)) {
