@@ -14,6 +14,7 @@
     <!-- Include CSS for icons. -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.css" />
     <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet" type="text/css" /> -->
     <link href="froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />
     <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" /> -->
@@ -54,12 +55,17 @@
     .topbar>input {
         width: 300px;
         font-size: 26px;
+        box-sizing: border-box;
+        box-shadow: none;
     }
 
     .topbar>button {
         font-size: 18px;
         position: relative;
         top: -4px;
+        color: #FFFFFF;
+        box-shadow: none;
+        background: #416dea;
     }
 
     </style>
@@ -69,7 +75,7 @@
     <div id="editor">
         <div class="topbar">
             <input id="title" type="text" placeholder="标题">
-            <button id="save">保存</button>
+            <button class="button -blue" id="save">保存</button>
             <span id="msg" style="color: red; padding-left: 16px;"></span>
         </div>
         <div id='edit' style="margin-top: 60px;"></div>
@@ -79,6 +85,7 @@
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/xml/xml.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
     <!-- Include Editor JS files. -->
     <script type="text/javascript" src="froala_editor.pkgd.min.js"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/js/froala_editor.pkgd.min.js"></script> -->
@@ -88,7 +95,27 @@
 
         var blog = null;
 
+        // toastr弹出消息提示插件全局配置设置
+        toastr.options.positionClass = 'toast-bottom-center';
+        toastr.options.preventDuplicates = true;
+
+        $.FroalaEditor.DefineIcon('save', { NAME: 'save' });
+        $.FroalaEditor.RegisterCommand('save', {
+            title: '保存博文',
+            focus: false,
+            undo: false,
+            refreshAfterCallback: false,
+            callback: function() {
+                $('#save').click();
+            }
+        });
+
         $('#edit').froalaEditor({
+                // toolbarBottom: true,
+                toolbarButtons: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'emoticons', 'inlineStyle', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', '-', 'save', '|', 'insertLink', 'insertImage', 'insertVideo', 'insertFile', 'insertTable', '|', 'quote', 'insertHR', 'undo', 'redo', 'clearFormatting', 'selectAll', 'html'],
+                fontFamilySelection: true,
+                fontSizeSelection: true,
+                paragraphFormatSelection: true,
                 // enter: $.FroalaEditor.ENTER_BR,
                 enter: $.FroalaEditor.ENTER_DIV,
                 language: 'zh_cn',
@@ -115,9 +142,11 @@
                     })
                     .done(function(data) {
                         console.log('image was deleted');
+                        toastr && toastr.success('图片删除成功！');
                     })
                     .fail(function(err) {
                         console.log('image delete problem: ' + JSON.stringify(err));
+                        toastr && toastr.error(JSON.stringify(err), '图片删除失败！');
                     });
             })
             // Catch image removal from the editor.
@@ -131,9 +160,11 @@
                     })
                     .done(function(data) {
                         console.log('file was deleted');
+                        toastr && toastr.success('文件删除成功！');
                     })
                     .fail(function(err) {
                         console.log('file delete problem: ' + JSON.stringify(err));
+                        toastr && toastr.error(JSON.stringify(err), '文件删除失败！');
                     });
             });
 
@@ -157,12 +188,12 @@
             var content = $('#edit').froalaEditor('html.get', true);
 
             if (!title || !$.trim(title)) {
-                alert('博文标题不能为空！');
+                toastr && toastr.error('博文标题不能为空！');
                 return;
             }
 
             if (!content || !$.trim(content)) {
-                alert('博文内容不能为空！');
+                toastr && toastr.error('博文内容不能为空！');
                 return;
             }
 
@@ -178,11 +209,9 @@
                 }, function(data, textStatus, xhr) {
                     if (data.success) {
                         blog = data.data;
-                        // alert('博文保存成功！');
-                        $('#msg').html('博文保存成功！');
+                        toastr && toastr.success('博文保存成功！');
                     } else {
-                        // alert('博文保存失败！');
-                        $('#msg').html('博文保存失败！【' + data.data + '】');
+                        toastr && toastr.error(data.data, '博文保存失败！');
                     }
                 });
             } else {
@@ -197,11 +226,9 @@
                 }, function(data, textStatus, xhr) {
                     if (data.success) {
                         blog = data.data;
-                        // alert('博文更新成功！');
-                        $('#msg').html('博文更新成功！');
+                        toastr && toastr.success('博文更新成功！');
                     } else {
-                        // alert('博文更新失败！');
-                        $('#msg').html('博文更新失败！【' + data.data + '】');
+                        toastr && toastr.error(data.data, '博文更新失败！');
                     }
                 });
             }
