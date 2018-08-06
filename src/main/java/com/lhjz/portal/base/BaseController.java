@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -87,11 +88,11 @@ public abstract class BaseController {
 		}
 
 		if (vals.length > 0) {
-			log.setNewValue(String.valueOf(vals[0]));
+			log.setNewValue(vals[0] != null ? String.valueOf(vals[0]) : StringUtils.EMPTY);
 		}
 
 		if (vals.length > 1) {
-			log.setOldValue(String.valueOf(vals[1]));
+			log.setOldValue(vals[1] != null ? String.valueOf(vals[1]) : StringUtils.EMPTY);
 		}
 
 		log.setCreator(getLoginUser());
