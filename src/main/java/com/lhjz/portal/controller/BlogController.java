@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,7 @@ import com.lhjz.portal.model.PollBlog;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.CommentType;
+import com.lhjz.portal.pojo.Enum.Editor;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
@@ -157,6 +159,7 @@ public class BlogController extends BaseController {
 			@RequestParam(value = "spaceId", required = false) Long spaceId,
 			@RequestParam(value = "privated", required = false) Boolean privated,
 			@RequestParam(value = "opened", required = false) Boolean opened,
+			@RequestParam(value = "editor", required = false) String editor,
 			@RequestParam(value = "usernames", required = false) String usernames, @RequestParam("title") String title,
 			@RequestParam("content") String content, @RequestParam("contentHtml") String contentHtml) {
 
@@ -171,6 +174,10 @@ public class BlogController extends BaseController {
 		Blog blog = new Blog();
 		blog.setTitle(title);
 		blog.setContent(content);
+
+		if (StringUtils.isNotBlank(editor)) {
+			blog.setEditor(Editor.valueOf(editor));
+		}
 
 		if (spaceId != null) {
 			Space space = spaceRepository.findOne(spaceId);

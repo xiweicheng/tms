@@ -94,6 +94,10 @@ public class Enum {
 	public static enum ToType {
 		Channel, User, Blog, Feedback;
 	}
+	
+	public static enum Editor {
+		Markdown, Html;
+	}
 
 	public static enum LinkType {
 		Channel, User, App;

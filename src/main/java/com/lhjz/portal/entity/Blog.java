@@ -33,6 +33,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.BlogType;
+import com.lhjz.portal.pojo.Enum.Editor;
 import com.lhjz.portal.pojo.Enum.Status;
 
 import lombok.Data;
@@ -59,10 +60,15 @@ public class Blog implements Serializable {
 	@GeneratedValue
 	private Long id;
 
+	@Column
 	private String title;
 
 	@Column(length = 16777216)
 	private String content;
+	
+	@Enumerated(EnumType.STRING)
+	@Column
+	private Editor editor;
 
 	@Column
 	private Boolean openEdit = Boolean.FALSE;
