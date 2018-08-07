@@ -54,20 +54,28 @@
     .topbar {
         position: absolute;
         top: -50px;
+        width: 100%;
     }
 
     .topbar>input {
-        width: 300px;
+        /*width: 300px;*/
+        width: 100%;
         font-size: 26px;
         box-sizing: border-box;
-        box-shadow: none;
+        /*box-shadow: none;*/
         outline: 0;
+        border: 0;
+        box-shadow: 0px 1px 0px 0px #dddddd;
+        padding-right: 80px;
     }
 
     .topbar>button {
         font-size: 18px;
-        position: relative;
-        top: -4px;
+        /*position: relative;*/
+        /*top: -4px;*/
+        right: 0;
+        top: 0;
+        position: absolute;
         /*color: #FFFFFF;*/
         /*box-shadow: none;*/
         /*background: #416dea;*/
@@ -117,7 +125,7 @@
 
         $('#edit').froalaEditor({
                 // toolbarBottom: true,
-                toolbarButtons: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'emoticons', 'inlineStyle', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', '-', 'save', '|', 'insertLink', 'insertImage', 'insertVideo', 'insertFile', 'insertTable', '|', 'quote', 'insertHR', 'undo', 'redo', 'clearFormatting', 'selectAll', 'html'],
+                toolbarButtons: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'inlineStyle', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', '-', 'save', '|', 'insertLink', 'insertImage', 'insertVideo', 'insertFile', 'insertTable', 'emoticons', 'specialCharacters', '|', 'quote', 'insertHR', 'undo', 'redo', 'clearFormatting', 'selectAll', 'print', 'help', 'html'],
                 fontFamilySelection: true,
                 fontSizeSelection: true,
                 paragraphFormatSelection: true,
@@ -244,6 +252,12 @@
                         toastr && toastr.error(data.data);
                     }
                 });
+            }
+        });
+
+        $('#title').keyup(function(e) {
+            if (e.keyCode === 13) {
+                $('#edit').froalaEditor('events.focus');
             }
         });
     });
