@@ -374,7 +374,7 @@ public class ChatChannelController extends BaseController {
 			// 保存chatAt关系
 			atUserMap.values().forEach((user) -> {
 
-				ChatAt chatAt2 = chatAtRepository.findOneByChatChannelAndAtUser(chatChannel2, user);
+				ChatAt chatAt2 = chatAtRepository.findOneByChatChannelAndAtUserAndChatReplyNull(chatChannel2, user);
 				if (chatAt2 == null) {
 					ChatAt chatAt = new ChatAt();
 					chatAt.setChatChannel(chatChannel2);

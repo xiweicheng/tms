@@ -43,7 +43,7 @@ public interface ChatAtRepository extends JpaRepository<ChatAt, Long> {
 
 	ChatAt findOneByChatAndAtUser(Chat chat, User atUser);
 	
-	ChatAt findOneByChatChannelAndAtUser(ChatChannel chatChannel, User atUser);
+	ChatAt findOneByChatChannelAndAtUserAndChatReplyNull(ChatChannel chatChannel, User atUser);
 	
 	ChatAt findOneByChatChannelAndChatReplyAndAtUser(ChatChannel chatChannel, ChatReply chatReply, User atUser);
 
