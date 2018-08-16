@@ -25,8 +25,8 @@ import javax.persistence.Version;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.pojo.Enum.Status;
 
-import groovy.transform.ToString;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * 
@@ -37,7 +37,7 @@ import lombok.Data;
  */
 @Entity
 @Data
-@ToString(excludes = { "projects", "translateItems" })
+@ToString(exclude = { "projects", "translateItems" })
 public class Language implements Serializable {
 
 	private static final long serialVersionUID = -4972944149048452619L;

@@ -26,9 +26,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
 
-import groovy.transform.ToString;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * 
@@ -40,7 +40,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Data
 @EqualsAndHashCode(of = { "name" })
-@ToString(excludes = { "languages", "users", "translates", "watchers", "language" })
+@ToString(exclude = { "languages", "users", "translates", "watchers", "language" })
 public class Project implements Serializable, Comparable<Project> {
 
 	private static final long serialVersionUID = -278833537706540131L;
