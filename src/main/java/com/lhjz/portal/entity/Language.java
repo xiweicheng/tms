@@ -25,6 +25,7 @@ import javax.persistence.Version;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.pojo.Enum.Status;
 
+import groovy.transform.ToString;
 import lombok.Data;
 
 /**
@@ -36,6 +37,7 @@ import lombok.Data;
  */
 @Entity
 @Data
+@ToString(excludes = { "projects", "translateItems" })
 public class Language implements Serializable {
 
 	private static final long serialVersionUID = -4972944149048452619L;
@@ -65,10 +67,10 @@ public class Language implements Serializable {
 	@ManyToMany
 	@JoinTable(name = "language_project", joinColumns = { @JoinColumn(name = "language_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "project_id") })
-	private Set<Project> projects = new HashSet<Project>();
+	private Set<Project> projects = new HashSet<>();
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "language")
-	private Set<TranslateItem> translateItems = new HashSet<TranslateItem>();
+	private Set<TranslateItem> translateItems = new HashSet<>();
 
 }
