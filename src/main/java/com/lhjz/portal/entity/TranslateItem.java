@@ -25,9 +25,9 @@ import javax.persistence.Version;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.pojo.Enum.Status;
 
-import groovy.transform.ToString;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * 
@@ -39,7 +39,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Data
 @EqualsAndHashCode(of = { "id" })
-@ToString(excludes = { "translate", "language", "translateItemHistories" })
+@ToString(exclude = { "translate", "language", "translateItemHistories" })
 public class TranslateItem implements Serializable {
 
 	private static final long serialVersionUID = -7590249673888211416L;
