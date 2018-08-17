@@ -99,6 +99,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/xml/xml.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-url/2.5.3/url.min.js"></script>
     <!-- Include Editor JS files. -->
     <script type="text/javascript" src="froala_editor.pkgd.min.js"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/js/froala_editor.pkgd.min.js"></script> -->
@@ -186,20 +187,22 @@
                 }
             });
 
-        var query = location.search;
-        if (query) {
-            let arr = query.split('id=');
-            if (arr.length == 2) {
-                $.get('/admin/blog/get', { id: arr[1] }, function(data) {
-                    if (data.success) {
+        var id = url('?id');
+        if (id) {
+            $.get('/admin/blog/get', { id: id }, function(data) {
+                if (data.success) {
+                    if (typeof url('?copy') === 'undefined') { // edit
                         blog = data.data;
-                        $('#title').val(blog.title);
-                        $('#edit').froalaEditor('html.set', blog.content);
+                        $('#title').val(data.data.title);
                     } else {
-                        toastr.error(data.data);
+                        $('#title').val(data.data.title + ' (副本)');
                     }
-                });
-            }
+
+                    $('#edit').froalaEditor('html.set', data.data.content);
+                } else {
+                    toastr.error(data.data);
+                }
+            });
         }
 
         $('#save').click(function(event) {
