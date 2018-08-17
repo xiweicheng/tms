@@ -20,6 +20,10 @@ import javax.persistence.Version;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.pojo.Enum.Status;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 /**
  * 
  * @author xi
@@ -28,6 +32,9 @@ import com.lhjz.portal.pojo.Enum.Status;
  * 
  */
 @Entity
+@Data
+@EqualsAndHashCode(of = { "id" })
+@ToString(exclude = { "translate", "chat" })
 public class Label implements Serializable {
 
 	/** serialVersionUID (long) */
@@ -63,105 +70,9 @@ public class Label implements Serializable {
 	@JsonIgnore
 	@ManyToOne
 	private Translate translate;
-	
+
 	@JsonIgnore
 	@ManyToOne
 	private Chat chat;
-
-	public Translate getTranslate() {
-		return translate;
-	}
-
-	public void setTranslate(Translate translate) {
-		this.translate = translate;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getCreator() {
-		return creator;
-	}
-
-	public void setCreator(String creator) {
-		this.creator = creator;
-	}
-
-	public String getUpdater() {
-		return updater;
-	}
-
-	public void setUpdater(String updater) {
-		this.updater = updater;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public Date getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-
-	public Date getUpdateDate() {
-		return updateDate;
-	}
-
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
-	}
-
-	public long getVersion() {
-		return version;
-	}
-
-	public void setVersion(long version) {
-		this.version = version;
-	}
-	
-	public Chat getChat() {
-		return chat;
-	}
-
-	public void setChat(Chat chat) {
-		this.chat = chat;
-	}
-	
-	@Override
-	public String toString() {
-		return "Label [id=" + id + ", name=" + name + ", description="
-				+ description + ", creator=" + creator + ", updater=" + updater
-				+ ", status=" + status + ", createDate=" + createDate
-				+ ", updateDate=" + updateDate + ", version=" + version + "]";
-	}
 
 }
