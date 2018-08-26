@@ -1223,8 +1223,8 @@ public class BlogController extends BaseController {
 		String dnFileName = null;
 		String dnFileLength = null;
 		File dnFile = null;
-		if("md".equalsIgnoreCase(type)) {
-			dnFileName = blog.getTitle().trim() + ".md";
+		if("md".equalsIgnoreCase(type) || "html".equalsIgnoreCase(type)) {
+			dnFileName = blog.getTitle().trim() + "." + type;
 			dnFileLength = String.valueOf(fileMd.length());
 			dnFile = fileMd;
 		} else {
