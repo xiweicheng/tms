@@ -22,12 +22,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Channel;
+import com.lhjz.portal.entity.Dir;
 import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.SpaceAuthority;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.repository.ChannelRepository;
+import com.lhjz.portal.repository.DirRepository;
 import com.lhjz.portal.repository.SpaceAuthorityRepository;
 import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.UserRepository;
@@ -49,12 +51,15 @@ public class SpaceController extends BaseController {
 
 	@Autowired
 	SpaceRepository spaceRepository;
-	
+
 	@Autowired
 	ChannelRepository channelRepository;
-	
+
 	@Autowired
 	SpaceAuthorityRepository spaceAuthorityRepository;
+
+	@Autowired
+	DirRepository dirRepository;
 
 	@Autowired
 	UserRepository userRepository;
@@ -131,13 +136,13 @@ public class SpaceController extends BaseController {
 		}
 		if (privated != null) {
 			space.setPrivated(privated);
-			if(privated) {
+			if (privated) {
 				space.setOpened(false);
 			}
 		}
 		if (opened != null) {
 			space.setOpened(opened);
-			if(opened) {
+			if (opened) {
 				space.setPrivated(false);
 			}
 		}
@@ -156,7 +161,7 @@ public class SpaceController extends BaseController {
 		if (!isSuperOrCreator(space.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限删除该空间!");
 		}
-		
+
 		boolean exist = space.getBlogs().stream().anyMatch(s -> !Status.Deleted.equals(s.getStatus()));
 		if (exist) {
 			return RespBody.failed("该空间下存在博文,不能删除,请移除博文后再试!");
@@ -182,9 +187,9 @@ public class SpaceController extends BaseController {
 
 		return RespBody.succeed(spaces);
 	}
-	
+
 	private boolean hasAuth(Space s) {
-		
+
 		if (s == null) {
 			return false;
 		}
@@ -196,15 +201,15 @@ public class SpaceController extends BaseController {
 		if (s.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
 			return false;
 		}
-		
+
 		User loginUser = new User(WebUtil.getUsername());
 
 		// 过滤掉没有权限的
 		if (s.getCreator().equals(loginUser)) { // 我创建的
 			return true;
 		}
-		
-		if(Boolean.TRUE.equals(s.getOpened())) {
+
+		if (Boolean.TRUE.equals(s.getOpened())) {
 			return true;
 		}
 
@@ -231,7 +236,7 @@ public class SpaceController extends BaseController {
 
 		return exists;
 	}
-	
+
 	@RequestMapping(value = "listMy", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody listMy() {
@@ -241,7 +246,7 @@ public class SpaceController extends BaseController {
 
 		return RespBody.succeed(spaces);
 	}
-	
+
 	@RequestMapping(value = "auth/get", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody getAuth(@RequestParam("id") Long id) {
@@ -251,7 +256,7 @@ public class SpaceController extends BaseController {
 		}
 		return RespBody.succeed(space.getSpaceAuthorities());
 	}
-	
+
 	@RequestMapping(value = "auth/add", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody addAuth(@RequestParam("id") Long id,
@@ -293,12 +298,12 @@ public class SpaceController extends BaseController {
 
 		List<SpaceAuthority> list = spaceAuthorityRepository.save(spaceAuthorities);
 		spaceAuthorityRepository.flush();
-		
+
 		space.getSpaceAuthorities().addAll(list);
 
 		return RespBody.succeed(space);
 	}
-	
+
 	@RequestMapping(value = "auth/remove", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody removeAuth(@RequestParam("id") Long id,
@@ -310,14 +315,14 @@ public class SpaceController extends BaseController {
 		}
 
 		List<SpaceAuthority> list = new ArrayList<>();
-		
+
 		Collection<Channel> channelC = new ArrayList<>();
 		if (StringUtil.isNotEmpty(channels)) {
 			Stream.of(channels.split(",")).forEach(c -> {
 				Channel ch = new Channel();
 				ch.setId(Long.valueOf(c));
 				channelC.add(ch);
-				
+
 				SpaceAuthority sa = new SpaceAuthority();
 				sa.setSpace(space);
 				sa.setChannel(ch);
@@ -330,14 +335,14 @@ public class SpaceController extends BaseController {
 				User user = new User();
 				user.setUsername(u);
 				userC.add(user);
-				
+
 				SpaceAuthority sa = new SpaceAuthority();
 				sa.setSpace(space);
 				sa.setUser(user);
 				list.add(sa);
 			});
 		}
-		
+
 		if (channelC.size() > 0 && userC.size() > 0) {
 			spaceAuthorityRepository.removeAuths(space, channelC, userC);
 		} else {
@@ -347,12 +352,88 @@ public class SpaceController extends BaseController {
 				spaceAuthorityRepository.removeUserAuths(space, userC);
 			}
 		}
-		
+
 		spaceAuthorityRepository.flush();
-		
+
 		space.getSpaceAuthorities().removeAll(list);
 
 		return RespBody.succeed(space);
 	}
 
+	@RequestMapping(value = "dir/create", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody createDir(@RequestParam("sid") Long sid, @RequestParam("name") String name) {
+
+		Space space = spaceRepository.findOne(sid);
+
+		if (space == null) {
+			return RespBody.failed("对应空间不存在！");
+		}
+
+		if (!hasAuth(space)) {
+			return RespBody.failed("权限不足！");
+		}
+
+		Dir dir = dirRepository.findTop1BySpaceAndNameAndStatus(space, name, Status.Normal);
+
+		if (dir != null) {
+			return RespBody.failed("同名分类已经存在！");
+		}
+
+		Dir dir2 = new Dir();
+		dir2.setName(name);
+		dir2.setSpace(space);
+
+		Dir dir3 = dirRepository.saveAndFlush(dir2);
+
+		return RespBody.succeed(dir3);
+	}
+
+	@RequestMapping(value = "dir/update", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody updateDir(@RequestParam("id") Long id, @RequestParam("name") String name) {
+
+		Dir dir = dirRepository.findOne(id);
+
+		if (dir == null) {
+			return RespBody.failed("对应分类不存在！");
+		}
+
+		if (!hasAuth(dir.getSpace())) {
+			return RespBody.failed("权限不足！");
+		}
+
+		Dir dir2 = dirRepository.findTop1BySpaceAndNameAndStatus(dir.getSpace(), name, Status.Normal);
+
+		if (dir2 != null) {
+			return RespBody.failed("同名分类已经存在！");
+		}
+
+		dir.setName(name);
+
+		Dir dir3 = dirRepository.saveAndFlush(dir);
+
+		return RespBody.succeed(dir3);
+	}
+	
+
+	@RequestMapping(value = "dir/delete", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody deleteDir(@RequestParam("id") Long id) {
+
+		Dir dir = dirRepository.findOne(id);
+
+		if (dir == null) {
+			return RespBody.failed("对应分类不存在！");
+		}
+
+		if (!hasAuth(dir.getSpace())) {
+			return RespBody.failed("权限不足！");
+		}
+
+		dir.setStatus(Status.Deleted);
+		Dir dir2 = dirRepository.saveAndFlush(dir);
+
+		return RespBody.succeed(dir2);
+	}
 }

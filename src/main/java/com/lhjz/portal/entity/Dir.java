@@ -5,22 +5,16 @@ package com.lhjz.portal.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
@@ -31,9 +25,8 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.entity.security.User;
-import com.lhjz.portal.pojo.Enum.BlogType;
-import com.lhjz.portal.pojo.Enum.Editor;
 import com.lhjz.portal.pojo.Enum.Status;
 
 import lombok.Data;
@@ -50,28 +43,18 @@ import lombok.ToString;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@ToString(exclude = { "blogAuthorities", "tags" })
-@EqualsAndHashCode(of = "id")
-public class Blog implements Serializable {
+@EqualsAndHashCode(of = { "id" })
+@ToString(exclude = { "creator", "updater", "space" })
+public class Dir implements Serializable {
 
-	private static final long serialVersionUID = -2895818776405578846L;
+	private static final long serialVersionUID = -8596211318939505124L;
 
 	@Id
 	@GeneratedValue
 	private Long id;
 
 	@Column
-	private String title;
-
-	@Column(length = 16777216)
-	private String content;
-
-	@Enumerated(EnumType.STRING)
-	@Column
-	private Editor editor;
-
-	@Column
-	private Boolean openEdit = Boolean.FALSE;
+	private String name;
 
 	@Column
 	private Boolean privated = Boolean.FALSE;
@@ -80,8 +63,9 @@ public class Blog implements Serializable {
 	private Boolean opened = Boolean.FALSE;
 
 	@ManyToOne
-	@JoinColumn(name = "dir")
-	private Dir dir;
+	@JoinColumn(name = "space_id")
+	@JsonIgnore
+	private Space space;
 
 	@ManyToOne
 	@JoinColumn(name = "creator")
@@ -103,35 +87,9 @@ public class Blog implements Serializable {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private Status status = Status.New;
-
-	@Enumerated(EnumType.STRING)
-	@Column
-	private BlogType type = BlogType.Own;
-
-	@Column(length = 16777216)
-	private String voteZan;
-
-	@Column(length = 16777216)
-	private String voteCai;
-
-	private Integer voteZanCnt;
-
-	private Integer voteCaiCnt;
-
-	private Long readCnt;
-
-	@ManyToOne
-	@JoinColumn(name = "space")
-	private Space space;
-
-	@OneToMany(mappedBy = "blog", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-	private Set<BlogAuthority> blogAuthorities = new HashSet<>();
+	private Status status = Status.Normal;
 
 	@Version
 	private long version;
-
-	@ManyToMany(mappedBy = "blogs", fetch = FetchType.EAGER)
-	private Set<Tag> tags = new HashSet<Tag>();
 
 }

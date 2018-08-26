@@ -92,10 +92,14 @@ public class Space implements Serializable {
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "space")
-	Set<Blog> blogs = new HashSet<Blog>();
+	private Set<Blog> blogs = new HashSet<Blog>();
 	
 	@OneToMany(mappedBy = "space", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	private Set<SpaceAuthority> spaceAuthorities = new HashSet<>();
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "space", fetch = FetchType.EAGER)
+	private Set<Dir> dirs = new HashSet<Dir>();
 
 	@Version
 	private long version;
@@ -210,6 +214,14 @@ public class Space implements Serializable {
 
 	public void setOpened(Boolean opened) {
 		this.opened = opened;
+	}
+
+	public Set<Dir> getDirs() {
+		return dirs;
+	}
+
+	public void setDirs(Set<Dir> dirs) {
+		this.dirs = dirs;
 	}
 
 	@Override

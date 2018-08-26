@@ -40,6 +40,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -56,6 +57,7 @@ import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.Comment;
+import com.lhjz.portal.entity.Dir;
 import com.lhjz.portal.entity.Log;
 import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.SpaceAuthority;
@@ -79,6 +81,7 @@ import com.lhjz.portal.repository.BlogStowRepository;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.CommentRepository;
+import com.lhjz.portal.repository.DirRepository;
 import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.TagRepository;
@@ -147,6 +150,9 @@ public class BlogController extends BaseController {
 	@Autowired
 	TagRepository tagRepository;
 
+	@Autowired
+	DirRepository dirRepository;
+	
 	@Autowired
 	MailSender mailSender;
 	
@@ -1814,6 +1820,36 @@ public class BlogController extends BaseController {
 		List<Tag> tags = tagRepository.findByCreator(getLoginUser());
 		
 		return RespBody.succeed(tags);
+	}
+	
+	@PostMapping("dir/update")
+	@ResponseBody
+	public RespBody updateDir(@RequestParam("id") Long id, @RequestParam(value = "did", required = false) Long did) {
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (blog == null) {
+			return RespBody.failed("对应博文不存在！");
+		}
+
+		if (!hasAuth(blog)) {
+			return RespBody.failed("权限不足！");
+		}
+
+		Dir dir = null;
+		if (did != null) {
+			dir = dirRepository.findOne(did);
+
+			if (dir == null) {
+				return RespBody.failed("对应分类不存在！");
+			}
+		}
+
+		blog.setDir(dir);
+
+		blogRepository.saveAndFlush(blog);
+
+		return RespBody.succeed(blog);
 	}
 
 }
