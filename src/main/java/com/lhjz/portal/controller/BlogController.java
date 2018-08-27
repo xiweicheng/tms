@@ -163,6 +163,7 @@ public class BlogController extends BaseController {
 	@ResponseBody
 	public RespBody create(@RequestParam("url") String url,
 			@RequestParam(value = "spaceId", required = false) Long spaceId,
+			@RequestParam(value = "dirId", required = false) Long dirId,
 			@RequestParam(value = "privated", required = false) Boolean privated,
 			@RequestParam(value = "opened", required = false) Boolean opened,
 			@RequestParam(value = "editor", required = false) String editor,
@@ -191,6 +192,14 @@ public class BlogController extends BaseController {
 				return RespBody.failed("指定空间不存在!");
 			}
 			blog.setSpace(space);
+		}
+		
+		if (dirId != null) {
+			Dir dir = dirRepository.findOne(dirId);
+			if (dir == null) {
+				return RespBody.failed("指定分类不存在!");
+			}
+			blog.setDir(dir);
 		}
 
 		if (privated != null) {
@@ -1005,7 +1014,8 @@ public class BlogController extends BaseController {
 
 	@RequestMapping(value = "space/update", method = RequestMethod.POST)
 	@ResponseBody
-	public RespBody updateSpace(@RequestParam("id") Long id, @RequestParam(value = "sid", required = false) Long sid) {
+	public RespBody updateSpace(@RequestParam("id") Long id, @RequestParam(value = "sid", required = false) Long sid,
+			@RequestParam(value = "did", required = false) Long did) {
 
 		Blog blog = blogRepository.findOne(id);
 
@@ -1014,8 +1024,10 @@ public class BlogController extends BaseController {
 		}
 
 		Space space = sid != null ? spaceRepository.findOne(sid) : null;
-		
 		blog.setSpace(space);
+
+		Dir dir = did != null ? dirRepository.findOne(did) : null;
+		blog.setDir(dir);
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 

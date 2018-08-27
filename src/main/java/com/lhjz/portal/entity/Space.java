@@ -97,7 +97,6 @@ public class Space implements Serializable {
 	@OneToMany(mappedBy = "space", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	private Set<SpaceAuthority> spaceAuthorities = new HashSet<>();
 	
-	@JsonIgnore
 	@OneToMany(mappedBy = "space", fetch = FetchType.EAGER)
 	private Set<Dir> dirs = new HashSet<Dir>();
 
