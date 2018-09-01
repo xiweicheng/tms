@@ -435,7 +435,10 @@ public class UserController extends BaseController {
 			return RespBody.failed("内置用户,不能删除!");
 		}
 
-		userRepository.delete(user);
+		user.setEnabled(false);
+		user.setStatus(Status.Deleted);
+
+		userRepository.saveAndFlush(user);
 
 		log(Action.Delete, Target.User, user.getUsername(), user);
 

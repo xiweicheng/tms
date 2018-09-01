@@ -46,7 +46,7 @@
                         <th sec:authorize="hasRole('ROLE_ADMIN')">处理</th>
                     </thead>
                     <tbody th:remove="all-but-first">
-                        <tr th:each="user : ${users}" th:attr="data-id=${user.username}">
+                        <tr th:each="user : ${users}" th:attr="data-id=${user.username}" th:if="${not #strings.equals(user.status, 'Deleted')}">
                             <td class="pp" th:title="${#strings.isEmpty(user.name) ? user.name : ''}" th:text="${user.username}">username</td>
                             <td th:text="${user.name}">管理员</td>
                             <td th:text="${user.mails}">test@test.com</td>
