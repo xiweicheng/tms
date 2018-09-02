@@ -25,6 +25,7 @@ import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.pojo.Enum.JenkinsStatus;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.ChatChannelService;
@@ -76,14 +77,25 @@ public class ApiController extends BaseController {
 		String name = JsonPath.read(reqBody, "$.name");
 		String status = JsonPath.read(reqBody, "$.build.status");
 		String phase = JsonPath.read(reqBody, "$.build.phase");
-		String fullUrl = JsonPath.read(reqBody, "$.build.full_url");
+		long timestamp = JsonPath.read(reqBody, "$.build.timestamp");
+		String fullUrl = "";
+		try {
+			fullUrl = JsonPath.read(reqBody, "$.build.full_url");
+		} catch (Exception e) {
+			fullUrl = JsonPath.read(reqBody, "$.build.url");
+		}
 
 		StringBuffer sb = new StringBuffer();
 		sb.append("## Jenkins任务发版状态报告").append(SysConstant.NEW_LINE);
 		sb.append("> **任务名称:** ").append(name).append(SysConstant.NEW_LINE);
 		sb.append("> **任务URL:** ").append(fullUrl).append(SysConstant.NEW_LINE);
 		sb.append("> **任务阶段:** ").append(phase).append(SysConstant.NEW_LINE);
-		sb.append("> **任务状态:** ").append(status).append(SysConstant.NEW_LINE);
+		sb.append("> **任务时间:** ").append(DateUtil.format(new Date(timestamp), DateUtil.FORMAT1))
+				.append(SysConstant.NEW_LINE);
+		JenkinsStatus sts = JenkinsStatus.valueOf(status);
+		String icon = sts.equals(JenkinsStatus.SUCCESS) ? "<i class=\"large green check circle icon\"></i>"
+				: "<i class=\"large red remove circle icon\"></i>";
+		sb.append("> **任务状态:** ").append(icon).append(sts).append(SysConstant.NEW_LINE);
 
 		if (StringUtil.isNotEmpty(web)) {
 			sb.append("> ").append(SysConstant.NEW_LINE);

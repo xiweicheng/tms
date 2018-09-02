@@ -122,6 +122,31 @@ public class Enum {
 	public static enum ScheduleKnowStatus {
 		Yes, No;
 	}
+	
+	public static enum JenkinsStatus {
+
+		SUCCESS("成功"), FAILURE("失败");
+
+		private String name;
+
+		private JenkinsStatus(String name) {
+			this.name = name;
+		}
+
+		@JsonValue
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return String.valueOf(name);
+		}
+	}
 
 	public static enum Code {
 		Created(200), Readed(201), Updated(202), Deleted(203);
