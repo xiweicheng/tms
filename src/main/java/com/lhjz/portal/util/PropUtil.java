@@ -138,13 +138,10 @@ public final class PropUtil {
 		log.debug("保存配置键值对");
 
 		properties.setProperty(key, val);
-		// logger.debug(PropUtil.class.getResource("/writable.properties"));
-		// logger.debug(PropUtil.class.getResource("/writable.properties").getPath());
 
-		try {
-			properties.store(
-					new FileOutputStream(new File(PropUtil.class.getResource("/writable.properties").toURI())),
-					"系统可读写配置");
+		try (FileOutputStream fos = new FileOutputStream(
+				new File(PropUtil.class.getResource("/writable.properties").toURI()))) {
+			properties.store(fos, "系统可读写配置");
 			return true;
 		} catch (URISyntaxException | IOException e) {
 			log.error(e.getMessage(), e);

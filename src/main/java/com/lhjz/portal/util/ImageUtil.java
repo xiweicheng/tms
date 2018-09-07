@@ -775,18 +775,19 @@ public final class ImageUtil {
 	 * @throws IOException
 	 */
 	public static String getImageType(String path) throws IOException {
-		FileInputStream fis = new FileInputStream(path);
-
-		int leng = fis.available();
-		BufferedInputStream buff = new BufferedInputStream(fis);
-		byte[] mapObj = new byte[leng];
-		buff.read(mapObj, 0, leng);
 
 		String type = "";
 		ByteArrayInputStream bais = null;
 		MemoryCacheImageInputStream mcis = null;
+		BufferedInputStream buff = null;
 
-		try {
+		try (FileInputStream fis = new FileInputStream(path)) {
+
+			int leng = fis.available();
+			buff = new BufferedInputStream(fis);
+			byte[] mapObj = new byte[leng];
+			buff.read(mapObj, 0, leng);
+
 			bais = new ByteArrayInputStream(mapObj);
 			mcis = new MemoryCacheImageInputStream(bais);
 			Iterator<ImageReader> itr = ImageIO.getImageReaders(mcis);
@@ -900,10 +901,10 @@ public final class ImageUtil {
 				}
 			}
 			// 生成jpeg图片
-			OutputStream out = new FileOutputStream(imgFilePath);
-			out.write(b);
-			out.flush();
-			out.close();
+			try (OutputStream out = new FileOutputStream(imgFilePath)) {
+				out.write(b);
+				out.flush();
+			}
 			return true;
 		} catch (Exception e) {
 			return false;
