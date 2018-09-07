@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * classpath:writable.properties配置读写操作.
@@ -19,11 +19,10 @@ import org.apache.log4j.Logger;
  * @version 1.0
  * 
  */
+@Slf4j
 public final class PropUtil {
 
 	public static Properties properties;
-
-	private static Logger logger = Logger.getLogger(PropUtil.class);
 
 	static {
 		properties = new Properties();
@@ -33,15 +32,13 @@ public final class PropUtil {
 			inputStream = PropUtil.class.getClassLoader().getResourceAsStream("writable.properties");
 			properties.load(inputStream);
 		} catch (IOException e) {
-			e.printStackTrace();
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		} finally {
 			if (inputStream != null) {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
-					logger.error(e.getMessage(), e);
+					log.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -68,15 +65,13 @@ public final class PropUtil {
 
 			return properties.getProperty(key, defaultVal);
 		} catch (IOException e) {
-			e.printStackTrace();
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		} finally {
 			if (inputStream != null) {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
-					logger.error(e.getMessage(), e);
+					log.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -140,7 +135,7 @@ public final class PropUtil {
 	 */
 	public static boolean save(String key, String val) {
 
-		logger.debug("保存配置键值对");
+		log.debug("保存配置键值对");
 
 		properties.setProperty(key, val);
 		// logger.debug(PropUtil.class.getResource("/writable.properties"));
@@ -152,8 +147,7 @@ public final class PropUtil {
 					"系统可读写配置");
 			return true;
 		} catch (URISyntaxException | IOException e) {
-			e.printStackTrace();
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 
 		return false;

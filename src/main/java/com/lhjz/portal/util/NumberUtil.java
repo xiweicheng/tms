@@ -8,6 +8,8 @@ import java.text.NumberFormat;
 import java.util.Map;
 import java.util.Random;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 数字处理工具类.
  * 
@@ -18,14 +20,11 @@ import java.util.Random;
  * @version 1.0
  * 
  */
+@Slf4j
 public final class NumberUtil {
 
 	/** EMPTY [String] */
 	public static final String EMPTY = "";
-
-	public static NumberFormat format = new DecimalFormat("0");
-
-	public static NumberFormat format2 = new DecimalFormat("0.00");
 
 	public static Random random = new Random();
 
@@ -40,6 +39,7 @@ public final class NumberUtil {
 	 * @return
 	 */
 	public static String formatDouble(double value) {
+		NumberFormat format = new DecimalFormat("0");
 		return format.format(value);
 	}
 
@@ -50,6 +50,7 @@ public final class NumberUtil {
 	 * @return
 	 */
 	public static String format2Money(double value) {
+		NumberFormat format2 = new DecimalFormat("0.00");
 		return format2.format(value);
 	}
 
@@ -67,7 +68,7 @@ public final class NumberUtil {
 			}
 			return Integer.valueOf(value.toString());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return null;
 		}
 
@@ -87,7 +88,7 @@ public final class NumberUtil {
 			}
 			return Double.valueOf(value.toString());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return null;
 		}
 
@@ -107,7 +108,7 @@ public final class NumberUtil {
 			}
 			return Long.valueOf(value.toString());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return null;
 		}
 
@@ -226,7 +227,7 @@ public final class NumberUtil {
 			}
 			return Short.valueOf(value.toString());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return null;
 		}
 

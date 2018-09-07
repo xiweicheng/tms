@@ -23,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -32,6 +31,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 
+import lombok.extern.slf4j.Slf4j;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
@@ -46,6 +46,7 @@ import sun.misc.BASE64Encoder;
  * 
  */
 @SuppressWarnings("restriction")
+@Slf4j
 public final class ImageUtil {
 
 	private static final int IMAGE_SIZE = 120;
@@ -79,7 +80,7 @@ public final class ImageUtil {
 			ato.filter(bis, bid);
 			ImageIO.write(bid, " jpeg ", fo);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(
 					" Failed in create preview image. Error:  "
 							+ e.getMessage());
@@ -133,7 +134,7 @@ public final class ImageUtil {
 			g.dispose();
 			ImageIO.write(tag, "JPEG", new File(result));// 输出到文件流
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -198,7 +199,7 @@ public final class ImageUtil {
 			}
 			ImageIO.write((BufferedImage) itemp, "JPEG", new File(result));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -245,7 +246,7 @@ public final class ImageUtil {
 				ImageIO.write(tag, "JPEG", new File(result));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -324,7 +325,7 @@ public final class ImageUtil {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -403,7 +404,7 @@ public final class ImageUtil {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -427,7 +428,7 @@ public final class ImageUtil {
 			BufferedImage src = ImageIO.read(f);
 			ImageIO.write(src, formatName, new File(destImageFile));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -448,7 +449,7 @@ public final class ImageUtil {
 			src = op.filter(src, null);
 			ImageIO.write(src, "JPEG", new File(destImageFile));
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -500,7 +501,7 @@ public final class ImageUtil {
 			ImageIO.write((BufferedImage) image, "JPEG",
 					new File(destImageFile));// 输出到文件流
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -552,7 +553,7 @@ public final class ImageUtil {
 			ImageIO.write((BufferedImage) image, "JPEG",
 					new File(destImageFile));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -597,7 +598,7 @@ public final class ImageUtil {
 			ImageIO.write((BufferedImage) image, "JPEG",
 					new File(destImageFile));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -657,7 +658,7 @@ public final class ImageUtil {
 			g.dispose();
 			ImageIO.write((BufferedImage) image, "jpg", img);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -705,7 +706,7 @@ public final class ImageUtil {
 			g.dispose();
 			ImageIO.write((BufferedImage) image, "jpg", img);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -759,7 +760,7 @@ public final class ImageUtil {
 			}
 			ImageIO.write((BufferedImage) itemp, "jpg", f);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -806,7 +807,7 @@ public final class ImageUtil {
 				try {
 					buff.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 				}
 			}
 			if (bais != null) {
@@ -873,14 +874,12 @@ public final class ImageUtil {
 			BufferedImage bufferedImage = ImageIO.read(imageFile);
 			outputStream = new ByteArrayOutputStream();
 			ImageIO.write(bufferedImage, "jpg", outputStream);
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
 		// 对字节数组Base64编码
 		BASE64Encoder encoder = new BASE64Encoder();
-		return encoder.encode(outputStream.toByteArray());// 返回Base64编码过的字节数组字符串
+		return outputStream != null ? encoder.encode(outputStream.toByteArray()) : StringUtil.EMPTY; // 返回Base64编码过的字节数组字符串
 	}
 
 	// base64字符串转化成图片
