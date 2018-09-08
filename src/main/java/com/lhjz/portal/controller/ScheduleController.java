@@ -74,8 +74,8 @@ public class ScheduleController extends BaseController {
 
 	private void wsSend(String username, Schedule schedule, Cmd cmd) {
 		try {
-			messagingTemplate.convertAndSendToUser(username, "/channel/schedule",
-					SchedulePayload.builder().cmd(cmd).id(schedule.getId()).creator(WebUtil.getUsername()).build());
+			messagingTemplate.convertAndSendToUser(username, "/channel/schedule", SchedulePayload.builder().cmd(cmd)
+					.id(schedule.getId()).title(schedule.getTitle()).creator(WebUtil.getUsername()).build());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
