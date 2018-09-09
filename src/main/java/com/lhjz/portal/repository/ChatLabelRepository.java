@@ -15,6 +15,7 @@ import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.ChatLabel;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.pojo.Enum.Status;
 
 /**
  * 
@@ -25,7 +26,7 @@ import com.lhjz.portal.entity.security.User;
  */
 public interface ChatLabelRepository extends JpaRepository<ChatLabel, Long> {
 
-	ChatLabel findOneByNameAndChatChannel(String name, ChatChannel chatChannel);
+	ChatLabel findOneByNameAndChatChannelAndStatusNot(String name, ChatChannel chatChannel, Status status);
 
 	ChatLabel findOneByNameAndChatDirect(String name, ChatDirect chatDirect);
 

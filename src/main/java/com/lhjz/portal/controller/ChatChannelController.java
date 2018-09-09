@@ -1031,7 +1031,7 @@ public class ChatChannelController extends BaseController {
 			return RespBody.failed("标签关联频道消息不存在!");
 		}
 
-		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatChannel(name, chatChannel);
+		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatChannelAndStatusNot(name, chatChannel, Status.Deleted);
 
 		User loginUser = getLoginUser();
 		ChatLabelType chatLabelType = ChatLabelType.valueOf(type);
