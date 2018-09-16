@@ -5,6 +5,7 @@ package com.lhjz.portal.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -499,14 +499,21 @@ public class UserController extends BaseController {
 	public RespBody getOnlineUsers() {
 
 		List<OnlineUser> users = Lists.newArrayList();
+		Set<String> usernames = new HashSet<>();
+
 		try {
 			@SuppressWarnings("unchecked")
 			ConcurrentHashMap<Object, Object> cache = (ConcurrentHashMap<Object, Object>) cacheManager
 					.getCache(SysConstant.ONLINE_USERS).getNativeCache();
 
 			cache.forEachKey(1, key -> {
-				users.add(new OnlineUser(String.valueOf(key),
-						(Date) cacheManager.getCache(SysConstant.ONLINE_USERS).get(key).get()));
+				String username = String.valueOf(key).split("@")[0];
+				if (!usernames.contains(username)) {
+					usernames.add(username);
+					users.add(new OnlineUser(username,
+							(Date) cacheManager.getCache(SysConstant.ONLINE_USERS).get(key).get()));
+				}
+
 			});
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -516,16 +523,38 @@ public class UserController extends BaseController {
 	}
 
 	private void setOnlineStatus(User user) {
-		ValueWrapper valueWrapper = cacheManager.getCache(SysConstant.ONLINE_USERS).get(user.getUsername());
-		if (valueWrapper != null && valueWrapper.get() != null) {
+		Object obj = online(user);
+		if (obj != null) {
 			user.setOnlineStatus(OnlineStatus.Online);
-			user.setOnlineDate((Date) valueWrapper.get());
+			user.setOnlineDate((Date) obj);
 		} else {
 			if (user.getUsername().equals(WebUtil.getUsername())) {
 				user.setOnlineStatus(OnlineStatus.Online);
 				user.setOnlineDate(new Date());
 			}
 		}
+	}
+
+	private Object online(User user) {
+
+		final List<Object> res = new ArrayList<>();
+
+		try {
+			@SuppressWarnings("unchecked")
+			ConcurrentHashMap<Object, Object> cache = (ConcurrentHashMap<Object, Object>) cacheManager
+					.getCache(SysConstant.ONLINE_USERS).getNativeCache();
+
+			cache.forEachKey(1, key -> {
+				String username = String.valueOf(key).split("@")[0];
+				if (username.equals(user.getUsername())) {
+					res.add(cache.get(key));
+				}
+			});
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		return res.size() > 0 ? res.get(0) : null;
 	}
 
 	@RequestMapping(value = "getGroup", method = RequestMethod.GET)
