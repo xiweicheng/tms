@@ -28,7 +28,7 @@ public interface ChatLabelRepository extends JpaRepository<ChatLabel, Long> {
 
 	ChatLabel findOneByNameAndChatChannelAndStatusNot(String name, ChatChannel chatChannel, Status status);
 
-	ChatLabel findOneByNameAndChatDirect(String name, ChatDirect chatDirect);
+	ChatLabel findOneByNameAndChatDirectAndStatusNot(String name, ChatDirect chatDirect, Status status);
 
 	List<ChatLabel> findByChatChannel(ChatChannel chatChannel);
 

@@ -76,12 +76,12 @@ public interface ChatDirectRepository extends JpaRepository<ChatDirect, Long> {
 	long countAboutMe(User user, String search);
 	
 	// 其他人 -> 我 & 我 -> 其他人
-	@Query(value = "SELECT DISTINCT cd.* FROM `chat_direct` cd, chat_label cl WHERE cl.chat_direct = cd.id and ((cd.creator = ?1) OR (cd.chat_to = ?1)) AND cl.name in (?2) ORDER BY cd.create_date DESC LIMIT ?3,?4", nativeQuery = true)
+	@Query(value = "SELECT DISTINCT cd.* FROM `chat_direct` cd, chat_label cl WHERE cl.chat_direct = cd.id and ((cd.creator = ?1) OR (cd.chat_to = ?1)) AND cl.`status` <> 'Deleted' AND cl.name in (?2) ORDER BY cd.create_date DESC LIMIT ?3,?4", nativeQuery = true)
 	List<ChatDirect> queryAboutMeByTags(User user, List<String> tags, int startId,
 			int limit);
 	
 	// 其他人 -> 我 & 我 -> 其他人
-	@Query(value = "SELECT COUNT(DISTINCT cd.id) FROM `chat_direct` cd, chat_label cl WHERE cl.chat_direct = cd.id and ((cd.creator = ?1) OR (cd.chat_to = ?1)) AND cl.name in (?2)", nativeQuery = true)
+	@Query(value = "SELECT COUNT(DISTINCT cd.id) FROM `chat_direct` cd, chat_label cl WHERE cl.chat_direct = cd.id and ((cd.creator = ?1) OR (cd.chat_to = ?1)) AND cl.`status` <> 'Deleted' AND cl.name in (?2)", nativeQuery = true)
 	long countAboutMeByTags(User user, List<String> tags);
 	
 	@Query(value = "SELECT * FROM chat_direct WHERE creator = ?1 AND content LIKE ?2", nativeQuery = true)

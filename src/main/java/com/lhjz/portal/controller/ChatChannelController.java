@@ -1095,6 +1095,11 @@ public class ChatChannelController extends BaseController {
 			if (voters.contains(loginUser)) {
 				loginUser.getVoterChatLabels().remove(chatLabel);
 				voters.remove(loginUser);
+				
+				if (voters.size() == 0) {
+					chatLabel.setStatus(Status.Deleted);
+					chatLabel = chatLabelRepository.saveAndFlush(chatLabel);
+				}
 
 				logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", name);
 

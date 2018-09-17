@@ -55,6 +55,7 @@ import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.ChatLabelType;
+import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatAtRepository;
@@ -639,7 +640,7 @@ public class ChatDirectController extends BaseController {
 			return RespBody.failed("标签关联私聊消息不存在!");
 		}
 
-		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatDirect(name, chatDirect);
+		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatDirectAndStatusNot(name, chatDirect, Status.Deleted);
 
 		User loginUser = getLoginUser();
 		ChatLabelType chatLabelType = ChatLabelType.valueOf(type);
@@ -699,6 +700,11 @@ public class ChatDirectController extends BaseController {
 			if (voters.contains(loginUser)) {
 				loginUser.getVoterChatLabels().remove(chatLabel);
 				voters.remove(loginUser);
+				
+				if (voters.size() == 0) {
+					chatLabel.setStatus(Status.Deleted);
+					chatLabel = chatLabelRepository.saveAndFlush(chatLabel);
+				}
 
 				logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", name);
 			} else {
