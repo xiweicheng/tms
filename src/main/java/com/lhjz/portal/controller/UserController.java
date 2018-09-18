@@ -25,6 +25,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,6 +51,7 @@ import com.lhjz.portal.pojo.Enum.Role;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.GroupForm;
+import com.lhjz.portal.pojo.UserExtraForm;
 import com.lhjz.portal.pojo.UserForm;
 import com.lhjz.portal.repository.AuthorityRepository;
 import com.lhjz.portal.repository.GroupMemberRepository;
@@ -771,4 +774,35 @@ public class UserController extends BaseController {
 
 		return RespBody.succeed(groupMembers3);
 	}
+	
+	@PostMapping("extra/update")
+	@ResponseBody
+	@Secured({ "ROLE_ADMIN", "ROLE_USER" })
+	public RespBody updateExtra(@RequestBody UserExtraForm userExtraForm) {
+
+		// 自己不是系统管理员 && 也不是修改自己的信息
+		if (!isSuper() && userExtraForm.getUsername().equals(WebUtil.getUsername())) {
+			return RespBody.failed("权限不足！");
+		}
+
+		User user = userRepository.findOne(userExtraForm.getUsername());
+
+		if (userExtraForm.getPhone() != null)
+			user.setPhone(userExtraForm.getPhone());
+		if (userExtraForm.getMobile() != null)
+			user.setMobile(userExtraForm.getMobile());
+		if (userExtraForm.getPlace() != null)
+			user.setPlace(userExtraForm.getPlace());
+		if (userExtraForm.getLevel() != null)
+			user.setLevel(userExtraForm.getLevel());
+		if (userExtraForm.getHobby() != null)
+			user.setHobby(user.getHobby());
+		if (userExtraForm.getIntroduce() != null)
+			user.setIntroduce(user.getIntroduce());
+
+		User user2 = userRepository.saveAndFlush(user);
+
+		return RespBody.succeed(user2);
+	}
+	
 }

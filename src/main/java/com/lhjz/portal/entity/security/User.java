@@ -100,6 +100,24 @@ public class User implements java.io.Serializable, Comparable<User> {
 	@Transient
 	private Date onlineDate;
 
+	// 座机号
+	private String phone;
+
+	// 手机号
+	private String mobile;
+
+	// 地理位置
+	private String place;
+
+	// 职级
+	private String level;
+
+	// 爱好
+	private String hobby;
+
+	// 个人介绍
+	private String introduce;
+
 	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "user_project", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
