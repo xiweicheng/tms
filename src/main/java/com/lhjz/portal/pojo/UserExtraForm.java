@@ -1,5 +1,7 @@
 package com.lhjz.portal.pojo;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserExtraForm {
 
+	@NotBlank
 	private String username;
 
 	// 座机号

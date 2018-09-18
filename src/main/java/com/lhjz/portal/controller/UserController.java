@@ -26,7 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -778,11 +777,16 @@ public class UserController extends BaseController {
 	@PostMapping("extra/update")
 	@ResponseBody
 	@Secured({ "ROLE_ADMIN", "ROLE_USER" })
-	public RespBody updateExtra(@RequestBody UserExtraForm userExtraForm) {
+	public RespBody updateExtra(@Valid UserExtraForm userExtraForm, BindingResult bindingResult) {
 
 		// 自己不是系统管理员 && 也不是修改自己的信息
 		if (!isSuper() && userExtraForm.getUsername().equals(WebUtil.getUsername())) {
 			return RespBody.failed("权限不足！");
+		}
+
+		if (bindingResult.hasErrors()) {
+			return RespBody.failed(bindingResult.getAllErrors().stream().map(err -> err.getDefaultMessage())
+					.collect(Collectors.joining("<br/>")));
 		}
 
 		User user = userRepository.findOne(userExtraForm.getUsername());
@@ -796,9 +800,9 @@ public class UserController extends BaseController {
 		if (userExtraForm.getLevel() != null)
 			user.setLevel(userExtraForm.getLevel());
 		if (userExtraForm.getHobby() != null)
-			user.setHobby(user.getHobby());
+			user.setHobby(userExtraForm.getHobby());
 		if (userExtraForm.getIntroduce() != null)
-			user.setIntroduce(user.getIntroduce());
+			user.setIntroduce(userExtraForm.getIntroduce());
 
 		User user2 = userRepository.saveAndFlush(user);
 
