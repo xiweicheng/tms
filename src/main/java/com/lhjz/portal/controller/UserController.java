@@ -779,8 +779,12 @@ public class UserController extends BaseController {
 	@Secured({ "ROLE_ADMIN", "ROLE_USER" })
 	public RespBody updateExtra(@Valid UserExtraForm userExtraForm, BindingResult bindingResult) {
 
+		if (WebUtil.isRememberMeAuthenticated()) {
+			return RespBody.failed("因为当前是通过[记住我]登录,为了安全需要,请退出重新登录再尝试修改用户信息!");
+		}
+
 		// 自己不是系统管理员 && 也不是修改自己的信息
-		if (!isSuper() && userExtraForm.getUsername().equals(WebUtil.getUsername())) {
+		if (!isSuper() && !userExtraForm.getUsername().equals(WebUtil.getUsername())) {
 			return RespBody.failed("权限不足！");
 		}
 
