@@ -38,6 +38,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,6 +64,8 @@ import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.SpaceAuthority;
 import com.lhjz.portal.entity.Tag;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.BlogPayload;
+import com.lhjz.portal.model.BlogPayload.Cmd;
 import com.lhjz.portal.model.BlogSearchResult;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.PollBlog;
@@ -158,6 +161,9 @@ public class BlogController extends BaseController {
 	
 	@Autowired
 	ChatChannelService chatChannelService;
+	
+	@Autowired
+	SimpMessagingTemplate messagingTemplate;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -226,6 +232,8 @@ public class BlogController extends BaseController {
 				Arrays.asList(usernameArr).stream().forEach((username) -> {
 					mail.addUsers(getUser(username));
 				});
+
+				wsSendToUsers(blog2, Cmd.At, usernameArr);
 			}
 
 			try {
@@ -241,6 +249,39 @@ public class BlogController extends BaseController {
 		}
 
 		return RespBody.succeed(blog2);
+	}
+	
+	private void wsSendToUsers(Blog blog, Cmd cmd, String... usernames) {
+		try {
+			BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).title(blog.getTitle()).cmd(cmd)
+					.username(WebUtil.getUsername()).build();
+			for (String username : usernames) {
+				messagingTemplate.convertAndSendToUser(username, "/blog/update", blogPayload);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+	
+	private void wsSendToUsers(Blog blog, Comment comment, Cmd cmd, String... usernames) {
+		try {
+			BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).title(blog.getTitle()).cid(comment.getId())
+					.cmd(cmd).username(WebUtil.getUsername()).build();
+			for (String username : usernames) {
+				messagingTemplate.convertAndSendToUser(username, "/blog/update", blogPayload);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+	
+	private void wsSend(Blog blog, Cmd cmd) {
+		try {
+			messagingTemplate.convertAndSend("/blog/update", BlogPayload.builder().id(blog.getId())
+					.title(blog.getTitle()).cmd(cmd).username(WebUtil.getUsername()).build());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 	@RequestMapping(value = "list", method = RequestMethod.GET)
@@ -327,6 +368,8 @@ public class BlogController extends BaseController {
 			blog.setContent(content);
 
 			Blog blog2 = blogRepository.saveAndFlush(blog);
+			
+			wsSend(blog2, Cmd.U);
 
 			final User loginUser = getLoginUser();
 			final String href = url + "#/blog/" + blog2.getId();
@@ -343,12 +386,21 @@ public class BlogController extends BaseController {
 			
 			mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 			mail.addUsers(Arrays.asList(blog2.getCreator()), loginUser);
+
+			List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
+			wsSendToUsers(blog2, Cmd.F, fs.toArray(new String[0]));
+			
+			if (!blog.getCreator().equals(loginUser)) {
+				wsSendToUsers(blog, Cmd.OU, blog.getCreator().getUsername());
+			}
 			
 			if (StringUtil.isNotEmpty(usernames)) {
 				String[] usernameArr = usernames.split(",");
 				Arrays.asList(usernameArr).stream().forEach((username) -> {
 					mail.addUsers(getUser(username));
 				});
+				
+				wsSendToUsers(blog2, Cmd.At, usernameArr);
 			}
 			
 			if (!mail.isEmpty()) {
@@ -385,6 +437,8 @@ public class BlogController extends BaseController {
 		blog.setStatus(Status.Deleted);
 
 		blogRepository.saveAndFlush(blog);
+		
+		wsSend(blog, Cmd.D);
 
 		log(Action.Delete, Target.Blog, id, blog.getTitle());
 
@@ -485,6 +539,8 @@ public class BlogController extends BaseController {
 
 		blog.setOpenEdit(open);
 		blogRepository.saveAndFlush(blog);
+		
+		wsSend(blog, Cmd.Open);
 		
 		logWithProperties(Action.Update, Target.Blog, id, "openEdit", open, blog.getTitle());
 
@@ -867,10 +923,18 @@ public class BlogController extends BaseController {
 				User user = getUser(username);
 				mail.addUsers(user);
 			});
+			wsSendToUsers(blog, comment2, Cmd.CAt, users.split(","));
 		}
 
 		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
 		mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
+		
+		List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
+		wsSendToUsers(blog, comment2, Cmd.FCC, fs.toArray(new String[0]));
+		
+		if (!blog.getCreator().equals(loginUser)) {
+			wsSendToUsers(blog, comment2, Cmd.CC, blog.getCreator().getUsername());
+		}
 		
 		// auto follow blog
 		boolean isFollower = followers.stream().anyMatch(f -> f.getCreator().equals(loginUser));
@@ -949,11 +1013,19 @@ public class BlogController extends BaseController {
 				User user = getUser(username);
 				mail.addUsers(user);
 			});
+			wsSendToUsers(blog, comment2, Cmd.CAt, users.split(","));
 		}
 		
 		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
 		mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
+
+		List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
+		wsSendToUsers(blog, comment2, Cmd.FCU, fs.toArray(new String[0]));
 		
+		if (!blog.getCreator().equals(loginUser)) {
+			wsSendToUsers(blog, comment2, Cmd.CU, blog.getCreator().getUsername());
+		}
+
 		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
 
 		try {

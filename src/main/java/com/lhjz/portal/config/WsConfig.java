@@ -24,7 +24,7 @@ public class WsConfig extends AbstractWebSocketMessageBrokerConfigurer {
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry config) {
 
-		config.enableSimpleBroker("/channel", "/direct");
+		config.enableSimpleBroker("/channel", "/direct", "/blog");
 		config.setApplicationDestinationPrefixes("/chat");
 	}
 
