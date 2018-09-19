@@ -69,16 +69,18 @@
         padding-right: 80px;
     }
 
-    .topbar>button {
-        font-size: 18px;
-        /*position: relative;*/
-        /*top: -4px;*/
+    .topbar>.actions {
         right: 0;
         top: 0;
         position: absolute;
-        /*color: #FFFFFF;*/
-        /*box-shadow: none;*/
-        /*background: #416dea;*/
+    }
+
+    .topbar>.actions button {
+        font-size: 18px;
+    }
+
+    #preview {
+        display: none;
     }
 
     </style>
@@ -88,7 +90,10 @@
     <div id="editor">
         <div class="topbar">
             <input id="title" type="text" placeholder="标题">
-            <button class="button -blue" id="save">保存</button>
+            <div class="actions">
+                <button class="button -blue" id="save">保存</button>
+                <button class="button -blue" id="preview">预览</button>
+            </div>
             <span id="msg" style="color: red; padding-left: 16px;"></span>
         </div>
         <div id='edit' style="margin-top: 60px; padding-bottom: 60px;"></div>
@@ -199,11 +204,17 @@
                     }
 
                     $('#edit').froalaEditor('html.set', data.data.content);
+                    $('#preview').show();
                 } else {
                     toastr.error(data.data);
                 }
             });
         }
+
+        $('#preview').click(function(event) {
+            var url = location.protocol + "//" + location.host + location.pathname.replace('blog.html', 'index.html') + "#/blog/" + blog.id;
+            openNewWin(url);
+        });
 
         $('#save').click(function(event) {
 
@@ -234,6 +245,7 @@
                     if (data.success) {
                         blog = data.data;
                         toastr && toastr.success('博文保存成功！');
+                        $('#preview').show();
                     } else {
                         toastr && toastr.error(data.data);
                     }
@@ -264,6 +276,19 @@
             }
         });
     });
+
+    function openNewWin(url) {
+
+        if (url) {
+            var $a = $(`<a href="${url}" target="_blank" style="display:none;"></a>`).appendTo('body').end();
+            $(`<input type="button">`).appendTo($a).end().click();
+
+            setTimeout(function() {
+                $a.remove();
+            }, 200);
+        }
+
+    }
 
     </script>
 </body>
