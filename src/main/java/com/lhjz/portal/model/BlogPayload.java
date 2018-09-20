@@ -13,6 +13,9 @@ public class BlogPayload {
 
 	private Long cid;
 	
+	// BlogNews id
+	private Long nid;
+	
 	private String username;
 	
 	private String title;

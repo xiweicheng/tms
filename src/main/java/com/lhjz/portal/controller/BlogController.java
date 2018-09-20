@@ -264,16 +264,16 @@ public class BlogController extends BaseController {
 				BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).title(blog.getTitle()).cmd(cmd)
 						.username(loginUsername).build();
 
-				List<BlogNews> bNews = new ArrayList<>();
 				for (String username : usernames) {
+
+					BlogNews blogNews = blogNewsRepository.saveAndFlush(BlogNews.builder().bid(blog.getId())
+							.title(blog.getTitle()).to(username).cmd(cmd).username(loginUsername).build());
+					blogPayload.setNid(blogNews.getId());
+
 					messagingTemplate.convertAndSendToUser(username, "/blog/update", blogPayload);
 
-					bNews.add(BlogNews.builder().bid(blog.getId()).title(blog.getTitle()).to(username).cmd(cmd)
-							.username(loginUsername).build());
 				}
 
-				blogNewsRepository.save(bNews);
-				blogNewsRepository.flush();
 			});
 
 		} catch (Exception e) {
@@ -287,15 +287,16 @@ public class BlogController extends BaseController {
 				BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).title(blog.getTitle())
 						.cid(comment.getId()).cmd(cmd).username(loginUsername).build();
 
-				List<BlogNews> bNews = new ArrayList<>();
 				for (String username : usernames) {
+
+					BlogNews blogNews = blogNewsRepository
+							.saveAndFlush(BlogNews.builder().bid(blog.getId()).cid(comment.getId())
+									.title(blog.getTitle()).to(username).cmd(cmd).username(loginUsername).build());
+					blogPayload.setNid(blogNews.getId());
+
 					messagingTemplate.convertAndSendToUser(username, "/blog/update", blogPayload);
-					bNews.add(BlogNews.builder().bid(blog.getId()).cid(comment.getId()).title(blog.getTitle())
-							.to(username).cmd(cmd).username(loginUsername).build());
 				}
 
-				blogNewsRepository.save(bNews);
-				blogNewsRepository.flush();
 			});
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
