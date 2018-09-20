@@ -40,6 +40,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +54,7 @@ import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.entity.BlogAuthority;
 import com.lhjz.portal.entity.BlogFollower;
 import com.lhjz.portal.entity.BlogHistory;
+import com.lhjz.portal.entity.BlogNews;
 import com.lhjz.portal.entity.BlogStow;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
@@ -79,6 +81,7 @@ import com.lhjz.portal.pojo.Enum.VoteType;
 import com.lhjz.portal.repository.BlogAuthorityRepository;
 import com.lhjz.portal.repository.BlogFollowerRepository;
 import com.lhjz.portal.repository.BlogHistoryRepository;
+import com.lhjz.portal.repository.BlogNewsRepository;
 import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.BlogStowRepository;
 import com.lhjz.portal.repository.ChannelRepository;
@@ -157,6 +160,9 @@ public class BlogController extends BaseController {
 	DirRepository dirRepository;
 	
 	@Autowired
+	BlogNewsRepository blogNewsRepository;
+	
+	@Autowired
 	MailSender mailSender;
 	
 	@Autowired
@@ -233,7 +239,7 @@ public class BlogController extends BaseController {
 					mail.addUsers(getUser(username));
 				});
 
-				wsSendToUsers(blog2, Cmd.At, usernameArr);
+				wsSendToUsers(blog2, Cmd.At, WebUtil.getUsername(), usernameArr);
 			}
 
 			try {
@@ -251,34 +257,57 @@ public class BlogController extends BaseController {
 		return RespBody.succeed(blog2);
 	}
 	
-	private void wsSendToUsers(Blog blog, Cmd cmd, String... usernames) {
+	private void wsSendToUsers(Blog blog, Cmd cmd, String loginUsername, String... usernames) {
 		try {
-			BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).title(blog.getTitle()).cmd(cmd)
-					.username(WebUtil.getUsername()).build();
-			for (String username : usernames) {
-				messagingTemplate.convertAndSendToUser(username, "/blog/update", blogPayload);
-			}
+
+			ThreadUtil.exec(() -> {
+				BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).title(blog.getTitle()).cmd(cmd)
+						.username(loginUsername).build();
+
+				List<BlogNews> bNews = new ArrayList<>();
+				for (String username : usernames) {
+					messagingTemplate.convertAndSendToUser(username, "/blog/update", blogPayload);
+
+					bNews.add(BlogNews.builder().bid(blog.getId()).title(blog.getTitle()).to(username).cmd(cmd)
+							.username(loginUsername).build());
+				}
+
+				blogNewsRepository.save(bNews);
+				blogNewsRepository.flush();
+			});
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
 	
-	private void wsSendToUsers(Blog blog, Comment comment, Cmd cmd, String... usernames) {
+	private void wsSendToUsers(Blog blog, Comment comment, Cmd cmd, String loginUsername, String... usernames) {
 		try {
-			BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).title(blog.getTitle()).cid(comment.getId())
-					.cmd(cmd).username(WebUtil.getUsername()).build();
-			for (String username : usernames) {
-				messagingTemplate.convertAndSendToUser(username, "/blog/update", blogPayload);
-			}
+			ThreadUtil.exec(() -> {
+				BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).title(blog.getTitle())
+						.cid(comment.getId()).cmd(cmd).username(loginUsername).build();
+
+				List<BlogNews> bNews = new ArrayList<>();
+				for (String username : usernames) {
+					messagingTemplate.convertAndSendToUser(username, "/blog/update", blogPayload);
+					bNews.add(BlogNews.builder().bid(blog.getId()).cid(comment.getId()).title(blog.getTitle())
+							.to(username).cmd(cmd).username(loginUsername).build());
+				}
+
+				blogNewsRepository.save(bNews);
+				blogNewsRepository.flush();
+			});
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
 	
-	private void wsSend(Blog blog, Cmd cmd) {
+	private void wsSend(Blog blog, Cmd cmd, String loginUsername) {
 		try {
-			messagingTemplate.convertAndSend("/blog/update", BlogPayload.builder().id(blog.getId())
-					.title(blog.getTitle()).cmd(cmd).username(WebUtil.getUsername()).build());
+			ThreadUtil.exec(() -> {
+				messagingTemplate.convertAndSend("/blog/update", BlogPayload.builder().id(blog.getId())
+						.title(blog.getTitle()).cmd(cmd).username(loginUsername).build());
+			});
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -369,7 +398,7 @@ public class BlogController extends BaseController {
 
 			Blog blog2 = blogRepository.saveAndFlush(blog);
 			
-			wsSend(blog2, Cmd.U);
+			wsSend(blog2, Cmd.U, WebUtil.getUsername());
 
 			final User loginUser = getLoginUser();
 			final String href = url + "#/blog/" + blog2.getId();
@@ -388,10 +417,10 @@ public class BlogController extends BaseController {
 			mail.addUsers(Arrays.asList(blog2.getCreator()), loginUser);
 
 			List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
-			wsSendToUsers(blog2, Cmd.F, fs.toArray(new String[0]));
+			wsSendToUsers(blog2, Cmd.F, WebUtil.getUsername(), fs.toArray(new String[0]));
 			
 			if (!blog.getCreator().equals(loginUser)) {
-				wsSendToUsers(blog, Cmd.OU, blog.getCreator().getUsername());
+				wsSendToUsers(blog, Cmd.OU, WebUtil.getUsername(), blog.getCreator().getUsername());
 			}
 			
 			if (StringUtil.isNotEmpty(usernames)) {
@@ -400,7 +429,7 @@ public class BlogController extends BaseController {
 					mail.addUsers(getUser(username));
 				});
 				
-				wsSendToUsers(blog2, Cmd.At, usernameArr);
+				wsSendToUsers(blog2, Cmd.At, WebUtil.getUsername(), usernameArr);
 			}
 			
 			if (!mail.isEmpty()) {
@@ -438,7 +467,7 @@ public class BlogController extends BaseController {
 
 		blogRepository.saveAndFlush(blog);
 		
-		wsSend(blog, Cmd.D);
+		wsSend(blog, Cmd.D, WebUtil.getUsername());
 
 		log(Action.Delete, Target.Blog, id, blog.getTitle());
 
@@ -540,7 +569,7 @@ public class BlogController extends BaseController {
 		blog.setOpenEdit(open);
 		blogRepository.saveAndFlush(blog);
 		
-		wsSend(blog, Cmd.Open);
+		wsSend(blog, Cmd.Open, WebUtil.getUsername());
 		
 		logWithProperties(Action.Update, Target.Blog, id, "openEdit", open, blog.getTitle());
 
@@ -923,17 +952,17 @@ public class BlogController extends BaseController {
 				User user = getUser(username);
 				mail.addUsers(user);
 			});
-			wsSendToUsers(blog, comment2, Cmd.CAt, users.split(","));
+			wsSendToUsers(blog, comment2, Cmd.CAt, WebUtil.getUsername(), users.split(","));
 		}
 
 		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
 		mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 		
 		List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
-		wsSendToUsers(blog, comment2, Cmd.FCC, fs.toArray(new String[0]));
+		wsSendToUsers(blog, comment2, Cmd.FCC, WebUtil.getUsername(), fs.toArray(new String[0]));
 		
 		if (!blog.getCreator().equals(loginUser)) {
-			wsSendToUsers(blog, comment2, Cmd.CC, blog.getCreator().getUsername());
+			wsSendToUsers(blog, comment2, Cmd.CC, WebUtil.getUsername(), blog.getCreator().getUsername());
 		}
 		
 		// auto follow blog
@@ -1013,17 +1042,17 @@ public class BlogController extends BaseController {
 				User user = getUser(username);
 				mail.addUsers(user);
 			});
-			wsSendToUsers(blog, comment2, Cmd.CAt, users.split(","));
+			wsSendToUsers(blog, comment2, Cmd.CAt, WebUtil.getUsername(), users.split(","));
 		}
 		
 		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
 		mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 
 		List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
-		wsSendToUsers(blog, comment2, Cmd.FCU, fs.toArray(new String[0]));
+		wsSendToUsers(blog, comment2, Cmd.FCU, WebUtil.getUsername(), fs.toArray(new String[0]));
 		
 		if (!blog.getCreator().equals(loginUser)) {
-			wsSendToUsers(blog, comment2, Cmd.CU, blog.getCreator().getUsername());
+			wsSendToUsers(blog, comment2, Cmd.CU, WebUtil.getUsername(), blog.getCreator().getUsername());
 		}
 
 		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
@@ -1937,6 +1966,34 @@ public class BlogController extends BaseController {
 		blogRepository.saveAndFlush(blog);
 
 		return RespBody.succeed(blog);
+	}
+	
+	@GetMapping("news/list")
+	@ResponseBody
+	public RespBody listNews(@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
+
+		Page<BlogNews> news = blogNewsRepository.findByToAndUsernameNotAndStatusNot(WebUtil.getUsername(),
+				WebUtil.getUsername(), Status.Deleted, pageable);
+
+		return RespBody.succeed(news);
+	}
+	
+	@PostMapping("news/delete")
+	@ResponseBody
+	public RespBody deleteNews(@RequestParam("id") Long id) {
+
+		BlogNews news = blogNewsRepository.findOne(id);
+
+		if (!isSuperOrCreator(news.getTo())) {
+			return RespBody.failed("权限不足！");
+		}
+
+		news.setStatus(Status.Deleted);
+
+		blogNewsRepository.saveAndFlush(news);
+
+		return RespBody.succeed(id);
+
 	}
 
 }
