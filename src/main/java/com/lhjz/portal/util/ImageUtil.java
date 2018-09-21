@@ -880,6 +880,7 @@ public final class ImageUtil {
 		}
 		// 对字节数组Base64编码
 		BASE64Encoder encoder = new BASE64Encoder();
+
 		return outputStream != null ? encoder.encode(outputStream.toByteArray()) : StringUtil.EMPTY; // 返回Base64编码过的字节数组字符串
 	}
 
