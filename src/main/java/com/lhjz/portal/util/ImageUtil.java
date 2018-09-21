@@ -880,7 +880,11 @@ public final class ImageUtil {
 		}
 		// 对字节数组Base64编码
 		BASE64Encoder encoder = new BASE64Encoder();
-		return encoder.encode(outputStream.toByteArray());// 返回Base64编码过的字节数组字符串
+		String encodeString = "";
+		if(outputStream != null){
+			encodeString = encoder.encode(outputStream.toByteArray());
+		}
+		return encodeString;// 返回Base64编码过的字节数组字符串
 	}
 
 	// base64字符串转化成图片
