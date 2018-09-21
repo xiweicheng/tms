@@ -176,11 +176,11 @@ public class SHA1 {
 
 	// 将字节数组转换为十六进制字符串
 	private static String byteArrayToHexString(byte[] bytearray) {
-		String strDigest = "";
+		StringBuffer strDigest = new StringBuffer();
 		for (int i = 0; i < bytearray.length; i++) {
-			strDigest += byteToHexString(bytearray[i]);
+			strDigest.append(byteToHexString(bytearray[i]));
 		}
-		return strDigest;
+		return strDigest.toString();
 	}
 
 	// 计算sha-1摘要，返回相应的字节数组
