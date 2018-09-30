@@ -414,6 +414,29 @@ public class BlogController extends BaseController {
 			
 			List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog2, Status.Deleted);
 			
+			// 编辑非自己的博文，自动成为该博文的关注者
+			if (!blog.getCreator().equals(loginUser)) {
+				// 没有关注该博文
+				BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreator(blog2, loginUser);
+
+				if (blogFollower != null) {
+					if (blogFollower.getStatus().equals(Status.Deleted)) {
+						blogFollower.setStatus(Status.New);
+
+						blogFollowerRepository.saveAndFlush(blogFollower);
+
+						logWithProperties(Action.Update, Target.Blog, id, "follower", blog2.getTitle());
+					}
+				} else {
+					BlogFollower blogFollower2 = new BlogFollower();
+					blogFollower2.setBlog(blog2);
+
+					blogFollowerRepository.saveAndFlush(blogFollower2);
+
+					logWithProperties(Action.Update, Target.Blog, id, "follower", blog.getTitle());
+				}
+			}
+			
 			mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 			mail.addUsers(Arrays.asList(blog2.getCreator()), loginUser);
 
