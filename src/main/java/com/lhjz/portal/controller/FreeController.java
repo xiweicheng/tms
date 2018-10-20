@@ -630,7 +630,7 @@ public class FreeController extends BaseController {
 			actionName = "接受";
 		}
 
-		String id = JsonPath.read(reqBody, "$.merge_request.id");
+		Integer id = JsonPath.read(reqBody, "$.merge_request.id");
 		//		String name = JsonPath.read(reqBody, "$.merge_request.name");
 		//		String message = JsonPath.read(reqBody, "$.merge_request.message");
 		String sourceBranch = JsonPath.read(reqBody, "$.merge_request.source_branch");
