@@ -5,6 +5,8 @@ package com.lhjz.portal.controller;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +114,12 @@ public class FreeController extends BaseController {
 	
 	@Value("${tms.token.feedback}")
 	private String tokenFeedback;
+	
+	@Value("${tms.git.token}")
+	private String gitToken;
+	
+	@Value("${tms.git.username}")
+	private String gitUsername;
 
 	@RequestMapping(value = "user/pwd/reset", method = { RequestMethod.POST })
 	public RespBody resetUserPwd(@RequestBody Map<String, Object> params) {
@@ -592,5 +600,112 @@ public class FreeController extends BaseController {
 			return RespBody.failed(e.getMessage());
 		}
 
+	}
+	
+	@RequestMapping(value = "channel/git/send", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody sendChannelGitMsg(@RequestParam("channel") String channel, @RequestParam("token") String token,
+			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
+			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
+			@RequestParam(value = "web", required = false) String web, @RequestBody String reqBody) {
+
+		if (!gitToken.equals(token)) {
+			return RespBody.failed("参数安全校验token不合法!");
+		}
+
+		Channel channel2 = channelRepository.findOneByName(channel);
+		if (channel2 == null) {
+			return RespBody.failed("发送消息目的频道不存在!");
+		}
+
+		String fullName = JsonPath.read(reqBody, "$.header.createdBy.fullName");
+		// open：新建合并请求  close：关闭合并请求  accept：接受合并请求
+		String action = JsonPath.read(reqBody, "$.header.action");
+		String actionName = StringUtil.EMPTY;
+		if ("open".equals(action)) {
+			actionName = "新建";
+		} else if ("close".equals(action)) {
+			actionName = "关闭";
+		} else if ("accept".equals(action)) {
+			actionName = "接受";
+		}
+
+		String id = JsonPath.read(reqBody, "$.merge_request.id");
+		//		String name = JsonPath.read(reqBody, "$.merge_request.name");
+		//		String message = JsonPath.read(reqBody, "$.merge_request.message");
+		String sourceBranch = JsonPath.read(reqBody, "$.merge_request.source_branch");
+		String targetBranch = JsonPath.read(reqBody, "$.merge_request.target_branch");
+
+		String httpUrl = JsonPath.read(reqBody, "$.repository.httpUrl");
+
+		String repoAddr = StringUtil.EMPTY;
+
+		try {
+			URL url = new URL(httpUrl);
+			String path = url.getPath(); // /hys_git_test4/439141543.git
+			repoAddr = path != null ? path.replace(".git", "") : StringUtil.EMPTY;
+		} catch (MalformedURLException e1) {
+			logger.error(e1.getMessage(), e1);
+		}
+
+		StringBuffer sb = new StringBuffer();
+		sb.append("## 代码合并通知").append(SysConstant.NEW_LINE);
+		sb.append(StringUtil.replace(
+				"> **{?1}** {?2}`{?3}`到`{?4}`的合并请求：http://code.paic.com.cn/#/repo{?5}/merge/{?6}/detail  ", fullName,
+				actionName, sourceBranch, targetBranch, repoAddr, id)).append(SysConstant.NEW_LINE);
+
+		if (StringUtil.isNotEmpty(web)) {
+			sb.append("> ").append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> [点击此访问web服务]({?1})", web)).append(SysConstant.NEW_LINE);
+		}
+
+		if (raw) {
+			sb.append(SysConstant.NEW_LINE);
+			sb.append("---").append(SysConstant.NEW_LINE);
+			sb.append("> **完整内容:** ").append(SysConstant.NEW_LINE);
+			sb.append("```").append(SysConstant.NEW_LINE);
+			sb.append(reqBody);
+			sb.append("```").append(SysConstant.NEW_LINE);
+		}
+
+		RunAsAuth runAsAuth = RunAsAuth.instance().runAs(gitUsername);
+
+		ChatChannel chatChannel = new ChatChannel();
+		chatChannel.setChannel(channel2);
+		chatChannel.setContent(sb.toString());
+
+		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
+
+		final Mail mail2 = Mail.instance();
+
+		if (mail) {
+			channel2.getMembers().forEach(item -> mail2.addUsers(item));
+		}
+
+		mail2.addUsers(channel2.getSubscriber(), getLoginUser());
+
+		if (!mail2.isEmpty()) {
+
+			final User loginUser = getLoginUser();
+			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
+
+			final String html = StringUtil.md2Html(sb.toString(), true, true);
+
+			try {
+				mailSender
+						.sendHtmlByQueue(String.format("TMS-代码合并通知_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+								TemplateUtil.process("templates/mail/mail-dynamic",
+										MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+												"代码合并通知消息有@到你", "content", html)),
+								getLoginUserName(loginUser), mail2.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+
+		runAsAuth.rest();
+
+		return RespBody.succeed();
 	}
 }
