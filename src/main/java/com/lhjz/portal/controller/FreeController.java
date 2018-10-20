@@ -45,6 +45,7 @@ import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.model.RunAsAuth;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.FileType;
+import com.lhjz.portal.pojo.Enum.GitAction;
 import com.lhjz.portal.pojo.Enum.Role;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
@@ -621,14 +622,7 @@ public class FreeController extends BaseController {
 		String fullName = JsonPath.read(reqBody, "$.header.createdBy.fullName");
 		// open：新建合并请求  close：关闭合并请求  accept：接受合并请求
 		String action = JsonPath.read(reqBody, "$.header.action");
-		String actionName = StringUtil.EMPTY;
-		if ("open".equals(action)) {
-			actionName = "新建";
-		} else if ("close".equals(action)) {
-			actionName = "关闭";
-		} else if ("accept".equals(action)) {
-			actionName = "接受";
-		}
+		String actionName = GitAction.valueOf(action.toUpperCase()).getName();
 
 		Integer id = JsonPath.read(reqBody, "$.merge_request.id");
 		//		String name = JsonPath.read(reqBody, "$.merge_request.name");

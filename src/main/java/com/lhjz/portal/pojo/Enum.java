@@ -94,7 +94,7 @@ public class Enum {
 	public static enum ToType {
 		Channel, User, Blog, Feedback;
 	}
-	
+
 	public static enum Editor {
 		Markdown, Html;
 	}
@@ -122,7 +122,7 @@ public class Enum {
 	public static enum ScheduleKnowStatus {
 		Yes, No;
 	}
-	
+
 	public static enum JenkinsStatus {
 
 		SUCCESS("成功"), FAILURE("失败");
@@ -130,6 +130,33 @@ public class Enum {
 		private String name;
 
 		private JenkinsStatus(String name) {
+			this.name = name;
+		}
+
+		@JsonValue
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return String.valueOf(name);
+		}
+	}
+
+	public static enum GitAction {
+
+		// open：新建合并请求  close：关闭合并请求  accept：接受合并请求
+
+		OPEN("新建"), CLOSE("关闭"), ACCEPT("接受");
+
+		private String name;
+
+		private GitAction(String name) {
 			this.name = name;
 		}
 

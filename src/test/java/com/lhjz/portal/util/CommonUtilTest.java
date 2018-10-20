@@ -9,11 +9,19 @@ import org.testng.annotations.Test;
 
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Code;
+import com.lhjz.portal.pojo.Enum.GitAction;
 import com.lhjz.portal.pojo.Enum.Prop;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.ToType;
 
 public class CommonUtilTest {
+	
+	@org.junit.Test
+	public void testGitAction() {
+		System.out.println(GitAction.valueOf("OPEN"));
+		System.out.println(GitAction.valueOf("CLOSE"));
+		System.out.println(GitAction.valueOf("ACCEPT"));
+	}
 
 	@Test
 	public void replaceLinebreak() {
