@@ -625,8 +625,8 @@ public class FreeController extends BaseController {
 		String actionName = GitAction.valueOf(action.toUpperCase()).getName();
 
 		Integer id = JsonPath.read(reqBody, "$.merge_request.id");
-		//		String name = JsonPath.read(reqBody, "$.merge_request.name");
-		//		String message = JsonPath.read(reqBody, "$.merge_request.message");
+		String name = JsonPath.read(reqBody, "$.merge_request.name");
+		String message = JsonPath.read(reqBody, "$.merge_request.message");
 		String sourceBranch = JsonPath.read(reqBody, "$.merge_request.source_branch");
 		String targetBranch = JsonPath.read(reqBody, "$.merge_request.target_branch");
 
@@ -651,6 +651,15 @@ public class FreeController extends BaseController {
 		if (StringUtil.isNotEmpty(web)) {
 			sb.append("> ").append(SysConstant.NEW_LINE);
 			sb.append(StringUtil.replace("> [点击此访问web服务]({?1})", web)).append(SysConstant.NEW_LINE);
+		}
+
+		if (StringUtil.isNotEmpty(name)) {
+			sb.append("> ").append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> **标题：** {?1}  ", name)).append(SysConstant.NEW_LINE);
+		}
+
+		if (StringUtil.isNotEmpty(message)) {
+			sb.append(StringUtil.replace("> **描述：** {?1}  ", message)).append(SysConstant.NEW_LINE);
 		}
 
 		if (raw) {
