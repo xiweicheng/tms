@@ -1,5 +1,7 @@
 package com.lhjz.portal.util;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -125,6 +127,15 @@ public class CommonUtilTest {
 		System.out.println(ThreadUtil.getCurrentAuditor());
 		ThreadUtil.clearCurrentAuditor();
 		System.out.println(ThreadUtil.getCurrentAuditor());
+	}
+
+	@org.junit.Test
+	public void testUrl() throws MalformedURLException {
+		URL url = new URL("http://code.paic.com.cn/sqms/sqms_alm.git?branch=master");
+		String query = url.getQuery();
+		System.out.println(url.getQuery());
+		System.out.println(query.split("=")[1]);
+
 	}
 
 	// public static void main(String[] args) {

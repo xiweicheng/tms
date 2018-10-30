@@ -122,6 +122,12 @@ public class FreeController extends BaseController {
 	@Value("${tms.git.username}")
 	private String gitUsername;
 
+	@Value("${tms.alm.token}")
+	private String almToken;
+
+	@Value("${tms.alm.username}")
+	private String almUsername;
+
 	@RequestMapping(value = "user/pwd/reset", method = { RequestMethod.POST })
 	public RespBody resetUserPwd(@RequestBody Map<String, Object> params) {
 
@@ -700,6 +706,142 @@ public class FreeController extends BaseController {
 								TemplateUtil.process("templates/mail/mail-dynamic",
 										MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
 												"代码合并通知消息有@到你", "content", html)),
+								getLoginUserName(loginUser), mail2.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+
+		runAsAuth.rest();
+
+		return RespBody.succeed();
+	}
+
+	@RequestMapping(value = "channel/alm/send", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody sendChanneAlmMsg(@RequestParam("channel") String channel, @RequestParam("token") String token,
+			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
+			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
+			@RequestParam(value = "web", required = false) String web, @RequestBody String reqBody) {
+
+		if (!almToken.equals(token)) {
+			return RespBody.failed("参数安全校验token不合法!");
+		}
+
+		Channel channel2 = channelRepository.findOneByName(channel);
+		if (channel2 == null) {
+			return RespBody.failed("发送消息目的频道不存在!");
+		}
+		
+		/**
+		{
+			"path": "http://code.paic.com.cn/sqms/sqms_alm.git?branch=master",
+			"deployUsername": "李洋",
+			"envType": "STG",
+			"envName": "sqms_alm_stg",
+			"planName": "SQMS-ALM2.67.0",
+			"header": {
+				"createdBy": {
+					"avatarUrl": "xxx",
+					"fullName": "xxx",
+					"username": "xx"
+				},
+				"createdTime": 1539570237360
+			},
+			"planId": 49094,
+			"revision": "f0217835617b88b23f65f2b6e106ddafb74828df",
+			"isSuccess": true,
+			"commitIds": "xx"
+		}
+		 **/
+
+		String fullName = JsonPath.read(reqBody, "$.header.createdBy.fullName");
+		String planName = JsonPath.read(reqBody, "$.planName");
+		String envName = JsonPath.read(reqBody, "$.envName");
+		String envType = JsonPath.read(reqBody, "$.envType");
+		String deployUsername = JsonPath.read(reqBody, "$.deployUsername");
+		
+		Integer planId = JsonPath.read(reqBody, "$.planId");
+		String revision = JsonPath.read(reqBody, "$.revision");
+		Boolean isSuccess = JsonPath.read(reqBody, "$.isSuccess");
+
+		String pathUrl = JsonPath.read(reqBody, "$.path");
+
+		String repoAddr = StringUtil.EMPTY;
+		String branch = StringUtil.EMPTY;
+
+		try {
+			URL url = new URL(pathUrl);
+			String path = url.getPath(); // /hys_git_test4/439141543.git
+			repoAddr = path != null ? path.replace(".git", "") : StringUtil.EMPTY;
+
+			branch = url.getQuery().split("=")[1]; // branch=develop
+
+		} catch (MalformedURLException e1) {
+			logger.error(e1.getMessage(), e1);
+		}
+
+		String icon = isSuccess ? "<i class=\"large green check circle icon\"></i>"
+				: "<i class=\"large red remove circle icon\"></i>";
+
+		StringBuffer sb = new StringBuffer();
+		sb.append("## 神兵事件通知").append(SysConstant.NEW_LINE);
+		sb.append(StringUtil.replace(
+				"> {?6}【{?3}】**`{?1}`** [`{?2}`] 部署**{?4}** http://vt.paic.com.cn/pipeline/index.jsp?project_id={?5}  ",
+				planName, envName, envType, (isSuccess ? "成功" : "失败"), planId, icon)).append(SysConstant.NEW_LINE);
+		sb.append(StringUtil.replace("> ")).append(SysConstant.NEW_LINE);
+		sb.append(StringUtil.replace("> **创建用户**：`{?1}`  ", fullName)).append(SysConstant.NEW_LINE);
+		sb.append(StringUtil.replace("> **部署用户**：`{?1}`  ", deployUsername)).append(SysConstant.NEW_LINE);
+		sb.append(StringUtil.replace(
+				"> **部署代码**：http://code.paic.com.cn/#/repo{?1}/{?2}/commit  `{?3}`", repoAddr, branch, revision))
+				.append(SysConstant.NEW_LINE);
+		sb.append(StringUtil.replace("> **版本标识**：http://code.paic.com.cn/#/repo{?1}/commit/{?2}  ", repoAddr, revision))
+				.append(SysConstant.NEW_LINE);
+
+		if (StringUtil.isNotEmpty(web)) {
+			sb.append("> ").append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> [点击此访问web服务]({?1})", web)).append(SysConstant.NEW_LINE);
+		}
+
+		if (raw) {
+			sb.append(SysConstant.NEW_LINE);
+			sb.append("---").append(SysConstant.NEW_LINE);
+			sb.append("> **完整内容:** ").append(SysConstant.NEW_LINE);
+			sb.append("```").append(SysConstant.NEW_LINE);
+			sb.append(reqBody);
+			sb.append("```").append(SysConstant.NEW_LINE);
+		}
+
+		RunAsAuth runAsAuth = RunAsAuth.instance().runAs(almUsername);
+
+		ChatChannel chatChannel = new ChatChannel();
+		chatChannel.setChannel(channel2);
+		chatChannel.setContent(sb.toString());
+
+		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
+
+		final Mail mail2 = Mail.instance();
+
+		if (mail) {
+			channel2.getMembers().forEach(item -> mail2.addUsers(item));
+		}
+
+		mail2.addUsers(channel2.getSubscriber(), getLoginUser());
+
+		if (!mail2.isEmpty()) {
+
+			final User loginUser = getLoginUser();
+			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
+
+			final String html = StringUtil.md2Html(sb.toString(), true, true);
+
+			try {
+				mailSender
+						.sendHtmlByQueue(String.format("TMS-神兵事件通知_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+								TemplateUtil.process("templates/mail/mail-dynamic",
+										MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+												"神兵事件通知消息有@到你", "content", html)),
 								getLoginUserName(loginUser), mail2.get());
 			} catch (Exception e) {
 				e.printStackTrace();
