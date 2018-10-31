@@ -11,6 +11,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Predicate;
 
 public class JsonUtil {
 
@@ -115,31 +117,22 @@ public class JsonUtil {
 	 * @param classOfT
 	 * @return
 	 */
-	public static <T> List<T> mapArr2ObjectList(Map<?, ?> map,
-			String mapArrKey, Class<T> classOfT)
-	{
+	public static <T> List<T> mapArr2ObjectList(Map<?, ?> map, String mapArrKey, Class<T> classOfT) {
 		List<T> list = new ArrayList<T>();
 
-		try
-		{
-			if (map != null && map.size() > 0)
-			{
+		try {
+			if (map != null && map.size() > 0) {
 				Object obj = map.get(mapArrKey);
 
-				if (obj instanceof List<?>)
-				{
-					for (Object item : (List<?>) obj)
-					{
-						if (item instanceof Map<?, ?>)
-						{
+				if (obj instanceof List<?>) {
+					for (Object item : (List<?>) obj) {
+						if (item instanceof Map<?, ?>) {
 							list.add(JsonUtil.Obj2Object(item, classOfT));
 						}
 					}
 				}
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage(), e);
 		}
@@ -163,5 +156,21 @@ public class JsonUtil {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Json path read value.
+	 * @param json
+	 * @param jsonPath
+	 * @param filters
+	 * @return
+	 */
+	public static <T> T read(String json, String jsonPath, Predicate... filters) {
+		try {
+			return JsonPath.read(json, jsonPath, filters);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return null;
+		}
 	}
 }

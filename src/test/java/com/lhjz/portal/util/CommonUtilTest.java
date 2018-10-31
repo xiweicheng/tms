@@ -131,10 +131,15 @@ public class CommonUtilTest {
 
 	@org.junit.Test
 	public void testUrl() throws MalformedURLException {
-		URL url = new URL("http://code.paic.com.cn/sqms/sqms_alm.git?branch=master");
+		URL url = new URL("http://code.paic.com.cn/eim/cloud-ucp-im-console.git?branch=develop");
 		String query = url.getQuery();
 		System.out.println(url.getQuery());
 		System.out.println(query.split("=")[1]);
+		
+		String path = url.getPath(); // /hys_git_test4/439141543.git
+		String repoAddr = path != null ? path.replace(".git", "") : StringUtil.EMPTY;
+		
+		System.out.println(repoAddr);
 
 	}
 

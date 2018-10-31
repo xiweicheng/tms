@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jayway.jsonpath.JsonPath;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.constant.SysConstant;
@@ -349,22 +348,22 @@ public class FreeController extends BaseController {
 			return RespBody.failed("用户不存在不存在!");
 		}
 
-		String webhookEvent = JsonPath.read(reqBody, "$.webhookEvent");
+		String webhookEvent = JsonUtil.read(reqBody, "$.webhookEvent");
 
 		if (!"jira:issue_created".equals(webhookEvent)) {
 			return RespBody.failed("不支持处理类型!");
 		}
 
-		String issueSelf = JsonPath.read(reqBody, "$.issue.self");
-		String issueKey = JsonPath.read(reqBody, "$.issue.key");
-		String description = JsonPath.read(reqBody, "$.issue.fields.description");
-		String summary = JsonPath.read(reqBody, "$.issue.fields.summary");
-		String creatorSelf = JsonPath.read(reqBody, "$.issue.fields.creator.self");
-		String creatorName = JsonPath.read(reqBody, "$.issue.fields.creator.displayName");
-		String avatarUrls = JsonPath.read(reqBody, "$.issue.fields.creator.avatarUrls.16x16");
+		String issueSelf = JsonUtil.read(reqBody, "$.issue.self");
+		String issueKey = JsonUtil.read(reqBody, "$.issue.key");
+		String description = JsonUtil.read(reqBody, "$.issue.fields.description");
+		String summary = JsonUtil.read(reqBody, "$.issue.fields.summary");
+		String creatorSelf = JsonUtil.read(reqBody, "$.issue.fields.creator.self");
+		String creatorName = JsonUtil.read(reqBody, "$.issue.fields.creator.displayName");
+		String avatarUrls = JsonUtil.read(reqBody, "$.issue.fields.creator.avatarUrls.16x16");
 
-		String issuetype = JsonPath.read(reqBody, "$.issue.fields.issuetype.name");
-		String issuetypeIconUrl = JsonPath.read(reqBody, "$.issue.fields.issuetype.iconUrl");
+		String issuetype = JsonUtil.read(reqBody, "$.issue.fields.issuetype.name");
+		String issuetypeIconUrl = JsonUtil.read(reqBody, "$.issue.fields.issuetype.iconUrl");
 
 		String issueUrl = StringUtil.parseUrl(issueSelf) + "/browse/" + issueKey;
 
@@ -376,9 +375,9 @@ public class FreeController extends BaseController {
 		sb.append("**描述:** " + (description != null ? description : "")).append(SysConstant.NEW_LINE);
 
 		try {
-			String assigneeName = JsonPath.read(reqBody, "$.issue.fields.assignee.displayName");
-			String assigneeSelf = JsonPath.read(reqBody, "$.issue.fields.assignee.self");
-			String assigneeAvatarUrls = JsonPath.read(reqBody, "$.issue.fields.assignee.avatarUrls.16x16");
+			String assigneeName = JsonUtil.read(reqBody, "$.issue.fields.assignee.displayName");
+			String assigneeSelf = JsonUtil.read(reqBody, "$.issue.fields.assignee.self");
+			String assigneeAvatarUrls = JsonUtil.read(reqBody, "$.issue.fields.assignee.avatarUrls.16x16");
 
 			sb.append("**分配给:** " + StringUtil.replace("![]({?1}) [{?2}]({?3})", assigneeAvatarUrls, assigneeName, assigneeSelf))
 					.append(SysConstant.NEW_LINE);
@@ -386,8 +385,8 @@ public class FreeController extends BaseController {
 		}
 
 		try {
-			String priority = JsonPath.read(reqBody, "$.issue.fields.priority.name");
-			String priorityIconUrl = JsonPath.read(reqBody, "$.issue.fields.priority.iconUrl");
+			String priority = JsonUtil.read(reqBody, "$.issue.fields.priority.name");
+			String priorityIconUrl = JsonUtil.read(reqBody, "$.issue.fields.priority.iconUrl");
 			sb.append("**优先级:** " + StringUtil.replace("![]({?1}) {?2}", priorityIconUrl, priority))
 					.append(SysConstant.NEW_LINE);
 		} catch (Exception e1) {
@@ -458,18 +457,18 @@ public class FreeController extends BaseController {
 			return RespBody.failed("用户不存在不存在!");
 		}
 
-		String category = JsonPath.read(reqBody, "$.category");
-		String content = JsonPath.read(reqBody, "$.content");
-		String url = JsonPath.read(reqBody, "$.url");
+		String category = JsonUtil.read(reqBody, "$.category");
+		String content = JsonUtil.read(reqBody, "$.content");
+		String url = JsonUtil.read(reqBody, "$.url");
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append("## 用户工单反馈").append(SysConstant.NEW_LINE);
 		
 		try {
-			String loginName = JsonPath.read(reqBody, "$.user.loginName");
-			String realName = JsonPath.read(reqBody, "$.user.realName");
-			String email = JsonPath.read(reqBody, "$.user.email");
-			String mobile = JsonPath.read(reqBody, "$.user.mobile");
+			String loginName = JsonUtil.read(reqBody, "$.user.loginName");
+			String realName = JsonUtil.read(reqBody, "$.user.realName");
+			String email = JsonUtil.read(reqBody, "$.user.email");
+			String mobile = JsonUtil.read(reqBody, "$.user.mobile");
 
 			sb.append(StringUtil.replace("> **反馈用户: ** `{?1}` `{?2}` `{?3}` [`{?4}`](mailto:{?4})", realName, loginName,
 					mobile, email)).append(SysConstant.NEW_LINE);
@@ -615,6 +614,10 @@ public class FreeController extends BaseController {
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
 			@RequestParam(value = "web", required = false) String web, @RequestBody String reqBody) {
+		
+		if (raw) {
+			logger.info("sendChannelGitMsg: {}", reqBody);
+		}
 
 		if (!gitToken.equals(token)) {
 			return RespBody.failed("参数安全校验token不合法!");
@@ -625,18 +628,18 @@ public class FreeController extends BaseController {
 			return RespBody.failed("发送消息目的频道不存在!");
 		}
 
-		String fullName = JsonPath.read(reqBody, "$.header.createdBy.fullName");
+		String fullName = JsonUtil.read(reqBody, "$.header.createdBy.fullName");
 		// open：新建合并请求  close：关闭合并请求  accept：接受合并请求
-		String action = JsonPath.read(reqBody, "$.header.action");
+		String action = JsonUtil.read(reqBody, "$.header.action");
 		String actionName = GitAction.valueOf(action.toUpperCase()).getName();
 
-		Integer id = JsonPath.read(reqBody, "$.merge_request.id");
-		String name = JsonPath.read(reqBody, "$.merge_request.name");
-		String message = JsonPath.read(reqBody, "$.merge_request.message");
-		String sourceBranch = JsonPath.read(reqBody, "$.merge_request.source_branch");
-		String targetBranch = JsonPath.read(reqBody, "$.merge_request.target_branch");
+		Integer id = JsonUtil.read(reqBody, "$.merge_request.id");
+		String name = JsonUtil.read(reqBody, "$.merge_request.name");
+		String message = JsonUtil.read(reqBody, "$.merge_request.message");
+		String sourceBranch = JsonUtil.read(reqBody, "$.merge_request.source_branch");
+		String targetBranch = JsonUtil.read(reqBody, "$.merge_request.target_branch");
 
-		String httpUrl = JsonPath.read(reqBody, "$.repository.httpUrl");
+		String httpUrl = JsonUtil.read(reqBody, "$.repository.httpUrl");
 
 		String repoAddr = StringUtil.EMPTY;
 
@@ -724,6 +727,10 @@ public class FreeController extends BaseController {
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
 			@RequestParam(value = "web", required = false) String web, @RequestBody String reqBody) {
+		
+		if (raw) {
+			logger.info("sendChanneAlmMsg: {}", reqBody);
+		}
 
 		if (!almToken.equals(token)) {
 			return RespBody.failed("参数安全校验token不合法!");
@@ -733,40 +740,18 @@ public class FreeController extends BaseController {
 		if (channel2 == null) {
 			return RespBody.failed("发送消息目的频道不存在!");
 		}
-		
-		/**
-		{
-			"path": "http://code.paic.com.cn/sqms/sqms_alm.git?branch=master",
-			"deployUsername": "李洋",
-			"envType": "STG",
-			"envName": "sqms_alm_stg",
-			"planName": "SQMS-ALM2.67.0",
-			"header": {
-				"createdBy": {
-					"avatarUrl": "xxx",
-					"fullName": "xxx",
-					"username": "xx"
-				},
-				"createdTime": 1539570237360
-			},
-			"planId": 49094,
-			"revision": "f0217835617b88b23f65f2b6e106ddafb74828df",
-			"isSuccess": true,
-			"commitIds": "xx"
-		}
-		 **/
 
-		String fullName = JsonPath.read(reqBody, "$.header.createdBy.fullName");
-		String planName = JsonPath.read(reqBody, "$.planName");
-		String envName = JsonPath.read(reqBody, "$.envName");
-		String envType = JsonPath.read(reqBody, "$.envType");
-		String deployUsername = JsonPath.read(reqBody, "$.deployUsername");
+		String planName = JsonUtil.read(reqBody, "$.planName");
+		String envName = JsonUtil.read(reqBody, "$.envName");
+		String envType = JsonUtil.read(reqBody, "$.envType");
+		String deployUsername = JsonUtil.read(reqBody, "$.deployUsername");
 		
-		Integer planId = JsonPath.read(reqBody, "$.planId");
-		String revision = JsonPath.read(reqBody, "$.revision");
-		Boolean isSuccess = JsonPath.read(reqBody, "$.isSuccess");
+		Integer planId = JsonUtil.read(reqBody, "$.planId");
+		String revision = JsonUtil.read(reqBody, "$.revision");
+		String commitIds = JsonUtil.read(reqBody, "$.commitIds");
+		Boolean isSuccess = JsonUtil.read(reqBody, "$.isSuccess");
 
-		String pathUrl = JsonPath.read(reqBody, "$.path");
+		String pathUrl = JsonUtil.read(reqBody, "$.path");
 
 		String repoAddr = StringUtil.EMPTY;
 		String branch = StringUtil.EMPTY;
@@ -788,16 +773,16 @@ public class FreeController extends BaseController {
 		StringBuffer sb = new StringBuffer();
 		sb.append("## 神兵事件通知").append(SysConstant.NEW_LINE);
 		sb.append(StringUtil.replace(
-				"> {?6}【{?3}】**`{?1}`** [`{?2}`] 部署**{?4}** http://vt.paic.com.cn/pipeline/index.jsp?project_id={?5}  ",
+				"> {?6}【{?3}】**`{?1}`** [`{?2}`] 部署{?4}  http://vt.paic.com.cn  `{?5}`  ",
 				planName, envName, envType, (isSuccess ? "成功" : "失败"), planId, icon)).append(SysConstant.NEW_LINE);
 		sb.append(StringUtil.replace("> ")).append(SysConstant.NEW_LINE);
-		sb.append(StringUtil.replace("> **创建用户**：`{?1}`  ", fullName)).append(SysConstant.NEW_LINE);
 		sb.append(StringUtil.replace("> **部署用户**：`{?1}`  ", deployUsername)).append(SysConstant.NEW_LINE);
 		sb.append(StringUtil.replace(
 				"> **部署代码**：http://code.paic.com.cn/#/repo{?1}/{?2}/commit  `{?3}`", repoAddr, branch, revision))
 				.append(SysConstant.NEW_LINE);
 		sb.append(StringUtil.replace("> **版本标识**：http://code.paic.com.cn/#/repo{?1}/commit/{?2}  ", repoAddr, revision))
 				.append(SysConstant.NEW_LINE);
+		sb.append(StringUtil.replace("> **提交标识**：`{?1}`  ", commitIds)).append(SysConstant.NEW_LINE);
 
 		if (StringUtil.isNotEmpty(web)) {
 			sb.append("> ").append(SysConstant.NEW_LINE);
