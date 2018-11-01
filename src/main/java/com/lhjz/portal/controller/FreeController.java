@@ -651,11 +651,15 @@ public class FreeController extends BaseController {
 			logger.error(e1.getMessage(), e1);
 		}
 
+		String icon = action.equalsIgnoreCase(GitAction.OPEN.name()) ? "green add circle"
+				: (action.equalsIgnoreCase(GitAction.ACCEPT.name()) ? "green check circle" : "red remove circle");
+		String iconTag = StringUtil.replace("<i class=\"large {?1} icon\"></i>", icon);
+
 		StringBuffer sb = new StringBuffer();
 		sb.append("## 代码合并通知").append(SysConstant.NEW_LINE);
 		sb.append(StringUtil.replace(
-				"> **{?1}** {?2}`{?3}`到`{?4}`的合并请求：http://code.paic.com.cn/#/repo{?5}/merge/{?6}/detail  ", fullName,
-				actionName, sourceBranch, targetBranch, repoAddr, id)).append(SysConstant.NEW_LINE);
+				"> {?7}**{?1}** {?2}`{?3}`到`{?4}`的合并请求：http://code.paic.com.cn/#/repo{?5}/merge/{?6}/detail  ",
+				fullName, actionName, sourceBranch, targetBranch, repoAddr, id, iconTag)).append(SysConstant.NEW_LINE);
 
 		if (StringUtil.isNotEmpty(web)) {
 			sb.append("> ").append(SysConstant.NEW_LINE);
@@ -748,7 +752,7 @@ public class FreeController extends BaseController {
 		
 		Integer planId = JsonUtil.read(reqBody, "$.planId");
 		String revision = JsonUtil.read(reqBody, "$.revision");
-		String commitIds = JsonUtil.read(reqBody, "$.commitIds");
+		//		String commitIds = JsonUtil.read(reqBody, "$.commitIds");
 		Boolean isSuccess = JsonUtil.read(reqBody, "$.isSuccess");
 
 		String pathUrl = JsonUtil.read(reqBody, "$.path");
@@ -780,9 +784,9 @@ public class FreeController extends BaseController {
 		sb.append(StringUtil.replace(
 				"> **部署代码**：http://code.paic.com.cn/#/repo{?1}/{?2}/commit  `{?3}`", repoAddr, branch, revision))
 				.append(SysConstant.NEW_LINE);
-		sb.append(StringUtil.replace("> **版本标识**：http://code.paic.com.cn/#/repo{?1}/commit/{?2}  ", repoAddr, revision))
+		sb.append(StringUtil.replace("> **提交标识**：http://code.paic.com.cn/#/repo{?1}/commit/{?2}  ", repoAddr, revision))
 				.append(SysConstant.NEW_LINE);
-		sb.append(StringUtil.replace("> **提交标识**：`{?1}`  ", commitIds)).append(SysConstant.NEW_LINE);
+		//		sb.append(StringUtil.replace("> **提交标识**：`{?1}`  ", commitIds)).append(SysConstant.NEW_LINE);
 
 		if (StringUtil.isNotEmpty(web)) {
 			sb.append("> ").append(SysConstant.NEW_LINE);

@@ -140,6 +140,8 @@ public class CommonUtilTest {
 		String repoAddr = path != null ? path.replace(".git", "") : StringUtil.EMPTY;
 		
 		System.out.println(repoAddr);
+		
+		System.out.println(GitAction.OPEN.name());
 
 	}
 
