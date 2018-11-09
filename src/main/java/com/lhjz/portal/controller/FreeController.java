@@ -661,11 +661,6 @@ public class FreeController extends BaseController {
 				"> {?7}**{?1}** {?2}`{?3}`到`{?4}`的合并请求：http://code.paic.com.cn/#/repo{?5}/merge/{?6}/detail  ",
 				fullName, actionName, sourceBranch, targetBranch, repoAddr, id, iconTag)).append(SysConstant.NEW_LINE);
 
-		if (StringUtil.isNotEmpty(web)) {
-			sb.append("> ").append(SysConstant.NEW_LINE);
-			sb.append(StringUtil.replace("> [点击此访问web服务]({?1})", web)).append(SysConstant.NEW_LINE);
-		}
-
 		if (StringUtil.isNotEmpty(name)) {
 			sb.append("> ").append(SysConstant.NEW_LINE);
 			sb.append(StringUtil.replace("> **标题：** {?1}  ", name)).append(SysConstant.NEW_LINE);
@@ -675,6 +670,11 @@ public class FreeController extends BaseController {
 			sb.append(StringUtil.replace("> **描述：** {?1}  ", message)).append(SysConstant.NEW_LINE);
 		}
 
+		if (StringUtil.isNotEmpty(web)) {
+			sb.append("> ").append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> [点击此访问web服务]({?1})", web)).append(SysConstant.NEW_LINE);
+		}
+		
 		if (raw) {
 			sb.append(SysConstant.NEW_LINE);
 			sb.append("---").append(SysConstant.NEW_LINE);
