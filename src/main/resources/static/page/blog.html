@@ -20,6 +20,8 @@
     <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" /> -->
     <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/css/froala_style.min.css" rel="stylesheet" type="text/css" /> -->
     <link href="froala_style.min.css" rel="stylesheet" type="text/css" />
+    <!-- jQuery Modal -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
     <style>
     body {
         text-align: center;
@@ -83,6 +85,40 @@
         display: none;
     }
 
+    .blocker {
+        z-index: 9999999999;
+    }
+
+    button.btn {
+        color: #fff;
+        background: #2185d0;
+        padding: .5rem 1rem;
+        display: inline-block;
+        border-radius: 4px;
+        transition-duration: .25s;
+        border: none;
+        font-size: 14px;
+    }
+
+    button.btn:hover {
+        background: #1678c2;
+    }
+
+    #saveFrm select {
+        width: 440px;
+    }
+
+    #saveFrm .row {
+        padding-bottom: 8px;
+    }
+
+    #saveFrm label {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
     </style>
 </head>
 
@@ -98,6 +134,27 @@
         </div>
         <div id='edit' style="margin-top: 60px; padding-bottom: 60px;"></div>
     </div>
+    <!-- Modal HTML embedded directly into document -->
+    <div id="saveModal" class="modal">
+        <div id="saveFrm" style="padding-top: 16px;">
+            <div class="row">
+                <label>选择空间</label>
+                <select name="space"></select>
+            </div>
+            <div class="row">
+                <label>选择分类</label>
+                <select name="dir"></select>
+            </div>
+            <div class="row">
+                <input id="privated" type="checkbox">
+                <label for="privated">私有博文（不公开）</label>
+            </div>
+            <div class="row" style="padding-top: 16px;">
+                <button class="btnOk btn">确定</button>
+            </div>
+        </div>
+    </div>
+    <!-- <p><a href="#saveModal" rel="modal:open">Open Modal</a></p> -->
     <!-- Include jQuery lib. -->
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script> -->
     <script type="text/javascript" src="jquery.min.js"></script>
@@ -105,6 +162,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/xml/xml.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-url/2.5.3/url.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
     <!-- Include Editor JS files. -->
     <script type="text/javascript" src="froala_editor.pkgd.min.js"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/js/froala_editor.pkgd.min.js"></script> -->
@@ -217,6 +275,28 @@
             openNewWin(url);
         });
 
+
+        // 博文保存选择，空间 + 分类
+        var spaces = [];
+
+        $('#saveFrm select[name="space"]').change(function(event) {
+            var sid = $(this).val();
+            $('#saveFrm select[name="dir"]').empty().append($('<option/>').text('(不指定分类)').attr('value', ''));
+
+            if (sid !== '') {
+                $.each(spaces, function(index, space) {
+                    if (space.id == sid) {
+                        $.each(space.dirs, function(index, dir) {
+                            if (dir.status != 'Deleted') {
+                                $('#saveFrm select[name="dir"]').append($('<option/>').text(dir.name).attr('value', dir.id));
+                            }
+                        });
+                        return false;
+                    }
+                });
+            }
+        });
+
         $('#save').click(function(event) {
 
             var title = $('#title').val();
@@ -233,22 +313,23 @@
             }
 
             if (blog == null) {
-                $.post('/admin/blog/create', {
-                    url: location.protocol + '//' + location.host + '/page/index.html',
-                    // usernames: '',
-                    // spaceId: '',
-                    title: title,
-                    content: content,
-                    editor: 'Html',
-                    privated: true,
-                    contentHtml: content
-                }, function(data, textStatus, xhr) {
+                $.get('/admin/space/listMy', function(data) {
                     if (data.success) {
-                        blog = data.data;
-                        toastr && toastr.success('博文保存成功！');
-                        $('#preview').show();
-                    } else {
-                        toastr && toastr.error(data.data);
+
+                        spaces = data.data;
+
+                        $('#saveFrm select[name="space"]').empty().append($('<option/>').text('(不指定空间)').attr('value', ''));
+                        $('#saveFrm select[name="dir"]').empty().append($('<option/>').text('(不指定分类)').attr('value', ''));
+
+                        $.each(data.data, function(index, space) {
+                            $('#saveFrm select[name="space"]').append($('<option/>').text(space.name).attr('value', space.id));
+                        });
+
+                        $('#saveModal').modal({
+                            fadeDuration: 200,
+                            clickClose: false
+                        });
+
                     }
                 });
             } else {
@@ -264,6 +345,47 @@
                     if (data.success) {
                         blog = data.data;
                         toastr && toastr.success('博文更新成功！');
+                    } else {
+                        toastr && toastr.error(data.data);
+                    }
+                });
+            }
+        });
+
+        $('#saveFrm .btnOk').click(function(event) {
+
+            var title = $('#title').val();
+            var content = $('#edit').froalaEditor('html.get', true);
+
+            if (!title || !$.trim(title)) {
+                toastr && toastr.error('博文标题不能为空！');
+                return;
+            }
+
+            if (!content || !$.trim(content)) {
+                toastr && toastr.error('博文内容不能为空！');
+                return;
+            }
+
+            if (blog == null) {
+
+                $.modal.close();
+
+                $.post('/admin/blog/create', {
+                    url: location.protocol + '//' + location.host + '/page/index.html',
+                    // usernames: '',
+                    spaceId: $('#saveFrm select[name="space"]').val(),
+                    dirId: $('#saveFrm select[name="dir"]').val(),
+                    title: title,
+                    content: content,
+                    editor: 'Html',
+                    privated: $('#privated').prop("checked"),
+                    contentHtml: content
+                }, function(data, textStatus, xhr) {
+                    if (data.success) {
+                        blog = data.data;
+                        toastr && toastr.success('博文保存成功！');
+                        $('#preview').show();
                     } else {
                         toastr && toastr.error(data.data);
                     }
