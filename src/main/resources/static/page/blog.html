@@ -78,7 +78,7 @@
     }
 
     .topbar>.actions button {
-        font-size: 18px;
+        font-size: 12px;
     }
 
     #preview {
@@ -104,10 +104,6 @@
         background: #1678c2;
     }
 
-    #saveFrm select {
-        width: 440px;
-    }
-
     #saveFrm .row {
         padding-bottom: 8px;
     }
@@ -119,6 +115,17 @@
         user-select: none;
     }
 
+    #saveFrm select {
+        background:#fafdfe;  
+        height:28px;  
+        width:440px;
+        margin-top: 3px;
+        line-height:28px;  
+        border:1px solid #9bc0dd;  
+        -moz-border-radius:2px;  
+        -webkit-border-radius:2px;  
+    }
+
     </style>
 </head>
 
@@ -127,8 +134,8 @@
         <div class="topbar">
             <input id="title" type="text" placeholder="标题">
             <div class="actions">
-                <button class="button -blue" id="save">保存</button>
-                <button class="button -blue" id="preview">预览</button>
+                <button class="button -blue btn" id="save">保存</button>
+                <button class="button -blue btn" id="preview">预览</button>
             </div>
             <span id="msg" style="color: red; padding-left: 16px;"></span>
         </div>
