@@ -261,8 +261,8 @@ public class BlogController extends BaseController {
 		try {
 
 			ThreadUtil.exec(() -> {
-				BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).title(blog.getTitle()).cmd(cmd)
-						.username(loginUsername).build();
+				BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).version(blog.getVersion())
+						.title(blog.getTitle()).cmd(cmd).username(loginUsername).build();
 
 				for (String username : usernames) {
 
@@ -284,8 +284,8 @@ public class BlogController extends BaseController {
 	private void wsSendToUsers(Blog blog, Comment comment, Cmd cmd, String loginUsername, String... usernames) {
 		try {
 			ThreadUtil.exec(() -> {
-				BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).title(blog.getTitle())
-						.cid(comment.getId()).cmd(cmd).username(loginUsername).build();
+				BlogPayload blogPayload = BlogPayload.builder().id(blog.getId()).version(blog.getVersion())
+						.title(blog.getTitle()).cid(comment.getId()).cmd(cmd).username(loginUsername).build();
 
 				for (String username : usernames) {
 
@@ -307,7 +307,7 @@ public class BlogController extends BaseController {
 		try {
 			ThreadUtil.exec(() -> {
 				messagingTemplate.convertAndSend("/blog/update", BlogPayload.builder().id(blog.getId())
-						.title(blog.getTitle()).cmd(cmd).username(loginUsername).build());
+						.version(blog.getVersion()).title(blog.getTitle()).cmd(cmd).username(loginUsername).build());
 			});
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

@@ -13,6 +13,8 @@ public class BlogPayload {
 
 	private Long cid;
 	
+	private Long version;
+	
 	// BlogNews id
 	private Long nid;
 	
