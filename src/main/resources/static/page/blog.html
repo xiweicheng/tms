@@ -170,6 +170,8 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-url/2.5.3/url.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script> -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.core.min.js"></script>
     <!-- Include Editor JS files. -->
     <script type="text/javascript" src="froala_editor.pkgd.min.js"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/js/froala_editor.pkgd.min.js"></script> -->
@@ -227,7 +229,7 @@
                     })
                     .done(function(data) {
                         console.log('image was deleted');
-                        toastr && toastr.success('图片删除成功！');
+                        // toastr && toastr.success('图片删除成功！');
                     })
                     .fail(function(err) {
                         console.log('image delete problem: ' + JSON.stringify(err));
@@ -245,7 +247,7 @@
                     })
                     .done(function(data) {
                         console.log('file was deleted');
-                        toastr && toastr.success('文件删除成功！');
+                        // toastr && toastr.success('文件删除成功！');
                     })
                     .fail(function(err) {
                         console.log('file delete problem: ' + JSON.stringify(err));
@@ -282,7 +284,6 @@
             openNewWin(url);
         });
 
-
         // 博文保存选择，空间 + 分类
         var spaces = [];
 
@@ -293,6 +294,7 @@
             if (sid !== '') {
                 $.each(spaces, function(index, space) {
                     if (space.id == sid) {
+                        window._ && (space.dirs = _.sortBy(space.dirs, 'name'));
                         $.each(space.dirs, function(index, dir) {
                             if (dir.status != 'Deleted') {
                                 $('#saveFrm select[name="dir"]').append($('<option/>').text(dir.name).attr('value', dir.id));
@@ -328,7 +330,8 @@
                         $('#saveFrm select[name="space"]').empty().append($('<option/>').text('(不指定空间)').attr('value', ''));
                         $('#saveFrm select[name="dir"]').empty().append($('<option/>').text('(不指定分类)').attr('value', ''));
 
-                        $.each(data.data, function(index, space) {
+                        window._ && (spaces = _.sortBy(spaces, 'name'));
+                        $.each(spaces, function(index, space) {
                             $('#saveFrm select[name="space"]').append($('<option/>').text(space.name).attr('value', space.id));
                         });
 
