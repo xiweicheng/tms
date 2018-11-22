@@ -63,7 +63,7 @@ public class AsyncTask {
 					chatChannel.setContent(content);
 					ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 
-					chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content, username);
+					chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content, username, null);
 					wsSendChannel(chatChannel2, messagingTemplate, username);
 				}
 			}
@@ -85,7 +85,7 @@ public class AsyncTask {
 					chatReply.setContent(content);
 					ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
 
-					chatMsg.put(chatReply2.getChatChannel(), Action.Update, ChatMsgType.Reply, username);
+					chatMsg.put(chatReply2.getChatChannel(), Action.Update, ChatMsgType.Reply, username, chatReply2);
 					wsSendChannel(chatReply2.getChatChannel(), messagingTemplate, username);
 				}
 			}

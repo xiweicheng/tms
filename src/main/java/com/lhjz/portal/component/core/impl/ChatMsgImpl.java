@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.lhjz.portal.component.core.IChatMsg;
 import com.lhjz.portal.component.core.model.ChatMsgItem;
 import com.lhjz.portal.entity.ChatChannel;
+import com.lhjz.portal.entity.ChatReply;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.ChatMsgType;
 import com.lhjz.portal.util.WebUtil;
@@ -64,7 +65,7 @@ public class ChatMsgImpl implements IChatMsg {
 	}
 
 	@Override
-	public void put(ChatChannel chatChannel, Action action, ChatMsgType type, String username) {
+	public void put(ChatChannel chatChannel, Action action, ChatMsgType type, String username, ChatReply chatReply) {
 
 		if (off) {
 			return;
@@ -73,11 +74,13 @@ public class ChatMsgImpl implements IChatMsg {
 		if (chatChannel == null) {
 			return;
 		}
-		
+
 		username = username == null ? WebUtil.getUsername() : username;
-		
+
+		Long rid = chatReply != null ? chatReply.getId() : null;
+
 		put(chatChannel.getChannel().getId(),
-				ChatMsgItem.builder().id(chatChannel.getId()).action(action).type(type).username(username)
+				ChatMsgItem.builder().id(chatChannel.getId()).rid(rid).action(action).type(type).username(username)
 						.version(chatChannel.getVersion()).expire(LocalDateTime.now().plusMinutes(EXPIRE)).build());
 	}
 

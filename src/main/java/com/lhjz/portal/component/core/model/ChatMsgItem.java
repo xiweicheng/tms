@@ -15,7 +15,11 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(of = { "id" })
 public class ChatMsgItem {
 
+	// chat id
 	Long id;
+	
+	// chatreply id
+	Long rid;
 
 	Action action;
 
