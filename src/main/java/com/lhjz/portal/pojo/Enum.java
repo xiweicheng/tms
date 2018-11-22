@@ -150,9 +150,9 @@ public class Enum {
 
 	public static enum GitAction {
 
-		// open：新建合并请求  close：关闭合并请求  accept：接受合并请求
+		// open：新建合并请求  close：关闭合并请求  accept：接受合并请求 push：推送
 
-		OPEN("新建"), CLOSE("关闭"), ACCEPT("接受");
+		OPEN("新建"), CLOSE("关闭"), ACCEPT("接受"), PUSH("推送");
 
 		private String name;
 

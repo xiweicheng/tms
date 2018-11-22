@@ -614,7 +614,7 @@ public class FreeController extends BaseController {
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
 			@RequestParam(value = "web", required = false) String web, @RequestBody String reqBody) {
-		
+
 		if (raw) {
 			logger.info("sendChannelGitMsg: {}", reqBody);
 		}
@@ -651,8 +651,17 @@ public class FreeController extends BaseController {
 			logger.error(e1.getMessage(), e1);
 		}
 
-		String icon = action.equalsIgnoreCase(GitAction.OPEN.name()) ? "green add circle"
-				: (action.equalsIgnoreCase(GitAction.ACCEPT.name()) ? "green check circle" : "red remove circle");
+		String icon = "";
+
+		if (action.equalsIgnoreCase(GitAction.OPEN.name())) {
+			icon = "green add circle";
+		} else if (action.equalsIgnoreCase(GitAction.ACCEPT.name())) {
+			icon = "green check circle";
+		} else if (action.equalsIgnoreCase(GitAction.CLOSE.name())) {
+			icon = "red remove circle";
+		} else if (action.equalsIgnoreCase(GitAction.PUSH.name())) {
+			icon = "yellow info circle";
+		}
 		String iconTag = StringUtil.replace("<i class=\"large {?1} icon\"></i>", icon);
 
 		StringBuffer sb = new StringBuffer();
@@ -674,7 +683,7 @@ public class FreeController extends BaseController {
 			sb.append("> ").append(SysConstant.NEW_LINE);
 			sb.append(StringUtil.replace("> [点击此访问web服务]({?1})", web)).append(SysConstant.NEW_LINE);
 		}
-		
+
 		if (raw) {
 			sb.append(SysConstant.NEW_LINE);
 			sb.append("---").append(SysConstant.NEW_LINE);
