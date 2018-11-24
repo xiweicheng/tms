@@ -3,6 +3,7 @@
  */
 package com.lhjz.portal.repository;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import org.springframework.data.jpa.repository.Query;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.pojo.Enum.Status;
 
 /**
  * 
@@ -28,6 +30,9 @@ import com.lhjz.portal.entity.security.User;
 public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> {
 
 	Page<ChatChannel> findByChannel(Channel channel, Pageable pageable);
+
+	Page<ChatChannel> findByChannelAndCreatorInAndStatusNot(Channel channel, Collection<User> creators, Status status,
+			Pageable pageable);
 
 	@Query(value = "SELECT * FROM chat_channel WHERE channel = ?1 AND id > ?2", nativeQuery = true)
 	List<ChatChannel> latest(Channel channel, Long id);

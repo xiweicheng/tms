@@ -3,6 +3,8 @@
  */
 package com.lhjz.portal.controller;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -524,6 +526,21 @@ public class ChatChannelController extends BaseController {
 				chats = chatChannelRepository.queryAboutMeByTags(channel, Arrays.asList(tags), pageable.getOffset(),
 						pageable.getPageSize());
 				cnt = chatChannelRepository.countAboutMeByTags(channel, Arrays.asList(tags));
+			}
+		} else if (search.toLowerCase().startsWith("from:")) {
+			String[] arr = search.split(":", 2);
+			if (StringUtil.isNotEmpty(arr[1].trim())) {
+				String[] froms = arr[1].trim().split("\\s+");
+				List<User> fromUsers = Stream.of(froms).map(from -> getUser(from)).filter(user -> user != null)
+						.collect(Collectors.toList());
+
+				if (!fromUsers.isEmpty()) {
+
+					Page<ChatChannel> pageChatChannel = chatChannelRepository
+							.findByChannelAndCreatorInAndStatusNot(channel, fromUsers, Status.Deleted, pageable);
+					chats = pageChatChannel.getContent();
+					cnt = pageChatChannel.getTotalElements();
+				}
 			}
 		} else {
 			String _search = "%" + search + "%";
