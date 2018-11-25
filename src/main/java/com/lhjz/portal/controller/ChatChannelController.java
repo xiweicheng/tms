@@ -541,28 +541,43 @@ public class ChatChannelController extends BaseController {
 					cnt = pageChatChannel.getTotalElements();
 				}
 			}
-		}  else if (search.toLowerCase().startsWith("date:")) {
+		} else if (search.toLowerCase().startsWith("date:")) {
 			String[] arr = search.split(":", 2);
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
 				String[] dates = arr[1].trim().split("\\s+");
-				
+
 				List<Integer> intLists = Stream.of(dates).map(date -> {
-					return StringUtil.isInteger(date) ? Integer.valueOf(date) : null;
+
+					int v = 0;
+					try {
+						if (date.toLowerCase().endsWith("m")) {
+							v = Integer.parseInt(date.replaceAll("[^\\d]+", ""));
+						} else if (date.toLowerCase().endsWith("h")) {
+							v = Integer.parseInt(date.replaceAll("[^\\d]+", "")) * 60;
+						} else {
+							v = Integer.parseInt(date.replaceAll("[^\\d]+", "")) * 60 * 24;
+						}
+					} catch (NumberFormatException e) {
+						logger.warn(e.getMessage());
+						return null;
+					}
+
+					return v != 0 ? Integer.valueOf(v) : null;
 				}).filter(date -> date != null).collect(Collectors.toList());
 
 				if (!intLists.isEmpty()) {
-					
+
 					LocalDateTime end = LocalDateTime.now();
 					LocalDateTime start = LocalDateTime.now();
-					
-					if(intLists.size() == 1) {
-						start = start.minusDays(intLists.get(0));
+
+					if (intLists.size() == 1) {
+						start = start.minusMinutes(intLists.get(0));
 					} else {
 						Integer i1 = intLists.get(0);
 						Integer i2 = intLists.get(1);
-						start = start.minusDays(Math.max(i1, i2));
-						end = end.minusDays(Math.min(i1, i2));
-					}			
+						start = start.minusMinutes(Math.max(i1, i2));
+						end = end.minusMinutes(Math.min(i1, i2));
+					}
 
 					Page<ChatChannel> pageChatChannel = chatChannelRepository
 							.findByChannelAndCreateDateBetweenAndStatusNot(channel, DateUtil.localDateTime2Date(start),
