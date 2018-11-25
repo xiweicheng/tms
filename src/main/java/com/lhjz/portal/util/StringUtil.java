@@ -48,6 +48,26 @@ public final class StringUtil {
 	}
 
 	/**
+	 * 判断是不是Integer数字字符串.
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static boolean isInteger(String str) {
+
+		if (isEmpty(str)) {
+			return false;
+		} else {
+			try {
+				Integer.parseInt(str);
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
+		}
+	}
+
+	/**
 	 * 判断是否为正确的邮件格式
 	 * 
 	 * @param str

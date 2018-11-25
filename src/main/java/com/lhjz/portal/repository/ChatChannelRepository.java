@@ -34,6 +34,9 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 	Page<ChatChannel> findByChannelAndCreatorInAndStatusNot(Channel channel, Collection<User> creators, Status status,
 			Pageable pageable);
 
+	Page<ChatChannel> findByChannelAndCreateDateBetweenAndStatusNot(Channel channel, Date start, Date end,
+			Status status, Pageable pageable);
+
 	@Query(value = "SELECT * FROM chat_channel WHERE channel = ?1 AND id > ?2", nativeQuery = true)
 	List<ChatChannel> latest(Channel channel, Long id);
 	

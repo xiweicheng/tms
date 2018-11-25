@@ -3,8 +3,6 @@
  */
 package com.lhjz.portal.controller;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -13,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -538,6 +537,36 @@ public class ChatChannelController extends BaseController {
 
 					Page<ChatChannel> pageChatChannel = chatChannelRepository
 							.findByChannelAndCreatorInAndStatusNot(channel, fromUsers, Status.Deleted, pageable);
+					chats = pageChatChannel.getContent();
+					cnt = pageChatChannel.getTotalElements();
+				}
+			}
+		}  else if (search.toLowerCase().startsWith("date:")) {
+			String[] arr = search.split(":", 2);
+			if (StringUtil.isNotEmpty(arr[1].trim())) {
+				String[] dates = arr[1].trim().split("\\s+");
+				
+				List<Integer> intLists = Stream.of(dates).map(date -> {
+					return StringUtil.isInteger(date) ? Integer.valueOf(date) : null;
+				}).filter(date -> date != null).collect(Collectors.toList());
+
+				if (!intLists.isEmpty()) {
+					
+					LocalDateTime end = LocalDateTime.now();
+					LocalDateTime start = LocalDateTime.now();
+					
+					if(intLists.size() == 1) {
+						start = start.minusDays(intLists.get(0));
+					} else {
+						Integer i1 = intLists.get(0);
+						Integer i2 = intLists.get(1);
+						start = start.minusDays(Math.max(i1, i2));
+						end = end.minusDays(Math.min(i1, i2));
+					}			
+
+					Page<ChatChannel> pageChatChannel = chatChannelRepository
+							.findByChannelAndCreateDateBetweenAndStatusNot(channel, DateUtil.localDateTime2Date(start),
+									DateUtil.localDateTime2Date(end), Status.Deleted, pageable);
 					chats = pageChatChannel.getContent();
 					cnt = pageChatChannel.getTotalElements();
 				}

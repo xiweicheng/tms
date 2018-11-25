@@ -2,6 +2,9 @@
 package com.lhjz.portal.util;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.joda.time.DateTime;
@@ -243,4 +246,17 @@ public final class DateUtil {
 	public static String toNiceTime(String date) {
 		return toNiceTime(parse(date, FORMAT1, FORMAT2));
 	}
+	
+	/**
+	 * localDateTime转Date
+	 * @param localDateTime
+	 */
+	public static Date localDateTime2Date(LocalDateTime localDateTime) {
+		ZoneId zoneId = ZoneId.systemDefault();
+		ZonedDateTime zdt = localDateTime.atZone(zoneId);
+		Date date = Date.from(zdt.toInstant());
+
+		return date;
+	}
+
 }
