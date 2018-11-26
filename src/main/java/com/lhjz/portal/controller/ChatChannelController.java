@@ -159,6 +159,9 @@ public class ChatChannelController extends BaseController {
 
 	@Autowired
 	AsyncTask asyncTask;
+	
+	@Value("${tms.chat.url.summary.off}")
+	Boolean off; // 是否关闭
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -184,7 +187,9 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
 
-		asyncTask.updateChatChannel(content, chatChannel2.getId(), messagingTemplate, WebUtil.getUsername());
+		if (!off) {
+			asyncTask.updateChatChannel(content, chatChannel2.getId(), messagingTemplate, WebUtil.getUsername());
+		}
 
 		final String href = url + "?id=" + chatChannel2.getId();
 		final String html = contentHtml; // StringUtil.md2Html(contentHtml, false, true);
