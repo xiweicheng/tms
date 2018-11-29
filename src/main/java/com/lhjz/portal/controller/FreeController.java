@@ -90,34 +90,34 @@ public class FreeController extends BaseController {
 
 	@Autowired
 	PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	ChannelRepository channelRepository;
-	
+
 	@Autowired
 	FileRepository fileRepository;
-	
+
 	@Autowired
 	ChannelService channelService;
-	
+
 	@Autowired
 	ChatChannelService chatChannelService;
-	
+
 	@Autowired
 	Environment env;
-	
+
 	@Value("${tms.base.url}")
 	private String baseUrl;
-	
+
 	@Value("${tms.token.jira}")
 	private String tokenJira;
-	
+
 	@Value("${tms.token.feedback}")
 	private String tokenFeedback;
-	
+
 	@Value("${tms.git.token}")
 	private String gitToken;
-	
+
 	@Value("${tms.git.username}")
 	private String gitUsername;
 
@@ -132,8 +132,7 @@ public class FreeController extends BaseController {
 
 		logger.debug(params.toString());
 
-		List<User> users = userRepository.findByMails(params.get("mail")
-				.toString());
+		List<User> users = userRepository.findByMails(params.get("mail").toString());
 
 		if (users.size() == 0) {
 			return RespBody.failed("用户不存在!");
@@ -148,17 +147,13 @@ public class FreeController extends BaseController {
 
 		userRepository.saveAndFlush(user);
 
-		final String content = StringUtil
-				.replaceByKV(
-						"<a target='_blank' href='{baseUrl}{path}#/pwd-reset?id={id}'>点击该链接重置密码</a>",
-						"baseUrl", params.get("baseUrl"), "path",
-						params.get("path"), "id", user.getResetPwdToken());
+		final String content = StringUtil.replaceByKV(
+				"<a target='_blank' href='{baseUrl}{path}#/pwd-reset?id={id}'>点击该链接重置密码</a>", "baseUrl",
+				params.get("baseUrl"), "path", params.get("path"), "id", user.getResetPwdToken());
 		boolean sts = false;
 
 		try {
-			sts = mailSender.sendHtml(
-					String.format("TMS-密码重置_%s",
-							DateUtil.format(new Date(), DateUtil.FORMAT7)),
+			sts = mailSender.sendHtml(String.format("TMS-密码重置_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					content, null, Mail.instance().addUsers(user).get());
 
 			logger.info("重置密码邮件发送状态: " + sts);
@@ -181,8 +176,7 @@ public class FreeController extends BaseController {
 			return RespBody.failed("密码长度需要不少于8位!");
 		}
 
-		final User user = userRepository.findOneByResetPwdToken(params.get(
-				"token").toString());
+		final User user = userRepository.findOneByResetPwdToken(params.get("token").toString());
 
 		if (user == null) {
 			return RespBody.failed("密码重置Token失效!");
@@ -206,7 +200,7 @@ public class FreeController extends BaseController {
 
 		// username(唯一行校验 & !all), mail(激活用户), name(可选,没有,设置为username),
 		// pwd(长度>=8)
-		
+
 		if (StringUtil.isEmpty(params.get("username"))) {
 			return RespBody.failed("注册用户名不能为空!");
 		}
@@ -229,7 +223,7 @@ public class FreeController extends BaseController {
 		if (user != null || "all".equalsIgnoreCase(username)) {
 			return RespBody.failed("用户名已经存在!");
 		}
-		
+
 		List<User> users = userRepository.findByMails(mail);
 		if (users.size() > 0) {
 			return RespBody.failed("注册邮箱已经存在!");
@@ -263,22 +257,17 @@ public class FreeController extends BaseController {
 		authority.setId(new AuthorityId(username, Role.ROLE_USER.name()));
 
 		authorityRepository.saveAndFlush(authority);
-		
+
 		channelService.joinAll(user2);
 
 		final String content = StringUtil.replaceByKV(
-				"<a target='_blank' href='{baseUrl}{path}#/register?id={id}'>点击该链接激活账户</a>",
-				"baseUrl", params.get("baseUrl"), "path", params.get("path"),
-				"id", newUser.getResetPwdToken());
+				"<a target='_blank' href='{baseUrl}{path}#/register?id={id}'>点击该链接激活账户</a>", "baseUrl",
+				params.get("baseUrl"), "path", params.get("path"), "id", newUser.getResetPwdToken());
 		boolean sts = false;
 
 		try {
-			sts = mailSender
-					.sendHtml(
-							String.format("TMS-账户激活_%s",
-									DateUtil.format(new Date(),
-											DateUtil.FORMAT7)),
-							content, new MailAddr(mail, name));
+			sts = mailSender.sendHtml(String.format("TMS-账户激活_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					content, new MailAddr(mail, name));
 
 			logger.info("激活账户邮件发送状态: " + sts);
 			return sts ? RespBody.succeed() : RespBody.failed("激活账户邮件发送失败!");
@@ -289,15 +278,12 @@ public class FreeController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "user/register/activate", method = {
-			RequestMethod.POST })
-	public RespBody activateUserRegister(
-			@RequestBody Map<String, Object> params) {
+	@RequestMapping(value = "user/register/activate", method = { RequestMethod.POST })
+	public RespBody activateUserRegister(@RequestBody Map<String, Object> params) {
 
 		logger.debug(params.toString());
 
-		final User user = userRepository
-				.findOneByResetPwdToken(params.get("token").toString());
+		final User user = userRepository.findOneByResetPwdToken(params.get("token").toString());
 
 		if (user == null) {
 			return RespBody.failed("账户激活Token失效!");
@@ -314,8 +300,8 @@ public class FreeController extends BaseController {
 		if (StringUtil.isNotEmpty(toAddrArr)) {
 			try {
 				mailSender.sendHtml(String.format("TMS-新注册用户通知_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						"注册用户: " + user.getUsername() + " - " + user.getMails(),
-						null, Mail.instance().add(toAddrArr.split(",")).get());
+						"注册用户: " + user.getUsername() + " - " + user.getMails(), null,
+						Mail.instance().add(toAddrArr.split(",")).get());
 
 			} catch (MessagingException | UnsupportedEncodingException e) {
 				e.printStackTrace();
@@ -326,7 +312,7 @@ public class FreeController extends BaseController {
 		return RespBody.succeed();
 
 	}
-	
+
 	@RequestMapping(value = "channel/send/{token}", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody sendChannelMsg(@RequestParam("channel") String channel, @RequestParam("user") String user,
@@ -379,7 +365,8 @@ public class FreeController extends BaseController {
 			String assigneeSelf = JsonUtil.read(reqBody, "$.issue.fields.assignee.self");
 			String assigneeAvatarUrls = JsonUtil.read(reqBody, "$.issue.fields.assignee.avatarUrls.16x16");
 
-			sb.append("**分配给:** " + StringUtil.replace("![]({?1}) [{?2}]({?3})", assigneeAvatarUrls, assigneeName, assigneeSelf))
+			sb.append("**分配给:** "
+					+ StringUtil.replace("![]({?1}) [{?2}]({?3})", assigneeAvatarUrls, assigneeName, assigneeSelf))
 					.append(SysConstant.NEW_LINE);
 		} catch (Exception e1) {
 		}
@@ -402,38 +389,38 @@ public class FreeController extends BaseController {
 		chatChannel.setContent(sb.toString());
 
 		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
-		
 
 		final Mail mail2 = Mail.instance();
-		
+
 		if (mail) {
 			channel2.getMembers().forEach(item -> mail2.addUsers(item));
 		}
-		
+
 		mail2.addUsers(channel2.getSubscriber(), getLoginUser());
-		
+
 		if (!mail2.isEmpty()) {
 			final User loginUser = getLoginUser();
 			final String href = baseUrl + "/page/index.html#/chat/" + channel + "?id=" + chatChannel2.getId();
-			
+
 			final String html = StringUtil.md2Html(sb.toString(), true, true);
 
 			try {
 				mailSender.sendHtmlByQueue(
 						String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
+						TemplateUtil.process("templates/mail/mail-dynamic",
+								MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+										"来自第三方应用推送的消息有@到你", "content", html)),
 						getLoginUserName(loginUser), mail2.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		runAsAuth.rest();
 
 		return RespBody.succeed();
 	}
-	
+
 	@RequestMapping(value = "{token}/feedback", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody feedback(@RequestParam("channel") String channel, @RequestParam("user") String user,
@@ -460,10 +447,10 @@ public class FreeController extends BaseController {
 		String category = JsonUtil.read(reqBody, "$.category");
 		String content = JsonUtil.read(reqBody, "$.content");
 		String url = JsonUtil.read(reqBody, "$.url");
-		
+
 		StringBuffer sb = new StringBuffer();
 		sb.append("## 用户工单反馈").append(SysConstant.NEW_LINE);
-		
+
 		try {
 			String loginName = JsonUtil.read(reqBody, "$.user.loginName");
 			String realName = JsonUtil.read(reqBody, "$.user.realName");
@@ -475,7 +462,7 @@ public class FreeController extends BaseController {
 
 		} catch (Exception e1) {
 		}
-		
+
 		sb.append("> **环境地址: **" + url).append(SysConstant.NEW_LINE);
 		sb.append("> **工单分类: **" + category).append(SysConstant.NEW_LINE);
 		sb.append("> **工单内容: **").append(SysConstant.NEW_LINE).append(SysConstant.NEW_LINE);
@@ -497,15 +484,15 @@ public class FreeController extends BaseController {
 		chatChannel.setContent(sb.toString());
 
 		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
-		
+
 		final Mail mail2 = Mail.instance();
-		
+
 		if (mail) {
 			channel2.getMembers().forEach(item -> mail2.addUsers(item));
 		}
-		
+
 		mail2.addUsers(channel2.getSubscriber(), getLoginUser());
-		
+
 		if (!mail2.isEmpty()) {
 
 			final User loginUser = getLoginUser();
@@ -516,8 +503,9 @@ public class FreeController extends BaseController {
 			try {
 				mailSender.sendHtmlByQueue(
 						String.format("TMS-来自第三方应用推送的@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", "来自第三方应用推送的消息有@到你", "content", html)),
+						TemplateUtil.process("templates/mail/mail-dynamic",
+								MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+										"来自第三方应用推送的消息有@到你", "content", html)),
 						getLoginUserName(loginUser), mail2.get());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -532,12 +520,11 @@ public class FreeController extends BaseController {
 	@RequestMapping(value = "{token}/base64", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody base64(HttpServletRequest request, @RequestParam(value = "toType", required = false) String toType, // Feedback
-			@PathVariable("token") String token,
-			@RequestParam(value = "toId", required = false) String toId, @RequestParam("dataURL") String dataURL,
-			@RequestParam("type") String type) {
-		
+			@PathVariable("token") String token, @RequestParam(value = "toId", required = false) String toId,
+			@RequestParam("dataURL") String dataURL, @RequestParam("type") String type) {
+
 		logger.debug("upload base64 start...");
-		
+
 		if (!tokenFeedback.equals(token)) {
 			return RespBody.failed("Token认证失败!");
 		}
@@ -607,7 +594,7 @@ public class FreeController extends BaseController {
 		}
 
 	}
-	
+
 	@RequestMapping(value = "channel/git/send", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody sendChannelGitMsg(@RequestParam("channel") String channel, @RequestParam("token") String token,
@@ -740,7 +727,7 @@ public class FreeController extends BaseController {
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
 			@RequestParam(value = "web", required = false) String web, @RequestBody String reqBody) {
-		
+
 		if (raw) {
 			logger.info("sendChanneAlmMsg: {}", reqBody);
 		}
@@ -754,48 +741,7 @@ public class FreeController extends BaseController {
 			return RespBody.failed("发送消息目的频道不存在!");
 		}
 
-		String planName = JsonUtil.read(reqBody, "$.planName");
-		String envName = JsonUtil.read(reqBody, "$.envName");
-		String envType = JsonUtil.read(reqBody, "$.envType");
-		String deployUsername = JsonUtil.read(reqBody, "$.deployUsername");
-		
-		Integer planId = JsonUtil.read(reqBody, "$.planId");
-		String revision = JsonUtil.read(reqBody, "$.revision");
-		//		String commitIds = JsonUtil.read(reqBody, "$.commitIds");
-		Boolean isSuccess = JsonUtil.read(reqBody, "$.isSuccess");
-
-		String pathUrl = JsonUtil.read(reqBody, "$.path");
-
-		String repoAddr = StringUtil.EMPTY;
-		String branch = StringUtil.EMPTY;
-
-		try {
-			URL url = new URL(pathUrl);
-			String path = url.getPath(); // /hys_git_test4/439141543.git
-			repoAddr = path != null ? path.replace(".git", "") : StringUtil.EMPTY;
-
-			branch = url.getQuery().split("=")[1]; // branch=develop
-
-		} catch (MalformedURLException e1) {
-			logger.error(e1.getMessage(), e1);
-		}
-
-		String icon = isSuccess ? "<i class=\"large green check circle icon\"></i>"
-				: "<i class=\"large red remove circle icon\"></i>";
-
-		StringBuffer sb = new StringBuffer();
-		sb.append("## 神兵事件通知").append(SysConstant.NEW_LINE);
-		sb.append(StringUtil.replace(
-				"> {?6}【{?3}】**`{?1}`** [`{?2}`] 部署{?4}  http://vt.paic.com.cn  `{?5}`  ",
-				planName, envName, envType, (isSuccess ? "成功" : "失败"), planId, icon)).append(SysConstant.NEW_LINE);
-		sb.append(StringUtil.replace("> ")).append(SysConstant.NEW_LINE);
-		sb.append(StringUtil.replace("> **部署用户**：`{?1}`  ", deployUsername)).append(SysConstant.NEW_LINE);
-		sb.append(StringUtil.replace(
-				"> **部署代码**：http://code.paic.com.cn/#/repo{?1}/{?2}/commit  `{?3}`", repoAddr, branch, revision))
-				.append(SysConstant.NEW_LINE);
-		sb.append(StringUtil.replace("> **提交标识**：http://code.paic.com.cn/#/repo{?1}/commit/{?2}  ", repoAddr, revision))
-				.append(SysConstant.NEW_LINE);
-		//		sb.append(StringUtil.replace("> **提交标识**：`{?1}`  ", commitIds)).append(SysConstant.NEW_LINE);
+		StringBuffer sb = buildAlmMsg(reqBody);
 
 		if (StringUtil.isNotEmpty(web)) {
 			sb.append("> ").append(SysConstant.NEW_LINE);
@@ -850,5 +796,94 @@ public class FreeController extends BaseController {
 		runAsAuth.rest();
 
 		return RespBody.succeed();
+	}
+
+	private StringBuffer buildAlmMsg(String reqBody) {
+
+		StringBuffer sb = new StringBuffer();
+
+		String type = JsonUtil.read(reqBody, "$.header.type");
+
+		if ("release.startDep".equalsIgnoreCase(type)) {
+
+			String releaseName = JsonUtil.read(reqBody, "$.releaseName");
+			String displayName = JsonUtil.read(reqBody, "$.header.createdBy.displayName");
+			String username = JsonUtil.read(reqBody, "$.header.createdBy.username");
+			String avatarUrl = JsonUtil.read(reqBody, "$.header.createdBy.avatarUrl");
+			String name = StringUtil.isNotEmpty(displayName) ? displayName : username;
+
+			String projectId = JsonUtil.read(reqBody, "$.projectId");
+
+			String head = "<img style=\"width: 16px; height:16px;\" src=\"{?1}\" />";
+			head = StringUtil.isNotEmpty(avatarUrl) ? StringUtil.replace(head, avatarUrl) : StringUtil.EMPTY;
+
+			sb.append("## 神兵事件通知").append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> {?4}**`{?1}`** 开始了 **`{?2}`** 版本的部署执行  http://vt.paic.com.cn  `{?3}`  ",
+					name, releaseName, projectId, head)).append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> ")).append(SysConstant.NEW_LINE);
+
+		} else if ("issue.change".equalsIgnoreCase(type)) {
+
+			String displayName = JsonUtil.read(reqBody, "$.header.createdBy.displayName");
+			String username = JsonUtil.read(reqBody, "$.header.createdBy.username");
+			String avatarUrl = JsonUtil.read(reqBody, "$.header.createdBy.avatarUrl");
+			String name = StringUtil.isNotEmpty(displayName) ? displayName : username;
+
+			String fieldName = JsonUtil.read(reqBody, "$.fieldName");
+			String newValue = JsonUtil.read(reqBody, "$.newValue");
+			String oldValue = JsonUtil.read(reqBody, "$.oldValue");
+			String wizardGlobalId = JsonUtil.read(reqBody, "$.wizardGlobalId");
+
+			String head = "<img style=\"width: 16px; height:16px;\" src=\"{?1}\" />";
+			head = StringUtil.isNotEmpty(avatarUrl) ? StringUtil.replace(head, avatarUrl) : StringUtil.EMPTY;
+
+			sb.append("## 神兵事件通知").append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> {?1}**`{?2}`** 修改卡片 **`{?3}`** 的 **`{?4}`** 属性值  ", head, name,
+					wizardGlobalId, fieldName)).append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> **新值**：`{?1}`  ", newValue)).append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> **旧值**：`{?1}`  ", oldValue)).append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> ")).append(SysConstant.NEW_LINE);
+
+		} else {
+			String planName = JsonUtil.read(reqBody, "$.planName");
+			String envName = JsonUtil.read(reqBody, "$.envName");
+			String envType = JsonUtil.read(reqBody, "$.envType");
+			String deployUsername = JsonUtil.read(reqBody, "$.deployUsername");
+
+			Integer planId = JsonUtil.read(reqBody, "$.planId");
+			String revision = JsonUtil.read(reqBody, "$.revision");
+			Boolean isSuccess = JsonUtil.read(reqBody, "$.isSuccess");
+
+			String pathUrl = JsonUtil.read(reqBody, "$.path");
+
+			String repoAddr = StringUtil.EMPTY;
+			String branch = StringUtil.EMPTY;
+
+			try {
+				URL url = new URL(pathUrl);
+				String path = url.getPath(); // /hys_git_test4/439141543.git
+				repoAddr = path != null ? path.replace(".git", "") : StringUtil.EMPTY;
+
+				branch = url.getQuery().split("=")[1]; // branch=develop
+
+			} catch (MalformedURLException e1) {
+				logger.error(e1.getMessage(), e1);
+			}
+
+			String icon = isSuccess ? "<i class=\"large green check circle icon\"></i>"
+					: "<i class=\"large red remove circle icon\"></i>";
+
+			sb.append("## 神兵事件通知").append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> {?6}【{?3}】**`{?1}`** [`{?2}`] 部署{?4}  http://vt.paic.com.cn  `{?5}`  ",
+					planName, envName, envType, (isSuccess ? "成功" : "失败"), planId, icon)).append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> ")).append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> **部署用户**：`{?1}`  ", deployUsername)).append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> **部署代码**：http://code.paic.com.cn/#/repo{?1}/{?2}/commit  `{?3}`", repoAddr,
+					branch, revision)).append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> **提交标识**：http://code.paic.com.cn/#/repo{?1}/commit/{?2}  ", repoAddr,
+					revision)).append(SysConstant.NEW_LINE);
+		}
+
+		return sb;
 	}
 }
