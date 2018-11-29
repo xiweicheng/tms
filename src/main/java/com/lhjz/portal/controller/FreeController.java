@@ -3,6 +3,8 @@
  */
 package com.lhjz.portal.controller;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -837,11 +839,20 @@ public class FreeController extends BaseController {
 			String head = "<img style=\"width: 16px; height:16px;\" src=\"{?1}\" />";
 			head = StringUtil.isNotEmpty(avatarUrl) ? StringUtil.replace(head, avatarUrl) : StringUtil.EMPTY;
 
+			String change = StringUtil.EMPTY;
+			if (lenVal(newValue) < 10 && lenVal(oldValue) < 10) {
+				change = StringUtil.replace("`{?1}` -> {?2}", oldValue, newValue);
+			}
+
 			sb.append("## 神兵事件通知").append(SysConstant.NEW_LINE);
-			sb.append(StringUtil.replace("> {?1}**`{?2}`** 修改卡片 **`{?3}`** 的 **`{?4}`** 属性值  ", head, name,
-					wizardGlobalId, fieldName)).append(SysConstant.NEW_LINE);
-			sb.append(StringUtil.replace("> **新值**：`{?1}`  ", newValue)).append(SysConstant.NEW_LINE);
-			sb.append(StringUtil.replace("> **旧值**：`{?1}`  ", oldValue)).append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> {?1}**`{?2}`** 修改卡片 **`{?3}`** 的 **`{?4}`** 属性值  {?5}  ", head, name,
+					wizardGlobalId, fieldName, change)).append(SysConstant.NEW_LINE);
+
+			if (StringUtil.isEmpty(change)) {
+				sb.append(StringUtil.replace("> ")).append(SysConstant.NEW_LINE);
+				sb.append(StringUtil.replace("> **新值**：`{?1}`  ", newValue)).append(SysConstant.NEW_LINE);
+				sb.append(StringUtil.replace("> **旧值**：`{?1}`  ", oldValue)).append(SysConstant.NEW_LINE);
+			}
 			sb.append(StringUtil.replace("> ")).append(SysConstant.NEW_LINE);
 
 		} else {
@@ -885,5 +896,14 @@ public class FreeController extends BaseController {
 		}
 
 		return sb;
+	}
+	
+	private int lenVal(String val) {
+
+		if (StringUtil.isEmpty(val)) {
+			return 0;
+		}
+
+		return val.length();
 	}
 }
