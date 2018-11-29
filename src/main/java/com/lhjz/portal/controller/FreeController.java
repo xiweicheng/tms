@@ -841,7 +841,7 @@ public class FreeController extends BaseController {
 
 			String change = StringUtil.EMPTY;
 			if (lenVal(newValue) < 10 && lenVal(oldValue) < 10) {
-				change = StringUtil.replace("`{?1}` -> {?2}", oldValue, newValue);
+				change = StringUtil.replace("**`{?1}`** -> **`{?2}`**", oldValue, newValue);
 			}
 
 			sb.append("## 神兵事件通知").append(SysConstant.NEW_LINE);
