@@ -3,8 +3,6 @@
  */
 package com.lhjz.portal.controller;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
