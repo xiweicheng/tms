@@ -172,7 +172,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script> -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.core.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/3.5.0/diff.min.js"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/3.5.0/diff.min.js"></script> -->
     <!-- Include Editor JS files. -->
     <script type="text/javascript" src="froala_editor.pkgd.min.js"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/js/froala_editor.pkgd.min.js"></script> -->
@@ -349,10 +349,9 @@
                     id: blog.id,
                     version: blog.version,
                     // usernames: '',
-                    // diff: ''
+                    // diff: diffS(blog.content, content),
                     title: title,
-                    content: content,
-                    diff: diffS(blog.content, content)
+                    content: content
                 }, function(data, textStatus, xhr) {
                     if (data.success) {
                         blog = data.data;
