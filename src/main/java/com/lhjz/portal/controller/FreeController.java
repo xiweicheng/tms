@@ -600,9 +600,10 @@ public class FreeController extends BaseController {
 	public RespBody sendChannelGitMsg(@RequestParam("channel") String channel, @RequestParam("token") String token,
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
+			@RequestParam(value = "debug", required = false, defaultValue = "false") Boolean debug,
 			@RequestParam(value = "web", required = false) String web, @RequestBody String reqBody) {
 
-		if (raw) {
+		if (raw || debug) {
 			logger.info("sendChannelGitMsg: {}", reqBody);
 		}
 
@@ -726,9 +727,10 @@ public class FreeController extends BaseController {
 	public RespBody sendChanneAlmMsg(@RequestParam("channel") String channel, @RequestParam("token") String token,
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
+			@RequestParam(value = "debug", required = false, defaultValue = "false") Boolean debug,
 			@RequestParam(value = "web", required = false) String web, @RequestBody String reqBody) {
 
-		if (raw) {
+		if (raw || debug) {
 			logger.info("sendChanneAlmMsg: {}", reqBody);
 		}
 

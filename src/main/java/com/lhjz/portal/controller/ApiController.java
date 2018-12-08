@@ -67,7 +67,12 @@ public class ApiController extends BaseController {
 	public RespBody sendChannelJenkinsMsg(@RequestParam("channel") String channel,
 			@RequestParam(value = "mail", required = false, defaultValue = "false") Boolean mail,
 			@RequestParam(value = "raw", required = false, defaultValue = "false") Boolean raw,
+			@RequestParam(value = "debug", required = false, defaultValue = "false") Boolean debug,
 			@RequestParam(value = "web", required = false) String web, @RequestBody String reqBody) {
+		
+		if (raw || debug) {
+			logger.info("sendChannelJenkinsMsg: {}", reqBody);
+		}
 
 		Channel channel2 = channelRepository.findOneByName(channel);
 		if (channel2 == null) {
