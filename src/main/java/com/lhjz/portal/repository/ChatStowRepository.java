@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -30,6 +32,8 @@ public interface ChatStowRepository extends JpaRepository<ChatStow, Long> {
 	List<ChatStow> findByChatNotNullAndStowUserAndStatus(User user, Status status);
 	
 	List<ChatStow> findByChatChannelNotNullAndStowUserAndStatus(User user, Status status);
+	
+	Page<ChatStow> findByChatChannelNotNullAndStowUserAndStatus(User user, Status status, Pageable pageable);
 
 	List<ChatStow> findByChat(Chat chat);
 	

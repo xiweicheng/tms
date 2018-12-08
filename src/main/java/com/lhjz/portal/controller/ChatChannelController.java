@@ -660,10 +660,10 @@ public class ChatChannelController extends BaseController {
 
 	@RequestMapping(value = "getStows", method = RequestMethod.GET)
 	@ResponseBody
-	public RespBody getStows() {
+	public RespBody getStows(@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
-		List<ChatStow> chatStows = chatStowRepository.findByChatChannelNotNullAndStowUserAndStatus(getLoginUser(),
-				Status.New);
+		Page<ChatStow> chatStows = chatStowRepository.findByChatChannelNotNullAndStowUserAndStatus(getLoginUser(),
+				Status.New, pageable);
 
 		chatStows.forEach(cs -> reduceChatStow(cs));
 
@@ -1239,7 +1239,8 @@ public class ChatChannelController extends BaseController {
 
 	@GetMapping("pin/list")
 	@ResponseBody
-	public RespBody listPin(@RequestParam("cid") Long cid) {
+	public RespBody listPin(@RequestParam("cid") Long cid,
+			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
 		Channel channel = channelRepository.findOne(cid);
 
@@ -1247,9 +1248,11 @@ public class ChatChannelController extends BaseController {
 			return RespBody.failed("权限不足!");
 		}
 
-		List<ChatPin> chatPins = chatPinRepository.findByChannel(channel);
+		//		List<ChatPin> chatPins = chatPinRepository.findByChannel(channel);
 
-		return RespBody.succeed(chatPins);
+		Page<ChatPin> chatPinsPage = chatPinRepository.findByChannel(channel, pageable);
+
+		return RespBody.succeed(chatPinsPage);
 
 	}
 
