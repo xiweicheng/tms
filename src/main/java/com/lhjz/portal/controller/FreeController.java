@@ -829,6 +829,7 @@ public class FreeController extends BaseController {
 			String displayName = JsonUtil.read(reqBody, "$.header.createdBy.displayName");
 			String username = JsonUtil.read(reqBody, "$.header.createdBy.username");
 			String avatarUrl = JsonUtil.read(reqBody, "$.header.createdBy.avatarUrl");
+			String issueUrl = JsonUtil.read(reqBody, "$.header.issueUrl");
 			String name = StringUtil.isNotEmpty(displayName) ? displayName : username;
 
 			String fieldName = JsonUtil.read(reqBody, "$.fieldName");
@@ -840,13 +841,14 @@ public class FreeController extends BaseController {
 			head = StringUtil.isNotEmpty(avatarUrl) ? StringUtil.replace(head, avatarUrl) : StringUtil.EMPTY;
 
 			String change = StringUtil.EMPTY;
-			if (lenVal(newValue) < 10 && lenVal(oldValue) < 10) {
+			int limitLen = 20;
+			if (lenVal(newValue) < limitLen && lenVal(oldValue) < limitLen) {
 				change = StringUtil.replace("**`{?1}`** -> **`{?2}`**", oldValue, newValue);
 			}
 
 			sb.append("## 神兵事件通知").append(SysConstant.NEW_LINE);
-			sb.append(StringUtil.replace("> {?1}**`{?2}`** 修改卡片 **`{?3}`** 的 **`{?4}`** 属性值  {?5}  ", head, name,
-					wizardGlobalId, fieldName, change)).append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> {?1}**`{?2}`** 修改卡片 [**`{?3}`**]({?6}) 的 **`{?4}`** 属性值  {?5}  ", head,
+					name, wizardGlobalId, fieldName, change, issueUrl)).append(SysConstant.NEW_LINE);
 
 			if (StringUtil.isEmpty(change)) {
 				sb.append(StringUtil.replace("> ")).append(SysConstant.NEW_LINE);
