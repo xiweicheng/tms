@@ -829,13 +829,13 @@ public class FreeController extends BaseController {
 			String displayName = JsonUtil.read(reqBody, "$.header.createdBy.displayName");
 			String username = JsonUtil.read(reqBody, "$.header.createdBy.username");
 			String avatarUrl = JsonUtil.read(reqBody, "$.header.createdBy.avatarUrl");
-			String issueUrl = JsonUtil.read(reqBody, "$.header.issueUrl");
 			String name = StringUtil.isNotEmpty(displayName) ? displayName : username;
 
 			String fieldName = JsonUtil.read(reqBody, "$.fieldName");
 			String newValue = JsonUtil.read(reqBody, "$.newValue");
 			String oldValue = JsonUtil.read(reqBody, "$.oldValue");
 			String wizardGlobalId = JsonUtil.read(reqBody, "$.wizardGlobalId");
+			String issueUrl = JsonUtil.read(reqBody, "$.issueUrl");
 
 			String head = "<img style=\"width: 16px; height:16px;\" src=\"{?1}\" />";
 			head = StringUtil.isNotEmpty(avatarUrl) ? StringUtil.replace(head, avatarUrl) : StringUtil.EMPTY;
