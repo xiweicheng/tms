@@ -561,13 +561,14 @@ public class FileController extends BaseController {
 
 	@ResponseBody
 	@PostMapping("upload/img")
-	public UploadResult uploadImg(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
+	public UploadResult uploadImg(HttpServletRequest request, @RequestParam("file") MultipartFile file,
+			@RequestParam(value = "baseUrl", defaultValue = "") String baseUrl) {
 
 		logger.debug("upload img start...");
 
 		try {
 			com.lhjz.portal.entity.File uploadImg = fileService.uploadImg(request, file);
-			return UploadResult.builder().link("/" + uploadImg.getPath() + uploadImg.getUuidName()).build();
+			return UploadResult.builder().link(baseUrl + "/" + uploadImg.getPath() + uploadImg.getUuidName()).build();
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -578,13 +579,14 @@ public class FileController extends BaseController {
 
 	@ResponseBody
 	@PostMapping("upload/file")
-	public UploadResult uploadFile(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
+	public UploadResult uploadFile(HttpServletRequest request, @RequestParam("file") MultipartFile file,
+			@RequestParam(value = "baseUrl", defaultValue = "") String baseUrl) {
 
 		logger.debug("upload file start...");
 
 		try {
 			com.lhjz.portal.entity.File uploadFile = fileService.uploadFile(request, file);
-			return UploadResult.builder().link("/admin/file/download/" + uploadFile.getId()).build();
+			return UploadResult.builder().link(baseUrl + "/admin/file/download/" + uploadFile.getId()).build();
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

@@ -210,11 +210,13 @@
                 fileMaxSize: 1024 * 1024 * 10,
                 imageUploadURL: '/admin/file/upload/img',
                 imageUploadParams: {
-                    toType: 'Blog'
+                    toType: 'Blog',
+                    baseUrl: getBaseUrl()
                 },
                 fileUploadURL: '/admin/file/upload/file',
                 fileUploadParams: {
-                    toType: 'Blog'
+                    toType: 'Blog',
+                    baseUrl: getBaseUrl()
                 },
                 imageManagerLoadURL: '/admin/file/upload/img/list',
                 imageManagerDeleteURL: "/admin/file/upload/img/remove",
@@ -281,7 +283,7 @@
         }
 
         $('#preview').click(function(event) {
-            var url = location.protocol + "//" + location.host + location.pathname.replace('blog.html', 'index.html') + "#/blog/" + blog.id;
+            var url = window.location.protocol + "//" + window.location.host + window.location.pathname.replace('blog.html', 'index.html') + "#/blog/" + blog.id;
             openNewWin(url);
         });
 
@@ -345,7 +347,7 @@
                 });
             } else {
                 $.post('/admin/blog/update', {
-                    url: location.protocol + '//' + location.host + '/page/index.html',
+                    url: window.location.protocol + '//' + window.location.host + '/page/index.html',
                     id: blog.id,
                     version: blog.version,
                     // usernames: '',
@@ -384,7 +386,7 @@
                 $.modal.close();
 
                 $.post('/admin/blog/create', {
-                    url: location.protocol + '//' + location.host + '/page/index.html',
+                    url: window.location.protocol + '//' + window.location.host + '/page/index.html',
                     // usernames: '',
                     spaceId: $('#saveFrm select[name="space"]').val(),
                     dirId: $('#saveFrm select[name="dir"]').val(),
@@ -424,6 +426,10 @@
             }, 200);
         }
 
+    }
+
+    function getBaseUrl() {
+        return window.location.protocol + '//' + window.location.host;
     }
 
     /**
