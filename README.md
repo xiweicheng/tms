@@ -5,6 +5,12 @@
 > https://gitee.com/xiweicheng/tms  
 > https://github.com/xiweicheng/tms  
 
+
+## 如何运行
+
+https://gitee.com/xiweicheng/tms/wikis/%E5%A6%82%E4%BD%95%E5%9C%A8%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E4%B8%AD%E8%BF%90%E8%A1%8C?sort_id=351959
+
+
 ## GIF show 
 
 **着陆页** 
