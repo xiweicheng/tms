@@ -39,21 +39,21 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	
 	List<Blog> findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status status, String searchT, Status status2, String searchC, Sort sort);
 	
-	List<Blog> findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(Status status, String searchT, Status status2, String searchC, Sort sort);
+	List<Blog> findByStatusNotAndTitleContainingIgnoreCaseAndOpenedTrueOrStatusNotAndContentContainingIgnoreCaseAndOpenedTrue(Status status, String searchT, Status status2, String searchC, Sort sort);
 	
-	List<Blog> findByStatusNotAndSpaceAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(Status status, Space space, String searchT, Status status2, String searchC, Sort sort);
+	List<Blog> findByStatusNotAndSpaceAndTitleContainingIgnoreCaseAndOpenedTrueOrStatusNotAndContentContainingIgnoreCaseAndOpenedTrue(Status status, Space space, String searchT, Status status2, String searchC, Sort sort);
 	
-	Page<Blog> findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(Status status, String searchT, Status status2, String searchC, Pageable pageable);
+	Page<Blog> findByStatusNotAndTitleContainingIgnoreCaseAndOpenedTrueOrStatusNotAndContentContainingIgnoreCaseAndOpenedTrue(Status status, String searchT, Status status2, String searchC, Pageable pageable);
 	
-	Page<Blog> findByStatusNotAndSpaceAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(Status status, Space space, String searchT, Status status2, String searchC, Pageable pageable);
+	Page<Blog> findByStatusNotAndSpaceAndTitleContainingIgnoreCaseAndOpenedTrueOrStatusNotAndSpaceAndContentContainingIgnoreCaseAndOpenedTrue(Status status, Space space, String searchT, Status status2, Space space2, String searchC, Pageable pageable);
 	
-	Page<Blog> findByStatusNotAndTitleContainingAndOpenedTrue(Status status, String search, Pageable pageable);
+	Page<Blog> findByStatusNotAndTitleContainingIgnoreCaseAndOpenedTrue(Status status, String search, Pageable pageable);
 	
-	Page<Blog> findByStatusNotAndSpaceAndTitleContainingAndOpenedTrue(Status status, Space space, String search, Pageable pageable);
+	Page<Blog> findByStatusNotAndSpaceAndTitleContainingIgnoreCaseAndOpenedTrue(Status status, Space space, String search, Pageable pageable);
 	
-	Page<Blog> findByStatusNotAndContentContainingAndOpenedTrue(Status status, String search, Pageable pageable);
+	Page<Blog> findByStatusNotAndContentContainingIgnoreCaseAndOpenedTrue(Status status, String search, Pageable pageable);
 	
-	Page<Blog> findByStatusNotAndSpaceAndContentContainingAndOpenedTrue(Status status, Space space, String search, Pageable pageable);
+	Page<Blog> findByStatusNotAndSpaceAndContentContainingIgnoreCaseAndOpenedTrue(Status status, Space space, String search, Pageable pageable);
 
 	Page<Blog> findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status status, User creator, Status status2,
 			Pageable pageable);
@@ -87,9 +87,9 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 
 	Blog findTopByStatusNotAndOpenedTrueAndIdLessThanOrderByIdDesc(Status status, Long id);
 
-	Blog findTopByStatusNotAndOpenedTrueAndSpacAndIdLessThanOrderByIdDesc(Status status, Space space, Long id);
+	Blog findTopByStatusNotAndOpenedTrueAndSpaceAndIdLessThanOrderByIdDesc(Status status, Space space, Long id);
 
 	Blog findTopByStatusNotAndOpenedTrueAndIdGreaterThanOrderByIdAsc(Status status, Long id);
 
-	Blog findTopByStatusNotAndOpenedTrueAndSpacAndIdGreaterThanOrderByIdAsc(Status status, Space space, Long id);
+	Blog findTopByStatusNotAndOpenedTrueAndSpaceAndIdGreaterThanOrderByIdAsc(Status status, Space space, Long id);
 }

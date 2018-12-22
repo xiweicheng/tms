@@ -77,6 +77,8 @@ public class HomeController extends BaseController {
 				Space spaceN = new Space();
 				spaceN.setId(space.getId());
 				spaceN.setName(space.getName());
+				spaceN.setOpened(space.getOpened());
+				spaceN.setPrivated(space.getPrivated());
 				b.setSpace(spaceN);
 			}
 
@@ -137,7 +139,7 @@ public class HomeController extends BaseController {
 		}
 
 		List<Blog> blogs = blogRepository
-				.findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(
+				.findByStatusNotAndTitleContainingIgnoreCaseAndOpenedTrueOrStatusNotAndContentContainingIgnoreCaseAndOpenedTrue(
 						Status.Deleted, search, Status.Deleted, search, sort)
 				.stream().peek(b -> {
 					b.setContent(StringUtil.limitLength(b.getContent(), ellipsis));
@@ -161,17 +163,17 @@ public class HomeController extends BaseController {
 		if (search.toLowerCase().startsWith("title:")) {
 			String[] arr = search.split(":", 2);
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
-				blogs = blogRepository.findByStatusNotAndTitleContainingAndOpenedTrue(Status.Deleted, arr[1], pageable);
+				blogs = blogRepository.findByStatusNotAndTitleContainingIgnoreCaseAndOpenedTrue(Status.Deleted, arr[1], pageable);
 			}
 		} else if (search.toLowerCase().startsWith("content:")) {
 			String[] arr = search.split(":", 2);
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
-				blogs = blogRepository.findByStatusNotAndContentContainingAndOpenedTrue(Status.Deleted, arr[1],
+				blogs = blogRepository.findByStatusNotAndContentContainingIgnoreCaseAndOpenedTrue(Status.Deleted, arr[1],
 						pageable);
 			}
 		} else {
 			blogs = blogRepository
-					.findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(
+					.findByStatusNotAndTitleContainingIgnoreCaseAndOpenedTrueOrStatusNotAndContentContainingIgnoreCaseAndOpenedTrue(
 							Status.Deleted, search, Status.Deleted, search, pageable);
 		}
 

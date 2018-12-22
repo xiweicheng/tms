@@ -87,6 +87,8 @@ public class SpaceHomeController extends BaseController {
 				Space spaceN = new Space();
 				spaceN.setId(space2.getId());
 				spaceN.setName(space2.getName());
+				spaceN.setOpened(space2.getOpened());
+				spaceN.setPrivated(space2.getPrivated());
 				b.setSpace(spaceN);
 			}
 
@@ -128,9 +130,9 @@ public class SpaceHomeController extends BaseController {
 			return RespBody.failed("博文不存在或者权限不足!");
 		}
 
-		Blog pre = blogRepository.findTopByStatusNotAndOpenedTrueAndSpacAndIdLessThanOrderByIdDesc(Status.Deleted,
+		Blog pre = blogRepository.findTopByStatusNotAndOpenedTrueAndSpaceAndIdLessThanOrderByIdDesc(Status.Deleted,
 				blog.getSpace(), id);
-		Blog next = blogRepository.findTopByStatusNotAndOpenedTrueAndSpacAndIdGreaterThanOrderByIdAsc(Status.Deleted,
+		Blog next = blogRepository.findTopByStatusNotAndOpenedTrueAndSpaceAndIdGreaterThanOrderByIdAsc(Status.Deleted,
 				blog.getSpace(), id);
 
 		// 博文阅读次数+1
@@ -162,7 +164,7 @@ public class SpaceHomeController extends BaseController {
 		}
 
 		List<Blog> blogs = blogRepository
-				.findByStatusNotAndSpaceAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(
+				.findByStatusNotAndSpaceAndTitleContainingIgnoreCaseAndOpenedTrueOrStatusNotAndContentContainingIgnoreCaseAndOpenedTrue(
 						Status.Deleted, space, search, Status.Deleted, search, sort)
 				.stream().peek(b -> {
 					b.setContent(StringUtil.limitLength(b.getContent(), ellipsis));
@@ -192,19 +194,19 @@ public class SpaceHomeController extends BaseController {
 		if (search.toLowerCase().startsWith("title:")) {
 			String[] arr = search.split(":", 2);
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
-				blogs = blogRepository.findByStatusNotAndSpaceAndTitleContainingAndOpenedTrue(Status.Deleted, space,
+				blogs = blogRepository.findByStatusNotAndSpaceAndTitleContainingIgnoreCaseAndOpenedTrue(Status.Deleted, space,
 						arr[1], pageable);
 			}
 		} else if (search.toLowerCase().startsWith("content:")) {
 			String[] arr = search.split(":", 2);
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
-				blogs = blogRepository.findByStatusNotAndSpaceAndContentContainingAndOpenedTrue(Status.Deleted, space,
+				blogs = blogRepository.findByStatusNotAndSpaceAndContentContainingIgnoreCaseAndOpenedTrue(Status.Deleted, space,
 						arr[1], pageable);
 			}
 		} else {
 			blogs = blogRepository
-					.findByStatusNotAndSpaceAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(
-							Status.Deleted, space, search, Status.Deleted, search, pageable);
+					.findByStatusNotAndSpaceAndTitleContainingIgnoreCaseAndOpenedTrueOrStatusNotAndSpaceAndContentContainingIgnoreCaseAndOpenedTrue(
+							Status.Deleted, space, search, Status.Deleted, space, search, pageable);
 		}
 
 		blogs.forEach(b -> {
