@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.lhjz.portal.entity.Blog;
+import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
 
@@ -40,11 +41,19 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	
 	List<Blog> findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(Status status, String searchT, Status status2, String searchC, Sort sort);
 	
+	List<Blog> findByStatusNotAndSpaceAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(Status status, Space space, String searchT, Status status2, String searchC, Sort sort);
+	
 	Page<Blog> findByStatusNotAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(Status status, String searchT, Status status2, String searchC, Pageable pageable);
+	
+	Page<Blog> findByStatusNotAndSpaceAndTitleContainingAndOpenedTrueOrStatusNotAndContentContainingAndOpenedTrue(Status status, Space space, String searchT, Status status2, String searchC, Pageable pageable);
 	
 	Page<Blog> findByStatusNotAndTitleContainingAndOpenedTrue(Status status, String search, Pageable pageable);
 	
+	Page<Blog> findByStatusNotAndSpaceAndTitleContainingAndOpenedTrue(Status status, Space space, String search, Pageable pageable);
+	
 	Page<Blog> findByStatusNotAndContentContainingAndOpenedTrue(Status status, String search, Pageable pageable);
+	
+	Page<Blog> findByStatusNotAndSpaceAndContentContainingAndOpenedTrue(Status status, Space space, String search, Pageable pageable);
 
 	Page<Blog> findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status status, User creator, Status status2,
 			Pageable pageable);
@@ -74,7 +83,13 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	
 	Page<Blog> findByStatusNotAndOpenedTrue(Status status, Pageable pageable);
 	
+	Page<Blog> findByStatusNotAndOpenedTrueAndSpace(Status status, Space space, Pageable pageable);
+
 	Blog findTopByStatusNotAndOpenedTrueAndIdLessThanOrderByIdDesc(Status status, Long id);
-	
+
+	Blog findTopByStatusNotAndOpenedTrueAndSpacAndIdLessThanOrderByIdDesc(Status status, Space space, Long id);
+
 	Blog findTopByStatusNotAndOpenedTrueAndIdGreaterThanOrderByIdAsc(Status status, Long id);
+
+	Blog findTopByStatusNotAndOpenedTrueAndSpacAndIdGreaterThanOrderByIdAsc(Status status, Space space, Long id);
 }
