@@ -358,7 +358,7 @@
                     if (data.success) {
                         blog = data.data;
                         toastr && toastr.success('博文更新成功！');
-                        (window.parent && window.parent.postMessage) && (window.parent.postMessage({ action: 'updated', blog: data.data }, window.location.origin));
+                        (window.parent && window.parent.postMessage) && (window.parent.postMessage({ action: 'updated', source: 'blog', blog: data.data }, window.location.origin));
                     } else {
                         toastr && toastr.error(data.data);
                     }
@@ -400,7 +400,7 @@
                         blog = data.data;
                         toastr && toastr.success('博文保存成功！');
                         $('#preview').show();
-                        (window.parent && window.parent.postMessage) && (window.parent.postMessage({ action: 'created', blog: data.data }, window.location.origin));
+                        (window.parent && window.parent.postMessage) && (window.parent.postMessage({ action: 'created', source: 'blog', blog: data.data }, window.location.origin));
                     } else {
                         toastr && toastr.error(data.data);
                     }

@@ -25,6 +25,7 @@ import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.GanttRepository;
 import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.StringUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +60,7 @@ public class GanttController extends BaseController {
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody create(@RequestParam("title") String title, @RequestParam("cid") Long cid,
+			@RequestParam(value = "privated", defaultValue = "false") Boolean privated,
 			@RequestParam(value = "desc", required = false) String desc, @RequestParam("content") String content) {
 
 		if (StringUtil.isEmpty(title)) {
@@ -74,7 +76,13 @@ public class GanttController extends BaseController {
 			return RespBody.failed("频道不存在!");
 		}
 
-		Gantt gantt = Gantt.builder().title(title).content(content).description(desc).channel(channel).build();
+		if (!AuthUtil.isChannelMember(channel)) {
+			return RespBody.failed("频道权限不足!");
+		}
+
+		Gantt gantt = Gantt.builder().title(title).content(content).description(desc).channel(channel)
+				.privated(privated).build();
+
 		log.debug("创建Gantt: {}", gantt);
 
 		Gantt gantt2 = ganttRepository.saveAndFlush(gantt);
@@ -92,6 +100,10 @@ public class GanttController extends BaseController {
 			return RespBody.failed("频道不存在!");
 		}
 
+		if (!AuthUtil.isChannelMember(channel)) {
+			return RespBody.failed("频道权限不足!");
+		}
+
 		Page<Gantt> pageGantt = ganttRepository.findByStatusNotAndChannelAndTitleContainingIgnoreCase(Status.Deleted,
 				channel, search, pageable);
 
@@ -102,6 +114,7 @@ public class GanttController extends BaseController {
 	@ResponseBody
 	public RespBody update(@RequestParam("id") Long id, @RequestParam(value = "title", required = false) String title,
 			@RequestParam(value = "desc", required = false) String desc,
+			@RequestParam(value = "privated", defaultValue = "false") Boolean privated,
 			@RequestParam(value = "content", required = false) String content) {
 
 		Gantt gantt = ganttRepository.findOne(id);
@@ -110,7 +123,8 @@ public class GanttController extends BaseController {
 			return RespBody.failed("甘特图不存在!");
 		}
 
-		if (!isSuperOrCreator(gantt.getCreator()) && !gantt.getOpenEdit()) {
+		if (!isSuperOrCreator(gantt.getCreator()) && !gantt.getOpenEdit()
+				&& !isCreator(gantt.getChannel().getCreator().getUsername())) {
 			return RespBody.failed("权限不足！");
 		}
 
@@ -123,6 +137,11 @@ public class GanttController extends BaseController {
 
 		if (StringUtil.isNotEmpty(content)) {
 			gantt.setContent(content);
+			needUpdate = true;
+		}
+
+		if (privated != null) {
+			gantt.setPrivated(privated);
 			needUpdate = true;
 		}
 
@@ -147,7 +166,11 @@ public class GanttController extends BaseController {
 
 		Gantt gantt = ganttRepository.findOne(id);
 
-		if (!isSuperOrCreator(gantt.getCreator())) {
+		if (gantt == null) {
+			return RespBody.failed("甘特图不存在!");
+		}
+
+		if (!isSuperOrCreator(gantt.getCreator()) && !isCreator(gantt.getChannel().getCreator().getUsername())) {
 			return RespBody.failed("权限不足！");
 		}
 
@@ -163,6 +186,14 @@ public class GanttController extends BaseController {
 	public RespBody get(@PathVariable("id") Long id) {
 
 		Gantt gantt = ganttRepository.findOne(id);
+
+		if (gantt == null) {
+			return RespBody.failed("甘特图不存在!");
+		}
+
+		if (!AuthUtil.isChannelMember(gantt.getChannel()) && !gantt.getOpened()) {
+			return RespBody.failed("频道权限不足!");
+		}
 
 		return RespBody.succeed(gantt);
 	}
