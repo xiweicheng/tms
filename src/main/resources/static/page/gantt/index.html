@@ -123,7 +123,7 @@
 
             $.get('/admin/channel/get', { id: cid }, function(data) {
                 if (data.success) {
-                    var resources = _.map(data.data.members, function(m) {
+                    var resources = _.map(_.filter(data.data.members, 'enabled'), function(m) {
                         return { id: m.username, name: m.name ? m.name : m.username };
                     });
                     ge.loadProject(newGanttProject(resources));
