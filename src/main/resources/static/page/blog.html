@@ -418,8 +418,8 @@
     function openNewWin(url) {
 
         if (url) {
-            var $a = $(`<a href="${url}" target="_blank" style="display:none;"></a>`).appendTo('body').end();
-            $(`<input type="button">`).appendTo($a).end().click();
+            var $a = $('<a href="' + url + '" target="_blank" style="display:none;"></a>').appendTo('body').end();
+            $('<input type="button">').appendTo($a).end().click();
 
             setTimeout(function() {
                 $a.remove();
@@ -457,16 +457,16 @@
 
             var node;
             if (diff[i].removed) {
-                node = `<del ${delStyle}>${diff[i].value}</del>`;
+                node = '<del ' + delStyle + '>' + diff[i].value + '</del>';
             } else if (diff[i].added) {
-                node = `<ins ${insStyle}>${diff[i].value}</ins>`;
+                node = '<ins ' + insStyle + '>' + diff[i].value + '</ins>';
             } else {
-                node = `${diff[i].value}`;
+                node = diff[i].value;
             }
             nodeArr.push(node);
         }
 
-        return `<pre>${nodeArr.join('')}</pre>`;
+        return '<pre>' + nodeArr.join('') + '</pre>';
     }
 
     </script>
