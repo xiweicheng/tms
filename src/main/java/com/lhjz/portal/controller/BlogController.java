@@ -799,6 +799,7 @@ public class BlogController extends BaseController {
 				blog.getTitle(), html);
 
 		final String title = StringUtil.isNotEmpty(desc) ? desc : "下面的博文有分享到你";
+		final String shareDesc = StringUtil.isNotEmpty(desc) ? "> **分享说明：**" + desc : StringUtil.EMPTY;
 
 		Mail mail = Mail.instance();
 		if (StringUtil.isNotEmpty(users)) {
@@ -810,8 +811,8 @@ public class BlogController extends BaseController {
 					ChatDirect chatDirect = new ChatDirect();
 					chatDirect.setChatTo(user);
 					chatDirect.setContent(
-							StringUtil.replace("## ~私聊消息播报~\n> 来自 {~{?1}} 的博文分享:  [{?2}]({?3})\n\n---\n\n{?4}",
-									loginUser.getUsername(), blog.getTitle(), href, blog.getContent()));
+							StringUtil.replace("## ~私聊消息播报~\n> 来自 {~{?1}} 的博文分享:  [{?2}]({?3})\n\n{?5}\n\n---\n\n{?4}",
+									loginUser.getUsername(), blog.getTitle(), href, blog.getContent(), shareDesc));
 
 					chatDirectRepository.saveAndFlush(chatDirect);
 				}
@@ -828,8 +829,8 @@ public class BlogController extends BaseController {
 					ChatChannel chatChannel = new ChatChannel();
 					chatChannel.setChannel(channel);
 					chatChannel.setContent(
-							StringUtil.replace("## ~频道消息播报~\n> 来自 {~{?1}} 的博文分享:  [{?2}]({?3})\n\n---\n\n{?4}",
-									loginUser.getUsername(), blog.getTitle(), href, blog.getContent()));
+							StringUtil.replace("## ~频道消息播报~\n> 来自 {~{?1}} 的博文分享:  [{?2}]({?3})\n\n{?5}\n\n---\n\n{?4}",
+									loginUser.getUsername(), blog.getTitle(), href, blog.getContent(), shareDesc));
 
 					chatChannelService.save(chatChannel);
 				}
