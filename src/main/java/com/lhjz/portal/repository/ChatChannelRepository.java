@@ -75,7 +75,7 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 	@Query("update ChatChannel cc set cc.creator = ?1, cc.updater = ?2, cc.createDate = ?3, cc.updateDate = ?4 where cc.id = ?5")
 	int updateAuditing(User creator, User updater, Date createDate, Date updateDate, Long id);
 
-	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl WHERE cc.channel = ?1 AND cc.id = cl.chat_channel AND cc.`status` <> 'Deleted' AND cl.`status` <> 'Deleted' AND cl.`name` = ?2 ORDER BY cc.id DESC LIMIT ?3,?4", nativeQuery = true)
+	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl WHERE cc.channel = ?1 AND cc.id = cl.chat_channel AND cc.`status` <> 'Deleted' AND cl.`status` <> 'Deleted' AND cl.`name` = ?2 ORDER BY cc.update_date DESC LIMIT ?3,?4", nativeQuery = true)
 	List<ChatChannel> queryByChannelAndLabel(Long cid, String label, int start, int limit);
 
 	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl WHERE cc.channel = ?1 AND cc.id = cl.chat_channel AND cc.`status` <> 'Deleted' AND cl.`status` <> 'Deleted' AND cl.`name` = ?2", nativeQuery = true)
