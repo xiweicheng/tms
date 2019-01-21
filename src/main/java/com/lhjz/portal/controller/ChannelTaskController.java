@@ -200,4 +200,75 @@ public class ChannelTaskController extends BaseController {
 		}
 	}
 
+	@PostMapping("label/remove")
+	public RespBody removeLabel(@RequestParam("id") Long id) {
+
+		ChatLabel chatLabel = chatLabelRepository.findOne(id);
+
+		User loginUser = getLoginUser();
+
+		if (chatLabel != null) {
+			Set<User> voters = chatLabel.getVoters();
+			if (voters.contains(loginUser)) {
+				loginUser.getVoterChatLabels().remove(chatLabel);
+				voters.remove(loginUser);
+
+				if (voters.size() == 0) {
+					chatLabel.setStatus(Status.Deleted);
+					chatLabel = chatLabelRepository.saveAndFlush(chatLabel);
+				}
+
+				logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", chatLabel.getName());
+
+				chatLabel.getChatChannel().setUpdateDate(new Date());
+				chatChannelRepository.saveAndFlush(chatLabel.getChatChannel());
+
+				chatMsg.put(chatLabel.getChatChannel(), Action.Delete, ChatMsgType.Label, null, null);
+				wsSend(chatLabel.getChatChannel());
+
+				userRepository.saveAndFlush(loginUser);
+			}
+		}
+
+		return RespBody.succeed(id);
+	}
+
+	@PostMapping("remove")
+	public RespBody remove(@RequestParam("id") Long id, @RequestParam("label") String label) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!isSuperOrCreator(chatChannel.getChannel().getCreator())) {
+			return RespBody.failed("权限不足！");
+		}
+
+		final ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatChannelAndStatusNot(label, chatChannel,
+				Status.Deleted);
+
+		if (chatLabel != null) {
+
+			Set<User> voters = chatLabel.getVoters();
+
+			voters.forEach(voter -> {
+				voter.getVoterChatLabels().remove(chatLabel);
+			});
+
+			logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", chatLabel.getName());
+
+			userRepository.save(voters);
+			userRepository.flush();
+
+			chatLabel.setStatus(Status.Deleted);
+			chatLabelRepository.saveAndFlush(chatLabel);
+
+			chatChannel.setUpdateDate(new Date());
+			chatChannelRepository.saveAndFlush(chatChannel);
+
+			chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Label, null, null);
+			wsSend(chatChannel);
+		}
+
+		return RespBody.succeed(id);
+	}
+
 }
