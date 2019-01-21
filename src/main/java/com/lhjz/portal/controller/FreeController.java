@@ -626,6 +626,7 @@ public class FreeController extends BaseController {
 		String message = JsonUtil.read(reqBody, "$.merge_request.message");
 		String sourceBranch = JsonUtil.read(reqBody, "$.merge_request.source_branch");
 		String targetBranch = JsonUtil.read(reqBody, "$.merge_request.target_branch");
+		String assignee = JsonUtil.read(reqBody, "$.merge_request.assignee");
 
 		String httpUrl = JsonUtil.read(reqBody, "$.repository.httpUrl");
 
@@ -658,6 +659,11 @@ public class FreeController extends BaseController {
 				"> {?7}**{?1}** {?2}`{?3}`到`{?4}`的合并请求：http://code.paic.com.cn/#/repo{?5}/merge/{?6}/detail  ",
 				fullName, actionName, sourceBranch, targetBranch, repoAddr, id, iconTag)).append(SysConstant.NEW_LINE);
 
+		if (StringUtil.isNotEmpty(assignee)) {
+			sb.append("> ").append(SysConstant.NEW_LINE);
+			sb.append(StringUtil.replace("> **审核：** **{?1}**  ", assignee)).append(SysConstant.NEW_LINE);
+		}
+		
 		if (StringUtil.isNotEmpty(name)) {
 			sb.append("> ").append(SysConstant.NEW_LINE);
 			sb.append(StringUtil.replace("> **标题：** {?1}  ", name)).append(SysConstant.NEW_LINE);
