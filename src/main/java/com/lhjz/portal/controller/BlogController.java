@@ -555,6 +555,39 @@ public class BlogController extends BaseController {
 			if (comment) {
 				return RespBody.succeed(new BlogSearchResult(blogs, comments));
 			}
+			
+		} else if (search.toLowerCase().startsWith("from:")) {
+			String[] arr = search.split(":", 2);
+			if (StringUtil.isNotEmpty(arr[1].trim())) {
+				String[] condis = arr[1].trim().split("\\s+");
+
+				User user = getUser(condis[0]);
+
+				if (user != null) {
+
+					if (condis.length == 1) {
+
+						blogs = blogRepository.findByCreatorAndStatusNot(user, Status.Deleted, sort).stream()
+								.filter(b -> hasAuth(b)).peek(b -> {
+									b.setContent(StringUtil.limitLength(b.getContent(), ellipsis));
+									b.setBlogAuthorities(null);
+								}).collect(Collectors.toList());
+					} else {
+						blogs = blogRepository
+								.findByCreatorAndStatusNotAndTitleContainingOrCreatorAndStatusNotAndContentContaining(
+										user, Status.Deleted, condis[1], user, Status.Deleted, condis[1], sort)
+								.stream().filter(b -> hasAuth(b)).peek(b -> {
+									b.setContent(StringUtil.limitLength(b.getContent(), ellipsis));
+									b.setBlogAuthorities(null);
+								}).collect(Collectors.toList());
+					}
+				}
+			}
+			
+			if (comment) {
+				return RespBody.succeed(new BlogSearchResult(blogs, comments));
+			}
+
 		} else {
 			blogs = blogRepository.findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status.Deleted,
 					search, Status.Deleted, search, sort).stream().filter(b -> hasAuth(b)).peek(b -> {
