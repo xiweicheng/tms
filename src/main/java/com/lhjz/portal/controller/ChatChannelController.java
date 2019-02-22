@@ -1276,8 +1276,10 @@ public class ChatChannelController extends BaseController {
 
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
 		
-		asyncTask.updateChatReply(content, chatReply2.getId(), messagingTemplate, WebUtil.getUsername());
-
+		if (!off) {
+			asyncTask.updateChatReply(content, chatReply2.getId(), messagingTemplate, WebUtil.getUsername());
+		}
+		
 		chatChannel.setUpdateDate(new Date());
 		chatChannelRepository.saveAndFlush(chatChannel);
 
