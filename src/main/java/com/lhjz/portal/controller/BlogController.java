@@ -333,7 +333,51 @@ public class BlogController extends BaseController {
 	public RespBody listMy(@SortDefault(value = "id", direction = Direction.DESC) Sort sort) {
 
 		List<Blog> blogs = blogRepository.findByStatusNot(Status.Deleted, sort).stream().filter(b -> hasAuth(b))
-				.peek(b -> b.setContent(null)).collect(Collectors.toList());
+				.peek(b -> {
+					b.setContent(null);
+					b.setBlogAuthorities(null);
+					b.setUpdater(null);
+
+					User creator = b.getCreator();
+					if (creator != null) {
+						User user2 = new User();
+						user2.setUsername(creator.getUsername());
+						user2.setAuthorities(null);
+						user2.setStatus(null);
+						b.setCreator(user2);
+					}
+
+					b.setCreateDate(null);
+					b.setOpenEdit(null);
+					b.setOpened(null);
+					b.setReadCnt(null);
+					b.setTags(null);
+					b.setType(null);
+
+					Dir dir = b.getDir();
+					if (dir != null) {
+						Dir dir2 = new Dir();
+						dir2.setId(dir.getId());
+						dir2.setOpened(null);
+						dir2.setPrivated(null);
+						dir2.setStatus(null);
+						b.setDir(dir2);
+					}
+
+					Space space = b.getSpace();
+					if (space != null) {
+						Space space2 = new Space();
+						space2.setId(space.getId());
+						space2.setDirs(null);
+						space2.setOpened(null);
+						space2.setPrivated(null);
+						space2.setSpaceAuthorities(null);
+						space2.setStatus(null);
+						space2.setType(null);
+						b.setSpace(space2);
+					}
+
+				}).collect(Collectors.toList());
 
 		return RespBody.succeed(blogs);
 	}
