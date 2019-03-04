@@ -2109,11 +2109,18 @@ public class BlogController extends BaseController {
 			return RespBody.failed("权限不足！");
 		}
 
-		blog.setShareId(UUID.randomUUID().toString());
+		String shareId = UUID.randomUUID().toString();
 
-		Blog blog2 = blogRepository.saveAndFlush(blog);
+		int cnt = blogRepository.updateShareId(shareId, id);
 
-		return RespBody.succeed(blog2);
+		if (cnt == 1) {
+
+			blog.setShareId(shareId);
+
+			return RespBody.succeed(blog);
+		}
+
+		return RespBody.failed();
 
 	}
 	
@@ -2127,11 +2134,16 @@ public class BlogController extends BaseController {
 			return RespBody.failed("权限不足！");
 		}
 
-		blog.setShareId(null);
+		int cnt = blogRepository.updateShareId(null, id);
 
-		Blog blog2 = blogRepository.saveAndFlush(blog);
+		if (cnt == 1) {
 
-		return RespBody.succeed(blog2);
+			blog.setShareId(null);
+
+			return RespBody.succeed(blog);
+		}
+
+		return RespBody.failed();
 
 	}
 

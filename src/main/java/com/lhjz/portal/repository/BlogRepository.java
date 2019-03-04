@@ -82,6 +82,11 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	
 	@Transactional
 	@Modifying
+	@Query("update Blog b set b.shareId = ?1 where b.id = ?2")
+	int updateShareId(String shareId, Long id);
+	
+	@Transactional
+	@Modifying
 	@Query("update Blog b set b.voteZan = ?1, b.voteZanCnt = ?2 where b.id = ?3")
 	int updateVoteZan(String voteZan, Integer voteZanCnt, Long id);
 	
