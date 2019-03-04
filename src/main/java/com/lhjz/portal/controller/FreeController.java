@@ -947,10 +947,15 @@ public class FreeController extends BaseController {
 
 		Blog blog = blogRepository.findTopByStatusNotAndShareId(Status.Deleted, shareId);
 
-		Page<Comment> page = commentRepository.findByTargetIdAndStatusNot(String.valueOf(blog.getId()), Status.Deleted,
-				pageable);
+		if (blog != null) {
 
-		return RespBody.succeed(page);
+			Page<Comment> page = commentRepository.findByTargetIdAndStatusNot(String.valueOf(blog.getId()),
+					Status.Deleted, pageable);
+
+			return RespBody.succeed(page);
+		}
+		
+		return RespBody.failed("博文不存在！");
 
 	}
 	
