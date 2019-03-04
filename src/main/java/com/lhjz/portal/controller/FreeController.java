@@ -21,6 +21,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +41,7 @@ import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
+import com.lhjz.portal.entity.Comment;
 import com.lhjz.portal.entity.security.Authority;
 import com.lhjz.portal.entity.security.AuthorityId;
 import com.lhjz.portal.entity.security.User;
@@ -54,6 +59,7 @@ import com.lhjz.portal.pojo.Enum.ToType;
 import com.lhjz.portal.repository.AuthorityRepository;
 import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.ChannelRepository;
+import com.lhjz.portal.repository.CommentRepository;
 import com.lhjz.portal.repository.FileRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.ChannelService;
@@ -108,6 +114,9 @@ public class FreeController extends BaseController {
 	
 	@Autowired
 	BlogRepository blogRepository;
+	
+	@Autowired
+	CommentRepository commentRepository;
 
 	@Autowired
 	Environment env;
@@ -923,11 +932,25 @@ public class FreeController extends BaseController {
 	
 	@GetMapping("blog/share/{id}")
 	@ResponseBody
-	public RespBody sendChanneAlmMsg(@PathVariable("id") String shareId) {
+	public RespBody getShareBlog(@PathVariable("id") String shareId) {
 
 		Blog blog = blogRepository.findTopByStatusNotAndShareId(Status.Deleted, shareId);
 
 		return RespBody.succeed(blog);
+
+	}
+	
+	@GetMapping("blog/share/{id}/comments")
+	@ResponseBody
+	public RespBody getShareBlogComments(@PathVariable("id") String shareId,
+			@PageableDefault(sort = { "id" }, direction = Direction.ASC) Pageable pageable) {
+
+		Blog blog = blogRepository.findTopByStatusNotAndShareId(Status.Deleted, shareId);
+
+		Page<Comment> page = commentRepository.findByTargetIdAndStatusNot(String.valueOf(blog.getId()), Status.Deleted,
+				pageable);
+
+		return RespBody.succeed(page);
 
 	}
 	
