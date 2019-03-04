@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.constant.SysConstant;
+import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.security.Authority;
@@ -50,6 +52,7 @@ import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.ToType;
 import com.lhjz.portal.repository.AuthorityRepository;
+import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.FileRepository;
 import com.lhjz.portal.repository.UserRepository;
@@ -102,6 +105,9 @@ public class FreeController extends BaseController {
 
 	@Autowired
 	ChatChannelService chatChannelService;
+	
+	@Autowired
+	BlogRepository blogRepository;
 
 	@Autowired
 	Environment env;
@@ -914,4 +920,15 @@ public class FreeController extends BaseController {
 
 		return val.length();
 	}
+	
+	@GetMapping("blog/share/{id}")
+	@ResponseBody
+	public RespBody sendChanneAlmMsg(@PathVariable("id") String shareId) {
+
+		Blog blog = blogRepository.findTopByStatusNotAndShareId(Status.Deleted, shareId);
+
+		return RespBody.succeed(blog);
+
+	}
+	
 }

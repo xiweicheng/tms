@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -2095,6 +2096,42 @@ public class BlogController extends BaseController {
 		blogNewsRepository.saveAndFlush(news);
 
 		return RespBody.succeed(id);
+
+	}
+	
+	@PostMapping("share/create")
+	@ResponseBody
+	public RespBody createShare(@RequestParam("id") Long id) {
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (!isSuperOrCreator(blog.getCreator())) {
+			return RespBody.failed("权限不足！");
+		}
+
+		blog.setShareId(UUID.randomUUID().toString());
+
+		Blog blog2 = blogRepository.saveAndFlush(blog);
+
+		return RespBody.succeed(blog2);
+
+	}
+	
+	@PostMapping("share/remove")
+	@ResponseBody
+	public RespBody removeShare(@RequestParam("id") Long id) {
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (!isSuperOrCreator(blog.getCreator())) {
+			return RespBody.failed("权限不足！");
+		}
+
+		blog.setShareId(null);
+
+		Blog blog2 = blogRepository.saveAndFlush(blog);
+
+		return RespBody.succeed(blog2);
 
 	}
 

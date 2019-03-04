@@ -120,6 +120,8 @@ public class Blog implements Serializable {
 	private Integer voteCaiCnt;
 
 	private Long readCnt;
+	
+	private String shareId;
 
 	@ManyToOne
 	@JoinColumn(name = "space")

@@ -96,4 +96,6 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	Blog findTopByStatusNotAndOpenedTrueAndIdGreaterThanOrderByIdAsc(Status status, Long id);
 
 	Blog findTopByStatusNotAndOpenedTrueAndSpaceAndIdGreaterThanOrderByIdAsc(Status status, Space space, Long id);
+	
+	Blog findTopByStatusNotAndShareId(Status status, String shareId);
 }
