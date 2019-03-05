@@ -936,6 +936,18 @@ public class FreeController extends BaseController {
 
 		Blog blog = blogRepository.findTopByStatusNotAndShareId(Status.Deleted, shareId);
 
+		if (blog == null) {
+			return RespBody.failed("博文不存在！");
+		}
+
+		// 博文阅读次数+1
+		Long readCnt = blog.getReadCnt();
+		readCnt = readCnt == null ? 1L : (readCnt + 1);
+
+		blogRepository.updateReadCnt(readCnt, blog.getId());
+		
+		blog.setReadCnt(readCnt);
+
 		return RespBody.succeed(blog);
 
 	}
