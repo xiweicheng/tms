@@ -319,6 +319,12 @@
                                 $('#saveFrm select[name="dir"]').append($('<option/>').text(dir.name).attr('value', dir.id));
                             }
                         });
+
+                        var did = localStorage && localStorage.getItem('tms-blog-html-dir');
+                        if (_.some(space.dirs, { id: +did })) {
+                            $('#saveFrm select[name="dir"]').val(did);
+                        }
+
                         return false;
                     }
                 });
@@ -353,6 +359,16 @@
                         $.each(spaces, function(index, space) {
                             $('#saveFrm select[name="space"]').append($('<option/>').text(space.name).attr('value', space.id));
                         });
+
+                        var sid = localStorage && localStorage.getItem('tms-blog-html-space');
+                        if (_.some(spaces, { id: +sid })) {
+                            $('#saveFrm select[name="space"]').val(sid);
+                            $('#saveFrm select[name="space"]').change();
+                        }
+
+                        var privated = localStorage && localStorage.getItem('tms-blog-html-privated');
+
+                        $('#privated').prop("checked", privated == 'true');
 
                         $('#saveModal').modal({
                             fadeDuration: 200,
@@ -400,6 +416,10 @@
             if (blog == null) {
 
                 $.modal.close();
+
+                localStorage && localStorage.setItem('tms-blog-html-space', $('#saveFrm select[name="space"]').val());
+                localStorage && localStorage.setItem('tms-blog-html-dir', $('#saveFrm select[name="dir"]').val());
+                localStorage && localStorage.setItem('tms-blog-html-privated', $('#privated').prop("checked"));
 
                 $.post('/admin/blog/create', {
                     url: window.location.protocol + '//' + window.location.host + '/page/index.html',
