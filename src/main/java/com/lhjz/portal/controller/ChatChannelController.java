@@ -159,7 +159,7 @@ public class ChatChannelController extends BaseController {
 
 	@Autowired
 	AsyncTask asyncTask;
-	
+
 	@Value("${tms.chat.url.summary.off}")
 	Boolean off; // 是否关闭
 
@@ -201,9 +201,9 @@ public class ChatChannelController extends BaseController {
 		if (StringUtil.isNotEmpty(usernames)) {
 
 			Map<String, User> atUserMap = new HashMap<String, User>();
+			String[] usernameArr = usernames.split(",");
 
 			if (StringUtil.isNotEmpty(usernames)) {
-				String[] usernameArr = usernames.split(",");
 				Arrays.asList(usernameArr).stream().forEach((username) -> {
 					User user = getUser(username);
 					if (user != null) {
@@ -225,6 +225,10 @@ public class ChatChannelController extends BaseController {
 
 			chatAtRepository.save(chatAtList);
 			chatAtRepository.flush();
+
+			// @消息 ws 通知
+			asyncTask.wsSendAtMsg(chatChannel2, com.lhjz.portal.model.ChannelAtPayload.Cmd.C, messagingTemplate,
+					loginUser, usernameArr);
 
 		}
 
@@ -364,9 +368,9 @@ public class ChatChannelController extends BaseController {
 		if (StringUtil.isNotEmpty(usernames)) {
 
 			Map<String, User> atUserMap = new HashMap<String, User>();
+			String[] usernameArr = usernames.split(",");
 
 			if (StringUtil.isNotEmpty(usernames)) {
-				String[] usernameArr = usernames.split(",");
 				Arrays.asList(usernameArr).stream().forEach((username) -> {
 					User user = getUser(username);
 					if (user != null) {
@@ -395,6 +399,10 @@ public class ChatChannelController extends BaseController {
 			});
 			chatAtRepository.save(chatAtList);
 			chatAtRepository.flush();
+
+			// @消息 ws 通知
+			asyncTask.wsSendAtMsg(chatChannel2, com.lhjz.portal.model.ChannelAtPayload.Cmd.U, messagingTemplate,
+					loginUser, usernameArr);
 
 		}
 
@@ -1097,7 +1105,8 @@ public class ChatChannelController extends BaseController {
 			return RespBody.failed("标签关联频道消息不存在!");
 		}
 
-		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatChannelAndStatusNot(name, chatChannel, Status.Deleted);
+		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatChannelAndStatusNot(name, chatChannel,
+				Status.Deleted);
 
 		User loginUser = getLoginUser();
 		ChatLabelType chatLabelType = ChatLabelType.valueOf(type);
@@ -1161,7 +1170,7 @@ public class ChatChannelController extends BaseController {
 			if (voters.contains(loginUser)) {
 				loginUser.getVoterChatLabels().remove(chatLabel);
 				voters.remove(loginUser);
-				
+
 				if (voters.size() == 0) {
 					chatLabel.setStatus(Status.Deleted);
 					chatLabel = chatLabelRepository.saveAndFlush(chatLabel);
@@ -1275,11 +1284,11 @@ public class ChatChannelController extends BaseController {
 		chatReply.setUa(ua);
 
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
-		
+
 		if (!off) {
 			asyncTask.updateChatReply(content, chatReply2.getId(), messagingTemplate, WebUtil.getUsername());
 		}
-		
+
 		chatChannel.setUpdateDate(new Date());
 		chatChannelRepository.saveAndFlush(chatChannel);
 
@@ -1311,9 +1320,9 @@ public class ChatChannelController extends BaseController {
 		if (StringUtil.isNotEmpty(usernames)) {
 
 			Map<String, User> atUserMap = new HashMap<String, User>();
+			String[] usernameArr = usernames.split(",");
 
 			if (StringUtil.isNotEmpty(usernames)) {
-				String[] usernameArr = usernames.split(",");
 				Arrays.asList(usernameArr).stream().forEach((username) -> {
 					User user = getUser(username);
 					if (user != null) {
@@ -1344,6 +1353,10 @@ public class ChatChannelController extends BaseController {
 
 			chatAtRepository.save(chatAtList);
 			chatAtRepository.flush();
+
+			// @消息 ws 通知
+			asyncTask.wsSendAtReplyMsg(chatReply2, com.lhjz.portal.model.ChannelAtPayload.Cmd.RC, messagingTemplate,
+					loginUser, usernameArr);
 
 		}
 
@@ -1402,9 +1415,9 @@ public class ChatChannelController extends BaseController {
 		if (StringUtil.isNotEmpty(usernames)) {
 
 			Map<String, User> atUserMap = new HashMap<String, User>();
+			String[] usernameArr = usernames.split(",");
 
 			if (StringUtil.isNotEmpty(usernames)) {
-				String[] usernameArr = usernames.split(",");
 				Arrays.asList(usernameArr).stream().forEach((username) -> {
 					User user = getUser(username);
 					if (user != null) {
@@ -1435,6 +1448,10 @@ public class ChatChannelController extends BaseController {
 
 			chatAtRepository.save(chatAtList);
 			chatAtRepository.flush();
+
+			// @消息 ws 通知
+			asyncTask.wsSendAtReplyMsg(chatReply2, com.lhjz.portal.model.ChannelAtPayload.Cmd.RU, messagingTemplate,
+					loginUser, usernameArr);
 
 		}
 

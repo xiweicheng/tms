@@ -13,6 +13,8 @@ import com.lhjz.portal.component.core.IChatMsg;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.ChatReply;
+import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.ChannelAtPayload;
 import com.lhjz.portal.model.ChannelPayload;
 import com.lhjz.portal.model.ChannelPayload.Cmd;
 import com.lhjz.portal.model.DirectPayload;
@@ -22,6 +24,7 @@ import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.ChatReplyRepository;
 import com.lhjz.portal.util.HtmlUtil;
+import com.lhjz.portal.util.StringUtil;
 
 import lombok.extern.log4j.Log4j;
 
@@ -47,6 +50,8 @@ public class AsyncTask {
 
 	@Autowired
 	IChatMsg chatMsg;
+
+	private final int LIMIT = 25;
 
 	@Async
 	public void updateChatChannel(String content, Long id, SimpMessagingTemplate messagingTemplate, String username) {
@@ -131,6 +136,45 @@ public class AsyncTask {
 				messagingTemplate.convertAndSendToUser(username, "/direct/update",
 						DirectPayload.builder().cmd(cmd).username(username).id(chatDirect.getId()).build());
 			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+	}
+
+	@Async
+	public void wsSendAtMsg(ChatChannel chatChannel, com.lhjz.portal.model.ChannelAtPayload.Cmd cmd,
+			SimpMessagingTemplate messagingTemplate, User sender, String... usernames) {
+		try {
+
+			for (String username : usernames) {
+				String from = StringUtils.isNotEmpty(sender.getName()) ? sender.getName() : sender.getUsername();
+				messagingTemplate.convertAndSendToUser(username, "/channel/at",
+						ChannelAtPayload.builder().from(from).username(sender.getUsername()).to(username)
+								.cid(chatChannel.getChannel().getId()).cname(chatChannel.getChannel().getName())
+								.id(chatChannel.getId()).version(chatChannel.getVersion())
+								.content(StringUtil.limitLength(chatChannel.getContent(), LIMIT)).cmd(cmd).build());
+			}
+
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+	}
+
+	@Async
+	public void wsSendAtReplyMsg(ChatReply chatReply, com.lhjz.portal.model.ChannelAtPayload.Cmd cmd,
+			SimpMessagingTemplate messagingTemplate, User sender, String... usernames) {
+		try {
+
+			for (String username : usernames) {
+				String from = StringUtils.isNotEmpty(sender.getName()) ? sender.getName() : sender.getUsername();
+				messagingTemplate.convertAndSendToUser(username, "/channel/at",
+						ChannelAtPayload.builder().from(from).username(sender.getUsername()).to(username)
+								.cid(chatReply.getChatChannel().getChannel().getId())
+								.cname(chatReply.getChatChannel().getChannel().getName()).id(chatReply.getId())
+								.ccid(chatReply.getChatChannel().getId()).version(chatReply.getVersion())
+								.content(StringUtil.limitLength(chatReply.getContent(), LIMIT)).cmd(cmd).build());
+			}
+
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
