@@ -26,6 +26,8 @@ public class ChannelAtPayload {
 	private String username;
 	
 	private String cname;
+	
+	private String ctitle;
 
 	public static enum Cmd {
 		C, U, RC, RU;

@@ -151,7 +151,8 @@ public class AsyncTask {
 				messagingTemplate.convertAndSendToUser(username, "/channel/at",
 						ChannelAtPayload.builder().from(from).username(sender.getUsername()).to(username)
 								.cid(chatChannel.getChannel().getId()).cname(chatChannel.getChannel().getName())
-								.id(chatChannel.getId()).version(chatChannel.getVersion())
+								.ctitle(chatChannel.getChannel().getTitle()).id(chatChannel.getId())
+								.version(chatChannel.getVersion())
 								.content(StringUtil.limitLength(chatChannel.getContent(), LIMIT)).cmd(cmd).build());
 			}
 
@@ -170,7 +171,8 @@ public class AsyncTask {
 				messagingTemplate.convertAndSendToUser(username, "/channel/at",
 						ChannelAtPayload.builder().from(from).username(sender.getUsername()).to(username)
 								.cid(chatReply.getChatChannel().getChannel().getId())
-								.cname(chatReply.getChatChannel().getChannel().getName()).id(chatReply.getId())
+								.cname(chatReply.getChatChannel().getChannel().getName())
+								.ctitle(chatReply.getChatChannel().getChannel().getTitle()).id(chatReply.getId())
 								.ccid(chatReply.getChatChannel().getId()).version(chatReply.getVersion())
 								.content(StringUtil.limitLength(chatReply.getContent(), LIMIT)).cmd(cmd).build());
 			}
