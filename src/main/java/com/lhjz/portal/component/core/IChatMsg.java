@@ -11,8 +11,9 @@ import com.lhjz.portal.pojo.Enum.ChatMsgType;
 public interface IChatMsg {
 
 	void put(Long cid, ChatMsgItem chatMsgItem);
-	
-	void put(ChatChannel chatChannel, Action action, ChatMsgType type, String username, ChatReply chatReply);
-	
+
+	void put(ChatChannel chatChannel, Action action, ChatMsgType type, String username, String atUsernames,
+			ChatReply chatReply);
+
 	List<ChatMsgItem> get(Long cid);
 }

@@ -188,7 +188,8 @@ public class ChatChannelController extends BaseController {
 		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
 
 		if (!off) {
-			asyncTask.updateChatChannel(content, chatChannel2.getId(), messagingTemplate, WebUtil.getUsername());
+			asyncTask.updateChatChannel(content, chatChannel2.getId(), messagingTemplate, WebUtil.getUsername(),
+					usernames);
 		}
 
 		final String href = url + "?id=" + chatChannel2.getId();
@@ -246,10 +247,11 @@ public class ChatChannelController extends BaseController {
 		return RespBody.succeed(chatChannel2);
 	}
 
-	private void wsSend(ChatChannel chatChannel) {
+	private void wsSend(ChatChannel chatChannel, String atUsernames) {
 		try {
-			messagingTemplate.convertAndSend("/channel/update", ChannelPayload.builder().username(WebUtil.getUsername())
-					.cmd(Cmd.R).id(chatChannel.getChannel().getId()).cid(chatChannel.getId()).build());
+			messagingTemplate.convertAndSend("/channel/update",
+					ChannelPayload.builder().username(WebUtil.getUsername()).atUsernames(atUsernames).cmd(Cmd.R)
+							.id(chatChannel.getChannel().getId()).cid(chatChannel.getId()).build());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -346,8 +348,8 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 
-		chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content, null, null);
-		wsSend(chatChannel2);
+		chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content, null, usernames, null);
+		wsSend(chatChannel2, usernames);
 
 		logWithProperties(Action.Update, Target.ChatChannel, chatChannel2.getId(), "content", contentOld);
 
@@ -448,8 +450,8 @@ public class ChatChannelController extends BaseController {
 
 		chatChannelRepository.delete(id);
 
-		chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Content, null, null);
-		wsSend(chatChannel);
+		chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Content, null, null, null);
+		wsSend(chatChannel, null);
 
 		logWithProperties(Action.Delete, Target.ChatChannel, id, "content", chatChannel.getContent());
 
@@ -1143,8 +1145,8 @@ public class ChatChannelController extends BaseController {
 			chatChannel.setUpdateDate(new Date());
 			chatChannelRepository.saveAndFlush(chatChannel);
 
-			chatMsg.put(chatChannel, Action.Create, ChatMsgType.Label, null, null);
-			wsSend(chatChannel);
+			chatMsg.put(chatChannel, Action.Create, ChatMsgType.Label, null, null, null);
+			wsSend(chatChannel, null);
 
 			try {
 				mailSender
@@ -1181,8 +1183,8 @@ public class ChatChannelController extends BaseController {
 				chatChannel.setUpdateDate(new Date());
 				chatChannelRepository.saveAndFlush(chatChannel);
 
-				chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Label, null, null);
-				wsSend(chatChannel);
+				chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Label, null, null, null);
+				wsSend(chatChannel, null);
 			} else {
 				loginUser.getVoterChatLabels().add(chatLabel);
 				voters.add(loginUser);
@@ -1192,8 +1194,8 @@ public class ChatChannelController extends BaseController {
 				chatChannel.setUpdateDate(new Date());
 				chatChannelRepository.saveAndFlush(chatChannel);
 
-				chatMsg.put(chatChannel, Action.Update, ChatMsgType.Label, null, null);
-				wsSend(chatChannel);
+				chatMsg.put(chatChannel, Action.Update, ChatMsgType.Label, null, null, null);
+				wsSend(chatChannel, null);
 
 				try {
 					mailSender
@@ -1286,14 +1288,14 @@ public class ChatChannelController extends BaseController {
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
 
 		if (!off) {
-			asyncTask.updateChatReply(content, chatReply2.getId(), messagingTemplate, WebUtil.getUsername());
+			asyncTask.updateChatReply(content, chatReply2.getId(), messagingTemplate, WebUtil.getUsername(), usernames);
 		}
 
 		chatChannel.setUpdateDate(new Date());
 		chatChannelRepository.saveAndFlush(chatChannel);
 
-		chatMsg.put(chatChannel, Action.Create, ChatMsgType.Reply, null, chatReply2);
-		wsSend(chatChannel);
+		chatMsg.put(chatChannel, Action.Create, ChatMsgType.Reply, null, usernames, chatReply2);
+		wsSend(chatChannel, usernames);
 
 		// auto follow this chatchannel
 		ChatChannelFollower chatChannelFollower = chatChannelFollowerRepository
@@ -1398,8 +1400,8 @@ public class ChatChannelController extends BaseController {
 		chatChannel.setUpdateDate(new Date());
 		chatChannelRepository.saveAndFlush(chatChannel);
 
-		chatMsg.put(chatChannel, Action.Update, ChatMsgType.Reply, null, chatReply2);
-		wsSend(chatChannel);
+		chatMsg.put(chatChannel, Action.Update, ChatMsgType.Reply, null, usernames, chatReply2);
+		wsSend(chatChannel, usernames);
 
 		final String href = url + "?id=" + chatReply.getChatChannel().getId() + "&rid=" + chatReply2.getId();
 		final User loginUser = getLoginUser();
@@ -1492,8 +1494,8 @@ public class ChatChannelController extends BaseController {
 		chatChannel.setUpdateDate(new Date());
 		chatChannelRepository.saveAndFlush(chatChannel);
 
-		chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Reply, null, chatReply);
-		wsSend(chatChannel);
+		chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Reply, null, null, chatReply);
+		wsSend(chatChannel, null);
 
 		return RespBody.succeed(rid);
 

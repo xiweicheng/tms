@@ -134,7 +134,7 @@ public class ChannelTaskController extends BaseController {
 				chatChannel.setUpdateDate(new Date());
 				chatChannelRepository.saveAndFlush(chatChannel);
 
-				chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Label, null, null);
+				chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Label, null, null, null);
 				wsSend(chatChannel);
 
 				userRepository.saveAndFlush(loginUser);
@@ -164,7 +164,7 @@ public class ChannelTaskController extends BaseController {
 			chatChannel.setUpdateDate(new Date());
 			chatChannelRepository.saveAndFlush(chatChannel);
 
-			chatMsg.put(chatChannel, Action.Create, ChatMsgType.Label, null, null);
+			chatMsg.put(chatChannel, Action.Create, ChatMsgType.Label, null, null, null);
 			wsSend(chatChannel);
 
 			userRepository.saveAndFlush(loginUser);
@@ -181,7 +181,7 @@ public class ChannelTaskController extends BaseController {
 				chatChannel.setUpdateDate(new Date());
 				chatChannelRepository.saveAndFlush(chatChannel);
 
-				chatMsg.put(chatChannel, Action.Update, ChatMsgType.Label, null, null);
+				chatMsg.put(chatChannel, Action.Update, ChatMsgType.Label, null, null, null);
 				wsSend(chatChannel);
 
 				userRepository.saveAndFlush(loginUser);
@@ -223,7 +223,7 @@ public class ChannelTaskController extends BaseController {
 				chatLabel.getChatChannel().setUpdateDate(new Date());
 				chatChannelRepository.saveAndFlush(chatLabel.getChatChannel());
 
-				chatMsg.put(chatLabel.getChatChannel(), Action.Delete, ChatMsgType.Label, null, null);
+				chatMsg.put(chatLabel.getChatChannel(), Action.Delete, ChatMsgType.Label, null, null, null);
 				wsSend(chatLabel.getChatChannel());
 
 				userRepository.saveAndFlush(loginUser);
@@ -264,7 +264,7 @@ public class ChannelTaskController extends BaseController {
 			chatChannel.setUpdateDate(new Date());
 			chatChannelRepository.saveAndFlush(chatChannel);
 
-			chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Label, null, null);
+			chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Label, null, null, null);
 			wsSend(chatChannel);
 		}
 

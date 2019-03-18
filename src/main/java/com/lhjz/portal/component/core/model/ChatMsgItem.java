@@ -27,6 +27,8 @@ public class ChatMsgItem {
 	
 	String username;
 	
+	String atUsernames;
+	
 	ChatMsgType type;
 
 	@JsonIgnore

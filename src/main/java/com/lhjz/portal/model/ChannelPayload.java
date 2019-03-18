@@ -14,6 +14,8 @@ public class ChannelPayload {
 	private Long cid;
 	
 	private String username;
+	
+	private String atUsernames;
 
 	public static enum Cmd {
 		R, C, U, D;

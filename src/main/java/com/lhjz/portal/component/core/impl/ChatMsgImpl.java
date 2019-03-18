@@ -65,7 +65,8 @@ public class ChatMsgImpl implements IChatMsg {
 	}
 
 	@Override
-	public void put(ChatChannel chatChannel, Action action, ChatMsgType type, String username, ChatReply chatReply) {
+	public void put(ChatChannel chatChannel, Action action, ChatMsgType type, String username, String atUsernames,
+			ChatReply chatReply) {
 
 		if (off) {
 			return;
@@ -81,7 +82,8 @@ public class ChatMsgImpl implements IChatMsg {
 
 		put(chatChannel.getChannel().getId(),
 				ChatMsgItem.builder().id(chatChannel.getId()).rid(rid).action(action).type(type).username(username)
-						.version(chatChannel.getVersion()).expire(LocalDateTime.now().plusMinutes(EXPIRE)).build());
+						.atUsernames(atUsernames).version(chatChannel.getVersion())
+						.expire(LocalDateTime.now().plusMinutes(EXPIRE)).build());
 	}
 
 	@Override
@@ -97,7 +99,7 @@ public class ChatMsgImpl implements IChatMsg {
 			return;
 		}
 
-//		log.debug("scheduled task: {}, rate: {}", "chatmsg", 6000);
+		//		log.debug("scheduled task: {}, rate: {}", "chatmsg", 6000);
 
 		try {
 			map.forEachValue(1, list -> {

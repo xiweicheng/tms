@@ -54,7 +54,8 @@ public class AsyncTask {
 	private final int LIMIT = 25;
 
 	@Async
-	public void updateChatChannel(String content, Long id, SimpMessagingTemplate messagingTemplate, String username) {
+	public void updateChatChannel(String content, Long id, SimpMessagingTemplate messagingTemplate, String username,
+			String atUsernames) {
 		String[] lines = content.trim().split("\n");
 		String lastLine = lines[lines.length - 1];
 		if (HtmlUtil.isUrl(lastLine)) {
@@ -68,15 +69,16 @@ public class AsyncTask {
 					chatChannel.setContent(content);
 					ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 
-					chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content, username, null);
-					wsSendChannel(chatChannel2, messagingTemplate, username);
+					chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content, username, atUsernames, null);
+					wsSendChannel(chatChannel2, messagingTemplate, username, atUsernames);
 				}
 			}
 		}
 	}
 
 	@Async
-	public void updateChatReply(String content, Long id, SimpMessagingTemplate messagingTemplate, String username) {
+	public void updateChatReply(String content, Long id, SimpMessagingTemplate messagingTemplate, String username,
+			String atUsernames) {
 		String[] lines = content.trim().split("\n");
 		String lastLine = lines[lines.length - 1];
 		if (HtmlUtil.isUrl(lastLine)) {
@@ -90,17 +92,20 @@ public class AsyncTask {
 					chatReply.setContent(content);
 					ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
 
-					chatMsg.put(chatReply2.getChatChannel(), Action.Update, ChatMsgType.Reply, username, chatReply2);
-					wsSendChannel(chatReply2.getChatChannel(), messagingTemplate, username);
+					chatMsg.put(chatReply2.getChatChannel(), Action.Update, ChatMsgType.Reply, username, atUsernames,
+							chatReply2);
+					wsSendChannel(chatReply2.getChatChannel(), messagingTemplate, username, atUsernames);
 				}
 			}
 		}
 	}
 
-	private void wsSendChannel(ChatChannel chatChannel, SimpMessagingTemplate messagingTemplate, String username) {
+	private void wsSendChannel(ChatChannel chatChannel, SimpMessagingTemplate messagingTemplate, String username,
+			String atUsernames) {
 		try {
-			messagingTemplate.convertAndSend("/channel/update", ChannelPayload.builder().username(username).cmd(Cmd.R)
-					.id(chatChannel.getChannel().getId()).cid(chatChannel.getId()).build());
+			messagingTemplate.convertAndSend("/channel/update",
+					ChannelPayload.builder().username(username).atUsernames(atUsernames).cmd(Cmd.R)
+							.id(chatChannel.getChannel().getId()).cid(chatChannel.getId()).build());
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
