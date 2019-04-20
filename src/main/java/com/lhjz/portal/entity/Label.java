@@ -33,7 +33,7 @@ import lombok.ToString;
  */
 @Entity
 @Data
-@EqualsAndHashCode(of = { "id" })
+@EqualsAndHashCode(of = { "id", "name" })
 @ToString(exclude = { "translate", "chat" })
 public class Label implements Serializable {
 

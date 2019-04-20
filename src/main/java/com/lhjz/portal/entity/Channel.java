@@ -49,7 +49,7 @@ import lombok.ToString;
 @EntityListeners(AuditingEntityListener.class)
 @Data
 @ToString(exclude = { "members", "subscriber", "channelGroups" })
-@EqualsAndHashCode(of = { "id" })
+@EqualsAndHashCode(of = { "id", "name" })
 public class Channel implements Serializable {
 
 	private static final long serialVersionUID = 1864577736341309316L;

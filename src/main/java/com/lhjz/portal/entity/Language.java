@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.pojo.Enum.Status;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
@@ -37,6 +38,7 @@ import lombok.ToString;
  */
 @Entity
 @Data
+@EqualsAndHashCode(of = { "id", "name" })
 @ToString(exclude = { "projects", "translateItems" })
 public class Language implements Serializable {
 

@@ -51,7 +51,7 @@ import lombok.ToString;
 @EntityListeners(AuditingEntityListener.class)
 @Data
 @ToString(exclude = "members")
-@EqualsAndHashCode(of = { "id" })
+@EqualsAndHashCode(of = { "id", "name" })
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

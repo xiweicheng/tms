@@ -21,3 +21,4 @@ src/main/resources/md2pdf/node_modules/
 .factorypath
 .project
 node_modules/
+.idea

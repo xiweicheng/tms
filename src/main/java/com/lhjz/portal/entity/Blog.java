@@ -51,7 +51,7 @@ import lombok.ToString;
 @EntityListeners(AuditingEntityListener.class)
 @Data
 @ToString(exclude = { "blogAuthorities", "tags" })
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = { "id", "content" })
 public class Blog implements Serializable {
 
 	private static final long serialVersionUID = -2895818776405578846L;

@@ -44,7 +44,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = { "id", "content" })
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -87,7 +87,7 @@ public class Gantt implements Serializable {
 	@Column(nullable = false)
 	@Builder.Default
 	private Status status = Status.New;
-	
+
 	@Builder.Default
 	@Column
 	private Boolean openEdit = Boolean.FALSE;
@@ -102,7 +102,7 @@ public class Gantt implements Serializable {
 
 	@Version
 	private long version;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "channel")
 	private Channel channel;

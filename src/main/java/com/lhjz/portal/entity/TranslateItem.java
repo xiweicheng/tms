@@ -38,7 +38,7 @@ import lombok.ToString;
  */
 @Entity
 @Data
-@EqualsAndHashCode(of = { "id" })
+@EqualsAndHashCode(of = { "id", "language", "content" })
 @ToString(exclude = { "translate", "language", "translateItemHistories" })
 public class TranslateItem implements Serializable {
 

@@ -43,7 +43,7 @@ import lombok.ToString;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@EqualsAndHashCode(of = { "id" })
+@EqualsAndHashCode(of = { "id", "name" })
 @ToString(exclude = { "creator", "updater", "space" })
 public class Dir implements Serializable {
 
