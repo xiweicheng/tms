@@ -23,6 +23,9 @@ import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 
+import groovy.transform.ToString;
+import lombok.Data;
+
 /**
  * 
  * @author xi
@@ -31,6 +34,8 @@ import com.lhjz.portal.pojo.Enum.Target;
  * 
  */
 @Entity
+@Data
+@ToString(excludes = { "creator" })
 public class Log implements Serializable {
 
 	/** serialVersionUID (long) */
@@ -70,102 +75,5 @@ public class Log implements Serializable {
 
 	@Version
 	private long version;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Action getAction() {
-		return action;
-	}
-
-	public void setAction(Action action) {
-		this.action = action;
-	}
-
-	public Target getTarget() {
-		return target;
-	}
-
-	public void setTarget(Target target) {
-		this.target = target;
-	}
-
-	public String getProperties() {
-		return properties;
-	}
-
-	public void setProperties(String properties) {
-		this.properties = properties;
-	}
-
-	public String getOldValue() {
-		return oldValue;
-	}
-
-	public void setOldValue(String oldValue) {
-		this.oldValue = oldValue;
-	}
-
-	public String getNewValue() {
-		return newValue;
-	}
-
-	public void setNewValue(String newValue) {
-		this.newValue = newValue;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public Date getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-
-	public long getVersion() {
-		return version;
-	}
-
-	public void setVersion(long version) {
-		this.version = version;
-	}
-
-	public String getTargetId() {
-		return targetId;
-	}
-
-	public void setTargetId(String targetId) {
-		this.targetId = targetId;
-	}
-
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
-	}
-
-	@Override
-	public String toString() {
-		return "Log [id=" + id + ", action=" + action + ", target=" + target
-				+ ", targetId=" + targetId + ", properties=" + properties
-				+ ", oldValue=" + oldValue + ", newValue=" + newValue
-				+ ", status=" + status
-				+ ", createDate=" + createDate + ", version=" + version + "]";
-	}
 
 }

@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.lhjz.portal.entity.Log;
+import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 
 /**
@@ -31,6 +32,12 @@ public interface LogRepository extends JpaRepository<Log, Long> {
 
 	@Query(value = "SELECT COUNT(*) FROM log WHERE target = 'Translate' AND id > ?1", nativeQuery = true)
 	long countQueryRecent(Long lastEvtId);
-	
+
 	List<Log> findByTargetInAndCreateDateAfter(Collection<Target> targets, Date dateAfter);
+
+	List<Log> findTop50ByStatusNotAndTargetInAndIdLessThanOrderByIdDesc(Status status, Collection<Target> targets,
+			Long id);
+
+	List<Log> findTop50ByStatusNotAndTargetInOrderByIdDesc(Status status, Collection<Target> targets);
+	
 }

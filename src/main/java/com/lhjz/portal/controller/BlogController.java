@@ -1948,8 +1948,14 @@ public class BlogController extends BaseController {
 
 		List<Log> logs = logRepository.findByTargetInAndCreateDateAfter(Arrays.asList(Target.Blog, Target.Comment),
 				new DateTime().minusDays(7).toDate());
-		
+
+		if (logs.size() == 0) {
+			return RespBody.succeed(getLogs(null));
+		}
+
 		Collections.reverse(logs);
+
+		Log last = logs.get(logs.size() - 1);
 
 		logs = logs.stream().filter(lg -> {
 
@@ -1966,7 +1972,56 @@ public class BlogController extends BaseController {
 			return false;
 		}).limit(100).collect(Collectors.toList());
 
+		if (logs.size() == 0) {
+			logs = getLogs(last.getId());
+		}
+
 		return RespBody.succeed(logs);
+	}
+	
+	private List<Log> getLogs(Long id) {
+
+		List<Target> targets = Arrays.asList(Target.Blog, Target.Comment);
+		List<Log> logs = null;
+		if (id != null) {
+			logs = logRepository.findTop50ByStatusNotAndTargetInAndIdLessThanOrderByIdDesc(Status.Deleted, targets, id);
+		} else {
+			logs = logRepository.findTop50ByStatusNotAndTargetInOrderByIdDesc(Status.Deleted, targets);
+		}
+
+		if (logs.size() == 0) {
+			return new ArrayList<Log>();
+		}
+
+		Log last = logs.get(logs.size() - 1);
+
+		logs = logs.stream().filter(lg -> {
+
+			String targetId = lg.getTargetId();
+			if (Target.Blog.equals(lg.getTarget())) {
+				Blog blog = blogRepository.findOne(Long.valueOf(targetId));
+				return hasAuthWithDeleted(blog);
+			} else if (Target.Comment.equals(lg.getTarget())) {
+				Comment comment = commentRepository.findOne(Long.valueOf(targetId));
+				Blog blog = blogRepository.findOne(Long.valueOf(comment.getTargetId()));
+				return hasAuthWithDeleted(blog);
+			}
+
+			return false;
+		}).collect(Collectors.toList());
+
+		if (logs.size() == 0) {
+			return getLogs(last.getId());
+		}
+
+		return logs;
+	}
+	
+	@RequestMapping(value = "log/my/more", method = RequestMethod.GET)
+	@ResponseBody
+	public RespBody myMoreLog(@RequestParam(value = "lastId", required = false) Long lastId) {
+
+		return RespBody.succeed(getLogs(lastId));
 	}
 	
 	@RequestMapping(value = "tag/add", method = RequestMethod.POST)
