@@ -73,6 +73,7 @@ import com.lhjz.portal.model.BlogSearchResult;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.PollBlog;
 import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.model.ToastrPayload;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.CommentType;
 import com.lhjz.portal.pojo.Enum.Editor;
@@ -2149,6 +2150,9 @@ public class BlogController extends BaseController {
 		news.setStatus(Status.Deleted);
 
 		blogNewsRepository.saveAndFlush(news);
+
+		messagingTemplate.convertAndSendToUser(news.getTo(), "/blog/toastr",
+				ToastrPayload.builder().id(String.valueOf(news.getId())).build());
 
 		return RespBody.succeed(id);
 
