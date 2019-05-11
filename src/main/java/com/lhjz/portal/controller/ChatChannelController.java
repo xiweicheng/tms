@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,6 +66,7 @@ import com.lhjz.portal.model.ChannelPayload.Cmd;
 import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.Poll;
 import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.model.ToastrPayload;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.ChatLabelType;
 import com.lhjz.portal.pojo.Enum.ChatMsgType;
@@ -250,8 +252,9 @@ public class ChatChannelController extends BaseController {
 	private void wsSend(ChatChannel chatChannel, String atUsernames) {
 		try {
 			messagingTemplate.convertAndSend("/channel/update",
-					ChannelPayload.builder().username(WebUtil.getUsername()).atUsernames(atUsernames).cmd(Cmd.R)
-							.id(chatChannel.getChannel().getId()).cid(chatChannel.getId()).build());
+					ChannelPayload.builder().uuid(UUID.randomUUID().toString()).username(WebUtil.getUsername())
+							.atUsernames(atUsernames).cmd(Cmd.R).id(chatChannel.getChannel().getId())
+							.cid(chatChannel.getId()).build());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -1639,6 +1642,17 @@ public class ChatChannelController extends BaseController {
 	public RespBody listMyLabels() {
 
 		return RespBody.succeed(chatLabelRepository.queryTagsByUser(WebUtil.getUsername()));
+
+	}
+	
+	@PostMapping("news/delete")
+	@ResponseBody
+	public RespBody deleteNews(@RequestParam("id") String id) {
+
+		messagingTemplate.convertAndSendToUser(WebUtil.getUsername(), "/channel/toastr",
+				ToastrPayload.builder().id(id).build());
+
+		return RespBody.succeed(id);
 
 	}
 }

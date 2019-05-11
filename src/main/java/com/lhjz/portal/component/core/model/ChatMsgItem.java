@@ -14,6 +14,8 @@ import lombok.EqualsAndHashCode;
 @Builder
 @EqualsAndHashCode(of = { "id" })
 public class ChatMsgItem {
+	
+	String uuid;
 
 	// chat id
 	Long id;

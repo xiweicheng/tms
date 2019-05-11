@@ -3,6 +3,8 @@
  */
 package com.lhjz.portal.component;
 
+import java.util.UUID;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -104,8 +106,9 @@ public class AsyncTask {
 			String atUsernames) {
 		try {
 			messagingTemplate.convertAndSend("/channel/update",
-					ChannelPayload.builder().username(username).atUsernames(atUsernames).cmd(Cmd.R)
-							.id(chatChannel.getChannel().getId()).cid(chatChannel.getId()).build());
+					ChannelPayload.builder().uuid(UUID.randomUUID().toString()).username(username)
+							.atUsernames(atUsernames).cmd(Cmd.R).id(chatChannel.getChannel().getId())
+							.cid(chatChannel.getId()).build());
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
@@ -136,10 +139,11 @@ public class AsyncTask {
 			SimpMessagingTemplate messagingTemplate, String username) {
 		try {
 			messagingTemplate.convertAndSendToUser(chatDirect.getChatTo().getUsername(), "/direct/update",
-					DirectPayload.builder().cmd(cmd).username(username).id(chatDirect.getId()).build());
+					DirectPayload.builder().uuid(UUID.randomUUID().toString()).cmd(cmd).username(username)
+							.id(chatDirect.getId()).build());
 			if (!StringUtils.equals(chatDirect.getChatTo().getUsername(), username)) {
-				messagingTemplate.convertAndSendToUser(username, "/direct/update",
-						DirectPayload.builder().cmd(cmd).username(username).id(chatDirect.getId()).build());
+				messagingTemplate.convertAndSendToUser(username, "/direct/update", DirectPayload.builder()
+						.uuid(UUID.randomUUID().toString()).cmd(cmd).username(username).id(chatDirect.getId()).build());
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
@@ -154,10 +158,10 @@ public class AsyncTask {
 			for (String username : usernames) {
 				String from = StringUtils.isNotEmpty(sender.getName()) ? sender.getName() : sender.getUsername();
 				messagingTemplate.convertAndSendToUser(username, "/channel/at",
-						ChannelAtPayload.builder().from(from).username(sender.getUsername()).to(username)
-								.cid(chatChannel.getChannel().getId()).cname(chatChannel.getChannel().getName())
-								.ctitle(chatChannel.getChannel().getTitle()).id(chatChannel.getId())
-								.version(chatChannel.getVersion())
+						ChannelAtPayload.builder().uuid(UUID.randomUUID().toString()).from(from)
+								.username(sender.getUsername()).to(username).cid(chatChannel.getChannel().getId())
+								.cname(chatChannel.getChannel().getName()).ctitle(chatChannel.getChannel().getTitle())
+								.id(chatChannel.getId()).version(chatChannel.getVersion())
 								.content(StringUtil.limitLength(chatChannel.getContent(), LIMIT)).cmd(cmd).build());
 			}
 
@@ -174,7 +178,8 @@ public class AsyncTask {
 			for (String username : usernames) {
 				String from = StringUtils.isNotEmpty(sender.getName()) ? sender.getName() : sender.getUsername();
 				messagingTemplate.convertAndSendToUser(username, "/channel/at",
-						ChannelAtPayload.builder().from(from).username(sender.getUsername()).to(username)
+						ChannelAtPayload.builder().uuid(UUID.randomUUID().toString()).from(from)
+								.username(sender.getUsername()).to(username)
 								.cid(chatReply.getChatChannel().getChannel().getId())
 								.cname(chatReply.getChatChannel().getChannel().getName())
 								.ctitle(chatReply.getChatChannel().getChannel().getTitle()).id(chatReply.getId())

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -136,7 +137,8 @@ public class ChatDirectController extends BaseController {
 	private void wsSend(ChatDirect chatDirect, Cmd cmd) {
 		try {
 			messagingTemplate.convertAndSendToUser(chatDirect.getChatTo().getUsername(), "/direct/update",
-					DirectPayload.builder().cmd(cmd).username(WebUtil.getUsername()).id(chatDirect.getId()).build());
+					DirectPayload.builder().uuid(UUID.randomUUID().toString()).cmd(cmd).username(WebUtil.getUsername())
+							.id(chatDirect.getId()).build());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

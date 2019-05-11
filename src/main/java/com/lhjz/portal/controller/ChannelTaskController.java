@@ -6,6 +6,7 @@ package com.lhjz.portal.controller;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -193,8 +194,9 @@ public class ChannelTaskController extends BaseController {
 
 	private void wsSend(ChatChannel chatChannel) {
 		try {
-			messagingTemplate.convertAndSend("/channel/update", ChannelPayload.builder().username(WebUtil.getUsername())
-					.cmd(Cmd.R).id(chatChannel.getChannel().getId()).cid(chatChannel.getId()).build());
+			messagingTemplate.convertAndSend("/channel/update",
+					ChannelPayload.builder().uuid(UUID.randomUUID().toString()).username(WebUtil.getUsername())
+							.cmd(Cmd.R).id(chatChannel.getChannel().getId()).cid(chatChannel.getId()).build());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

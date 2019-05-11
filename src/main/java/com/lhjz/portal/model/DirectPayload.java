@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class DirectPayload {
+	
+	private String uuid;
 
 	private Cmd cmd;
 

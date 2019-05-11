@@ -2,6 +2,7 @@ package com.lhjz.portal.component.core.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -81,8 +82,8 @@ public class ChatMsgImpl implements IChatMsg {
 		Long rid = chatReply != null ? chatReply.getId() : null;
 
 		put(chatChannel.getChannel().getId(),
-				ChatMsgItem.builder().id(chatChannel.getId()).rid(rid).action(action).type(type).username(username)
-						.atUsernames(atUsernames).version(chatChannel.getVersion())
+				ChatMsgItem.builder().uuid(UUID.randomUUID().toString()).id(chatChannel.getId()).rid(rid).action(action)
+						.type(type).username(username).atUsernames(atUsernames).version(chatChannel.getVersion())
 						.expire(LocalDateTime.now().plusMinutes(EXPIRE)).build());
 	}
 

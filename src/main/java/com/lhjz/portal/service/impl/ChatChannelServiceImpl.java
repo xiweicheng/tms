@@ -3,6 +3,8 @@
  */
 package com.lhjz.portal.service.impl;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -41,8 +43,9 @@ public class ChatChannelServiceImpl implements ChatChannelService {
 
 	private void wsSend(ChatChannel chatChannel) {
 		try {
-			messagingTemplate.convertAndSend("/channel/update", ChannelPayload.builder().username(WebUtil.getUsername())
-					.cmd(Cmd.R).id(chatChannel.getChannel().getId()).cid(chatChannel.getId()).build());
+			messagingTemplate.convertAndSend("/channel/update",
+					ChannelPayload.builder().uuid(UUID.randomUUID().toString()).username(WebUtil.getUsername())
+							.cmd(Cmd.R).id(chatChannel.getChannel().getId()).cid(chatChannel.getId()).build());
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}

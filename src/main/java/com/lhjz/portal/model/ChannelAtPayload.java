@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class ChannelAtPayload {
+	
+	private String uuid;
 
 	private String from;
 
