@@ -21,7 +21,7 @@ public final class HtmlUtil {
 	}
 
 	public static boolean isUrl(String str) {
-		String regex = "^(?:https?://)?[\\w]{1,}(?:\\.?[\\w]{1,})+[\\w-_/\\.+?&=#%:]*$";
+		String regex = "^(?:https?://)[\\w]{1,}(?:\\.?[\\w]{1,})+[\\w-_/\\.+?&=#%:]*$";
 		return match(regex, str);
 	}
 
