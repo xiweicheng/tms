@@ -51,7 +51,7 @@ public class Link implements Serializable {
 	@GeneratedValue
 	private Long id;
 
-	@Column
+	@Column(length = 2000)
 	private String href;
 
 	@Column
