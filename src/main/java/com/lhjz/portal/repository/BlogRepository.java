@@ -68,6 +68,9 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	@Query(value = "SELECT * FROM `blog` WHERE blog.`status` <> 'Deleted' AND (privated = 0 OR creator = :username) AND (title LIKE :search OR content LIKE :search) ORDER BY id DESC LIMIT :start,:size", nativeQuery = true)
 	List<Blog> search(@Param("username") String username, @Param("search") String search, @Param("start") Integer start,
 			@Param("size") Integer size);
+	
+	@Query(value = "SELECT * FROM blog WHERE `status` <> 'Deledted' AND tpl = 2 OR (tpl = 1 AND creator = :username) ORDER BY create_date DESC", nativeQuery = true)
+	List<Blog> queryTpl(@Param("username") String username);
 
 	@Query(value = "SELECT COUNT(*) FROM `blog` WHERE blog.`status` <> 'Deleted' AND (privated = 0 OR creator = :username) AND (title LIKE :search OR content LIKE :search)", nativeQuery = true)
 	long countSearch(@Param("username") String username, @Param("search") String search);
@@ -84,6 +87,11 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	@Modifying
 	@Query("update Blog b set b.shareId = ?1 where b.id = ?2")
 	int updateShareId(String shareId, Long id);
+	
+	@Transactional
+	@Modifying
+	@Query("update Blog b set b.tpl = ?1, b.tplDesc = ?2 where b.id = ?3")
+	int updateTpl(Integer tpl, String desc, Long id);
 	
 	@Transactional
 	@Modifying

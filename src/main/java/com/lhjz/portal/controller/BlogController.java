@@ -2206,4 +2206,38 @@ public class BlogController extends BaseController {
 
 	}
 
+	@PostMapping("tpl/update")
+	@ResponseBody
+	public RespBody updateTpl(@RequestParam("id") Long id, @RequestParam("tpl") Integer tpl,
+			@RequestParam(value = "desc", required = false) String desc) {
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (!isSuperOrCreator(blog.getCreator())) {
+			return RespBody.failed("权限不足！");
+		}
+
+		// 模板：1：privated 2：opened (0或者null)：非模板
+		int cnt = blogRepository.updateTpl(tpl, desc, id);
+
+		if (cnt == 1) {
+
+			blog.setTpl(tpl);
+
+			return RespBody.succeed(blog);
+		}
+
+		return RespBody.failed();
+
+	}
+
+	@GetMapping("tpl/list")
+	@ResponseBody
+	public RespBody listTpl() {
+
+		List<Blog> blogs = blogRepository.queryTpl(WebUtil.getUsername());
+
+		return RespBody.succeed(blogs);
+
+	}
 }
