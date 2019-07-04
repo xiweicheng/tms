@@ -23,6 +23,8 @@ public class BlogPayload {
 	private String title;
 	
 	private String content;
+	
+	private Boolean openEdit;
 
 	public static enum Cmd {
 		R, C, U, OU, D, At, Open, CC, CU, CD, F, FCC, FCU, CAt;

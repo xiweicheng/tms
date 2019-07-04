@@ -308,8 +308,9 @@ public class BlogController extends BaseController {
 	private void wsSend(Blog blog, Cmd cmd, String loginUsername) {
 		try {
 			ThreadUtil.exec(() -> {
-				messagingTemplate.convertAndSend("/blog/update", BlogPayload.builder().id(blog.getId())
-						.version(blog.getVersion()).title(blog.getTitle()).cmd(cmd).username(loginUsername).build());
+				messagingTemplate.convertAndSend("/blog/update",
+						BlogPayload.builder().id(blog.getId()).openEdit(blog.getOpenEdit()).version(blog.getVersion())
+								.title(blog.getTitle()).cmd(cmd).username(loginUsername).build());
 			});
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -672,7 +673,9 @@ public class BlogController extends BaseController {
 		blog.setOpenEdit(open);
 		blogRepository.saveAndFlush(blog);
 		
-		wsSend(blog, Cmd.Open, WebUtil.getUsername());
+		if (!blog.getPrivated() && open) {
+			wsSend(blog, Cmd.Open, WebUtil.getUsername());
+		}
 		
 		logWithProperties(Action.Update, Target.Blog, id, "openEdit", open, blog.getTitle());
 
