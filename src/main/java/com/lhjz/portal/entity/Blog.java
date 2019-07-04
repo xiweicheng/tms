@@ -127,6 +127,8 @@ public class Blog implements Serializable {
 
 	private Long readCnt;
 	
+	private Long tplHotCnt; // 模板热度统计
+	
 	private String shareId;
 
 	@ManyToOne

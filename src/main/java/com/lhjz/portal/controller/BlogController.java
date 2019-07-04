@@ -2240,4 +2240,25 @@ public class BlogController extends BaseController {
 		return RespBody.succeed(blogs);
 
 	}
+	
+	@GetMapping("tpl/hotCnt/inc")
+	public RespBody incTplHotCnt(@RequestParam("id") Long id) {
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (blog == null || Status.Deleted.equals(blog.getStatus())) {
+			return RespBody.failed("博文不存在或者已经被删除!");
+		}
+
+		Long hotCnt = blog.getTplHotCnt();
+		if (hotCnt == null) {
+			hotCnt = 1L;
+		} else {
+			hotCnt = hotCnt + 1;
+		}
+
+		blogRepository.updateTplHotCnt(hotCnt, id);
+
+		return RespBody.succeed();
+	}
 }
