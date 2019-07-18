@@ -23,6 +23,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -115,10 +117,10 @@ import com.lhjz.portal.util.WebUtil;
 public class BlogController extends BaseController {
 
 	static Logger logger = LoggerFactory.getLogger(BlogController.class);
-	
+
 	@Value("${tms.blog.upload.path}")
 	private String uploadPath;
-	
+
 	@Value("${tms.blog.md2pdf.path}")
 	private String md2pdfPath;
 
@@ -127,7 +129,7 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	BlogHistoryRepository blogHistoryRepository;
-	
+
 	@Autowired
 	BlogAuthorityRepository blogAuthorityRepository;
 
@@ -136,7 +138,7 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	ChannelRepository channelRepository;
-	
+
 	@Autowired
 	ChatDirectRepository chatDirectRepository;
 
@@ -145,33 +147,36 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	CommentRepository commentRepository;
-	
+
 	@Autowired
 	BlogStowRepository blogStowRepository;
-	
+
 	@Autowired
 	BlogFollowerRepository blogFollowerRepository;
-	
+
 	@Autowired
 	LogRepository logRepository;
-	
+
 	@Autowired
 	TagRepository tagRepository;
 
 	@Autowired
 	DirRepository dirRepository;
-	
+
 	@Autowired
 	BlogNewsRepository blogNewsRepository;
-	
+
 	@Autowired
 	MailSender mailSender;
-	
+
 	@Autowired
 	ChatChannelService chatChannelService;
-	
+
 	@Autowired
 	SimpMessagingTemplate messagingTemplate;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -207,7 +212,7 @@ public class BlogController extends BaseController {
 			}
 			blog.setSpace(space);
 		}
-		
+
 		if (dirId != null) {
 			Dir dir = dirRepository.findOne(dirId);
 			if (dir == null) {
@@ -219,13 +224,13 @@ public class BlogController extends BaseController {
 		if (privated != null) {
 			blog.setPrivated(privated);
 		}
-		
+
 		if (opened != null) {
 			blog.setOpened(opened);
 		}
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
-		
+
 		log(Action.Create, Target.Blog, blog2.getId(), blog2.getTitle());
 
 		final String href = url + "#/blog/" + blog2.getId();
@@ -245,11 +250,12 @@ public class BlogController extends BaseController {
 			}
 
 			try {
-				mailSender.sendHtmlByQueue(
-						String.format("TMS-博文频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-								"date", new Date(), "href", href, "title", "下面的博文消息中有@到你", "content", html)),
-						getLoginUserName(loginUser), mail.get());
+				mailSender
+						.sendHtmlByQueue(String.format("TMS-博文频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+								TemplateUtil.process("templates/mail/mail-dynamic",
+										MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+												"下面的博文消息中有@到你", "content", html)),
+								getLoginUserName(loginUser), mail.get());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -258,7 +264,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(blog2);
 	}
-	
+
 	private void wsSendToUsers(Blog blog, Cmd cmd, String loginUsername, String... usernames) {
 		try {
 
@@ -282,7 +288,7 @@ public class BlogController extends BaseController {
 			logger.error(e.getMessage(), e);
 		}
 	}
-	
+
 	private void wsSendToUsers(Blog blog, Comment comment, Cmd cmd, String loginUsername, String... usernames) {
 		try {
 			ThreadUtil.exec(() -> {
@@ -304,7 +310,7 @@ public class BlogController extends BaseController {
 			logger.error(e.getMessage(), e);
 		}
 	}
-	
+
 	private void wsSend(Blog blog, Cmd cmd, String loginUsername) {
 		try {
 			ThreadUtil.exec(() -> {
@@ -330,7 +336,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(blogs);
 	}
-	
+
 	@RequestMapping(value = "listMy", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody listMy(@SortDefault(value = "id", direction = Direction.DESC) Sort sort) {
@@ -409,8 +415,8 @@ public class BlogController extends BaseController {
 		if (!isSuperOrCreator(blog.getCreator().getUsername()) && !isOpenEdit) {
 			return RespBody.failed("您没有权限编辑该博文!");
 		}
-		
-		if(isOpenEdit && !hasAuth(blog)) {
+
+		if (isOpenEdit && !hasAuth(blog)) {
 			return RespBody.failed("您没有权限编辑该博文!");
 		}
 
@@ -445,7 +451,7 @@ public class BlogController extends BaseController {
 			blog.setContent(content);
 
 			Blog blog2 = blogRepository.saveAndFlush(blog);
-			
+
 			wsSend(blog2, Cmd.U, WebUtil.getUsername());
 
 			final User loginUser = getLoginUser();
@@ -458,9 +464,9 @@ public class BlogController extends BaseController {
 			}
 
 			final Mail mail = Mail.instance();
-			
+
 			List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog2, Status.Deleted);
-			
+
 			// 编辑非自己的博文，自动成为该博文的关注者
 			if (!blog.getCreator().equals(loginUser)) {
 				// 没有关注该博文
@@ -483,33 +489,34 @@ public class BlogController extends BaseController {
 					logWithProperties(Action.Update, Target.Blog, id, "follower", blog.getTitle());
 				}
 			}
-			
+
 			mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 			mail.addUsers(Arrays.asList(blog2.getCreator()), loginUser);
 
 			List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
 			wsSendToUsers(blog2, Cmd.F, WebUtil.getUsername(), fs.toArray(new String[0]));
-			
+
 			if (!blog.getCreator().equals(loginUser)) {
 				wsSendToUsers(blog, Cmd.OU, WebUtil.getUsername(), blog.getCreator().getUsername());
 			}
-			
+
 			if (StringUtil.isNotEmpty(usernames)) {
 				String[] usernameArr = usernames.split(",");
 				Arrays.asList(usernameArr).stream().forEach((username) -> {
 					mail.addUsers(getUser(username));
 				});
-				
+
 				wsSendToUsers(blog2, Cmd.At, WebUtil.getUsername(), usernameArr);
 			}
-			
+
 			if (!mail.isEmpty()) {
 
 				try {
 					mailSender.sendHtmlByQueue(
 							String.format("TMS-博文编辑@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", "下面编辑的博文消息中有@到你", "content", html)),
+							TemplateUtil.process("templates/mail/mail-dynamic",
+									MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title",
+											"下面编辑的博文消息中有@到你", "content", html)),
 							getLoginUserName(loginUser), mail.get());
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -537,7 +544,7 @@ public class BlogController extends BaseController {
 		blog.setStatus(Status.Deleted);
 
 		blogRepository.saveAndFlush(blog);
-		
+
 		wsSend(blog, Cmd.D, WebUtil.getUsername());
 
 		log(Action.Delete, Target.Blog, id, blog.getTitle());
@@ -565,7 +572,7 @@ public class BlogController extends BaseController {
 		} else {
 			readCnt = readCnt + 1;
 		}
-		
+
 		blogRepository.updateReadCnt(readCnt, id);
 
 		blog.setReadCnt(readCnt);
@@ -602,7 +609,7 @@ public class BlogController extends BaseController {
 			if (comment) {
 				return RespBody.succeed(new BlogSearchResult(blogs, comments));
 			}
-			
+
 		} else if (search.toLowerCase().startsWith("from:")) {
 			String[] arr = search.split(":", 2);
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
@@ -630,7 +637,7 @@ public class BlogController extends BaseController {
 					}
 				}
 			}
-			
+
 			if (comment) {
 				return RespBody.succeed(new BlogSearchResult(blogs, comments));
 			}
@@ -655,7 +662,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(blogs);
 	}
-	
+
 	@RequestMapping(value = "openEdit", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody openEdit(@RequestParam("id") Long id, @RequestParam("open") Boolean open) {
@@ -672,11 +679,11 @@ public class BlogController extends BaseController {
 
 		blog.setOpenEdit(open);
 		blogRepository.saveAndFlush(blog);
-		
+
 		if (!blog.getPrivated() && open) {
 			wsSend(blog, Cmd.Open, WebUtil.getUsername());
 		}
-		
+
 		logWithProperties(Action.Update, Target.Blog, id, "openEdit", open, blog.getTitle());
 
 		return RespBody.succeed();
@@ -717,7 +724,7 @@ public class BlogController extends BaseController {
 		if (blog == null) {
 			return RespBody.failed("投票博文消息不存在!");
 		}
-		
+
 		String loginUsername = WebUtil.getUsername();
 
 		String title = "";
@@ -728,16 +735,16 @@ public class BlogController extends BaseController {
 			if (isVoterExists(voteZan)) {
 				return RespBody.failed("您已经投票[赞]过！");
 			} else {
-				
+
 				String vz = voteZan == null ? loginUsername : voteZan + ',' + loginUsername;
 
 				Integer voteZanCnt = blog.getVoteZanCnt();
 				Integer vzc = voteZanCnt == null ? 1 : voteZanCnt + 1;
 
 				blogRepository.updateVoteZan(vz, vzc, id);
-				
+
 				logWithProperties(Action.Update, Target.Blog, id, "voteZan", blog.getTitle());
-				
+
 				blog.setVoteZan(vz);
 				blog.setVoteZanCnt(vzc);
 				title = loginUser.getName() + "[" + loginUsername + "]赞了你的博文消息!";
@@ -751,7 +758,7 @@ public class BlogController extends BaseController {
 				Integer vzc = voteZanCnt == null ? 0 : voteZanCnt - 1;
 
 				blogRepository.updateVoteZan(vz, vzc, id);
-				
+
 				blog.setVoteZan(vz);
 				blog.setVoteZanCnt(vzc);
 				return RespBody.succeed(blog);
@@ -764,18 +771,17 @@ public class BlogController extends BaseController {
 		final String html = "<h3>投票博文消息内容:</h3><hr/>" + contentHtml;
 
 		try {
-			mailSender
-					.sendHtmlByQueue(String.format("TMS-博文消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
-							getLoginUserName(loginUser), mail.get());
+			mailSender.sendHtmlByQueue(String.format("TMS-博文消息投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", titleHtml, "content", html)),
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return RespBody.succeed(blog);
 	}
-	
+
 	@RequestMapping(value = "comment/vote", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody voteComment(@RequestParam("cid") Long cid, @RequestParam("url") String url,
@@ -805,8 +811,9 @@ public class BlogController extends BaseController {
 
 				comment2 = commentRepository.saveAndFlush(comment);
 				title = loginUser.getName() + "[" + loginUsername + "]赞了你的博文评论!";
-				
-				logWithProperties(Action.Update, Target.Comment, cid, "voteZan", comment2.getTargetId(), comment2.getContent());
+
+				logWithProperties(Action.Update, Target.Comment, cid, "voteZan", comment2.getTargetId(),
+						comment2.getContent());
 			}
 
 		} else {
@@ -827,11 +834,10 @@ public class BlogController extends BaseController {
 		final String html = "<h3>投票博文评论内容:</h3><hr/>" + contentHtml;
 
 		try {
-			mailSender
-					.sendHtmlByQueue(String.format("TMS-博文评论投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
-							getLoginUserName(loginUser), mail.get());
+			mailSender.sendHtmlByQueue(String.format("TMS-博文评论投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", titleHtml, "content", html)),
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -852,7 +858,7 @@ public class BlogController extends BaseController {
 		List<User> users = userRepository.findTop6ByUsernameContainingAndEnabledTrue(search);
 		List<Channel> channels = channelRepository.findTop6ByNameContainingAndStatusNot(search, Status.Deleted);
 		channels.forEach(c -> c.setMembers(null));
-		
+
 		map.put("users", users);
 		map.put("channels", channels);
 
@@ -872,7 +878,7 @@ public class BlogController extends BaseController {
 		if (!hasAuth(blog)) {
 			return RespBody.failed("您没有权限分享该博文!");
 		}
-		
+
 		final User loginUser = getLoginUser();
 
 		final String href = basePath + "#/blog/" + id;
@@ -918,7 +924,7 @@ public class BlogController extends BaseController {
 				}
 			});
 		}
-		
+
 		if (StringUtil.isNotEmpty(mails)) {
 			Stream.of(mails.split(",")).forEach(m -> {
 				if (ValidateUtil.isEmail(m)) {
@@ -931,11 +937,10 @@ public class BlogController extends BaseController {
 
 			try {
 				Thread.sleep(3000);
-				mailSender
-						.sendHtml(String.format("TMS-博文分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-								TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user",
-										loginUser, "date", new Date(), "href", href, "title", title, "content", html2)),
-								getLoginUserName(loginUser), mail.get());
+				mailSender.sendHtml(String.format("TMS-博文分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", title, "content", html2)),
+						getLoginUserName(loginUser), mail.get());
 				logger.info("博文分享邮件发送成功！");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -945,7 +950,7 @@ public class BlogController extends BaseController {
 		});
 		return RespBody.succeed();
 	}
-	
+
 	@RequestMapping(value = "comment/share", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody shareComment(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
@@ -1013,11 +1018,10 @@ public class BlogController extends BaseController {
 
 			try {
 				Thread.sleep(3000);
-				mailSender
-						.sendHtml(String.format("TMS-博文评论分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-								TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user",
-										loginUser, "date", new Date(), "href", href, "title", title, "content", html2)),
-								getLoginUserName(loginUser), mail.get());
+				mailSender.sendHtml(String.format("TMS-博文评论分享_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+						TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
+								"date", new Date(), "href", href, "title", title, "content", html2)),
+						getLoginUserName(loginUser), mail.get());
 				logger.info("博文评论分享邮件发送成功！");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1042,7 +1046,7 @@ public class BlogController extends BaseController {
 		comment.setType(CommentType.Blog);
 
 		Comment comment2 = commentRepository.saveAndFlush(comment);
-		
+
 		log(Action.Create, Target.Comment, comment2.getId(), content, id);
 
 		final User loginUser = getLoginUser();
@@ -1053,7 +1057,7 @@ public class BlogController extends BaseController {
 
 		Mail mail = Mail.instance();
 		mail.addUsers(Arrays.asList(blog.getCreator()), loginUser);
-		
+
 		if (StringUtil.isNotEmpty(users)) {
 			Stream.of(users.split(",")).forEach(username -> {
 				User user = getUser(username);
@@ -1064,14 +1068,14 @@ public class BlogController extends BaseController {
 
 		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
 		mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
-		
+
 		List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
 		wsSendToUsers(blog, comment2, Cmd.FCC, WebUtil.getUsername(), fs.toArray(new String[0]));
-		
+
 		if (!blog.getCreator().equals(loginUser)) {
 			wsSendToUsers(blog, comment2, Cmd.CC, WebUtil.getUsername(), blog.getCreator().getUsername());
 		}
-		
+
 		// auto follow blog
 		boolean isFollower = followers.stream().anyMatch(f -> f.getCreator().equals(loginUser));
 		if (!isFollower && !blog.getCreator().equals(loginUser)) {
@@ -1091,14 +1095,15 @@ public class BlogController extends BaseController {
 			}
 		}
 
-		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
+		final String html = StringUtil.replace(
+				"<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href,
+				blog.getTitle(), contentHtml);
 
 		try {
-			mailSender
-					.sendHtmlByQueue(String.format("TMS-博文评论_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", "下面博文评论涉及到你", "content", html)),
-							getLoginUserName(loginUser), mail.get());
+			mailSender.sendHtmlByQueue(String.format("TMS-博文评论_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", "下面博文评论涉及到你", "content", html)),
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1130,7 +1135,7 @@ public class BlogController extends BaseController {
 		}
 
 		comment.setContent(content);
-		
+
 		logWithProperties(Action.Update, Target.Comment, cid, "content", diff, id);
 
 		Comment comment2 = commentRepository.saveAndFlush(comment);
@@ -1143,7 +1148,7 @@ public class BlogController extends BaseController {
 
 		Mail mail = Mail.instance();
 		mail.addUsers(Arrays.asList(blog.getCreator()), loginUser);
-		
+
 		if (StringUtil.isNotEmpty(users)) {
 			Stream.of(users.split(",")).forEach(username -> {
 				User user = getUser(username);
@@ -1151,25 +1156,26 @@ public class BlogController extends BaseController {
 			});
 			wsSendToUsers(blog, comment2, Cmd.CAt, WebUtil.getUsername(), users.split(","));
 		}
-		
+
 		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
 		mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 
 		List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
 		wsSendToUsers(blog, comment2, Cmd.FCU, WebUtil.getUsername(), fs.toArray(new String[0]));
-		
+
 		if (!blog.getCreator().equals(loginUser)) {
 			wsSendToUsers(blog, comment2, Cmd.CU, WebUtil.getUsername(), blog.getCreator().getUsername());
 		}
 
-		final String html = StringUtil.replace("<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href, blog.getTitle(), contentHtml);
+		final String html = StringUtil.replace(
+				"<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href,
+				blog.getTitle(), contentHtml);
 
 		try {
-			mailSender
-					.sendHtmlByQueue(String.format("TMS-博文评论更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", "下面更新博文评论涉及到你", "content", html)),
-							getLoginUserName(loginUser), mail.get());
+			mailSender.sendHtmlByQueue(String.format("TMS-博文评论更新_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", "下面更新博文评论涉及到你", "content", html)),
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1202,7 +1208,7 @@ public class BlogController extends BaseController {
 
 			comment.setStatus(Status.Deleted);
 			commentRepository.saveAndFlush(comment);
-			
+
 			log(Action.Delete, Target.Comment, cid, comment.getContent());
 		}
 
@@ -1235,17 +1241,30 @@ public class BlogController extends BaseController {
 		}
 
 		Space space = sid != null ? spaceRepository.findOne(sid) : null;
-		blog.setSpace(space);
+		//		blog.setSpace(space);
 
 		Dir dir = did != null ? dirRepository.findOne(did) : null;
-		blog.setDir(dir);
+		//		blog.setDir(dir);
 
-		Blog blog2 = blogRepository.saveAndFlush(blog);
+		blogRepository.updateSpaceAndDir(space, dir, id);
 
-		logWithProperties(Action.Update, Target.Blog, id, "space", space != null ? space.getName() : "",
-				blog.getTitle());
+		//		Blog blog2 = blogRepository.saveAndFlush(blog);
 
-		return RespBody.succeed(blog2);
+		String val = StringUtil.EMPTY;
+
+		if (space != null && dir != null) {
+			val = space.getName() + " / " + dir.getName();
+		} else if (space != null && dir == null) {
+			val = space.getName();
+		} else if (space == null && dir != null) {
+			val = dir.getName();
+		}
+
+		logWithProperties(Action.Update, Target.Blog, id, "space", val, blog.getTitle());
+
+		em.detach(blog);
+
+		return RespBody.succeed(blogRepository.findOne(id));
 	}
 
 	@RequestMapping(value = "privated/update", method = RequestMethod.POST)
@@ -1258,17 +1277,16 @@ public class BlogController extends BaseController {
 			return RespBody.failed("您没有权限修改该博文可见性!");
 		}
 
-		blog.setPrivated(privated);
-		if(privated) {
-			blog.setOpened(false);
-		}
-		
-		Blog blog2 = blogRepository.saveAndFlush(blog);
+		blogRepository.updatePrivatedAndOpened(privated, (privated ? false : blog.getOpened()), id);
+
+		//		Blog blog2 = blogRepository.saveAndFlush(blog);
 
 		logWithProperties(Action.Update, Target.Blog, id, "privated", privated, blog.getTitle());
 
-		return RespBody.succeed(blog2);
-	}	
+		em.detach(blog);
+
+		return RespBody.succeed(blogRepository.findOne(id));
+	}
 
 	@RequestMapping(value = "opened/update", method = RequestMethod.POST)
 	@ResponseBody
@@ -1280,16 +1298,15 @@ public class BlogController extends BaseController {
 			return RespBody.failed("您没有权限修改该博文的可见性!");
 		}
 
-		blog.setOpened(opened);
-		if(opened) {
-			blog.setPrivated(false);
-		}
-		
-		Blog blog2 = blogRepository.saveAndFlush(blog);
+		blogRepository.updatePrivatedAndOpened((opened ? false : blog.getPrivated()), opened, id);
+
+		//		Blog blog2 = blogRepository.saveAndFlush(blog);
 
 		logWithProperties(Action.Update, Target.Blog, id, "opened", opened, blog.getTitle());
 
-		return RespBody.succeed(blog2);
+		em.detach(blog);
+
+		return RespBody.succeed(blogRepository.findOne(id));
 	}
 
 	@RequestMapping(value = "history/list", method = RequestMethod.GET)
@@ -1313,7 +1330,7 @@ public class BlogController extends BaseController {
 
 		BlogHistory blogHistory = blogHistoryRepository.findOne(hid);
 		Blog blog = blogHistory.getBlog();
-		
+
 		if (!hasAuth(blog)) {
 			return RespBody.failed("您没有权限查看该博文历史!");
 		}
@@ -1377,12 +1394,11 @@ public class BlogController extends BaseController {
 	}
 
 	@RequestMapping(value = "download/{id}", method = RequestMethod.GET)
-	public void download(HttpServletRequest request,
-			HttpServletResponse response, @PathVariable Long id, @RequestParam(value = "type", defaultValue = "pdf") String type)
-			throws Exception {
+	public void download(HttpServletRequest request, HttpServletResponse response, @PathVariable Long id,
+			@RequestParam(value = "type", defaultValue = "pdf") String type) throws Exception {
 
 		logger.debug("download blog start...");
-		
+
 		Blog blog = blogRepository.findOne(id);
 
 		if (blog == null) {
@@ -1393,7 +1409,7 @@ public class BlogController extends BaseController {
 				e.printStackTrace();
 			}
 		}
-		
+
 		if (!hasAuth(blog)) {
 			try {
 				response.sendError(404, "您没有权限下载该博文!");
@@ -1405,15 +1421,15 @@ public class BlogController extends BaseController {
 
 		// 获取网站部署路径(通过ServletContext对象)，用于确定下载文件位置，从而实现下载
 		String path = WebUtil.getRealPath(request);
-		
+
 		String blogUpdateDate = DateUtil.format(blog.getUpdateDate(), DateUtil.FORMAT9);
-		
+
 		String mdFileName = blog.getId() + "_" + blogUpdateDate + ".md";
 		String pdfFileName = blog.getId() + "_" + blogUpdateDate + ".pdf";
-		
+
 		String mdFilePath = path + uploadPath + mdFileName;
 		String pdfFilePath = path + uploadPath + pdfFileName;
-		
+
 		File fileMd = new File(mdFilePath);
 
 		if (!fileMd.exists()) {
@@ -1423,13 +1439,14 @@ public class BlogController extends BaseController {
 				e.printStackTrace();
 			}
 		}
-		
+
 		File filePdf = new File(pdfFilePath);
-		
+
 		if (!filePdf.exists()) {
 			try {
-				String pathNode = StringUtil.isNotEmpty(md2pdfPath) ? md2pdfPath : new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
-				
+				String pathNode = StringUtil.isNotEmpty(md2pdfPath) ? md2pdfPath
+						: new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
+
 				String nodeCmd = StringUtil.replace("node {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
 				logger.debug("Node CMD: " + nodeCmd);
 				Process process = Runtime.getRuntime().exec(nodeCmd);
@@ -1444,7 +1461,7 @@ public class BlogController extends BaseController {
 				e.printStackTrace();
 			}
 		}
-		
+
 		// 1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
 		// response.setContentType("multipart/form-data");
 		response.setContentType("application/x-msdownload;");
@@ -1452,7 +1469,7 @@ public class BlogController extends BaseController {
 		String dnFileName = null;
 		String dnFileLength = null;
 		File dnFile = null;
-		if("md".equalsIgnoreCase(type) || "html".equalsIgnoreCase(type)) {
+		if ("md".equalsIgnoreCase(type) || "html".equalsIgnoreCase(type)) {
 			dnFileName = blog.getTitle().trim() + "." + type;
 			dnFileLength = String.valueOf(fileMd.length());
 			dnFile = fileMd;
@@ -1462,8 +1479,7 @@ public class BlogController extends BaseController {
 			dnFile = filePdf;
 		}
 		// 2.设置文件头：最后一个参数是设置下载文件名
-		response.setHeader("Content-Disposition", "attachment; fileName="
-				+ StringUtil.encodingFileName(dnFileName));
+		response.setHeader("Content-Disposition", "attachment; fileName=" + StringUtil.encodingFileName(dnFileName));
 		response.setHeader("Content-Length", dnFileLength);
 
 		java.io.BufferedInputStream bis = null;
@@ -1488,9 +1504,9 @@ public class BlogController extends BaseController {
 			}
 		}
 	}
-	
+
 	private boolean hasAuth(Blog b) {
-		
+
 		if (b == null) {
 			return false;
 		}
@@ -1501,23 +1517,23 @@ public class BlogController extends BaseController {
 
 		return hasAuthWithDeleted(b);
 	}
-	
+
 	private boolean hasAuth(Long id) {
-		
+
 		if (id == null) {
 			return false;
 		}
-		
+
 		Blog b = blogRepository.findOne(id);
-		
+
 		if (b == null) {
 			return false;
 		}
-		
+
 		if (b.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
 			return false;
 		}
-		
+
 		return hasAuthWithDeleted(b);
 	}
 
@@ -1534,8 +1550,8 @@ public class BlogController extends BaseController {
 		if (s.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
 			return false;
 		}
-		
-		if(Boolean.TRUE.equals(s.getOpened())) {
+
+		if (Boolean.TRUE.equals(s.getOpened())) {
 			return true;
 		}
 
@@ -1569,7 +1585,7 @@ public class BlogController extends BaseController {
 
 		return exists;
 	}
-	
+
 	private boolean hasAuthWithDeleted(Blog b) {
 
 		if (b == null) {
@@ -1586,8 +1602,8 @@ public class BlogController extends BaseController {
 		if (b.getCreator().equals(loginUser)) { // 我创建的
 			return true;
 		}
-		
-		if(Boolean.TRUE.equals(b.getOpened())) {
+
+		if (Boolean.TRUE.equals(b.getOpened())) {
 			return true;
 		}
 
@@ -1618,17 +1634,17 @@ public class BlogController extends BaseController {
 
 		return exists;
 	}
-	
+
 	@RequestMapping(value = "auth/get", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody getAuth(@RequestParam("id") Long id) {
 		Blog blog = blogRepository.findOne(id);
-		if(!hasAuth(blog)) {
+		if (!hasAuth(blog)) {
 			return RespBody.failed("您没有权限查看该博文权限!");
 		}
 		return RespBody.succeed(blog.getBlogAuthorities());
 	}
-	
+
 	@RequestMapping(value = "auth/add", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody addAuth(@RequestParam("id") Long id,
@@ -1670,12 +1686,12 @@ public class BlogController extends BaseController {
 
 		List<BlogAuthority> list = blogAuthorityRepository.save(blogAuthorities);
 		blogAuthorityRepository.flush();
-		
+
 		blog.getBlogAuthorities().addAll(list);
 
 		return RespBody.succeed(blog);
 	}
-	
+
 	@RequestMapping(value = "auth/remove", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody removeAuth(@RequestParam("id") Long id,
@@ -1685,7 +1701,7 @@ public class BlogController extends BaseController {
 		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限为该博文移除权限!");
 		}
-		
+
 		List<BlogAuthority> list = new ArrayList<>();
 		Collection<Channel> channelC = new ArrayList<>();
 		if (StringUtil.isNotEmpty(channels)) {
@@ -1693,7 +1709,7 @@ public class BlogController extends BaseController {
 				Channel ch = new Channel();
 				ch.setId(Long.valueOf(c));
 				channelC.add(ch);
-				
+
 				BlogAuthority ba = new BlogAuthority();
 				ba.setBlog(blog);
 				ba.setChannel(ch);
@@ -1706,14 +1722,14 @@ public class BlogController extends BaseController {
 				User user = new User();
 				user.setUsername(u);
 				userC.add(user);
-				
+
 				BlogAuthority ba = new BlogAuthority();
 				ba.setBlog(blog);
 				ba.setUser(user);
 				list.add(ba);
 			});
 		}
-		
+
 		if (channelC.size() > 0 && userC.size() > 0) {
 			blogAuthorityRepository.removeAuths(blog, channelC, userC);
 		} else {
@@ -1725,7 +1741,7 @@ public class BlogController extends BaseController {
 		}
 
 		blogAuthorityRepository.flush();
-		
+
 		blog.getBlogAuthorities().removeAll(list);
 
 		return RespBody.succeed(blog);
@@ -1740,7 +1756,7 @@ public class BlogController extends BaseController {
 		}
 
 		User loginUser = getLoginUser();
-		
+
 		BlogStow blogStow3 = blogStowRepository.findOneByBlogAndCreator(blog, loginUser);
 
 		if (blogStow3 != null) {
@@ -1748,9 +1764,9 @@ public class BlogController extends BaseController {
 				return RespBody.failed("您已经收藏过该博文!");
 			} else {
 				blogStow3.setStatus(Status.New);
-				
+
 				BlogStow blogStow = blogStowRepository.saveAndFlush(blogStow3);
-				
+
 				logWithProperties(Action.Update, Target.Blog, id, "stow", blog.getTitle());
 
 				return RespBody.succeed(blogStow);
@@ -1758,9 +1774,9 @@ public class BlogController extends BaseController {
 		} else {
 			BlogStow blogStow = new BlogStow();
 			blogStow.setBlog(blog);
-			
+
 			BlogStow blogStow2 = blogStowRepository.saveAndFlush(blogStow);
-			
+
 			logWithProperties(Action.Update, Target.Blog, id, "stow", blog.getTitle());
 
 			return RespBody.succeed(blogStow2);
@@ -1803,7 +1819,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(blogStows);
 	}
-	
+
 	@RequestMapping(value = "stow/get", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody getStow(@RequestParam("id") Long id) {
@@ -1813,11 +1829,12 @@ public class BlogController extends BaseController {
 			return RespBody.failed("您没有权限操作该博文!");
 		}
 
-		BlogStow blogStow = blogStowRepository.findOneByBlogAndCreatorAndStatusNot(blog, getLoginUser(), Status.Deleted);
-		
+		BlogStow blogStow = blogStowRepository.findOneByBlogAndCreatorAndStatusNot(blog, getLoginUser(),
+				Status.Deleted);
+
 		return RespBody.succeed(blogStow);
 	}
-	
+
 	@RequestMapping(value = "stow/list", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody listStow(@RequestParam("id") Long id) {
@@ -1832,7 +1849,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(stows);
 	}
-	
+
 	@RequestMapping(value = "follower/add", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody addFollower(@RequestParam("id") Long id) {
@@ -1840,9 +1857,9 @@ public class BlogController extends BaseController {
 		if (!hasAuth(blog)) {
 			return RespBody.failed("您没有权限关注该博文!");
 		}
-		
+
 		User loginUser = getLoginUser();
-		
+
 		BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreator(blog, loginUser);
 
 		if (blogFollower != null) {
@@ -1850,9 +1867,9 @@ public class BlogController extends BaseController {
 				return RespBody.failed("您已经关注过该博文!");
 			} else {
 				blogFollower.setStatus(Status.New);
-				
+
 				BlogFollower blogFollower2 = blogFollowerRepository.saveAndFlush(blogFollower);
-				
+
 				logWithProperties(Action.Update, Target.Blog, id, "follower", blog.getTitle());
 
 				return RespBody.succeed(blogFollower2);
@@ -1860,9 +1877,9 @@ public class BlogController extends BaseController {
 		} else {
 			BlogFollower blogFollower2 = new BlogFollower();
 			blogFollower2.setBlog(blog);
-			
+
 			BlogFollower blogFollower3 = blogFollowerRepository.saveAndFlush(blogFollower2);
-			
+
 			logWithProperties(Action.Update, Target.Blog, id, "follower", blog.getTitle());
 
 			return RespBody.succeed(blogFollower3);
@@ -1914,11 +1931,12 @@ public class BlogController extends BaseController {
 			return RespBody.failed("您没有权限操作该博文!");
 		}
 
-		BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreatorAndStatusNot(blog, getLoginUser(), Status.Deleted);
+		BlogFollower blogFollower = blogFollowerRepository.findOneByBlogAndCreatorAndStatusNot(blog, getLoginUser(),
+				Status.Deleted);
 
 		return RespBody.succeed(blogFollower);
 	}
-	
+
 	@RequestMapping(value = "follower/list", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody listFollower(@RequestParam("id") Long id) {
@@ -1933,19 +1951,19 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(followers);
 	}
-	
+
 	@RequestMapping(value = "poll", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody poll(@RequestParam("id") Long id) {
-		
+
 		Blog blog = blogRepository.findOne(id);
 		if (!hasAuth(blog)) {
 			return RespBody.failed("您没有权限操作该博文!");
 		}
-		
+
 		return RespBody.succeed(PollBlog.builder().version(blog.getVersion()).build());
 	}
-	
+
 	@RequestMapping(value = "log/my", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody myLog() {
@@ -1982,7 +2000,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(logs);
 	}
-	
+
 	private List<Log> getLogs(Long id) {
 
 		List<Target> targets = Arrays.asList(Target.Blog, Target.Comment);
@@ -2020,14 +2038,14 @@ public class BlogController extends BaseController {
 
 		return logs;
 	}
-	
+
 	@RequestMapping(value = "log/my/more", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody myMoreLog(@RequestParam(value = "lastId", required = false) Long lastId) {
 
 		return RespBody.succeed(getLogs(lastId));
 	}
-	
+
 	@RequestMapping(value = "tag/add", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody addTag(@RequestParam("id") Long id, @RequestParam("tags") String tags) {
@@ -2061,7 +2079,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(blog);
 	}
-	
+
 	@RequestMapping(value = "tag/remove", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody removeTag(@RequestParam("id") Long id, @RequestParam("tags") String tags) {
@@ -2073,7 +2091,7 @@ public class BlogController extends BaseController {
 		}
 
 		User loginUser = getLoginUser();
-		
+
 		if (StringUtil.isNotEmpty(tags)) {
 			Stream.of(tags.split(",")).forEach(t -> {
 				Tag tag = tagRepository.findOneByNameAndCreator(t, loginUser);
@@ -2090,16 +2108,16 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(blog);
 	}
-	
+
 	@RequestMapping(value = "tag/my", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody myTag() {
-		
+
 		List<Tag> tags = tagRepository.findByCreator(getLoginUser());
-		
+
 		return RespBody.succeed(tags);
 	}
-	
+
 	@PostMapping("dir/update")
 	@ResponseBody
 	public RespBody updateDir(@RequestParam("id") Long id, @RequestParam(value = "did", required = false) Long did) {
@@ -2129,7 +2147,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(blog);
 	}
-	
+
 	@GetMapping("news/list")
 	@ResponseBody
 	public RespBody listNews(@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
@@ -2139,7 +2157,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed(news);
 	}
-	
+
 	@PostMapping("news/delete")
 	@ResponseBody
 	public RespBody deleteNews(@RequestParam("id") Long id) {
@@ -2160,7 +2178,7 @@ public class BlogController extends BaseController {
 		return RespBody.succeed(id);
 
 	}
-	
+
 	@PostMapping("share/create")
 	@ResponseBody
 	public RespBody createShare(@RequestParam("id") Long id) {
@@ -2185,7 +2203,7 @@ public class BlogController extends BaseController {
 		return RespBody.failed();
 
 	}
-	
+
 	@PostMapping("share/remove")
 	@ResponseBody
 	public RespBody removeShare(@RequestParam("id") Long id) {
@@ -2243,7 +2261,7 @@ public class BlogController extends BaseController {
 		return RespBody.succeed(blogs);
 
 	}
-	
+
 	@GetMapping("tpl/hotCnt/inc")
 	public RespBody incTplHotCnt(@RequestParam("id") Long id) {
 
