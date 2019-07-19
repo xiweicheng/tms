@@ -783,6 +783,10 @@ public class ChatChannelController extends BaseController {
 
 		chatChannel.setOpenEdit(open);
 		chatChannelRepository.saveAndFlush(chatChannel);
+		
+		chatMsg.put(chatChannel, Action.Update, ChatMsgType.OpenEdit, WebUtil.getUsername(), null, null);
+		wsSend(chatChannel, null);
+//		chatChannelService.save(chatChannel);
 
 		return RespBody.succeed();
 	}

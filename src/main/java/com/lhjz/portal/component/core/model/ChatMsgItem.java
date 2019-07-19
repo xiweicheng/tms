@@ -31,6 +31,8 @@ public class ChatMsgItem {
 	
 	String atUsernames;
 	
+	Boolean openEdit;
+	
 	ChatMsgType type;
 
 	@JsonIgnore

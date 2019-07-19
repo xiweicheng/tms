@@ -84,7 +84,7 @@ public class ChatMsgImpl implements IChatMsg {
 		put(chatChannel.getChannel().getId(),
 				ChatMsgItem.builder().uuid(UUID.randomUUID().toString()).id(chatChannel.getId()).rid(rid).action(action)
 						.type(type).username(username).atUsernames(atUsernames).version(chatChannel.getVersion())
-						.expire(LocalDateTime.now().plusMinutes(EXPIRE)).build());
+						.openEdit(chatChannel.getOpenEdit()).expire(LocalDateTime.now().plusMinutes(EXPIRE)).build());
 	}
 
 	@Override

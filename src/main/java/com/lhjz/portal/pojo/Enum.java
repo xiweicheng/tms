@@ -32,7 +32,7 @@ public class Enum {
 	}
 
 	public static enum ChatMsgType {
-		Content, Label, Reply;
+		Content, Label, Reply, OpenEdit;
 	}
 
 	public static enum ChatReplyType {
