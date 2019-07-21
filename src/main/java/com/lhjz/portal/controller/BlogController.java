@@ -203,6 +203,8 @@ public class BlogController extends BaseController {
 
 		if (StringUtils.isNotBlank(editor)) {
 			blog.setEditor(Editor.valueOf(editor));
+		} else {
+			blog.setEditor(Editor.Markdown);
 		}
 
 		if (spaceId != null) {
@@ -444,6 +446,7 @@ public class BlogController extends BaseController {
 			blogHistory.setContent(blog.getContent());
 			blogHistory.setBlogUpdater(blog.getUpdater());
 			blogHistory.setBlogUpdateDate(blog.getUpdateDate());
+			blogHistory.setEditor(blog.getEditor());
 
 			blogHistoryRepository.saveAndFlush(blogHistory);
 
@@ -528,6 +531,46 @@ public class BlogController extends BaseController {
 		} else {
 			return RespBody.failed("修改博文无变更!");
 		}
+
+	}
+
+	@RequestMapping(value = "editor/change", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody changeEditor(@RequestParam("id") Long id, @RequestParam("version") Long version,
+			@RequestParam("content") String content, @RequestParam("editor") String editor) {
+
+		if (StringUtil.isEmpty(content)) {
+			return RespBody.failed("更新内容不能为空!");
+		}
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限编辑该博文!");
+		}
+
+		if (blog.getVersion() != version.longValue()) {
+			return RespBody.failed("该博文已经被其他人更新,请刷新博文重新编辑提交!");
+		}
+
+		BlogHistory blogHistory = new BlogHistory();
+		blogHistory.setBlog(blog);
+		blogHistory.setTitle(blog.getTitle());
+		blogHistory.setContent(blog.getContent());
+		blogHistory.setBlogUpdater(blog.getUpdater());
+		blogHistory.setBlogUpdateDate(blog.getUpdateDate());
+		blogHistory.setEditor(blog.getEditor());
+
+		blogHistoryRepository.saveAndFlush(blogHistory);
+
+		blog.setContent(content);
+		blog.setEditor(Editor.valueOf(editor));
+
+		Blog blog2 = blogRepository.saveAndFlush(blog);
+
+		wsSend(blog2, Cmd.U, WebUtil.getUsername());
+
+		return RespBody.succeed(blog2);
 
 	}
 
@@ -1382,11 +1425,15 @@ public class BlogController extends BaseController {
 		blogHistory2.setContent(blog.getContent());
 		blogHistory2.setBlogUpdater(blog.getUpdater());
 		blogHistory2.setBlogUpdateDate(blog.getUpdateDate());
+		blogHistory2.setEditor(blog.getEditor());
 
 		blogHistoryRepository.saveAndFlush(blogHistory2);
 
 		blog.setTitle(blogHistory.getTitle());
 		blog.setContent(blogHistory.getContent());
+		if (blogHistory.getEditor() != null) {
+			blog.setEditor(blogHistory.getEditor());
+		}
 
 		Blog blog2 = blogRepository.saveAndFlush(blog);
 

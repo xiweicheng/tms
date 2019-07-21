@@ -26,6 +26,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.pojo.Enum.Editor;
 import com.lhjz.portal.pojo.Enum.Status;
 
 /**
@@ -44,6 +45,10 @@ public class BlogHistory implements Serializable {
 	@Id
 	@GeneratedValue
 	private Long id;
+	
+	@Enumerated(EnumType.STRING)
+	@Column
+	private Editor editor;
 
 	@Column
 	private String title;
@@ -181,6 +186,14 @@ public class BlogHistory implements Serializable {
 
 	public void setBlogUpdateDate(Date blogUpdateDate) {
 		this.blogUpdateDate = blogUpdateDate;
+	}
+
+	public Editor getEditor() {
+		return editor;
+	}
+
+	public void setEditor(Editor editor) {
+		this.editor = editor;
 	}
 
 	@Override
