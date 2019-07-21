@@ -42,6 +42,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -2310,6 +2311,7 @@ public class BlogController extends BaseController {
 	}
 
 	@GetMapping("tpl/hotCnt/inc")
+	@ResponseBody
 	public RespBody incTplHotCnt(@RequestParam("id") Long id) {
 
 		Blog blog = blogRepository.findOne(id);
@@ -2326,6 +2328,26 @@ public class BlogController extends BaseController {
 		}
 
 		blogRepository.updateTplHotCnt(hotCnt, id);
+
+		return RespBody.succeed();
+	}
+	
+	@PostMapping("history/repair")
+	@Secured({ "ROLE_ADMIN" })
+	@ResponseBody
+	public RespBody repairHistory() {
+
+		List<BlogHistory> blogHistories = blogHistoryRepository.findAll();
+
+		blogHistories.forEach(item -> {
+			if (item.getEditor() == null) {
+				Blog blog = blogRepository.findOne(item.getBlog().getId());
+				if (blog != null) {
+					item.setEditor(blog.getEditor() != null ? blog.getEditor() : Editor.Markdown);
+					blogHistoryRepository.saveAndFlush(item);
+				}
+			}
+		});
 
 		return RespBody.succeed();
 	}
