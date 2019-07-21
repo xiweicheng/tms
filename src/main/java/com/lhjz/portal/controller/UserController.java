@@ -152,7 +152,7 @@ public class UserController extends BaseController {
 
 		final String userRole = role;
 
-		final String href = baseURL;
+		final String href = baseURL.endsWith("/") ? baseURL : baseURL + "/";
 
 		final UserForm userForm2 = userForm;
 
