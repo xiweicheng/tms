@@ -69,10 +69,10 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and cl.`status` <> 'Deleted' and cl.name in (?2)", nativeQuery = true)
 	long countAboutMeByTags(Channel channel, List<String> tags);
 
-	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and cc.content like ?3 and cl.`status` <> 'Deleted' and cl.name = ?2 ORDER BY id DESC LIMIT ?4,?5", nativeQuery = true)
+	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and (upper(cc.content) like upper(?3)) and cl.`status` <> 'Deleted' and cl.name = ?2 ORDER BY id DESC LIMIT ?4,?5", nativeQuery = true)
 	List<ChatChannel> queryAboutMeByTag(Channel channel, String tag, String condi, int startId, int limit);
 
-	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and cc.content like ?3 and cl.`status` <> 'Deleted' and cl.name = ?2", nativeQuery = true)
+	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and (upper(cc.content) like upper(?3)) and cl.`status` <> 'Deleted' and cl.name = ?2", nativeQuery = true)
 	long countAboutMeByTag(Channel channel, String tag, String condi);
 	
 	@Query(value = "SELECT COUNT(*) FROM chat_channel WHERE channel = ?1 AND id >= ?2", nativeQuery = true)
