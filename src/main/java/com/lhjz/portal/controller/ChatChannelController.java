@@ -539,24 +539,43 @@ public class ChatChannelController extends BaseController {
 		if (search.toLowerCase().startsWith("tags:") || search.toLowerCase().startsWith("tag:")) {
 			String[] arr = search.split(":", 2);
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
-				String[] tags = arr[1].trim().split("\\s+");
-				chats = chatChannelRepository.queryAboutMeByTags(channel, Arrays.asList(tags), pageable.getOffset(),
+				String[] vals = arr[1].trim().split("\\s+");
+
+				String tag = vals[0];
+				String condi = StringUtil.EMPTY;
+				if (vals.length > 1) {
+					condi = vals[1];
+				}
+				chats = chatChannelRepository.queryAboutMeByTag(channel, tag, "%" + condi + "%", pageable.getOffset(),
 						pageable.getPageSize());
-				cnt = chatChannelRepository.countAboutMeByTags(channel, Arrays.asList(tags));
+				cnt = chatChannelRepository.countAboutMeByTag(channel, tag, "%" + condi + "%");
 			}
 		} else if (search.toLowerCase().startsWith("from:")) {
 			String[] arr = search.split(":", 2);
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
 				String[] froms = arr[1].trim().split("\\s+");
-				List<User> fromUsers = Stream.of(froms).map(from -> getUser(from)).filter(user -> user != null)
-						.collect(Collectors.toList());
+				
+				User user = getUser(froms[0]);
 
-				if (!fromUsers.isEmpty()) {
+				if (user != null) {
 
-					Page<ChatChannel> pageChatChannel = chatChannelRepository
-							.findByChannelAndCreatorInAndStatusNot(channel, fromUsers, Status.Deleted, pageable);
-					chats = pageChatChannel.getContent();
-					cnt = pageChatChannel.getTotalElements();
+					String condi = StringUtil.EMPTY;
+					if (froms.length > 1) {
+						condi = froms[froms.length - 1].trim();
+					}
+
+					if (StringUtil.isEmpty(condi)) {
+						Page<ChatChannel> pageChatChannel = chatChannelRepository
+								.findByChannelAndCreatorAndStatusNot(channel, user, Status.Deleted, pageable);
+						chats = pageChatChannel.getContent();
+						cnt = pageChatChannel.getTotalElements();
+					} else {
+						Page<ChatChannel> pageChatChannel = chatChannelRepository
+								.findByChannelAndCreatorAndStatusNotAndContentContainingIgnoreCase(channel, user,
+										Status.Deleted, condi, pageable);
+						chats = pageChatChannel.getContent();
+						cnt = pageChatChannel.getTotalElements();
+					}
 				}
 			}
 		} else if (search.toLowerCase().startsWith("date:")) {
@@ -564,44 +583,65 @@ public class ChatChannelController extends BaseController {
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
 				String[] dates = arr[1].trim().split("\\s+");
 
-				List<Integer> intLists = Stream.of(dates).map(date -> {
+				List<Object> intLists = Stream.of(dates).map(date -> {
 
-					int v = 0;
+					Object v = 0;
 					try {
 						if (date.toLowerCase().endsWith("m")) {
 							v = Integer.parseInt(date.replaceAll("[^\\d]+", ""));
 						} else if (date.toLowerCase().endsWith("h")) {
 							v = Integer.parseInt(date.replaceAll("[^\\d]+", "")) * 60;
-						} else {
+						} else if (date.toLowerCase().endsWith("d")) {
 							v = Integer.parseInt(date.replaceAll("[^\\d]+", "")) * 60 * 24;
+						} else {
+							v = date.toLowerCase().trim();
 						}
 					} catch (NumberFormatException e) {
 						logger.warn(e.getMessage());
 						return null;
 					}
 
-					return v != 0 ? Integer.valueOf(v) : null;
+					return v;
 				}).filter(date -> date != null).collect(Collectors.toList());
 
 				if (!intLists.isEmpty()) {
 
 					LocalDateTime end = LocalDateTime.now();
 					LocalDateTime start = LocalDateTime.now();
+					String condi = StringUtil.EMPTY;
 
-					if (intLists.size() == 1) {
-						start = start.minusMinutes(intLists.get(0));
-					} else {
-						Integer i1 = intLists.get(0);
-						Integer i2 = intLists.get(1);
+					if (intLists.size() > 0 && (intLists.get(0) instanceof Integer)) {
+						start = start.minusMinutes((Integer) intLists.get(0));
+					} 
+					
+					if (intLists.size() > 1 && (intLists.get(0) instanceof Integer) && (intLists.get(1) instanceof Integer)) {
+						Integer i1 = (Integer) intLists.get(0);
+						Integer i2 = (Integer) intLists.get(1);
 						start = start.minusMinutes(Math.max(i1, i2));
 						end = end.minusMinutes(Math.min(i1, i2));
 					}
+					
+					if (intLists.size() > 1 && (intLists.get(1) instanceof String)) {
+						condi = (String) intLists.get(1);
+					} else if (intLists.size() > 2 && (intLists.get(2) instanceof String)) {
+						condi = (String) intLists.get(2);
+					}
 
-					Page<ChatChannel> pageChatChannel = chatChannelRepository
-							.findByChannelAndCreateDateBetweenAndStatusNot(channel, DateUtil.localDateTime2Date(start),
-									DateUtil.localDateTime2Date(end), Status.Deleted, pageable);
-					chats = pageChatChannel.getContent();
-					cnt = pageChatChannel.getTotalElements();
+					if (StringUtil.isEmpty(condi)) {
+						Page<ChatChannel> pageChatChannel = chatChannelRepository
+								.findByChannelAndCreateDateBetweenAndStatusNot(channel,
+										DateUtil.localDateTime2Date(start), DateUtil.localDateTime2Date(end),
+										Status.Deleted, pageable);
+						chats = pageChatChannel.getContent();
+						cnt = pageChatChannel.getTotalElements();
+					} else {
+						Page<ChatChannel> pageChatChannel = chatChannelRepository
+								.findByChannelAndCreateDateBetweenAndStatusNotAndContentContainingIgnoreCase(channel,
+										DateUtil.localDateTime2Date(start), DateUtil.localDateTime2Date(end),
+										Status.Deleted, condi, pageable);
+						chats = pageChatChannel.getContent();
+						cnt = pageChatChannel.getTotalElements();
+					}
 				}
 			}
 		} else {

@@ -3,7 +3,6 @@
  */
 package com.lhjz.portal.repository;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -31,11 +30,17 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 
 	Page<ChatChannel> findByChannel(Channel channel, Pageable pageable);
 
-	Page<ChatChannel> findByChannelAndCreatorInAndStatusNot(Channel channel, Collection<User> creators, Status status,
+	Page<ChatChannel> findByChannelAndCreatorAndStatusNot(Channel channel, User creator, Status status,
 			Pageable pageable);
 
+	Page<ChatChannel> findByChannelAndCreatorAndStatusNotAndContentContainingIgnoreCase(Channel channel, User creator,
+			Status status, String condi, Pageable pageable);
+	
 	Page<ChatChannel> findByChannelAndCreateDateBetweenAndStatusNot(Channel channel, Date start, Date end,
 			Status status, Pageable pageable);
+
+	Page<ChatChannel> findByChannelAndCreateDateBetweenAndStatusNotAndContentContainingIgnoreCase(Channel channel,
+			Date start, Date end, Status status, String condi, Pageable pageable);
 
 	@Query(value = "SELECT * FROM chat_channel WHERE channel = ?1 AND id > ?2", nativeQuery = true)
 	List<ChatChannel> latest(Channel channel, Long id);
@@ -64,6 +69,12 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and cl.`status` <> 'Deleted' and cl.name in (?2)", nativeQuery = true)
 	long countAboutMeByTags(Channel channel, List<String> tags);
 
+	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and cc.content like ?3 and cl.`status` <> 'Deleted' and cl.name = ?2 ORDER BY id DESC LIMIT ?4,?5", nativeQuery = true)
+	List<ChatChannel> queryAboutMeByTag(Channel channel, String tag, String condi, int startId, int limit);
+
+	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and cc.content like ?3 and cl.`status` <> 'Deleted' and cl.name = ?2", nativeQuery = true)
+	long countAboutMeByTag(Channel channel, String tag, String condi);
+	
 	@Query(value = "SELECT COUNT(*) FROM chat_channel WHERE channel = ?1 AND id >= ?2", nativeQuery = true)
 	long countGtId(Channel channe, long id);
 
