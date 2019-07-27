@@ -413,7 +413,7 @@ public class FileController extends BaseController {
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
-		Page<com.lhjz.portal.entity.File> files = fileRepository.findByToTypeAndToIdAndTypeAndNameContaining(
+		Page<com.lhjz.portal.entity.File> files = fileRepository.findByToTypeAndToIdAndTypeAndNameContainingIgnoreCase(
 				ToType.Channel, name, FileType.valueOf(type), search, pageable);
 
 		return RespBody.succeed(files);
@@ -425,7 +425,7 @@ public class FileController extends BaseController {
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
-		Page<com.lhjz.portal.entity.File> files = fileRepository.findByToTypeAndUsernameAndToIdAndTypeAndNameContaining(
+		Page<com.lhjz.portal.entity.File> files = fileRepository.findByToTypeAndUsernameAndToIdAndTypeAndNameContainingIgnoreCase(
 				ToType.User, WebUtil.getUsername(), name, FileType.valueOf(type), search, pageable);
 
 		return RespBody.succeed(files);

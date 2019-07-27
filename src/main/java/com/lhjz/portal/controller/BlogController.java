@@ -672,7 +672,7 @@ public class BlogController extends BaseController {
 								}).collect(Collectors.toList());
 					} else {
 						blogs = blogRepository
-								.findByCreatorAndStatusNotAndTitleContainingOrCreatorAndStatusNotAndContentContaining(
+								.findByCreatorAndStatusNotAndTitleContainingIgnoreCaseOrCreatorAndStatusNotAndContentContainingIgnoreCase(
 										user, Status.Deleted, condis[1], user, Status.Deleted, condis[1], sort)
 								.stream().filter(b -> hasAuth(b)).peek(b -> {
 									b.setContent(StringUtil.limitLength(b.getContent(), ellipsis));
@@ -687,7 +687,7 @@ public class BlogController extends BaseController {
 			}
 
 		} else {
-			blogs = blogRepository.findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status.Deleted,
+			blogs = blogRepository.findByStatusNotAndTitleContainingIgnoreCaseOrStatusNotAndContentContainingIgnoreCase(Status.Deleted,
 					search, Status.Deleted, search, sort).stream().filter(b -> hasAuth(b)).peek(b -> {
 						b.setContent(StringUtil.limitLength(b.getContent(), ellipsis));
 						b.setBlogAuthorities(null);
@@ -695,7 +695,7 @@ public class BlogController extends BaseController {
 
 			if (comment) {
 				comments = commentRepository
-						.findByTypeAndStatusNotAndContentContaining(CommentType.Blog, Status.Deleted, search, sort)
+						.findByTypeAndStatusNotAndContentContainingIgnoreCase(CommentType.Blog, Status.Deleted, search, sort)
 						.stream().filter(c -> hasAuth(Long.valueOf(c.getTargetId()))).peek(c -> {
 							c.setContent(StringUtil.limitLength(c.getContent(), ellipsis));
 						}).collect(Collectors.toList());
@@ -899,8 +899,8 @@ public class BlogController extends BaseController {
 
 		Map<String, Object> map = new HashMap<>();
 
-		List<User> users = userRepository.findTop6ByUsernameContainingAndEnabledTrue(search);
-		List<Channel> channels = channelRepository.findTop6ByNameContainingAndStatusNot(search, Status.Deleted);
+		List<User> users = userRepository.findTop6ByUsernameContainingIgnoreCaseAndEnabledTrue(search);
+		List<Channel> channels = channelRepository.findTop6ByNameContainingIgnoreCaseAndStatusNot(search, Status.Deleted);
 		channels.forEach(c -> c.setMembers(null));
 
 		map.put("users", users);

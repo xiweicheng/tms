@@ -30,10 +30,10 @@ public interface FileRepository extends JpaRepository<File, Long> {
 
 	File findTopByUuidName(String uuidName);
 
-	Page<File> findByToTypeAndToIdAndTypeAndNameContaining(ToType toType, String toId, FileType fileType, String search,
+	Page<File> findByToTypeAndToIdAndTypeAndNameContainingIgnoreCase(ToType toType, String toId, FileType fileType, String search,
 			Pageable pageable);
 
-	Page<File> findByToTypeAndUsernameAndToIdAndTypeAndNameContaining(ToType toType, String username, String toId,
+	Page<File> findByToTypeAndUsernameAndToIdAndTypeAndNameContainingIgnoreCase(ToType toType, String username, String toId,
 			FileType fileType, String search, Pageable pageable);
 	
 	@Query(value = "SELECT * FROM `file` WHERE to_type IS NULL", nativeQuery = true)

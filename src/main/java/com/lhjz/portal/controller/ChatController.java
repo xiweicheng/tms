@@ -500,7 +500,7 @@ public class ChatController extends BaseController {
 
 			if (CollectionUtil.isNotEmpty(users)) {
 				if (StringUtil.isNotEmpty(searchContent)) {
-					chats = chatRepository.findByCreatorInAndContentContaining(
+					chats = chatRepository.findByCreatorInAndContentContainingIgnoreCase(
 							users, searchContent, pageable);
 				} else {
 					chats = chatRepository.findByCreatorIn(users, pageable);

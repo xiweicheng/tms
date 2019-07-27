@@ -36,12 +36,12 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 
 	List<Blog> findByStatusNot(Status status, Sort sort);
 
-	Page<Blog> findByTitleContainingOrContentContaining(String searchT, String searchC, Pageable pageable);
+	Page<Blog> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String searchT, String searchC, Pageable pageable);
 
-	List<Blog> findByStatusNotAndTitleContainingOrStatusNotAndContentContaining(Status status, String searchT,
+	List<Blog> findByStatusNotAndTitleContainingIgnoreCaseOrStatusNotAndContentContainingIgnoreCase(Status status, String searchT,
 			Status status2, String searchC, Sort sort);
 
-	List<Blog> findByCreatorAndStatusNotAndTitleContainingOrCreatorAndStatusNotAndContentContaining(User creator,
+	List<Blog> findByCreatorAndStatusNotAndTitleContainingIgnoreCaseOrCreatorAndStatusNotAndContentContainingIgnoreCase(User creator,
 			Status status, String searchT, User creator2, Status status2, String searchC, Sort sort);
 
 	List<Blog> findByCreatorAndStatusNot(User creator, Status status, Sort sort);
@@ -74,17 +74,17 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	Page<Blog> findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status status, User creator, Status status2,
 			Pageable pageable);
 
-	Page<Blog> findByTitleContainingOrContentContainingAndStatusNotAndCreatorOrStatusNotAndPrivatedFalse(String searchT,
+	Page<Blog> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndStatusNotAndCreatorOrStatusNotAndPrivatedFalse(String searchT,
 			String searchC, Status status, User creator, Status status2, Pageable pageable);
 
-	@Query(value = "SELECT * FROM `blog` WHERE blog.`status` <> 'Deleted' AND (privated = 0 OR creator = :username) AND (title LIKE :search OR content LIKE :search) ORDER BY id DESC LIMIT :start,:size", nativeQuery = true)
+	@Query(value = "SELECT * FROM `blog` WHERE blog.`status` <> 'Deleted' AND (privated = 0 OR creator = :username) AND (upper(title) LIKE upper(:search) OR upper(content) LIKE upper(:search)) ORDER BY id DESC LIMIT :start,:size", nativeQuery = true)
 	List<Blog> search(@Param("username") String username, @Param("search") String search, @Param("start") Integer start,
 			@Param("size") Integer size);
 
 	@Query(value = "SELECT * FROM blog WHERE `status` <> 'Deledted' AND tpl = 2 OR (tpl = 1 AND creator = :username) ORDER BY create_date DESC", nativeQuery = true)
 	List<Blog> queryTpl(@Param("username") String username);
 
-	@Query(value = "SELECT COUNT(*) FROM `blog` WHERE blog.`status` <> 'Deleted' AND (privated = 0 OR creator = :username) AND (title LIKE :search OR content LIKE :search)", nativeQuery = true)
+	@Query(value = "SELECT COUNT(*) FROM `blog` WHERE blog.`status` <> 'Deleted' AND (privated = 0 OR creator = :username) AND (upper(title) LIKE upper(:search) OR upper(content) LIKE upper(:search))", nativeQuery = true)
 	long countSearch(@Param("username") String username, @Param("search") String search);
 
 	@Query(value = "SELECT COUNT(*) as cnt FROM blog WHERE `status` <> 'Deleted'", nativeQuery = true)

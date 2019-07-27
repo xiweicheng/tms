@@ -52,7 +52,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 	@Query(value = "SELECT * FROM chat WHERE id > ?1 ORDER BY create_date ASC LIMIT ?2", nativeQuery = true)
 	List<Chat> queryMoreNew(Long startId, int limit);
 
-	@Query(value = "SELECT * FROM chat WHERE id > ?1 AND content LIKE ?2 ORDER BY create_date ASC", nativeQuery = true)
+	@Query(value = "SELECT * FROM chat WHERE id > ?1 AND (upper(content) LIKE upper(?2)) ORDER BY create_date ASC", nativeQuery = true)
 	List<Chat> queryReplies(Long id, String like);
 
 	@Query(value = "SELECT MAX(id) as max_id, MIN(id) as min_id FROM chat", nativeQuery = true)
@@ -76,6 +76,6 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
 	Page<Chat> findByCreatorIn(Collection<User> creators, Pageable pageable);
 
-	Page<Chat> findByCreatorInAndContentContaining(Collection<User> creators,
+	Page<Chat> findByCreatorInAndContentContainingIgnoreCase(Collection<User> creators,
 			String search, Pageable pageable);
 }

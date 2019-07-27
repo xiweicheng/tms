@@ -57,10 +57,10 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 	@Query(value = "SELECT * FROM chat_channel WHERE channel = ?1 AND id > ?2 ORDER BY id ASC LIMIT ?3", nativeQuery = true)
 	List<ChatChannel> queryMoreNew(Channel channel, Long startId, int limit);
 
-	@Query(value = "SELECT * FROM `chat_channel` WHERE channel = ?1 AND content LIKE ?2 ORDER BY id DESC LIMIT ?3,?4", nativeQuery = true)
+	@Query(value = "SELECT * FROM `chat_channel` WHERE channel = ?1 AND (upper(content) LIKE upper(?2)) ORDER BY id DESC LIMIT ?3,?4", nativeQuery = true)
 	List<ChatChannel> queryAboutMe(Channel channel, String search, int startId, int limit);
 
-	@Query(value = "SELECT COUNT(*) FROM `chat_channel` WHERE channel = ?1 AND content LIKE ?2", nativeQuery = true)
+	@Query(value = "SELECT COUNT(*) FROM `chat_channel` WHERE channel = ?1 AND (upper(content) LIKE upper(?2))", nativeQuery = true)
 	long countAboutMe(Channel channel, String search);
 
 	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and cl.`status` <> 'Deleted' and cl.name in (?2) ORDER BY id DESC LIMIT ?3,?4", nativeQuery = true)

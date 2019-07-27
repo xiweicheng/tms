@@ -28,6 +28,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 
 	User findOneByResetPwdToken(String token);
 	
-	List<User> findTop6ByUsernameContainingAndEnabledTrue(String username);
+	List<User> findTop6ByUsernameContainingIgnoreCaseAndEnabledTrue(String username);
 
 }

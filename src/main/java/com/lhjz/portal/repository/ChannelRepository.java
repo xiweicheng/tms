@@ -20,7 +20,7 @@ import com.lhjz.portal.pojo.Enum.Status;
  */
 public interface ChannelRepository extends JpaRepository<Channel, Long> {
 	
-	@Query(value = "SELECT channel.* FROM channel INNER JOIN chat_channel ON channel.id = chat_channel.channel WHERE content LIKE ?1", nativeQuery = true)
+	@Query(value = "SELECT channel.* FROM channel INNER JOIN chat_channel ON channel.id = chat_channel.channel WHERE (upper(content) LIKE upper(?1))", nativeQuery = true)
 	List<Channel> queryChannelByContentLike(String conentLike);
 	
 	Channel findOneByName(String name);
@@ -28,6 +28,6 @@ public interface ChannelRepository extends JpaRepository<Channel, Long> {
 	@Query(value = "SELECT COUNT(*) as cnt FROM channel WHERE `status` <> 'Deleted'", nativeQuery = true)
 	long countChannels();
 	
-	List<Channel> findTop6ByNameContainingAndStatusNot(String name, Status status);
+	List<Channel> findTop6ByNameContainingIgnoreCaseAndStatusNot(String name, Status status);
 	
 }

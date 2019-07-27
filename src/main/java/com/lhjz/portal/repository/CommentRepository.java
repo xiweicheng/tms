@@ -25,6 +25,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	
 	Page<Comment> findByTargetIdAndStatusNot(String targetId, Status status, Pageable pageable);
 	
-	List<Comment> findByTypeAndStatusNotAndContentContaining(CommentType type, Status status, String search, Sort sort);
+	List<Comment> findByTypeAndStatusNotAndContentContainingIgnoreCase(CommentType type, Status status, String search, Sort sort);
 
 }
