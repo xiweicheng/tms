@@ -35,6 +35,9 @@ import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.SpaceType;
 import com.lhjz.portal.pojo.Enum.Status;
 
+import groovy.transform.ToString;
+import lombok.Data;
+
 /**
  * 
  * @author xi
@@ -44,6 +47,8 @@ import com.lhjz.portal.pojo.Enum.Status;
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Data
+@ToString(excludes = { "blogs", "spaceAuthorities", "dirs" })
 public class Space implements Serializable {
 
 	private static final long serialVersionUID = 1036120023938526638L;
@@ -60,7 +65,7 @@ public class Space implements Serializable {
 
 	@Column
 	private Boolean privated = Boolean.FALSE;
-	
+
 	@Column
 	private Boolean opened = Boolean.FALSE;
 
@@ -93,142 +98,19 @@ public class Space implements Serializable {
 	@JsonIgnore
 	@OneToMany(mappedBy = "space")
 	private Set<Blog> blogs = new HashSet<Blog>();
-	
+
 	@OneToMany(mappedBy = "space", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	private Set<SpaceAuthority> spaceAuthorities = new HashSet<>();
-	
+
 	@OneToMany(mappedBy = "space", fetch = FetchType.EAGER)
 	private Set<Dir> dirs = new HashSet<Dir>();
 
+	@ManyToOne
+	@JoinColumn(name = "channel")
+	@CreatedBy
+	private Channel channel;
+
 	@Version
 	private long version;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public Boolean getPrivated() {
-		return privated;
-	}
-
-	public void setPrivated(Boolean privated) {
-		this.privated = privated;
-	}
-
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
-	}
-
-	public User getUpdater() {
-		return updater;
-	}
-
-	public void setUpdater(User updater) {
-		this.updater = updater;
-	}
-
-	public Date getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-
-	public Date getUpdateDate() {
-		return updateDate;
-	}
-
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public SpaceType getType() {
-		return type;
-	}
-
-	public void setType(SpaceType type) {
-		this.type = type;
-	}
-
-	public Set<Blog> getBlogs() {
-		return blogs;
-	}
-
-	public void setBlogs(Set<Blog> blogs) {
-		this.blogs = blogs;
-	}
-
-	public long getVersion() {
-		return version;
-	}
-
-	public void setVersion(long version) {
-		this.version = version;
-	}
-
-	public Set<SpaceAuthority> getSpaceAuthorities() {
-		return spaceAuthorities;
-	}
-
-	public void setSpaceAuthorities(Set<SpaceAuthority> spaceAuthorities) {
-		this.spaceAuthorities = spaceAuthorities;
-	}
-
-	public Boolean getOpened() {
-		return opened;
-	}
-
-	public void setOpened(Boolean opened) {
-		this.opened = opened;
-	}
-
-	public Set<Dir> getDirs() {
-		return dirs;
-	}
-
-	public void setDirs(Set<Dir> dirs) {
-		this.dirs = dirs;
-	}
-
-	@Override
-	public String toString() {
-		return "Space [id=" + id + ", name=" + name + ", description=" + description + ", privated=" + privated
-				+ ", opened=" + opened + ", creator=" + creator + ", updater=" + updater + ", createDate=" + createDate
-				+ ", updateDate=" + updateDate + ", status=" + status + ", type=" + type + ", blogs=" + blogs
-				+ ", version=" + version + "]";
-	}
 
 }

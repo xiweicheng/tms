@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,6 +34,7 @@ import com.lhjz.portal.repository.DirRepository;
 import com.lhjz.portal.repository.SpaceAuthorityRepository;
 import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.WebUtil;
 
@@ -63,7 +65,7 @@ public class SpaceController extends BaseController {
 
 	@Autowired
 	UserRepository userRepository;
-
+	
 	@Autowired
 	MailSender mailSender;
 
@@ -435,5 +437,38 @@ public class SpaceController extends BaseController {
 		Dir dir2 = dirRepository.saveAndFlush(dir);
 
 		return RespBody.succeed(dir2);
+	}
+	
+	@PostMapping("channel/update")
+	@ResponseBody
+	public RespBody updateChannel(@RequestParam("id") Long id,
+			@RequestParam(value = "cid", required = false) Long cid) {
+
+		Space space = spaceRepository.findOne(id);
+
+		if (space == null) {
+			return RespBody.failed("空间不存在！");
+		}
+
+		if (!hasAuth(space)) {
+			return RespBody.failed("空间权限不足！");
+		}
+
+		Channel channel = null;
+
+		if (cid != null) {
+			channel = channelRepository.findOne(cid);
+
+			if (!AuthUtil.hasChannelAuth(channel)) {
+				return RespBody.failed("频道权限不足！");
+			}
+
+		}
+
+		space.setChannel(channel);
+
+		Space space2 = spaceRepository.saveAndFlush(space);
+
+		return RespBody.succeed(space2);
 	}
 }
