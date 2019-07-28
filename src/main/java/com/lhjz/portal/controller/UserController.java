@@ -371,9 +371,9 @@ public class UserController extends BaseController {
 					.collect(Collectors.joining("<br/>")));
 		}
 
-		if (!WebUtil.getUsername().equals(userForm.getUsername())) {
-			logger.error("普通用户无权限修改其他用户信息!");
-			return RespBody.failed("普通用户无权限修改其他用户信息!");
+		if (!isSuperOrCreator(WebUtil.getUsername()) && !WebUtil.getUsername().equals(userForm.getUsername())) {
+			logger.error("权限不足!");
+			return RespBody.failed("权限不足!");
 		}
 
 		User user = userRepository.findOne(userForm.getUsername());
@@ -783,9 +783,10 @@ public class UserController extends BaseController {
 			return RespBody.failed("因为当前是通过[记住我]登录,为了安全需要,请退出重新登录再尝试修改用户信息!");
 		}
 
-		// 自己不是系统管理员 && 也不是修改自己的信息
-		if (!isSuper() && !userExtraForm.getUsername().equals(WebUtil.getUsername())) {
-			return RespBody.failed("权限不足！");
+		// 自己不是系统管理员或则创建者 && 也不是修改自己的信息
+		if (!isSuperOrCreator(WebUtil.getUsername()) && !WebUtil.getUsername().equals(userExtraForm.getUsername())) {
+			logger.error("权限不足!");
+			return RespBody.failed("权限不足!");
 		}
 
 		if (bindingResult.hasErrors()) {
