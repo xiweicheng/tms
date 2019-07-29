@@ -78,8 +78,11 @@ public class CommonUtilTest {
 		// System.out.println(res);
 	}
 
-	@Test
+	@org.junit.Test
 	public void substring() {
+		
+		System.out.println(Arrays.asList(new String[0]).size());
+		System.out.println(Arrays.asList("aaa", "bbb").contains("aaa"));
 		System.out.println("0123".substring(4));
 	}
 

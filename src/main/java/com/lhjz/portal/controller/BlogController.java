@@ -496,21 +496,30 @@ public class BlogController extends BaseController {
 
 			mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 			mail.addUsers(Arrays.asList(blog2.getCreator()), loginUser);
+			
+			
+			// 博文更新通知优先级： @  > 我关注的 > 我的
 
-			List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
+			List<String> usernameArr = Arrays
+					.asList(StringUtil.isNotEmpty(usernames) ? usernames.split(",") : new String[0]);
+
+			List<String> fs = followers.stream().map(f -> f.getCreator().getUsername())
+					.filter(f -> !usernameArr.contains(f)).collect(Collectors.toList());
+
 			wsSendToUsers(blog2, Cmd.F, WebUtil.getUsername(), fs.toArray(new String[0]));
 
-			if (!blog.getCreator().equals(loginUser)) {
-				wsSendToUsers(blog, Cmd.OU, WebUtil.getUsername(), blog.getCreator().getUsername());
+			String bCreator = blog.getCreator().getUsername();
+
+			if (!blog.getCreator().equals(loginUser) && !usernameArr.contains(bCreator) && !fs.contains(bCreator)) {
+				wsSendToUsers(blog, Cmd.OU, WebUtil.getUsername(), bCreator);
 			}
 
-			if (StringUtil.isNotEmpty(usernames)) {
-				String[] usernameArr = usernames.split(",");
-				Arrays.asList(usernameArr).stream().forEach((username) -> {
+			if (usernameArr.size() > 0) {
+				usernameArr.stream().forEach((username) -> {
 					mail.addUsers(getUser(username));
 				});
 
-				wsSendToUsers(blog2, Cmd.At, WebUtil.getUsername(), usernameArr);
+				wsSendToUsers(blog2, Cmd.At, WebUtil.getUsername(), usernameArr.toArray(new String[0]));
 			}
 
 			if (!mail.isEmpty()) {
@@ -1101,23 +1110,29 @@ public class BlogController extends BaseController {
 
 		Mail mail = Mail.instance();
 		mail.addUsers(Arrays.asList(blog.getCreator()), loginUser);
+		
+		// 博文更新通知优先级： @  > 我关注的 > 我的
+		
+		List<String> atUsers = Arrays.asList(StringUtil.isNotEmpty(users) ? users.split(",") : new String[0]);
 
-		if (StringUtil.isNotEmpty(users)) {
-			Stream.of(users.split(",")).forEach(username -> {
+		if (atUsers.size() > 0) {
+			atUsers.forEach(username -> {
 				User user = getUser(username);
 				mail.addUsers(user);
 			});
-			wsSendToUsers(blog, comment2, Cmd.CAt, WebUtil.getUsername(), users.split(","));
+			wsSendToUsers(blog, comment2, Cmd.CAt, WebUtil.getUsername(), atUsers.toArray(new String[0]));
 		}
 
 		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
 		mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 
-		List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
+		List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).filter(f -> !atUsers.contains(f))
+				.collect(Collectors.toList());
 		wsSendToUsers(blog, comment2, Cmd.FCC, WebUtil.getUsername(), fs.toArray(new String[0]));
 
-		if (!blog.getCreator().equals(loginUser)) {
-			wsSendToUsers(blog, comment2, Cmd.CC, WebUtil.getUsername(), blog.getCreator().getUsername());
+		String bCreator = blog.getCreator().getUsername();
+		if (!blog.getCreator().equals(loginUser) && !atUsers.contains(bCreator) && !fs.contains(bCreator)) {
+			wsSendToUsers(blog, comment2, Cmd.CC, WebUtil.getUsername(), bCreator);
 		}
 
 		// auto follow blog
@@ -1193,22 +1208,28 @@ public class BlogController extends BaseController {
 		Mail mail = Mail.instance();
 		mail.addUsers(Arrays.asList(blog.getCreator()), loginUser);
 
-		if (StringUtil.isNotEmpty(users)) {
-			Stream.of(users.split(",")).forEach(username -> {
+		// 博文更新通知优先级： @  > 我关注的 > 我的
+
+		List<String> atUsers = Arrays.asList(StringUtil.isNotEmpty(users) ? users.split(",") : new String[0]);
+
+		if (atUsers.size() > 0) {
+			atUsers.forEach(username -> {
 				User user = getUser(username);
 				mail.addUsers(user);
 			});
-			wsSendToUsers(blog, comment2, Cmd.CAt, WebUtil.getUsername(), users.split(","));
+			wsSendToUsers(blog, comment2, Cmd.CAt, WebUtil.getUsername(), atUsers.toArray(new String[0]));
 		}
 
 		List<BlogFollower> followers = blogFollowerRepository.findByBlogAndStatusNot(blog, Status.Deleted);
 		mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 
-		List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).collect(Collectors.toList());
+		List<String> fs = followers.stream().map(f -> f.getCreator().getUsername()).filter(f -> !atUsers.contains(f))
+				.collect(Collectors.toList());
 		wsSendToUsers(blog, comment2, Cmd.FCU, WebUtil.getUsername(), fs.toArray(new String[0]));
 
-		if (!blog.getCreator().equals(loginUser)) {
-			wsSendToUsers(blog, comment2, Cmd.CU, WebUtil.getUsername(), blog.getCreator().getUsername());
+		String bCreator = blog.getCreator().getUsername();
+		if (!blog.getCreator().equals(loginUser) && !atUsers.contains(bCreator) && !fs.contains(bCreator)) {
+			wsSendToUsers(blog, comment2, Cmd.CU, WebUtil.getUsername(), bCreator);
 		}
 
 		final String html = StringUtil.replace(
