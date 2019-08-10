@@ -12,6 +12,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -34,7 +35,7 @@ import lombok.ToString;
 @Entity
 @Data
 @EqualsAndHashCode(of = { "id", "name" })
-@ToString(exclude = { "translate", "chat" })
+@ToString(exclude = { "translate", "chat", "comment" })
 public class Label implements Serializable {
 
 	/** serialVersionUID (long) */
@@ -74,5 +75,10 @@ public class Label implements Serializable {
 	@JsonIgnore
 	@ManyToOne
 	private Chat chat;
+
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "comment")
+	private Comment comment;
 
 }

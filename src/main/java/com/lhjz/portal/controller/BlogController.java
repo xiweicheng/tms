@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -65,6 +66,7 @@ import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.Comment;
 import com.lhjz.portal.entity.Dir;
+import com.lhjz.portal.entity.Label;
 import com.lhjz.portal.entity.Log;
 import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.SpaceAuthority;
@@ -81,6 +83,7 @@ import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.CommentType;
 import com.lhjz.portal.pojo.Enum.Editor;
 import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.pojo.Enum.TagType;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
 import com.lhjz.portal.repository.BlogAuthorityRepository;
@@ -93,6 +96,7 @@ import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.CommentRepository;
 import com.lhjz.portal.repository.DirRepository;
+import com.lhjz.portal.repository.LabelRepository;
 import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.TagRepository;
@@ -161,6 +165,9 @@ public class BlogController extends BaseController {
 	@Autowired
 	TagRepository tagRepository;
 
+	@Autowired
+	LabelRepository labelRepository;
+	
 	@Autowired
 	DirRepository dirRepository;
 
@@ -1192,6 +1199,10 @@ public class BlogController extends BaseController {
 		if (comment.getVersion() != version.longValue()) {
 			return RespBody.failed("该博文评论已经被其他人更新,请刷新页面重新编辑提交!");
 		}
+		
+		if (!hasAuth(Long.valueOf(comment.getTargetId()))) {
+			return RespBody.failed("您没有权限编辑该博文评论!");
+		}
 
 		comment.setContent(content);
 
@@ -1468,8 +1479,8 @@ public class BlogController extends BaseController {
 
 		logger.debug("download blog start...");
 
+		
 		Blog blog = blogRepository.findOne(id);
-
 		if (blog == null) {
 			try {
 				response.sendError(404, "下载博文不存在!");
@@ -2371,5 +2382,40 @@ public class BlogController extends BaseController {
 		});
 
 		return RespBody.succeed();
+	}
+	
+	@PostMapping("comment/label/toggle")
+	@ResponseBody
+	public RespBody toggelCommentLabel(@RequestParam("cid") Long cid, @RequestParam("name") String name) {
+
+		Comment comment = commentRepository.findOne(cid);
+
+		if (!hasAuth(Long.valueOf(comment.getTargetId()))) {
+			return RespBody.failed("权限不足！");
+		}
+
+		Optional<Label> tagOpt = comment.getLabels().stream().filter(tag -> {
+			// 创建者是自己 & name相等
+			return tag.getCreator().equals(WebUtil.getUsername()) && tag.getName().equals(name);
+		}).findFirst();
+
+		if (tagOpt.isPresent()) { // 移除
+			labelRepository.delete(tagOpt.get());
+
+			comment.getLabels().remove(tagOpt.get());
+		} else { // 添加
+			Label tag = new Label();
+			tag.setName(name);
+			tag.setDescription(name);
+			tag.setCreator(WebUtil.getUsername());
+			tag.setCreateDate(new Date());
+			tag.setComment(comment);
+
+			Label tag2 = labelRepository.saveAndFlush(tag);
+
+			comment.getLabels().add(tag2);
+		}
+
+		return RespBody.succeed(comment);
 	}
 }
