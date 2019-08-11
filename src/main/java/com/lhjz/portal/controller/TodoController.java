@@ -68,8 +68,6 @@ public class TodoController extends BaseController {
 
 		Todo todo = Todo.builder().title(title).content(content).build();
 
-		log.debug("创建TODO: {}", todo);
-
 		Todo todo2 = todoRepository.saveAndFlush(todo);
 
 		return RespBody.succeed(todo2);

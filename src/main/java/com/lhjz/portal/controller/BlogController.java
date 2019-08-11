@@ -83,7 +83,6 @@ import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.CommentType;
 import com.lhjz.portal.pojo.Enum.Editor;
 import com.lhjz.portal.pojo.Enum.Status;
-import com.lhjz.portal.pojo.Enum.TagType;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.VoteType;
 import com.lhjz.portal.repository.BlogAuthorityRepository;
@@ -1098,7 +1097,9 @@ public class BlogController extends BaseController {
 			@RequestParam("content") String content, @RequestParam("contentHtml") final String contentHtml,
 			@RequestParam(value = "users", required = false) String users) {
 
-		// TODO 博文权限判断
+		if (!hasAuth(id)) {
+			return RespBody.failed("权限不足!");
+		}
 
 		Comment comment = new Comment();
 		comment.setContent(content);
@@ -1184,8 +1185,6 @@ public class BlogController extends BaseController {
 			@RequestParam("content") String content, @RequestParam("contentHtml") final String contentHtml,
 			@RequestParam("diff") final String diff, @RequestParam(value = "users", required = false) String users) {
 
-		// TODO 博文权限判断
-
 		Comment comment = commentRepository.findOne(cid);
 
 		if (comment == null) {
@@ -1264,7 +1263,9 @@ public class BlogController extends BaseController {
 	public RespBody queryComment(@RequestParam("id") Long id,
 			@PageableDefault(sort = { "id" }, direction = Direction.ASC) Pageable pageable) {
 
-		// TODO 博文权限判断
+		if (!hasAuth(id)) {
+			return RespBody.failed("权限不足！");
+		}
 
 		Page<Comment> page = commentRepository.findByTargetIdAndStatusNot(String.valueOf(id), Status.Deleted, pageable);
 
@@ -1297,7 +1298,9 @@ public class BlogController extends BaseController {
 
 		Comment comment = commentRepository.findOne(cid);
 
-		// TODO 博文权限判断
+		if (!hasAuth(Long.valueOf(comment.getTargetId()))) {
+			return RespBody.failed("权限不足！");
+		}
 
 		return RespBody.succeed(comment);
 	}
