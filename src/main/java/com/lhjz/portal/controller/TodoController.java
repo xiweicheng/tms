@@ -31,8 +31,6 @@ import com.lhjz.portal.repository.TodoRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.StringUtil;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * 
  * @author xi
@@ -42,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Controller
 @RequestMapping("admin/todo")
-@Slf4j
 public class TodoController extends BaseController {
 
 	@Autowired

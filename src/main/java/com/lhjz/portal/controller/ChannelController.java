@@ -29,6 +29,7 @@ import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.ChatAtRepository;
+import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatPinRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.UserRepository;
@@ -55,22 +56,25 @@ public class ChannelController extends BaseController {
 
 	@Autowired
 	ChannelRepository channelRepository;
-	
+
 	@Autowired
 	UserRepository userRepository;
-	
+
 	@Autowired
 	ChatAtRepository chatAtRepository;
-	
+
 	@Autowired
 	ChatStowRepository chatStowRepository;
-	
+
 	@Autowired
 	ChatPinRepository chatPinRepository;
 
 	@Autowired
+	ChatChannelRepository chatChannelRepository;
+
+	@Autowired
 	MailSender mailSender;
-	
+
 	@Autowired
 	ChatChannelService chatChannelService;
 
@@ -79,15 +83,15 @@ public class ChannelController extends BaseController {
 	public RespBody create(@RequestParam("name") String name, @RequestParam("title") String title,
 			@RequestParam(value = "desc", required = false) String desc,
 			@RequestParam(value = "privated", required = false) Boolean privated) {
-		
-		if(StringUtil.isEmpty(name)) {
+
+		if (StringUtil.isEmpty(name)) {
 			return RespBody.failed("标识不能为空!");
 		}
-		
-		if(StringUtil.isEmpty(title)) {
+
+		if (StringUtil.isEmpty(title)) {
 			return RespBody.failed("名称不能为空!");
 		}
-		
+
 		Channel channel = new Channel();
 		channel.setName(name);
 		channel.setTitle(title);
@@ -116,20 +120,20 @@ public class ChannelController extends BaseController {
 
 		User loginUser = getLoginUser();
 		Set<Channel> joinChannels = loginUser.getJoinChannels();
-		
+
 		Set<Channel> channels = joinChannels.stream().filter((channel) -> {
 			return !channel.getStatus().equals(Status.Deleted);
 		}).collect(Collectors.toSet());
 
 		return RespBody.succeed(channels);
 	}
-	
+
 	@RequestMapping(value = "get", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody get(@RequestParam("id") Long id) {
-		
+
 		Channel channel = channelRepository.findOne(id);
-		
+
 		return RespBody.succeed(channel);
 	}
 
@@ -140,11 +144,11 @@ public class ChannelController extends BaseController {
 			@RequestParam(value = "privated", required = false) Boolean privated) {
 
 		Channel channel = channelRepository.findOne(id);
-		
+
 		if (!isSuperOrCreator(channel.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限编辑该频道!");
 		}
-		
+
 		if (StringUtil.isNotEmpty(title)) {
 			channel.setTitle(title);
 		}
@@ -165,17 +169,17 @@ public class ChannelController extends BaseController {
 	public RespBody delete(@RequestParam("id") Long id) {
 
 		Channel channel = channelRepository.findOne(id);
-		
+
 		if (!isSuperOrCreator(channel.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限删除该频道!");
 		}
-		
+
 		// 删除收藏|@
 		chatStowRepository.deleteByChannel(id);
 		chatAtRepository.deleteByChannel(id);
-		
+
 		channel.setStatus(Status.Deleted);
-		
+
 		channelRepository.saveAndFlush(channel);
 
 		return RespBody.succeed(id);
@@ -184,11 +188,10 @@ public class ChannelController extends BaseController {
 	@RequestMapping(value = "addMember", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody addMember(@RequestParam("id") Long id, @RequestParam("members") String members,
-			@RequestParam("baseUrl") String baseUrl,
-			@RequestParam("path") String path) {
+			@RequestParam("baseUrl") String baseUrl, @RequestParam("path") String path) {
 
 		Channel channel = channelRepository.findOne(id);
-		
+
 		if (channel.getPrivated() && !isSuperOrCreator(channel.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限添加成员到该频道!");
 		}
@@ -204,40 +207,39 @@ public class ChannelController extends BaseController {
 				channel.getMembers().add(user);
 
 				mail.addUsers(user);
-				
+
 				// 用户频道消息提醒
 				ChatChannel chatChannel = new ChatChannel();
 				chatChannel.setChannel(channel);
 				chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} 被**添加到**该频道!");
-				
+
 				chatChannelService.save(chatChannel);
 			}
 		});
-		
+
 		final User loginUser = getLoginUser();
-		
+
 		final String href = baseUrl + path + "#/chat/" + channel.getName();
 		final String html = loginUser.getName() + " 将你加入沟通频道 [" + channel.getTitle() + "], 点击上面链接进入!";
-		
+
 		try {
-			mailSender
-					.sendHtmlByQueue(String.format("TMS-频道加入通知_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", "下面的沟通消息中有@到你", "content", html)),
-							getLoginUserName(loginUser), mail.get());
+			mailSender.sendHtmlByQueue(String.format("TMS-频道加入通知_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", "下面的沟通消息中有@到你", "content", html)),
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return RespBody.succeed(channel);
 	}
-	
+
 	@RequestMapping(value = "removeMember", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody removeMember(@RequestParam("id") Long id, @RequestParam("members") String members) {
 
 		Channel channel = channelRepository.findOne(id);
-		
+
 		if (!isSuperOrCreator(channel.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限从该频道移除成员!");
 		}
@@ -250,12 +252,12 @@ public class ChannelController extends BaseController {
 				user.getJoinChannels().remove(channel);
 				userRepository.saveAndFlush(user);
 				channel.getMembers().remove(user);
-				
+
 				// 用户频道消息提醒
 				ChatChannel chatChannel = new ChatChannel();
 				chatChannel.setChannel(channel);
 				chatChannel.setContent("## ~频道消息播报~\n> {~" + user.getUsername() + "} 被**移除出**该频道!");
-				
+
 				chatChannelService.save(chatChannel);
 			}
 		});
@@ -288,15 +290,15 @@ public class ChannelController extends BaseController {
 
 		return RespBody.succeed(pins);
 	}
-	
+
 	@RequestMapping(value = "listPublic", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody listPublic() {
-		
+
 		List<Channel> channels = channelRepository.findAll().stream().filter((c) -> {
 			return !c.getStatus().equals(Status.Deleted) && !c.getPrivated();
 		}).collect(Collectors.toList());
-		
+
 		return RespBody.succeed(channels);
 	}
 
@@ -315,18 +317,18 @@ public class ChannelController extends BaseController {
 			loginUser.getJoinChannels().add(channel);
 			userRepository.saveAndFlush(loginUser);
 			channel.getMembers().add(loginUser);
-			
+
 			// 用户频道消息提醒
 			ChatChannel chatChannel = new ChatChannel();
 			chatChannel.setChannel(channel);
 			chatChannel.setContent("## ~频道消息播报~\n> {~" + loginUser.getUsername() + "} **加入**该频道!");
-			
+
 			chatChannelService.save(chatChannel);
 		}
-		
+
 		return RespBody.succeed(channel);
 	}
-	
+
 	@RequestMapping(value = "leave", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody leave(@RequestParam("id") Long id) {
@@ -348,20 +350,20 @@ public class ChannelController extends BaseController {
 			ChatChannel chatChannel = new ChatChannel();
 			chatChannel.setChannel(channel);
 			chatChannel.setContent("## ~频道消息播报~\n> {~" + loginUser.getUsername() + "} **离开**该频道!");
-			
+
 			chatChannelService.save(chatChannel);
 		}
-		
+
 		return RespBody.succeed(channel);
 	}
-	
+
 	private boolean isMember(Channel channel) {
 		if (channel == null) {
 			return false;
 		}
 		return channel.getMembers().stream().anyMatch(m -> m.equals(new User(WebUtil.getUsername())));
 	}
-	
+
 	@SuppressWarnings("unused")
 	private boolean hasAuth(Channel channel) {
 		if (channel == null) {
@@ -375,7 +377,7 @@ public class ChannelController extends BaseController {
 		return isMember(channel);
 
 	}
-	
+
 	@RequestMapping(value = "subscribe", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody subscribe(@RequestParam("id") Long id) {
@@ -399,7 +401,7 @@ public class ChannelController extends BaseController {
 
 		return RespBody.succeed(channel);
 	}
-	
+
 	@RequestMapping(value = "unsubscribe", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody unsubscribe(@RequestParam("id") Long id) {
@@ -416,5 +418,37 @@ public class ChannelController extends BaseController {
 		}
 
 		return RespBody.succeed(channel);
+	}
+
+	@GetMapping("notice/list")
+	@ResponseBody
+	public RespBody listNotice(@RequestParam("id") Long id) {
+
+		Channel channel = channelRepository.findOne(id);
+
+		if (!AuthUtil.hasChannelAuth(channel)) {
+			return RespBody.failed("权限不足！");
+		}
+
+		List<ChatChannel> chatChannels = chatChannelRepository
+				.findByChannelAndNoticeAndStatusNotOrderByUpdateDateDesc(channel, true, Status.Deleted);
+
+		return RespBody.succeed(chatChannels);
+	}
+
+	@GetMapping("notice/top")
+	@ResponseBody
+	public RespBody topNotice(@RequestParam("id") Long id) {
+
+		Channel channel = channelRepository.findOne(id);
+
+		if (!AuthUtil.hasChannelAuth(channel)) {
+			return RespBody.failed("权限不足！");
+		}
+
+		ChatChannel chatChannel = chatChannelRepository
+				.findTopByChannelAndNoticeAndStatusNotOrderByUpdateDateDesc(channel, true, Status.Deleted);
+
+		return RespBody.succeed(chatChannel);
 	}
 }

@@ -353,6 +353,15 @@ public class ChatChannelController extends BaseController {
 
 		chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content, null, usernames, null);
 		wsSend(chatChannel2, usernames);
+		
+		if (Boolean.TRUE.equals(chatChannel2.getNotice())) {
+
+			Set<String> users = chatChannel2.getChannel().getMembers().stream().map(user -> user.getUsername())
+					.collect(Collectors.toSet());
+
+			asyncTask.wsSendChannelNotice(chatChannel2.getId(), chatChannel2.getChannel().getId(), users, "U",
+					messagingTemplate);
+		}
 
 		logWithProperties(Action.Update, Target.ChatChannel, chatChannel2.getId(), "content", contentOld);
 
@@ -1695,6 +1704,62 @@ public class ChatChannelController extends BaseController {
 
 		messagingTemplate.convertAndSendToUser(WebUtil.getUsername(), "/channel/toastr",
 				ToastrPayload.builder().id(id).build());
+
+		return RespBody.succeed(id);
+
+	}
+	
+	@PostMapping("notice/add")
+	@ResponseBody
+	public RespBody addNotice(@RequestParam("id") Long id) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
+			return RespBody.failed("权限不足！");
+		}
+
+		List<ChatChannel> chatChannels = chatChannelRepository.findByChannelAndNoticeAndStatusNotOrderByUpdateDateDesc(
+				chatChannel.getChannel(), true, Status.Deleted);
+
+		chatChannels.forEach(cc -> cc.setNotice(null));
+
+		chatChannelRepository.save(chatChannels);
+		chatChannelRepository.flush();
+
+		chatChannel.setNotice(true);
+
+		chatChannelRepository.saveAndFlush(chatChannel);
+
+		Set<String> users = chatChannel.getChannel().getMembers().stream().map(user -> user.getUsername())
+				.collect(Collectors.toSet());
+
+		asyncTask.wsSendChannelNotice(chatChannel.getId(), chatChannel.getChannel().getId(), users, "C",
+				messagingTemplate);
+
+		return RespBody.succeed(id);
+
+	}
+	
+	@PostMapping("notice/remove")
+	@ResponseBody
+	public RespBody removeNotice(@RequestParam("id") Long id) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
+			return RespBody.failed("权限不足！");
+		}
+
+		chatChannel.setNotice(null);
+
+		chatChannelRepository.saveAndFlush(chatChannel);
+
+		Set<String> users = chatChannel.getChannel().getMembers().stream().map(user -> user.getUsername())
+				.collect(Collectors.toSet());
+
+		asyncTask.wsSendChannelNotice(chatChannel.getId(), chatChannel.getChannel().getId(), users, "D",
+				messagingTemplate);
 
 		return RespBody.succeed(id);
 

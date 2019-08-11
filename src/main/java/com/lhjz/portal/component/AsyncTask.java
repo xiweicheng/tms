@@ -3,6 +3,8 @@
  */
 package com.lhjz.portal.component;
 
+import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
@@ -11,6 +13,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Maps;
 import com.lhjz.portal.component.core.IChatMsg;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
@@ -186,6 +189,25 @@ public class AsyncTask {
 								.ccid(chatReply.getChatChannel().getId()).version(chatReply.getVersion())
 								.content(StringUtil.limitLength(chatReply.getContent(), LIMIT)).cmd(cmd).build());
 			}
+
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+	}
+	
+	@Async
+	public void wsSendChannelNotice(Long id, Long cid, Set<String> users, String cmd,
+			SimpMessagingTemplate messagingTemplate) {
+		try {
+
+			users.forEach(username -> {
+				HashMap<Object, Object> msg = Maps.newHashMap();
+				msg.put("id", id);
+				msg.put("cid", cid);
+				msg.put("cmd", cmd);
+
+				messagingTemplate.convertAndSendToUser(username, "/channel/notice", msg);
+			});
 
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);

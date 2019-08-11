@@ -35,7 +35,7 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 
 	Page<ChatChannel> findByChannelAndCreatorAndStatusNotAndContentContainingIgnoreCase(Channel channel, User creator,
 			Status status, String condi, Pageable pageable);
-	
+
 	Page<ChatChannel> findByChannelAndCreateDateBetweenAndStatusNot(Channel channel, Date start, Date end,
 			Status status, Pageable pageable);
 
@@ -74,7 +74,7 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 
 	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and (upper(cc.content) like upper(?3)) and cl.`status` <> 'Deleted' and cl.name = ?2", nativeQuery = true)
 	long countAboutMeByTag(Channel channel, String tag, String condi);
-	
+
 	@Query(value = "SELECT COUNT(*) FROM chat_channel WHERE channel = ?1 AND id >= ?2", nativeQuery = true)
 	long countGtId(Channel channe, long id);
 
@@ -91,4 +91,9 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 
 	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl WHERE cc.channel = ?1 AND cc.id = cl.chat_channel AND cc.`status` <> 'Deleted' AND cl.`status` <> 'Deleted' AND cl.`name` = ?2", nativeQuery = true)
 	long countByChannelAndLabel(Long cid, String label);
+
+	List<ChatChannel> findByChannelAndNoticeAndStatusNotOrderByUpdateDateDesc(Channel channel, Boolean notice, Status status);
+	
+	ChatChannel findTopByChannelAndNoticeAndStatusNotOrderByUpdateDateDesc(Channel channel, Boolean notice, Status status);
+	
 }

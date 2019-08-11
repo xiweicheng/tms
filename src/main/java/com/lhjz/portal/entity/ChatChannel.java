@@ -70,6 +70,9 @@ public class ChatChannel implements Serializable {
 	private String ua;
 
 	private Boolean openEdit;
+	
+	// 是否是公告消息
+	private Boolean notice;
 
 	@ManyToOne
 	@JoinColumn(name = "creator")
@@ -106,7 +109,7 @@ public class ChatChannel implements Serializable {
 	private Integer voteZanCnt;
 
 	private Integer voteCaiCnt;
-
+	
 	@Version
 	private long version;
 
