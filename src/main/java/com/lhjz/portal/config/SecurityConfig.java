@@ -87,7 +87,8 @@ public class SecurityConfig {
 		@Override
 		public void configure(WebSecurity web) throws Exception {
 			// @formatter:off
-			web.ignoring().antMatchers("/admin/file/download/**", 
+			web.ignoring().antMatchers(
+					// "/admin/file/download/**", 
 					"/admin/css/**", 
 					"/admin/img/**", 
 					"/admin/js/**",
