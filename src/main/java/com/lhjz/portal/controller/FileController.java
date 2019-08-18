@@ -346,6 +346,11 @@ public class FileController extends BaseController {
 		return returnFileName;
 	}
 	
+	/**
+	 * 处理File新增uuid字段后，数据修正问题：将id复制到uuid（uuid需为空）
+	 * TODO 当数据量很大，算法存在问题，会报出sql异常（可多次触发解决，需要优化算法）
+	 * @return
+	 */
 	@PostMapping("copyId2uuid")
 	@ResponseBody
 	public RespBody copyId2uuid() {
