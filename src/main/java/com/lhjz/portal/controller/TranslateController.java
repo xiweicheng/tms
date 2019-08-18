@@ -952,6 +952,7 @@ public class TranslateController extends BaseController {
 			file2.setUsername(WebUtil.getUsername());
 			file2.setUuidName(uuidName);
 			file2.setPath(storePath + sizeOriginal + "/");
+			file2.setUuid(UUID.randomUUID().toString());
 
 			Translate translate = translateRepository.findOne(id);
 			file2.getFileTranslates().add(translate);

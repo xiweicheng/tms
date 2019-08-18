@@ -97,6 +97,7 @@ public class FileServiceImpl implements FileService {
 		file2.setUuidName(uuidName);
 		file2.setPath(path2);
 		file2.setType(fileType);
+		file2.setUuid(UUID.randomUUID().toString());
 
 		file2.setToType(ToType.Blog);
 
@@ -152,6 +153,7 @@ public class FileServiceImpl implements FileService {
 		file2.setUuidName(uuidName);
 		file2.setPath(path2);
 		file2.setType(fileType);
+		file2.setUuid(UUID.randomUUID().toString());
 
 		file2.setToType(ToType.Blog);
 

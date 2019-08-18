@@ -231,6 +231,7 @@ public class FileController extends BaseController {
 				file2.setUuidName(uuidName);
 				file2.setPath(path2);
 				file2.setType(fileType);
+				file2.setUuid(UUID.randomUUID().toString());
 
 				if (StringUtil.isNotEmpty(toType)) {
 					file2.setToType(ToType.valueOf(toType));
@@ -311,6 +312,7 @@ public class FileController extends BaseController {
 			file2.setUuidName(uuidName);
 			file2.setPath(storePath + sizeOriginal + "/");
 			file2.setType(FileType.Image);
+			file2.setUuid(UUID.randomUUID().toString());
 
 			if (StringUtil.isNotEmpty(toType)) {
 				file2.setToType(ToType.valueOf(toType));
@@ -470,6 +472,7 @@ public class FileController extends BaseController {
 					file2.setUuidName(uuidName);
 					file2.setPath(storeAttachmentPath);
 					file2.setType(FileType.Attachment);
+					file2.setUuid(UUID.randomUUID().toString());
 
 					fileRepository.save(file2);
 

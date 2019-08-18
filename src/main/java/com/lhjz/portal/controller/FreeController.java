@@ -591,6 +591,7 @@ public class FreeController extends BaseController {
 			file2.setUuidName(uuidName);
 			file2.setPath(storePath + sizeOriginal + "/");
 			file2.setType(FileType.Image);
+			file2.setUuid(UUID.randomUUID().toString());
 
 			if (StringUtil.isNotEmpty(toType)) {
 				file2.setToType(ToType.valueOf(toType));
