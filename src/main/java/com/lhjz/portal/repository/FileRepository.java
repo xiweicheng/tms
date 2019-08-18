@@ -29,6 +29,8 @@ import com.lhjz.portal.pojo.Enum.ToType;
 public interface FileRepository extends JpaRepository<File, Long> {
 
 	File findTopByUuidName(String uuidName);
+	
+	File findTopByUuidAndStatusNot(String uuid, Status status);
 
 	Page<File> findByToTypeAndToIdAndTypeAndNameContainingIgnoreCase(ToType toType, String toId, FileType fileType, String search,
 			Pageable pageable);

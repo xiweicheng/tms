@@ -345,14 +345,30 @@ public class FileController extends BaseController {
 		}
 		return returnFileName;
 	}
+	
+	@PostMapping("copyId2uuid")
+	@ResponseBody
+	public RespBody copyId2uuid() {
 
-	@RequestMapping(value = "download/{id}", method = RequestMethod.GET)
-	public void download(HttpServletRequest request, HttpServletResponse response, @PathVariable Long id)
+		List<com.lhjz.portal.entity.File> files = fileRepository.findAll();
+
+		files.forEach(f -> {
+			if (StringUtil.isEmpty(f.getUuid())) {
+				f.setUuid(String.valueOf(f.getId()));
+				fileRepository.saveAndFlush(f);
+			}
+		});
+
+		return RespBody.succeed();
+	}
+
+	@RequestMapping(value = "download/{uuid}", method = RequestMethod.GET)
+	public void download(HttpServletRequest request, HttpServletResponse response, @PathVariable String uuid)
 			throws Exception {
 
 		logger.debug("download file start...");
 
-		com.lhjz.portal.entity.File file2 = fileRepository.findOne(id);
+		com.lhjz.portal.entity.File file2 = fileRepository.findTopByUuidAndStatusNot(uuid, Status.Deleted);
 		if (file2 == null) {
 			try {
 				response.sendError(404, "下载文件不存在!");
@@ -589,7 +605,7 @@ public class FileController extends BaseController {
 
 		try {
 			com.lhjz.portal.entity.File uploadFile = fileService.uploadFile(request, file);
-			return UploadResult.builder().link(baseUrl + "/admin/file/download/" + uploadFile.getId()).build();
+			return UploadResult.builder().link(baseUrl + "/admin/file/download/" + uploadFile.getUuid()).build();
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

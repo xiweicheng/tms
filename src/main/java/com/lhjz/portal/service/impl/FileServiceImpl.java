@@ -164,13 +164,14 @@ public class FileServiceImpl implements FileService {
 	@Override
 	public boolean removeFile(String src) {
 
-		// src /admin/file/download/10
+		// src /admin/file/download/${uuid}
 		String[] split = StringUtils.split(src, "/");
 		if (split != null && split.length > 0) {
-			com.lhjz.portal.entity.File img = fileRepository.findOne(Long.valueOf(split[split.length - 1]));
-			if (img != null) {
-				img.setStatus(Status.Deleted);
-				fileRepository.saveAndFlush(img);
+			com.lhjz.portal.entity.File file = fileRepository.findTopByUuidAndStatusNot(split[split.length - 1],
+					Status.Deleted);
+			if (file != null) {
+				file.setStatus(Status.Deleted);
+				fileRepository.saveAndFlush(file);
 			}
 		}
 
