@@ -49,6 +49,7 @@ import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.MailAddr;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.model.RunAsAuth;
+import com.lhjz.portal.model.SysConfigInfo;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.FileType;
 import com.lhjz.portal.pojo.Enum.GitAction;
@@ -970,6 +971,16 @@ public class FreeController extends BaseController {
 		
 		return RespBody.failed("博文不存在！");
 
+	}
+	
+	@GetMapping("config/sys")
+	@ResponseBody
+	public RespBody SysConfig() {
+
+		SysConfigInfo sysConfigInfo = SysConfigInfo.builder().fileViewUrl(env.getProperty("tms.file.online.view.url"))
+				.build();
+
+		return RespBody.succeed(sysConfigInfo);
 	}
 	
 }
