@@ -18,5 +18,7 @@ import lombok.Data;
 public class SysConfigInfo {
 
 	String fileViewUrl;
+	
+	Boolean userRegister;
 
 }

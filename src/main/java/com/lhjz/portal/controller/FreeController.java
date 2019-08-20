@@ -145,6 +145,10 @@ public class FreeController extends BaseController {
 
 	@RequestMapping(value = "user/pwd/reset", method = { RequestMethod.POST })
 	public RespBody resetUserPwd(@RequestBody Map<String, Object> params) {
+		
+		if (env.getProperty("tms.mail.switch.off", Boolean.class)) {
+			return RespBody.failed("系统暂未开启自助重置功能，请联系系统管理员重置！");
+		}
 
 		logger.debug(params.toString());
 
@@ -211,6 +215,10 @@ public class FreeController extends BaseController {
 
 	@RequestMapping(value = "user/register", method = { RequestMethod.POST })
 	public RespBody registerUser(@RequestBody Map<String, Object> params) {
+		
+		if (env.getProperty("tms.user.register.off", Boolean.class)) {
+			return RespBody.failed("系统注册功能暂未开放，请联系系统管理员！");
+		}
 
 		logger.debug(params.toString());
 
@@ -978,7 +986,7 @@ public class FreeController extends BaseController {
 	public RespBody SysConfig() {
 
 		SysConfigInfo sysConfigInfo = SysConfigInfo.builder().fileViewUrl(env.getProperty("tms.file.online.view.url"))
-				.build();
+				.userRegister(!env.getProperty("tms.user.register.off", Boolean.class)).build();
 
 		return RespBody.succeed(sysConfigInfo);
 	}
