@@ -1526,13 +1526,17 @@ public class BlogController extends BaseController {
 		File filePdf = new File(pdfFilePath);
 
 		if (!filePdf.exists()) {
+			
 			try {
+
+				filePdf.createNewFile();
+
 				String pathNode = StringUtil.isNotEmpty(md2pdfPath) ? md2pdfPath
 						: new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
 
 				String nodeCmd = StringUtil.replace("node {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
 				logger.debug("Node CMD: " + nodeCmd);
-				Process process = Runtime.getRuntime().exec(nodeCmd);
+				Process process = Runtime.getRuntime().exec("node -v");
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String s = null;
 				while ((s = bufferedReader.readLine()) != null) {
