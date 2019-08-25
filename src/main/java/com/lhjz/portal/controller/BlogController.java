@@ -72,6 +72,7 @@ import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.SpaceAuthority;
 import com.lhjz.portal.entity.Tag;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.BlogCommentPayload;
 import com.lhjz.portal.model.BlogPayload;
 import com.lhjz.portal.model.BlogPayload.Cmd;
 import com.lhjz.portal.model.BlogSearchResult;
@@ -2391,6 +2392,18 @@ public class BlogController extends BaseController {
 		return RespBody.succeed();
 	}
 	
+	private void wsSend(Comment comment, com.lhjz.portal.model.BlogCommentPayload.Cmd cmd, String loginUsername) {
+		try {
+			ThreadUtil.exec(() -> {
+				messagingTemplate.convertAndSend("/blog/comment/update",
+						BlogCommentPayload.builder().id(comment.getId()).version(comment.getVersion())
+								.bid(comment.getTargetId()).cmd(cmd).username(loginUsername).build());
+			});
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+	
 	@PostMapping("comment/label/toggle")
 	@ResponseBody
 	public RespBody toggelCommentLabel(@RequestParam("cid") Long cid, @RequestParam("name") String name) {
@@ -2410,6 +2423,9 @@ public class BlogController extends BaseController {
 			labelRepository.delete(tagOpt.get());
 
 			comment.getLabels().remove(tagOpt.get());
+
+			wsSend(comment, com.lhjz.portal.model.BlogCommentPayload.Cmd.D, WebUtil.getUsername());
+
 		} else { // 添加
 			Label tag = new Label();
 			tag.setName(name);
@@ -2421,6 +2437,8 @@ public class BlogController extends BaseController {
 			Label tag2 = labelRepository.saveAndFlush(tag);
 
 			comment.getLabels().add(tag2);
+
+			wsSend(comment, com.lhjz.portal.model.BlogCommentPayload.Cmd.C, WebUtil.getUsername());
 		}
 
 		return RespBody.succeed(comment);
