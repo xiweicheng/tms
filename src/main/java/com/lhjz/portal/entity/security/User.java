@@ -46,7 +46,7 @@ import lombok.ToString;
 @Table(name = "users")
 @Data
 @ToString(exclude = { "projects", "authorities", "watcherProjects", "watcherTranslates", "voterChats", "joinChannels",
-		"subscribeChannels", "actSchedules", "joinChannelGroups" })
+		"subscribeChannels", "actSchedules", "joinChannelGroups", "voterChatLabels" })
 @EqualsAndHashCode(of = { "username" })
 public class User implements java.io.Serializable, Comparable<User> {
 

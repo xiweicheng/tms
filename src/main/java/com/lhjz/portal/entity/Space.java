@@ -35,8 +35,9 @@ import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.SpaceType;
 import com.lhjz.portal.pojo.Enum.Status;
 
-import groovy.transform.ToString;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * 
@@ -48,7 +49,8 @@ import lombok.Data;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@ToString(excludes = { "blogs", "spaceAuthorities", "dirs" })
+@EqualsAndHashCode(of = { "id" })
+@ToString(exclude = { "blogs", "spaceAuthorities", "dirs", "channel" })
 public class Space implements Serializable {
 
 	private static final long serialVersionUID = 1036120023938526638L;
@@ -107,7 +109,6 @@ public class Space implements Serializable {
 
 	@ManyToOne
 	@JoinColumn(name = "channel")
-	@CreatedBy
 	private Channel channel;
 
 	@Version

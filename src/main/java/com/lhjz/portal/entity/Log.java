@@ -23,8 +23,8 @@ import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 
-import groovy.transform.ToString;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * 
@@ -35,7 +35,7 @@ import lombok.Data;
  */
 @Entity
 @Data
-@ToString(excludes = { "creator" })
+@ToString(exclude = { "creator" })
 public class Log implements Serializable {
 
 	/** serialVersionUID (long) */

@@ -28,8 +28,8 @@ import com.lhjz.portal.pojo.Enum.FileType;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.ToType;
 
-import groovy.transform.ToString;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * 
@@ -39,7 +39,7 @@ import lombok.Data;
  * 
  */
 @Data
-@ToString(excludes= {"fileTranslates"})
+@ToString(exclude = { "fileTranslates" })
 @Entity
 public class File implements Serializable {
 
@@ -49,24 +49,24 @@ public class File implements Serializable {
 	@Id
 	@GeneratedValue
 	private Long id;
-	
+
 	private String uuid;
-	
+
 	@NotBlank
 	private String name;
-	
+
 	@NotBlank
 	private String uuidName;
-	
+
 	@NotBlank
 	private String username;
-	
+
 	@NotBlank
 	private String path;
-	
+
 	@Enumerated(EnumType.STRING)
 	private ToType toType;
-	
+
 	private String toId;
 
 	@Enumerated(EnumType.STRING)
@@ -81,7 +81,8 @@ public class File implements Serializable {
 
 	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name = "file_translate", joinColumns = { @JoinColumn(name = "file_id") }, inverseJoinColumns = { @JoinColumn(name = "translate_id") })
+	@JoinTable(name = "file_translate", joinColumns = { @JoinColumn(name = "file_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "translate_id") })
 	private Set<Translate> fileTranslates = new HashSet<Translate>();
 
 	@Version

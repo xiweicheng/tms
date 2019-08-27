@@ -33,8 +33,8 @@ import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.CommentType;
 import com.lhjz.portal.pojo.Enum.Status;
 
-import groovy.transform.ToString;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * 
@@ -46,7 +46,7 @@ import lombok.Data;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@ToString(excludes = { "tags" })
+@ToString(exclude = { "labels" })
 public class Comment implements Serializable {
 
 	private static final long serialVersionUID = -1213448577430547620L;
