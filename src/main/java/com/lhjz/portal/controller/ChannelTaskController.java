@@ -106,7 +106,7 @@ public class ChannelTaskController extends BaseController {
 
 	@PostMapping("status/update")
 	public RespBody listBy(@RequestParam("from") String from, @RequestParam("to") String to,
-			@RequestParam("id") Long id) {
+			@RequestParam("id") Long id, @RequestParam(value = "all", defaultValue = "false") Boolean all) {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
@@ -121,10 +121,32 @@ public class ChannelTaskController extends BaseController {
 
 		if (chatLabelFrom != null) {
 			Set<User> voters = chatLabelFrom.getVoters();
-			if (voters.contains(loginUser)) {
-				loginUser.getVoterChatLabels().remove(chatLabelFrom);
-				voters.remove(loginUser);
 
+			boolean updated = false;
+
+			if (all) {
+				for (User user : voters) {
+					user.getVoterChatLabels().remove(chatLabelFrom);
+				}
+				userRepository.save(voters);
+				userRepository.flush();
+
+				voters.clear();
+
+				updated = true;
+			} else {
+				if (voters.contains(loginUser)) {
+					loginUser.getVoterChatLabels().remove(chatLabelFrom);
+					voters.remove(loginUser);
+
+					userRepository.saveAndFlush(loginUser);
+
+					updated = true;
+				}
+			}
+
+			if (updated) {
+				
 				if (voters.size() == 0) {
 					chatLabelFrom.setStatus(Status.Deleted);
 					chatLabelFrom = chatLabelRepository.saveAndFlush(chatLabelFrom);
@@ -137,9 +159,8 @@ public class ChannelTaskController extends BaseController {
 
 				chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Label, null, null, null);
 				wsSend(chatChannel);
-
-				userRepository.saveAndFlush(loginUser);
 			}
+
 		}
 
 		ChatLabel chatLabelTo = chatLabelRepository.findOneByNameAndChatChannelAndStatusNot(to, chatChannel,
