@@ -161,6 +161,7 @@
             </div>
         </div>
     </div>
+    <div id="word2html-dropzone" style="display: none;"></div>
     <!-- <p><a href="#saveModal" rel="modal:open">Open Modal</a></p> -->
     <!-- Include jQuery lib. -->
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script> -->
@@ -173,6 +174,7 @@
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script> -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.core.min.js"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/3.5.0/diff.min.js"></script> -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
     <!-- Include Editor JS files. -->
     <script type="text/javascript" src="froala_editor.pkgd.min.js"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.4/js/froala_editor.pkgd.min.js"></script> -->
@@ -196,10 +198,48 @@
                 $('#save').click();
             }
         });
+        $.FroalaEditor.DefineIcon('word2html', { NAME: 'file-word-o' });
+        $.FroalaEditor.RegisterCommand('word2html', {
+            title: '基于Word文档导入',
+            focus: false,
+            undo: false,
+            refreshAfterCallback: false,
+            callback: function() {
+                $('#word2html-dropzone').click();
+            }
+        });
+
+        $('#word2html-dropzone').dropzone({
+            url: "/admin/file/upload/word2html",
+            paramName: 'file',
+            clickable: true,
+            dictDefaultMessage: '',
+            maxFilesize: 10,
+            acceptedFiles: '.doc,.docx',
+            init: function() {
+                this.on("sending", function(file, xhr, formData) {
+
+                });
+                this.on("success", function(file, data) {
+                    if (data.success) {
+                        $('#edit').froalaEditor('html.set', data.data.html);
+                    } else {
+                        toastr.error(data.data, 'Word导入失败!');
+                    }
+
+                });
+                this.on("error", function(file, errorMessage, xhr) {
+                    toastr.error(errorMessage, 'Word导入失败!');
+                });
+                this.on("complete", function(file) {
+                    this.removeFile(file);
+                });
+            }
+        });
 
         $('#edit').froalaEditor({
                 // toolbarBottom: true,
-                toolbarButtons: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'inlineStyle', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', '-', 'save', '|', 'insertLink', 'insertImage', 'insertVideo', 'insertFile', 'insertTable', 'emoticons', 'specialCharacters', '|', 'quote', 'insertHR', 'undo', 'redo', 'clearFormatting', 'selectAll', 'print', 'help', 'html'],
+                toolbarButtons: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'inlineStyle', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', '-', 'save', '|', 'word2html', 'insertLink', 'insertImage', 'insertVideo', 'insertFile', 'insertTable', 'emoticons', 'specialCharacters', '|', 'quote', 'insertHR', 'undo', 'redo', 'clearFormatting', 'selectAll', 'print', 'help', 'html'],
                 fontFamily: {
                     '宋体,SimSun,sans-serif': '宋体',
                     "微软雅黑,'Microsoft YaHein',sans-serif": '微软雅黑',
@@ -394,6 +434,8 @@
                     } else {
                         toastr && toastr.error(data.data);
                     }
+                }).fail(function() {
+                    toastr && toastr.error('网络传输错误！');
                 });
             }
         });
@@ -440,6 +482,8 @@
                     } else {
                         toastr && toastr.error(data.data);
                     }
+                }).fail(function() {
+                    toastr && toastr.error('网络传输错误！');
                 });
             }
         });
