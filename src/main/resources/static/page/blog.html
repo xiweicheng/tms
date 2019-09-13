@@ -223,6 +223,11 @@
                 this.on("success", function(file, data) {
                     if (data.success) {
                         $('#edit').froalaEditor('html.set', data.data.html);
+
+                        if (!$('#title').val() && data.data.file && data.data.file.name) {
+                            var index = data.data.file.name.lastIndexOf('.');
+                            $('#title').val(data.data.file.name.substring(0, index));
+                        }
                     } else {
                         toastr.error(data.data, 'Word导入失败!');
                     }
