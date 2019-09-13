@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.lhjz.portal.entity.File;
+import com.lhjz.portal.model.WordInfo;
 
 /**
  * @author xi
@@ -26,4 +27,6 @@ public interface FileService {
 	boolean removeFile(String src) throws Exception;
 	
 	List<File> listImg() throws Exception;
+	
+	WordInfo word2html(HttpServletRequest request, MultipartFile file) throws Exception;
 }

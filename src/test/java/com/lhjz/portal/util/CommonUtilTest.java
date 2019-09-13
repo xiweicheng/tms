@@ -1,5 +1,6 @@
 package com.lhjz.portal.util;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -8,6 +9,8 @@ import java.util.Date;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.zwobble.mammoth.DocumentConverter;
+import org.zwobble.mammoth.Result;
 
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Code;
@@ -17,7 +20,18 @@ import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.ToType;
 
 public class CommonUtilTest {
-	
+
+	@org.junit.Test
+	public void word2html() throws IOException {
+		DocumentConverter converter = new DocumentConverter();
+		//		Result<String> result = converter.convertToHtml(new File("test.docx"));
+		Result<String> result = converter.convertToHtml(CommonUtilTest.class.getResourceAsStream("test2.docx"));
+		String html = result.getValue(); // The generated HTML
+		System.out.println(html);
+		//		Set<String> warnings = result.getWarnings(); // Any warnings during conversion
+		//		System.out.println(warnings.toString());
+	}
+
 	@org.junit.Test
 	public void testGitAction() {
 		System.out.println(GitAction.valueOf("OPEN"));
@@ -66,9 +80,7 @@ public class CommonUtilTest {
 
 	@Test
 	public void replaceAll() {
-		System.out
-				.println("(111)[]{}".replaceAll("\\[|\\]|\\{|\\}|\\(|\\)",
-						"\\$"));
+		System.out.println("(111)[]{}".replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$"));
 		System.out.println("111".replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$"));
 		System.out.println("".replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$"));
 		// String res = StringUtils.replaceEach("()[]{}",
@@ -80,7 +92,7 @@ public class CommonUtilTest {
 
 	@org.junit.Test
 	public void substring() {
-		
+
 		System.out.println(Arrays.asList(new String[0]).size());
 		System.out.println(Arrays.asList("aaa", "bbb").contains("aaa"));
 		System.out.println("0123".substring(4));
@@ -88,41 +100,40 @@ public class CommonUtilTest {
 
 	@Test
 	public void split() {
-		System.out.println(Arrays.asList("XMLHttpRequest|fetch".split("\\|"))
-				.contains("fetch"));
+		System.out.println(Arrays.asList("XMLHttpRequest|fetch".split("\\|")).contains("fetch"));
 	}
-	
+
 	@Test
 	public void toType() {
 		System.out.println(ToType.valueOf("Channel"));
 	}
-	
+
 	@Test
 	public void newLine() {
 		System.out.println("11111\r\n22222\r\n33333");
 		System.out.println("11111\r\n22222\r\n33333".replaceAll("\n", "<br/>"));
 	}
-	
+
 	public static void main(String[] args) {
-//		System.out.println(ToType.valueOf("Channel"));
-//		System.out.println(SchedulePriority.Middle.name());
-//		System.out.println(StringUtil.replace("xx{~{?1}}xxx", "cccc"));
-//		
-//		System.out.println(StringUtil.parseUrl("http://jira00.sh1.newtouch.com/rest/api/2/issue/13701"));
-//	
-//		String read = JsonPath.read("{}", "$.name");
-//		System.out.println(read);
-//		
-//		System.out.println(Code.Created);
-//		System.out.println(Code.Created.equals(Code.Readed));
-//		System.out.println(Code.Created.equals(Code.Created));
-		
+		//		System.out.println(ToType.valueOf("Channel"));
+		//		System.out.println(SchedulePriority.Middle.name());
+		//		System.out.println(StringUtil.replace("xx{~{?1}}xxx", "cccc"));
+		//		
+		//		System.out.println(StringUtil.parseUrl("http://jira00.sh1.newtouch.com/rest/api/2/issue/13701"));
+		//	
+		//		String read = JsonPath.read("{}", "$.name");
+		//		System.out.println(read);
+		//		
+		//		System.out.println(Code.Created);
+		//		System.out.println(Code.Created.equals(Code.Readed));
+		//		System.out.println(Code.Created.equals(Code.Created));
+
 		System.out.println("a-dsdf".matches("^[a-z][a-z0-9]{2,49}$"));
 		System.out.println("adsdf121".matches("^[a-z][a-z0-9]{2,49}$"));
 		System.out.println("af".matches("^[a-z][a-z0-9]{2,49}$"));
-		
+
 		System.out.println(JsonUtil.toJson(RespBody.succeed().code(Code.Created)));
-	
+
 		System.out.println(ThreadUtil.getCurrentAuditor());
 		ThreadUtil.setCurrentAuditor("all");
 		ThreadUtil.setCurrentAuditor("all2");
@@ -138,12 +149,12 @@ public class CommonUtilTest {
 		String query = url.getQuery();
 		System.out.println(url.getQuery());
 		System.out.println(query.split("=")[1]);
-		
+
 		String path = url.getPath(); // /hys_git_test4/439141543.git
 		String repoAddr = path != null ? path.replace(".git", "") : StringUtil.EMPTY;
-		
+
 		System.out.println(repoAddr);
-		
+
 		System.out.println(GitAction.OPEN.name());
 
 	}

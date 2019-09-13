@@ -679,5 +679,22 @@ public class FileController extends BaseController {
 		return new ArrayList<>();
 
 	}
+	
+	@ResponseBody
+	@PostMapping("upload/word2html")
+	public RespBody word2html(HttpServletRequest request, @RequestParam("file") MultipartFile file,
+			@RequestParam(value = "baseUrl", defaultValue = "") String baseUrl) {
+
+		logger.debug("upload word2html start...");
+
+		try {
+			return RespBody.succeed(fileService.word2html(request, file));
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return RespBody.failed(e.getMessage());
+		}
+
+	}
 
 }

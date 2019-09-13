@@ -19,8 +19,11 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.zwobble.mammoth.DocumentConverter;
+import org.zwobble.mammoth.Result;
 
 import com.lhjz.portal.constant.SysConstant;
+import com.lhjz.portal.model.WordInfo;
 import com.lhjz.portal.pojo.Enum.FileType;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.ToType;
@@ -183,6 +186,51 @@ public class FileServiceImpl implements FileService {
 
 		return fileRepository.findTop40ByTypeAndStatusNot(FileType.Image, Status.Deleted,
 				new Sort(Direction.DESC, "id"));
+	}
+
+	@Override
+	public WordInfo word2html(HttpServletRequest request, MultipartFile file) throws Exception {
+
+		String realPath = WebUtil.getRealPath(request);
+
+		String originalFileName = file.getOriginalFilename().replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
+		int lIndex = originalFileName.lastIndexOf(".");
+		String type = lIndex == -1 ? SysConstant.EMPTY : originalFileName.substring(lIndex);
+
+		String uuid = UUID.randomUUID().toString();
+
+		String uuidName = StringUtil.replace("{?1}{?2}", uuid, type);
+
+		String storeAttachmentPath = env.getProperty("lhjz.upload.attachment.store.path");
+		String path2 = null;
+		FileType fileType = null;
+		FileUtils.forceMkdir(new File(realPath + storeAttachmentPath));
+		String filePath = realPath + storeAttachmentPath + uuidName;
+		// store into webapp dir
+		file.transferTo(new File(filePath));
+
+		path2 = storeAttachmentPath;
+		fileType = FileType.Attachment;
+
+		// 保存记录到数据库
+		com.lhjz.portal.entity.File file2 = new com.lhjz.portal.entity.File();
+		file2.setCreateDate(new Date());
+		file2.setName(originalFileName);
+		file2.setUsername(WebUtil.getUsername());
+		file2.setUuidName(uuidName);
+		file2.setPath(path2);
+		file2.setType(fileType);
+		file2.setUuid(UUID.randomUUID().toString());
+
+		file2.setToType(ToType.Blog);
+
+		com.lhjz.portal.entity.File file3 = fileRepository.save(file2);
+
+		DocumentConverter converter = new DocumentConverter();
+		Result<String> result = converter.convertToHtml(new File(filePath));
+
+		return WordInfo.builder().file(file3).html(result.getValue()).build();
+
 	}
 
 }
