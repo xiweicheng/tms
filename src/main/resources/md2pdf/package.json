@@ -13,6 +13,6 @@
   "author": "xiweicheng",
   "license": "MIT",
   "dependencies": {
-    "markdown-pdf": "^7.0.0"
+    "markdown-pdf": "^10.0.0"
   }
 }
