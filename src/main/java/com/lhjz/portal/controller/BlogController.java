@@ -128,6 +128,9 @@ public class BlogController extends BaseController {
 
 	@Value("${tms.blog.md2pdf.path}")
 	private String md2pdfPath;
+	
+	@Value("${tms.bin.node.path}")
+	private String nodePath;
 
 	@Autowired
 	BlogRepository blogRepository;
@@ -1533,16 +1536,17 @@ public class BlogController extends BaseController {
 				String pathNode = StringUtil.isNotEmpty(md2pdfPath) ? md2pdfPath
 						: new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
 
-				String nodeCmd = StringUtil.replace("node {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
-				logger.debug("Node CMD: " + nodeCmd);
+				String node = StringUtil.isNotEmpty(nodePath) ? nodePath : "node";
+				String nodeCmd = StringUtil.replace(node + " {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
+				logger.info("Node CMD: " + nodeCmd);
 				Process process = Runtime.getRuntime().exec(nodeCmd);
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String s = null;
 				while ((s = bufferedReader.readLine()) != null) {
-					logger.debug(s);
+					logger.info(s);
 				}
 				process.waitFor();
-				logger.debug("Md2pdf done!");
+				logger.info("Md2pdf done!");
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
