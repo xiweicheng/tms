@@ -704,6 +704,32 @@ public class ChatChannelController extends BaseController {
 
 		return RespBody.succeed(chatStow3);
 	}
+	
+	@GetMapping("isMyStow")
+	@ResponseBody
+	public RespBody isMyStow(@RequestParam("id") Long id) {
+
+		ChatChannel chatChannel = chatChannelRepository.findOne(id);
+
+		if (chatChannel == null) {
+			return RespBody.failed("频道消息不存在,可能已经被删除!");
+		}
+
+		if (!AuthUtil.hasChannelAuth(chatChannel)) {
+			return RespBody.failed("权限不足!");
+		}
+
+		ChatStow chatStow = chatStowRepository.findOneByChatChannelAndStowUser(chatChannel, getLoginUser());
+
+		if (chatStow != null) {
+			ChatStow chatStow2 = new ChatStow();
+			chatStow2.setId(chatStow.getId());
+			chatStow = chatStow2;
+		}
+
+		return RespBody.succeed(chatStow);
+
+	}
 
 	@RequestMapping(value = "removeStow", method = RequestMethod.POST)
 	@ResponseBody
