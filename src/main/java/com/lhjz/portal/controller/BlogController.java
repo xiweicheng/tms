@@ -128,7 +128,7 @@ public class BlogController extends BaseController {
 
 	@Value("${tms.blog.md2pdf.path}")
 	private String md2pdfPath;
-	
+
 	@Value("${tms.bin.node.path}")
 	private String nodePath;
 
@@ -170,7 +170,7 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	LabelRepository labelRepository;
-	
+
 	@Autowired
 	DirRepository dirRepository;
 
@@ -506,8 +506,7 @@ public class BlogController extends BaseController {
 
 			mail.addUsers(followers.stream().map(f -> f.getCreator()).collect(Collectors.toList()), loginUser);
 			mail.addUsers(Arrays.asList(blog2.getCreator()), loginUser);
-			
-			
+
 			// 博文更新通知优先级： @  > 我关注的 > 我的
 
 			List<String> usernameArr = Arrays
@@ -706,16 +705,18 @@ public class BlogController extends BaseController {
 			}
 
 		} else {
-			blogs = blogRepository.findByStatusNotAndTitleContainingIgnoreCaseOrStatusNotAndContentContainingIgnoreCase(Status.Deleted,
-					search, Status.Deleted, search, sort).stream().filter(b -> hasAuth(b)).peek(b -> {
+			blogs = blogRepository
+					.findByStatusNotAndTitleContainingIgnoreCaseOrStatusNotAndContentContainingIgnoreCase(
+							Status.Deleted, search, Status.Deleted, search, sort)
+					.stream().filter(b -> hasAuth(b)).peek(b -> {
 						b.setContent(StringUtil.limitLength(b.getContent(), ellipsis));
 						b.setBlogAuthorities(null);
 					}).collect(Collectors.toList());
 
 			if (comment) {
-				comments = commentRepository
-						.findByTypeAndStatusNotAndContentContainingIgnoreCase(CommentType.Blog, Status.Deleted, search, sort)
-						.stream().filter(c -> hasAuth(Long.valueOf(c.getTargetId()))).peek(c -> {
+				comments = commentRepository.findByTypeAndStatusNotAndContentContainingIgnoreCase(CommentType.Blog,
+						Status.Deleted, search, sort).stream().filter(c -> hasAuth(Long.valueOf(c.getTargetId())))
+						.peek(c -> {
 							c.setContent(StringUtil.limitLength(c.getContent(), ellipsis));
 						}).collect(Collectors.toList());
 
@@ -919,7 +920,8 @@ public class BlogController extends BaseController {
 		Map<String, Object> map = new HashMap<>();
 
 		List<User> users = userRepository.findTop6ByUsernameContainingIgnoreCaseAndEnabledTrue(search);
-		List<Channel> channels = channelRepository.findTop6ByNameContainingIgnoreCaseAndStatusNot(search, Status.Deleted);
+		List<Channel> channels = channelRepository.findTop6ByNameContainingIgnoreCaseAndStatusNot(search,
+				Status.Deleted);
 		channels.forEach(c -> c.setMembers(null));
 
 		map.put("users", users);
@@ -1122,9 +1124,9 @@ public class BlogController extends BaseController {
 
 		Mail mail = Mail.instance();
 		mail.addUsers(Arrays.asList(blog.getCreator()), loginUser);
-		
+
 		// 博文更新通知优先级： @  > 我关注的 > 我的
-		
+
 		List<String> atUsers = Arrays.asList(StringUtil.isNotEmpty(users) ? users.split(",") : new String[0]);
 
 		if (atUsers.size() > 0) {
@@ -1202,7 +1204,7 @@ public class BlogController extends BaseController {
 		if (comment.getVersion() != version.longValue()) {
 			return RespBody.failed("该博文评论已经被其他人更新,请刷新页面重新编辑提交!");
 		}
-		
+
 		if (!hasAuth(Long.valueOf(comment.getTargetId()))) {
 			return RespBody.failed("您没有权限编辑该博文评论!");
 		}
@@ -1486,7 +1488,6 @@ public class BlogController extends BaseController {
 
 		logger.debug("download blog start...");
 
-		
 		Blog blog = blogRepository.findOne(id);
 		if (blog == null) {
 			try {
@@ -1513,9 +1514,11 @@ public class BlogController extends BaseController {
 
 		String mdFileName = blog.getId() + "_" + blogUpdateDate + ".md";
 		String pdfFileName = blog.getId() + "_" + blogUpdateDate + ".pdf";
+		String md2htmlFileName = blog.getId() + "_" + blogUpdateDate + ".html";
 
 		String mdFilePath = path + uploadPath + mdFileName;
 		String pdfFilePath = path + uploadPath + pdfFileName;
+		String md2htmlFilePath = path + uploadPath + md2htmlFileName;
 
 		File fileMd = new File(mdFilePath);
 
@@ -1530,7 +1533,7 @@ public class BlogController extends BaseController {
 		File filePdf = new File(pdfFilePath);
 
 		if (!filePdf.exists()) {
-			
+
 			try {
 
 				String pathNode = StringUtil.isNotEmpty(md2pdfPath) ? md2pdfPath
@@ -1559,11 +1562,16 @@ public class BlogController extends BaseController {
 		String dnFileName = null;
 		String dnFileLength = null;
 		File dnFile = null;
-		if ("md".equalsIgnoreCase(type) || "html".equalsIgnoreCase(type)) {
+		if ("md".equalsIgnoreCase(type) || "html".equalsIgnoreCase(type)) { // download markdown or html
 			dnFileName = blog.getTitle().trim() + "." + type;
 			dnFileLength = String.valueOf(fileMd.length());
 			dnFile = fileMd;
-		} else {
+		} else if ("md2html".equalsIgnoreCase(type)) { // download markdown as html
+			File md2fileHtml = new File(md2htmlFilePath);
+			dnFileName = blog.getTitle().trim() + ".html";
+			dnFileLength = String.valueOf(md2fileHtml.length());
+			dnFile = md2fileHtml;
+		} else { // download pdf
 			dnFileName = blog.getTitle().trim() + ".pdf";
 			dnFileLength = String.valueOf(filePdf.length());
 			dnFile = filePdf;
@@ -1593,6 +1601,45 @@ public class BlogController extends BaseController {
 				bos.close();
 			}
 		}
+	}
+
+	@PostMapping("download/md2html/{id}")
+	@ResponseBody
+	public RespBody downloadHtmlFromMd(HttpServletRequest request, @PathVariable Long id,
+			@RequestParam(value = "content") String content) throws Exception {
+
+		logger.debug("download blog md2html start...");
+
+		Blog blog = blogRepository.findOne(id);
+		if (blog == null) {
+			return RespBody.failed("下载博文不存在!");
+		}
+
+		if (!hasAuth(blog)) {
+			return RespBody.failed("您没有权限下载该博文!");
+		}
+
+		// 获取网站部署路径(通过ServletContext对象)，用于确定下载文件位置，从而实现下载
+		String path = WebUtil.getRealPath(request);
+
+		String blogUpdateDate = DateUtil.format(blog.getUpdateDate(), DateUtil.FORMAT9);
+
+		String md2htmlFileName = blog.getId() + "_" + blogUpdateDate + ".html";
+
+		String md2htmlFilePath = path + uploadPath + md2htmlFileName;
+
+		File md2fileHtml = new File(md2htmlFilePath);
+
+		if (!md2fileHtml.exists()) {
+			try {
+				FileUtils.writeStringToFile(md2fileHtml, content, "UTF-8");
+			} catch (IOException e) {
+				e.printStackTrace();
+				return RespBody.failed(e.getMessage());
+			}
+		}
+
+		return RespBody.succeed();
 	}
 
 	private boolean hasAuth(Blog b) {
@@ -2373,7 +2420,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed();
 	}
-	
+
 	@PostMapping("history/repair")
 	@Secured({ "ROLE_ADMIN" })
 	@ResponseBody
@@ -2393,7 +2440,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed();
 	}
-	
+
 	private void wsSend(Comment comment, com.lhjz.portal.model.BlogCommentPayload.Cmd cmd, String loginUsername) {
 		try {
 			ThreadUtil.exec(() -> {
@@ -2405,7 +2452,7 @@ public class BlogController extends BaseController {
 			logger.error(e.getMessage(), e);
 		}
 	}
-	
+
 	@PostMapping("comment/label/toggle")
 	@ResponseBody
 	public RespBody toggelCommentLabel(@RequestParam("cid") Long cid, @RequestParam("name") String name) {
