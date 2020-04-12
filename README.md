@@ -5,7 +5,7 @@
 > https://gitee.com/xiweicheng/tms  
 > https://github.com/xiweicheng/tms  
 
- **前端：** 
+ **前端代码仓库（代码已经压缩打包到tms仓库中）：** 
 - 沟通博文：https://gitee.com/xiweicheng/tms-frontend
 - 着陆页： https://gitee.com/xiweicheng/tms-landing
 
