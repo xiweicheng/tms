@@ -408,6 +408,46 @@ public class ChatDirectController extends BaseController {
 
 		return RespBody.succeed(page);
 	}
+	
+	@PostMapping("download/md2html/{id}")
+	@ResponseBody
+	public RespBody downloadHtmlFromMd(HttpServletRequest request, @PathVariable Long id,
+			@RequestParam(value = "content") String content) throws Exception {
+
+		logger.debug("download chatDirect md2html start...");
+
+		ChatDirect chatDirect = chatDirectRepository.findOne(id);
+
+		if (chatDirect == null) {
+			return RespBody.failed("下载私聊消息不存在!");
+		}
+
+		if (!isCreatorOrChatter(chatDirect)) {
+			return RespBody.failed("您没有权限下载该私聊消息!");
+		}
+
+		// 获取网站部署路径(通过ServletContext对象)，用于确定下载文件位置，从而实现下载
+		String path = WebUtil.getRealPath(request);
+
+		String cdUpdateDate = DateUtil.format(chatDirect.getUpdateDate(), DateUtil.FORMAT9);
+
+		String md2htmlFileName = chatDirect.getId() + "_" + cdUpdateDate + ".html";
+
+		String md2htmlFilePath = path + uploadPath + md2htmlFileName;
+
+		File md2fileHtml = new File(md2htmlFilePath);
+
+		if (!md2fileHtml.exists()) {
+			try {
+				FileUtils.writeStringToFile(md2fileHtml, content, "UTF-8");
+			} catch (IOException e) {
+				e.printStackTrace();
+				return RespBody.failed(e.getMessage());
+			}
+		}
+
+		return RespBody.succeed();
+	}
 
 	@RequestMapping(value = "download/{id}", method = RequestMethod.GET)
 	public void download(HttpServletRequest request, HttpServletResponse response, @PathVariable Long id,
@@ -438,13 +478,15 @@ public class ChatDirectController extends BaseController {
 		// 获取网站部署路径(通过ServletContext对象)，用于确定下载文件位置，从而实现下载
 		String path = WebUtil.getRealPath(request);
 
-		String blogUpdateDate = DateUtil.format(chatDirect.getUpdateDate(), DateUtil.FORMAT9);
+		String cdUpdateDate = DateUtil.format(chatDirect.getUpdateDate(), DateUtil.FORMAT9);
 
-		String mdFileName = chatDirect.getId() + "_" + blogUpdateDate + ".md";
-		String pdfFileName = chatDirect.getId() + "_" + blogUpdateDate + ".pdf";
+		String mdFileName = chatDirect.getId() + "_" + cdUpdateDate + ".md";
+		String pdfFileName = chatDirect.getId() + "_" + cdUpdateDate + ".pdf";
+		String md2htmlFileName = chatDirect.getId() + "_" + cdUpdateDate + ".html";
 
 		String mdFilePath = path + uploadPath + mdFileName;
 		String pdfFilePath = path + uploadPath + pdfFileName;
+		String md2htmlFilePath = path + uploadPath + md2htmlFileName;
 
 		File fileMd = new File(mdFilePath);
 
@@ -493,6 +535,11 @@ public class ChatDirectController extends BaseController {
 			dnFileName = StringUtil.replace("{?1}_{?2}", name, mdFileName);
 			dnFileLength = String.valueOf(fileMd.length());
 			dnFile = fileMd;
+		} else if ("md2html".equalsIgnoreCase(type)) { // download markdown as html
+			File md2fileHtml = new File(md2htmlFilePath);
+			dnFileName = StringUtil.replace("{?1}_{?2}", name, md2htmlFileName);
+			dnFileLength = String.valueOf(md2fileHtml.length());
+			dnFile = md2fileHtml;
 		} else {
 			dnFileName = StringUtil.replace("{?1}_{?2}", name, pdfFileName);
 			dnFileLength = String.valueOf(filePdf.length());
