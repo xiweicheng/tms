@@ -130,6 +130,8 @@ public class Blog implements Serializable {
 	private Long tplHotCnt; // 模板热度统计
 	
 	private String shareId;
+	
+	private Long sort; // 排序位置
 
 	@ManyToOne
 	@JoinColumn(name = "space")

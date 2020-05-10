@@ -110,6 +110,9 @@ public class Space implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "channel")
 	private Channel channel;
+	
+	@Column
+	private Long sort;
 
 	@Version
 	private long version;

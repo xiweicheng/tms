@@ -6,7 +6,6 @@ package com.lhjz.portal.controller;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,7 +35,6 @@ import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.StringUtil;
-import com.lhjz.portal.util.WebUtil;
 
 /**
  * 
@@ -110,7 +108,7 @@ public class SpaceController extends BaseController {
 
 		Space space = spaceRepository.findOne(id);
 
-		if (!hasAuth(space)) {
+		if (!AuthUtil.hasSpaceAuth(space)) {
 			return RespBody.failed("没有权限查看该空间!");
 		}
 
@@ -190,61 +188,61 @@ public class SpaceController extends BaseController {
 		return RespBody.succeed(spaces);
 	}
 
-	private boolean hasAuth(Space s) {
-
-		if (s == null) {
-			return false;
-		}
-
-		if (isSuper()) { // 超级用户
-			return true;
-		}
-
-		if (s.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
-			return false;
-		}
-
-		User loginUser = new User(WebUtil.getUsername());
-
-		// 过滤掉没有权限的
-		if (s.getCreator().equals(loginUser)) { // 我创建的
-			return true;
-		}
-
-		if (Boolean.TRUE.equals(s.getOpened())) {
-			return true;
-		}
-
-		if (!s.getPrivated()) { // 非私有的
-			return true;
-		}
-
-		boolean exists = false;
-		for (SpaceAuthority sa : s.getSpaceAuthorities()) {
-			if (loginUser.equals(sa.getUser())) {
-				exists = true;
-				break;
-			} else {
-				Channel channel = sa.getChannel();
-				if (channel != null) {
-					Set<User> members = channel.getMembers();
-					if (members.contains(loginUser)) {
-						exists = true;
-						break;
-					}
-				}
-			}
-		}
-
-		return exists;
-	}
+//	private boolean hasAuth(Space s) {
+//
+//		if (s == null) {
+//			return false;
+//		}
+//
+//		if (isSuper()) { // 超级用户
+//			return true;
+//		}
+//
+//		if (s.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
+//			return false;
+//		}
+//
+//		User loginUser = new User(WebUtil.getUsername());
+//
+//		// 过滤掉没有权限的
+//		if (s.getCreator().equals(loginUser)) { // 我创建的
+//			return true;
+//		}
+//
+//		if (Boolean.TRUE.equals(s.getOpened())) {
+//			return true;
+//		}
+//
+//		if (!s.getPrivated()) { // 非私有的
+//			return true;
+//		}
+//
+//		boolean exists = false;
+//		for (SpaceAuthority sa : s.getSpaceAuthorities()) {
+//			if (loginUser.equals(sa.getUser())) {
+//				exists = true;
+//				break;
+//			} else {
+//				Channel channel = sa.getChannel();
+//				if (channel != null) {
+//					Set<User> members = channel.getMembers();
+//					if (members.contains(loginUser)) {
+//						exists = true;
+//						break;
+//					}
+//				}
+//			}
+//		}
+//
+//		return exists;
+//	}
 
 	@RequestMapping(value = "listMy", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody listMy() {
 
 		List<Space> spaces = spaceRepository.findAll().stream().filter(s -> s.getStatus() != Status.Deleted)
-				.filter(s -> hasAuth(s)).collect(Collectors.toList());
+				.filter(s -> AuthUtil.hasSpaceAuth(s)).collect(Collectors.toList());
 
 		return RespBody.succeed(spaces);
 	}
@@ -253,7 +251,7 @@ public class SpaceController extends BaseController {
 	@ResponseBody
 	public RespBody getAuth(@RequestParam("id") Long id) {
 		Space space = spaceRepository.findOne(id);
-		if (!hasAuth(space)) {
+		if (!AuthUtil.hasSpaceAuth(space)) {
 			return RespBody.failed("没有权限查看该空间权限!");
 		}
 		return RespBody.succeed(space.getSpaceAuthorities());
@@ -372,7 +370,7 @@ public class SpaceController extends BaseController {
 			return RespBody.failed("对应空间不存在！");
 		}
 
-		if (!hasAuth(space)) {
+		if (!AuthUtil.hasSpaceAuth(space)) {
 			return RespBody.failed("权限不足！");
 		}
 
@@ -401,7 +399,7 @@ public class SpaceController extends BaseController {
 			return RespBody.failed("对应分类不存在！");
 		}
 
-		if (!hasAuth(dir.getSpace())) {
+		if (!AuthUtil.hasSpaceAuth(dir.getSpace())) {
 			return RespBody.failed("权限不足！");
 		}
 
@@ -429,7 +427,7 @@ public class SpaceController extends BaseController {
 			return RespBody.failed("对应分类不存在！");
 		}
 
-		if (!hasAuth(dir.getSpace())) {
+		if (!AuthUtil.hasSpaceAuth(dir.getSpace())) {
 			return RespBody.failed("权限不足！");
 		}
 
@@ -450,7 +448,7 @@ public class SpaceController extends BaseController {
 			return RespBody.failed("空间不存在！");
 		}
 
-		if (!hasAuth(space)) {
+		if (!AuthUtil.hasSpaceAuth(space)) {
 			return RespBody.failed("空间权限不足！");
 		}
 

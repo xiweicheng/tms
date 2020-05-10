@@ -80,6 +80,8 @@ import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.PollBlog;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.model.ToastrPayload;
+import com.lhjz.portal.pojo.BlogSortForm;
+import com.lhjz.portal.pojo.BlogSortItem;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.CommentType;
 import com.lhjz.portal.pojo.Enum.Editor;
@@ -102,7 +104,9 @@ import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.TagRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.ChatChannelService;
+import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.DateUtil;
+import com.lhjz.portal.util.JsonUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
@@ -2501,5 +2505,71 @@ public class BlogController extends BaseController {
 		}
 
 		return RespBody.succeed(comment);
+	}
+
+	@PostMapping("sort")
+	@ResponseBody
+	public RespBody sort(BlogSortForm blogSortForm) {
+
+		if (blogSortForm == null || StringUtil.isEmpty(blogSortForm.getItems())) {
+			return RespBody.failed("参数错误！");
+		}
+
+		BlogSortItem[] sortItems = JsonUtil.json2Object(blogSortForm.getItems(), BlogSortItem[].class);
+
+		Stream.of(sortItems).forEach(item -> {
+			Blog blog = blogRepository.findOne(item.getId());
+			if (AuthUtil.hasSpaceAuth(blog.getSpace())
+					&& item.getSort() != null & !item.getSort().equals(blog.getSort())) {
+				blog.setSort(item.getSort());
+				blogRepository.saveAndFlush(blog);
+			}
+		});
+
+		return RespBody.succeed();
+	}
+
+	@PostMapping("dir/sort")
+	@ResponseBody
+	public RespBody sortDir(BlogSortForm blogSortForm) {
+
+		if (blogSortForm == null || StringUtil.isEmpty(blogSortForm.getItems())) {
+			return RespBody.failed("参数错误！");
+		}
+
+		BlogSortItem[] sortItems = JsonUtil.json2Object(blogSortForm.getItems(), BlogSortItem[].class);
+
+		Stream.of(sortItems).forEach(item -> {
+			Dir dir = dirRepository.findOne(item.getId());
+			if (AuthUtil.hasSpaceAuth(dir.getSpace())
+					&& item.getSort() != null & !item.getSort().equals(dir.getSort())) {
+				dir.setSort(item.getSort());
+				dirRepository.saveAndFlush(dir);
+			}
+		});
+
+		return RespBody.succeed();
+	}
+
+	@PostMapping("space/sort")
+	@ResponseBody
+	public RespBody sortSpace(BlogSortForm blogSortForm) {
+
+		if (blogSortForm == null || StringUtil.isEmpty(blogSortForm.getItems())) {
+			return RespBody.failed("参数错误！");
+		}
+
+		BlogSortItem[] sortItems = JsonUtil.json2Object(blogSortForm.getItems(), BlogSortItem[].class);
+
+		Stream.of(sortItems).forEach(item -> {
+			Space space = spaceRepository.findOne(item.getId());
+			if (isSuperOrCreator(space.getCreator())
+					&& item.getSort() != null & !item.getSort().equals(space.getSort())) {
+				space.setSort(item.getSort());
+				spaceRepository.saveAndFlush(space);
+			}
+		});
+
+		return RespBody.succeed();
 	}
 }

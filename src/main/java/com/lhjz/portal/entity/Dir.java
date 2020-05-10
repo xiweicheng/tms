@@ -88,6 +88,9 @@ public class Dir implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Status status = Status.Normal;
+	
+	@Column
+	private Long sort;
 
 	@Version
 	private long version;
