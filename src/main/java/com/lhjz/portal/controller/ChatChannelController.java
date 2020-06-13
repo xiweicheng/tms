@@ -1421,7 +1421,7 @@ public class ChatChannelController extends BaseController {
 		}
 
 		chatChannel.setUpdateDate(new Date());
-		chatChannelRepository.saveAndFlush(chatChannel);
+		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 
 		chatMsg.put(chatChannel, Action.Create, ChatMsgType.Reply, null, usernames, chatReply2);
 		wsSend(chatChannel, usernames);
@@ -1502,7 +1502,7 @@ public class ChatChannelController extends BaseController {
 			e.printStackTrace();
 		}
 
-		return RespBody.succeed(chatReply2);
+		return RespBody.succeed(chatReply2).addMsg(chatChannel2.getVersion());
 
 	}
 
@@ -1527,7 +1527,7 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel = chatReply.getChatChannel();
 		chatChannel.setUpdateDate(new Date());
-		chatChannelRepository.saveAndFlush(chatChannel);
+		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 
 		chatMsg.put(chatChannel, Action.Update, ChatMsgType.Reply, null, usernames, chatReply2);
 		wsSend(chatChannel, usernames);
@@ -1597,7 +1597,7 @@ public class ChatChannelController extends BaseController {
 			e.printStackTrace();
 		}
 
-		return RespBody.succeed(chatReply2);
+		return RespBody.succeed(chatReply2).addMsg(chatChannel2.getVersion());
 
 	}
 
@@ -1621,12 +1621,12 @@ public class ChatChannelController extends BaseController {
 
 		ChatChannel chatChannel = chatReply.getChatChannel();
 		chatChannel.setUpdateDate(new Date());
-		chatChannelRepository.saveAndFlush(chatChannel);
+		ChatChannel chatChannel2 = chatChannelRepository.saveAndFlush(chatChannel);
 
 		chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Reply, null, null, chatReply);
 		wsSend(chatChannel, null);
 
-		return RespBody.succeed(rid);
+		return RespBody.succeed(rid).addMsg(chatChannel2.getVersion());
 
 	}
 
