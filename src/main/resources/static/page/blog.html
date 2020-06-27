@@ -5,7 +5,8 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <meta content='tms,chat,wiki,translation,blog,markdown,group,team,teamwork,聊天,沟通,知识库,博文,国际化翻译,团队协作' name='Keywords'>
     <meta content='TMS是免费开源的团队协作(团队沟通,博文知识库,国际化翻译i18n)web系统(响应式界面设计,移动端适配).' name='Description'>
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
@@ -21,107 +22,107 @@
     <link href="cdn/jquery.modal.min.css" rel="stylesheet" type="text/css" />
     <style>
         body {
-        text-align: center;
-    }
+            text-align: center;
+        }
 
-    div#editor {
-        width: 75%;
-        margin: auto;
-        text-align: left;
-        position: relative;
-    }
+        div#editor {
+            width: 75%;
+            margin: auto;
+            text-align: left;
+            position: relative;
+        }
 
-    .ss {
-        background-color: red;
-    }
+        .ss {
+            background-color: red;
+        }
 
-    .fr-wrapper>div[style*='z-index: 9999'] {
-        /*position: absolute;
+        .fr-wrapper>div[style*='z-index: 9999'] {
+            /*position: absolute;
         top: -10000px;
         opacity: 0;*/
-        display: none;
-    }
+            display: none;
+        }
 
-    .fr-placeholder {
-        margin-top: 1px!important;
-    }
+        .fr-placeholder {
+            margin-top: 1px !important;
+        }
 
-    #toast-container {
-        z-index: 9999999999!important;
-    }
+        #toast-container {
+            z-index: 9999999999 !important;
+        }
 
-    .topbar {
-        position: absolute;
-        top: -50px;
-        width: 100%;
-    }
+        .topbar {
+            position: absolute;
+            top: -50px;
+            width: 100%;
+        }
 
-    .topbar>input {
-        /*width: 300px;*/
-        width: 100%;
-        font-size: 26px;
-        box-sizing: border-box;
-        /*box-shadow: none;*/
-        outline: 0;
-        border: 0;
-        box-shadow: 0px 1px 0px 0px #dddddd;
-        padding-right: 80px;
-    }
+        .topbar>input {
+            /*width: 300px;*/
+            width: 100%;
+            font-size: 26px;
+            box-sizing: border-box;
+            /*box-shadow: none;*/
+            outline: 0;
+            border: 0;
+            box-shadow: 0px 1px 0px 0px #dddddd;
+            padding-right: 80px;
+        }
 
-    .topbar>.actions {
-        right: 0;
-        top: 0;
-        position: absolute;
-    }
+        .topbar>.actions {
+            right: 0;
+            top: 0;
+            position: absolute;
+        }
 
-    .topbar>.actions button {
-        font-size: 12px;
-    }
+        .topbar>.actions button {
+            font-size: 12px;
+        }
 
-    #preview {
-        display: none;
-    }
+        #preview {
+            display: none;
+        }
 
-    .blocker {
-        z-index: 9999999999;
-    }
+        .blocker {
+            z-index: 9999999999;
+        }
 
-    button.btn {
-        color: #fff;
-        background: #2185d0;
-        padding: .5rem 1rem;
-        display: inline-block;
-        border-radius: 4px;
-        transition-duration: .25s;
-        border: none;
-        font-size: 14px;
-    }
+        button.btn {
+            color: #fff;
+            background: #2185d0;
+            padding: .5rem 1rem;
+            display: inline-block;
+            border-radius: 4px;
+            transition-duration: .25s;
+            border: none;
+            font-size: 14px;
+        }
 
-    button.btn:hover {
-        background: #1678c2;
-    }
+        button.btn:hover {
+            background: #1678c2;
+        }
 
-    #saveFrm .row {
-        padding-bottom: 8px;
-    }
+        #saveFrm .row {
+            padding-bottom: 8px;
+        }
 
-    #saveFrm label {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
+        #saveFrm label {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
 
-    #saveFrm select {
-        background:#fafdfe;  
-        height:28px;  
-        width:440px;
-        margin-top: 3px;
-        line-height:28px;  
-        border:1px solid #9bc0dd;  
-        -moz-border-radius:2px;  
-        -webkit-border-radius:2px;  
-    }
+        #saveFrm select {
+            background: #fafdfe;
+            height: 28px;
+            width: 440px;
+            margin-top: 3px;
+            line-height: 28px;
+            border: 1px solid #9bc0dd;
+            -moz-border-radius: 2px;
+            -webkit-border-radius: 2px;
+        }
 
     </style>
 </head>
@@ -173,379 +174,425 @@
     <!-- Include Editor JS files. -->
     <script type="text/javascript" src="cdn/froala_editor.pkgd.min.js"></script>
     <script>
-    $(function() {
+        $(function () {
 
-        var blog = null;
+            var blog = null;
 
-        // toastr弹出消息提示插件全局配置设置
-        toastr.options.positionClass = 'toast-bottom-center';
-        toastr.options.preventDuplicates = true;
+            // toastr弹出消息提示插件全局配置设置
+            toastr.options.positionClass = 'toast-bottom-center';
+            toastr.options.preventDuplicates = true;
 
-        $.FroalaEditor.DefineIcon('save', { NAME: 'save' });
-        $.FroalaEditor.RegisterCommand('save', {
-            title: '保存博文 (Ctrl+Shift+S)',
-            focus: false,
-            undo: false,
-            refreshAfterCallback: false,
-            callback: function() {
-                $('#save').click();
-            }
-        });
-        $.FroalaEditor.DefineIcon('word2html', { NAME: 'file-word-o' });
-        $.FroalaEditor.RegisterCommand('word2html', {
-            title: '基于Word文档导入',
-            focus: false,
-            undo: false,
-            refreshAfterCallback: false,
-            callback: function() {
-                $('#word2html-dropzone').click();
-            }
-        });
-
-        $('#word2html-dropzone').dropzone({
-            url: "/admin/file/upload/word2html",
-            paramName: 'file',
-            clickable: true,
-            dictDefaultMessage: '',
-            maxFilesize: 10,
-            acceptedFiles: '.doc,.docx',
-            init: function() {
-                this.on("sending", function(file, xhr, formData) {
-
-                });
-                this.on("success", function(file, data) {
-                    if (data.success) {
-                        $('#edit').froalaEditor('html.set', data.data.html);
-
-                        if (!$('#title').val() && data.data.file && data.data.file.name) {
-                            var index = data.data.file.name.lastIndexOf('.');
-                            $('#title').val(data.data.file.name.substring(0, index));
-                        }
-                    } else {
-                        toastr.error(data.data, 'Word导入失败!');
-                    }
-
-                });
-                this.on("error", function(file, errorMessage, xhr) {
-                    toastr.error(errorMessage, 'Word导入失败!');
-                });
-                this.on("complete", function(file) {
-                    this.removeFile(file);
-                });
-            }
-        });
-
-        $('#edit').froalaEditor({
-                // toolbarBottom: true,
-                toolbarButtons: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'inlineStyle', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', '-', 'save', '|', 'word2html', 'insertLink', 'insertImage', 'insertVideo', 'insertFile', 'insertTable', 'emoticons', 'specialCharacters', '|', 'quote', 'insertHR', 'undo', 'redo', 'clearFormatting', 'selectAll', 'print', 'help', 'html'],
-                fontFamily: {
-                    '宋体,SimSun,sans-serif': '宋体',
-                    "微软雅黑,'Microsoft YaHein',sans-serif": '微软雅黑',
-                    '楷体,楷体_GB2312,SimKai,sans-serif': '楷体',
-                    '黑体,SimHei,sans-serif': '黑体',
-                    '隶书,SimLi,sans-serif': '隶书',
-                    "'andale mono',sans-serif": 'Andale Mono',
-                    'Arial,Helvetica,sans-serif': 'Arial',
-                    "'arial black','avant garde',sans-serif": 'Arial Black',
-                    'Georgia,serif': 'Georgia',
-                    "'comic sans ms',sans-serif": 'Comic Sans Ms',
-                    'Impact,Charcoal,sans-serif': 'Impact',
-                    'Tahoma,Geneva,sans-serif': 'Tahoma',
-                    "'Times New Roman',Times,serif": 'Times New Roman',
-                    'Verdana,Geneva,sans-serif': 'Verdana'
-                },
-                fontFamilySelection: true,
-                fontSizeSelection: true,
-                paragraphFormatSelection: true,
-                wordPasteModal: true,
-                // enter: $.FroalaEditor.ENTER_BR,
-                enter: $.FroalaEditor.ENTER_DIV,
-                language: 'zh_cn',
-                fileMaxSize: 1024 * 1024 * 10,
-                imageUploadURL: '/admin/file/upload/img',
-                imageUploadParams: {
-                    toType: 'Blog',
-                    baseUrl: getBaseUrl()
-                },
-                fileUploadURL: '/admin/file/upload/file',
-                fileUploadParams: {
-                    toType: 'Blog',
-                    baseUrl: getBaseUrl()
-                },
-                imageManagerLoadURL: '/admin/file/upload/img/list',
-                imageManagerDeleteURL: "/admin/file/upload/img/remove",
-                imageManagerDeleteMethod: "POST"
-            }) // Catch image removal from the editor.
-            .on('froalaEditor.image.removed', function(e, editor, $img) {
-                $.ajax({
-                        method: "POST",
-                        url: "/admin/file/upload/img/remove",
-                        data: {
-                            src: $img.attr('src')
-                        }
-                    })
-                    .done(function(data) {
-                        console.log('image was deleted');
-                        // toastr && toastr.success('图片删除成功！');
-                    })
-                    .fail(function(err) {
-                        console.log('image delete problem: ' + JSON.stringify(err));
-                        toastr && toastr.error(JSON.stringify(err), '图片删除失败！');
-                    });
-            })
-            // Catch image removal from the editor.
-            .on('froalaEditor.file.unlink', function(e, editor, link) {
-                $.ajax({
-                        method: "POST",
-                        url: "/admin/file/upload/file/remove",
-                        data: {
-                            src: link.getAttribute('href')
-                        }
-                    })
-                    .done(function(data) {
-                        console.log('file was deleted');
-                        // toastr && toastr.success('文件删除成功！');
-                    })
-                    .fail(function(err) {
-                        console.log('file delete problem: ' + JSON.stringify(err));
-                        toastr && toastr.error(JSON.stringify(err), '文件删除失败！');
-                    });
-            }).on('froalaEditor.keydown', function(e, editor, keydownEvent) {
-                // console.log(keydownEvent);
-                if (keydownEvent.ctrlKey && keydownEvent.shiftKey && keydownEvent.keyCode === 83) { // ctrl+shift+s
+            $.FroalaEditor.DefineIcon('save', {
+                NAME: 'save'
+            });
+            $.FroalaEditor.RegisterCommand('save', {
+                title: '保存博文 (Ctrl+Shift+S)',
+                focus: false,
+                undo: false,
+                refreshAfterCallback: false,
+                callback: function () {
                     $('#save').click();
                 }
             });
-
-        var id = url('?id');
-        if (id) {
-            $.get('/admin/blog/get', { id: id }, function(data) {
-                if (data.success) {
-                    if (typeof url('?copy') === 'undefined') { // edit
-                        blog = data.data;
-                        $('#title').val(data.data.title);
-                    } else {
-                        $('#title').val(data.data.title + ' (副本)');
-                    }
-
-                    $('#edit').froalaEditor('html.set', data.data.content);
-                    $('#preview').show();
-                } else {
-                    toastr.error(data.data);
+            $.FroalaEditor.DefineIcon('word2html', {
+                NAME: 'file-word-o'
+            });
+            $.FroalaEditor.RegisterCommand('word2html', {
+                title: '基于Word文档导入',
+                focus: false,
+                undo: false,
+                refreshAfterCallback: false,
+                callback: function () {
+                    $('#word2html-dropzone').click();
                 }
             });
-        }
 
-        $('#preview').click(function(event) {
-            var url = window.location.protocol + "//" + window.location.host + window.location.pathname.replace('blog.html', 'index.html') + "#/blog/" + blog.id;
-            openNewWin(url);
-        });
+            $('#word2html-dropzone').dropzone({
+                url: "/admin/file/upload/word2html",
+                paramName: 'file',
+                clickable: true,
+                dictDefaultMessage: '',
+                maxFilesize: 10,
+                acceptedFiles: '.doc,.docx',
+                init: function () {
+                    this.on("sending", function (file, xhr, formData) {
 
-        // 博文保存选择，空间 + 分类
-        var spaces = [];
+                    });
+                    this.on("success", function (file, data) {
+                        if (data.success) {
+                            $('#edit').froalaEditor('html.set', data.data.html);
 
-        $('#saveFrm select[name="space"]').change(function(event) {
-            var sid = $(this).val();
-            $('#saveFrm select[name="dir"]').empty().append($('<option/>').text('(不指定分类)').attr('value', ''));
-
-            if (sid !== '') {
-                $.each(spaces, function(index, space) {
-                    if (space.id == sid) {
-                        window._ && (space.dirs = _.sortBy(space.dirs, 'name'));
-                        $.each(space.dirs, function(index, dir) {
-                            if (dir.status != 'Deleted') {
-                                $('#saveFrm select[name="dir"]').append($('<option/>').text(dir.name).attr('value', dir.id));
+                            if (!$('#title').val() && data.data.file && data.data.file
+                                .name) {
+                                var index = data.data.file.name.lastIndexOf('.');
+                                $('#title').val(data.data.file.name.substring(0, index));
                             }
-                        });
-
-                        var did = localStorage && localStorage.getItem('tms-blog-html-dir');
-                        if (_.some(space.dirs, { id: +did })) {
-                            $('#saveFrm select[name="dir"]').val(did);
+                        } else {
+                            toastr.error(data.data, 'Word导入失败!');
                         }
 
-                        return false;
+                    });
+                    this.on("error", function (file, errorMessage, xhr) {
+                        toastr.error(errorMessage, 'Word导入失败!');
+                    });
+                    this.on("complete", function (file) {
+                        this.removeFile(file);
+                    });
+                }
+            });
+
+            $('#edit').froalaEditor({
+                    // toolbarBottom: true,
+                    toolbarButtons: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough',
+                        'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color',
+                        'inlineStyle', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL',
+                        'formatUL', 'outdent', 'indent', '-', 'save', '|', 'word2html', 'insertLink',
+                        'insertImage', 'insertVideo', 'insertFile', 'insertTable', 'emoticons',
+                        'specialCharacters', '|', 'quote', 'insertHR', 'undo', 'redo',
+                        'clearFormatting', 'selectAll', 'print', 'help', 'html'
+                    ],
+                    fontFamily: {
+                        '宋体,SimSun,sans-serif': '宋体',
+                        "微软雅黑,'Microsoft YaHein',sans-serif": '微软雅黑',
+                        '楷体,楷体_GB2312,SimKai,sans-serif': '楷体',
+                        '黑体,SimHei,sans-serif': '黑体',
+                        '隶书,SimLi,sans-serif': '隶书',
+                        "'andale mono',sans-serif": 'Andale Mono',
+                        'Arial,Helvetica,sans-serif': 'Arial',
+                        "'arial black','avant garde',sans-serif": 'Arial Black',
+                        'Georgia,serif': 'Georgia',
+                        "'comic sans ms',sans-serif": 'Comic Sans Ms',
+                        'Impact,Charcoal,sans-serif': 'Impact',
+                        'Tahoma,Geneva,sans-serif': 'Tahoma',
+                        "'Times New Roman',Times,serif": 'Times New Roman',
+                        'Verdana,Geneva,sans-serif': 'Verdana'
+                    },
+                    fontFamilySelection: true,
+                    fontSizeSelection: true,
+                    paragraphFormatSelection: true,
+                    wordPasteModal: true,
+                    // enter: $.FroalaEditor.ENTER_BR,
+                    enter: $.FroalaEditor.ENTER_DIV,
+                    language: 'zh_cn',
+                    fileMaxSize: 1024 * 1024 * 10,
+                    imageUploadURL: '/admin/file/upload/img',
+                    imageUploadParams: {
+                        toType: 'Blog',
+                        baseUrl: getBaseUrl()
+                    },
+                    fileUploadURL: '/admin/file/upload/file',
+                    fileUploadParams: {
+                        toType: 'Blog',
+                        baseUrl: getBaseUrl()
+                    },
+                    imageManagerLoadURL: '/admin/file/upload/img/list',
+                    imageManagerDeleteURL: "/admin/file/upload/img/remove",
+                    imageManagerDeleteMethod: "POST"
+                }) // Catch image removal from the editor.
+                .on('froalaEditor.image.removed', function (e, editor, $img) {
+                    $.ajax({
+                            method: "POST",
+                            url: "/admin/file/upload/img/remove",
+                            data: {
+                                src: $img.attr('src')
+                            }
+                        })
+                        .done(function (data) {
+                            console.log('image was deleted');
+                            // toastr && toastr.success('图片删除成功！');
+                        })
+                        .fail(function (err) {
+                            console.log('image delete problem: ' + JSON.stringify(err));
+                            toastr && toastr.error(JSON.stringify(err), '图片删除失败！');
+                        });
+                })
+                // Catch image removal from the editor.
+                .on('froalaEditor.file.unlink', function (e, editor, link) {
+                    $.ajax({
+                            method: "POST",
+                            url: "/admin/file/upload/file/remove",
+                            data: {
+                                src: link.getAttribute('href')
+                            }
+                        })
+                        .done(function (data) {
+                            console.log('file was deleted');
+                            // toastr && toastr.success('文件删除成功！');
+                        })
+                        .fail(function (err) {
+                            console.log('file delete problem: ' + JSON.stringify(err));
+                            toastr && toastr.error(JSON.stringify(err), '文件删除失败！');
+                        });
+                }).on('froalaEditor.keydown', function (e, editor, keydownEvent) {
+                    // console.log(keydownEvent);
+                    if (keydownEvent.ctrlKey && keydownEvent.shiftKey && keydownEvent.keyCode ===
+                        83) { // ctrl+shift+s
+                        $('#save').click();
                     }
                 });
-            }
-        });
 
-        $('#save').click(function(event) {
-
-            var title = $('#title').val();
-            var content = $('#edit').froalaEditor('html.get', true);
-
-            if (!title || !$.trim(title)) {
-                toastr && toastr.error('博文标题不能为空！');
-                return;
-            }
-
-            if (!content || !$.trim(content)) {
-                toastr && toastr.error('博文内容不能为空！');
-                return;
-            }
-
-            if (blog == null) {
-                $.get('/admin/space/listMy', function(data) {
+            var id = url('?id');
+            if (id) {
+                $.get('/admin/blog/get', {
+                    id: id,
+                    inc: false
+                }, function (data) {
                     if (data.success) {
-
-                        spaces = data.data;
-
-                        $('#saveFrm select[name="space"]').empty().append($('<option/>').text('(不指定空间)').attr('value', ''));
-                        $('#saveFrm select[name="dir"]').empty().append($('<option/>').text('(不指定分类)').attr('value', ''));
-
-                        window._ && (spaces = _.sortBy(spaces, 'name'));
-                        $.each(spaces, function(index, space) {
-                            $('#saveFrm select[name="space"]').append($('<option/>').text(space.name).attr('value', space.id));
-                        });
-
-                        var sid = localStorage && localStorage.getItem('tms-blog-html-space');
-                        if (_.some(spaces, { id: +sid })) {
-                            $('#saveFrm select[name="space"]').val(sid);
-                            $('#saveFrm select[name="space"]').change();
+                        if (typeof url('?copy') === 'undefined') { // edit
+                            blog = data.data;
+                            $('#title').val(data.data.title);
+                        } else {
+                            $('#title').val(data.data.title + ' (副本)');
                         }
 
-                        var privated = localStorage && localStorage.getItem('tms-blog-html-privated');
-
-                        $('#privated').prop("checked", privated == 'true');
-
-                        $('#saveModal').modal({
-                            fadeDuration: 200,
-                            clickClose: false
-                        });
-
-                    }
-                });
-            } else {
-                $.post('/admin/blog/update', {
-                    url: window.location.protocol + '//' + window.location.host + '/page/index.html',
-                    id: blog.id,
-                    version: blog.version,
-                    // usernames: '',
-                    // diff: diffS(blog.content, content),
-                    title: title,
-                    content: content
-                }, function(data, textStatus, xhr) {
-                    if (data.success) {
-                        blog = data.data;
-                        toastr && toastr.success('博文更新成功！');
-                        (window.parent && window.parent.postMessage) && (window.parent.postMessage({ action: 'updated', autoFollow: true, source: 'blog', blog: data.data }, window.location.origin));
-                    } else {
-                        toastr && toastr.error(data.data);
-                    }
-                }).fail(function() {
-                    toastr && toastr.error('网络传输错误！');
-                });
-            }
-        });
-
-        $('#saveFrm .btnOk').click(function(event) {
-
-            var title = $('#title').val();
-            var content = $('#edit').froalaEditor('html.get', true);
-
-            if (!title || !$.trim(title)) {
-                toastr && toastr.error('博文标题不能为空！');
-                return;
-            }
-
-            if (!content || !$.trim(content)) {
-                toastr && toastr.error('博文内容不能为空！');
-                return;
-            }
-
-            if (blog == null) {
-
-                $.modal.close();
-
-                localStorage && localStorage.setItem('tms-blog-html-space', $('#saveFrm select[name="space"]').val());
-                localStorage && localStorage.setItem('tms-blog-html-dir', $('#saveFrm select[name="dir"]').val());
-                localStorage && localStorage.setItem('tms-blog-html-privated', $('#privated').prop("checked"));
-
-                $.post('/admin/blog/create', {
-                    url: window.location.protocol + '//' + window.location.host + '/page/index.html',
-                    // usernames: '',
-                    spaceId: $('#saveFrm select[name="space"]').val(),
-                    dirId: $('#saveFrm select[name="dir"]').val(),
-                    title: title,
-                    content: content,
-                    editor: 'Html',
-                    privated: $('#privated').prop("checked"),
-                    contentHtml: content
-                }, function(data, textStatus, xhr) {
-                    if (data.success) {
-                        blog = data.data;
-                        toastr && toastr.success('博文保存成功！');
+                        $('#edit').froalaEditor('html.set', data.data.content);
                         $('#preview').show();
-                        (window.parent && window.parent.postMessage) && (window.parent.postMessage({ action: 'created', source: 'blog', blog: data.data }, window.location.origin));
                     } else {
-                        toastr && toastr.error(data.data);
+                        toastr.error(data.data);
                     }
-                }).fail(function() {
-                    toastr && toastr.error('网络传输错误！');
                 });
             }
+
+            $('#preview').click(function (event) {
+                var url = window.location.protocol + "//" + window.location.host + window.location
+                    .pathname.replace('blog.html', 'index.html') + "#/blog/" + blog.id;
+                openNewWin(url);
+            });
+
+            // 博文保存选择，空间 + 分类
+            var spaces = [];
+
+            $('#saveFrm select[name="space"]').change(function (event) {
+                var sid = $(this).val();
+                $('#saveFrm select[name="dir"]').empty().append($('<option/>').text('(不指定分类)').attr(
+                    'value', ''));
+
+                if (sid !== '') {
+                    $.each(spaces, function (index, space) {
+                        if (space.id == sid) {
+                            window._ && (space.dirs = _.sortBy(space.dirs, 'name'));
+                            $.each(space.dirs, function (index, dir) {
+                                if (dir.status != 'Deleted') {
+                                    $('#saveFrm select[name="dir"]').append($(
+                                        '<option/>').text(dir.name).attr(
+                                        'value', dir.id));
+                                }
+                            });
+
+                            var did = localStorage && localStorage.getItem('tms-blog-html-dir');
+                            if (_.some(space.dirs, {
+                                    id: +did
+                                })) {
+                                $('#saveFrm select[name="dir"]').val(did);
+                            }
+
+                            return false;
+                        }
+                    });
+                }
+            });
+
+            $('#save').click(function (event) {
+
+                var title = $('#title').val();
+                var content = $('#edit').froalaEditor('html.get', true);
+
+                if (!title || !$.trim(title)) {
+                    toastr && toastr.error('博文标题不能为空！');
+                    return;
+                }
+
+                if (!content || !$.trim(content)) {
+                    toastr && toastr.error('博文内容不能为空！');
+                    return;
+                }
+
+                if (blog == null) {
+                    $.get('/admin/space/listMy', function (data) {
+                        if (data.success) {
+
+                            spaces = data.data;
+
+                            $('#saveFrm select[name="space"]').empty().append($('<option/>')
+                                .text('(不指定空间)').attr('value', ''));
+                            $('#saveFrm select[name="dir"]').empty().append($('<option/>').text(
+                                '(不指定分类)').attr('value', ''));
+
+                            window._ && (spaces = _.sortBy(spaces, 'name'));
+                            $.each(spaces, function (index, space) {
+                                $('#saveFrm select[name="space"]').append($('<option/>')
+                                    .text(space.name).attr('value', space.id));
+                            });
+
+                            var sid = localStorage && localStorage.getItem(
+                                'tms-blog-html-space');
+                            if (_.some(spaces, {
+                                    id: +sid
+                                })) {
+                                $('#saveFrm select[name="space"]').val(sid);
+                                $('#saveFrm select[name="space"]').change();
+                            }
+
+                            var privated = localStorage && localStorage.getItem(
+                                'tms-blog-html-privated');
+
+                            $('#privated').prop("checked", privated == 'true');
+
+                            $('#saveModal').modal({
+                                fadeDuration: 200,
+                                clickClose: false
+                            });
+
+                        }
+                    });
+                } else {
+                    $.post('/admin/blog/update', {
+                        url: window.location.protocol + '//' + window.location.host +
+                            '/page/index.html',
+                        id: blog.id,
+                        version: blog.version,
+                        // usernames: '',
+                        // diff: diffS(blog.content, content),
+                        title: title,
+                        content: content
+                    }, function (data, textStatus, xhr) {
+                        if (data.success) {
+                            blog = data.data;
+                            toastr && toastr.success('博文更新成功！');
+                            (window.parent && window.parent.postMessage) && (window.parent
+                                .postMessage({
+                                    action: 'updated',
+                                    autoFollow: true,
+                                    source: 'blog',
+                                    blog: data.data
+                                }, window.location.origin));
+                        } else {
+                            toastr && toastr.error(data.data);
+                        }
+                    }).fail(function () {
+                        toastr && toastr.error('网络传输错误！');
+                    });
+                }
+            });
+
+            $('#saveFrm .btnOk').click(function (event) {
+
+                var title = $('#title').val();
+                var content = $('#edit').froalaEditor('html.get', true);
+
+                if (!title || !$.trim(title)) {
+                    toastr && toastr.error('博文标题不能为空！');
+                    return;
+                }
+
+                if (!content || !$.trim(content)) {
+                    toastr && toastr.error('博文内容不能为空！');
+                    return;
+                }
+
+                if (blog == null) {
+
+                    $.modal.close();
+
+                    localStorage && localStorage.setItem('tms-blog-html-space', $(
+                        '#saveFrm select[name="space"]').val());
+                    localStorage && localStorage.setItem('tms-blog-html-dir', $(
+                        '#saveFrm select[name="dir"]').val());
+                    localStorage && localStorage.setItem('tms-blog-html-privated', $('#privated').prop(
+                        "checked"));
+
+                    $.post('/admin/blog/create', {
+                        url: window.location.protocol + '//' + window.location.host +
+                            '/page/index.html',
+                        // usernames: '',
+                        spaceId: $('#saveFrm select[name="space"]').val(),
+                        dirId: $('#saveFrm select[name="dir"]').val(),
+                        title: title,
+                        content: content,
+                        editor: 'Html',
+                        privated: $('#privated').prop("checked"),
+                        contentHtml: content
+                    }, function (data, textStatus, xhr) {
+                        if (data.success) {
+                            blog = data.data;
+                            toastr && toastr.success('博文保存成功！');
+                            $('#preview').show();
+                            (window.parent && window.parent.postMessage) && (window.parent
+                                .postMessage({
+                                    action: 'created',
+                                    source: 'blog',
+                                    blog: data.data,
+                                    editor: 'html'
+                                }, window.location.origin));
+                        } else {
+                            toastr && toastr.error(data.data);
+                        }
+                    }).fail(function () {
+                        toastr && toastr.error('网络传输错误！');
+                    });
+                }
+            });
+
+            $('#title').keyup(function (e) {
+                if (e.keyCode === 13) {
+                    $('#edit').froalaEditor('events.focus');
+                }
+            });
         });
 
-        $('#title').keyup(function(e) {
-            if (e.keyCode === 13) {
-                $('#edit').froalaEditor('events.focus');
-            }
-        });
-    });
+        function openNewWin(url) {
 
-    function openNewWin(url) {
+            if (url) {
+                var $a = $('<a href="' + url + '" target="_blank" style="display:none;"></a>').appendTo('body').end();
+                $('<input type="button">').appendTo($a).end().click();
 
-        if (url) {
-            var $a = $('<a href="' + url + '" target="_blank" style="display:none;"></a>').appendTo('body').end();
-            $('<input type="button">').appendTo($a).end().click();
-
-            setTimeout(function() {
-                $a.remove();
-            }, 200);
-        }
-
-    }
-
-    function getBaseUrl() {
-        return window.location.protocol + '//' + window.location.host;
-    }
-
-    /**
-     * 文本比较
-     * @param  {[type]} oldS [description]
-     * @param  {[type]} newS [description]
-     * @return {[type]}      [description]
-     */
-    function diffS(oldS, newS, way) {
-        var ways = ['diffChars', 'diffWords', 'diffWordsWithSpace', 'diffLines'];
-        if (!ways.includes(way)) {
-            way = 'diffWords';
-        }
-        var delStyle = 'style="background-color: #e6cf56; text-decoration: line-through;"';
-        var insStyle = 'style="background-color: #98e287; text-decoration: none;"';
-        var diff = JsDiff[way](oldS, newS);
-        var nodeArr = [];
-        for (var i = 0; i < diff.length; i++) {
-
-            if (diff[i].added && diff[i + 1] && diff[i + 1].removed) {
-                var swap = diff[i];
-                diff[i] = diff[i + 1];
-                diff[i + 1] = swap;
+                setTimeout(function () {
+                    $a.remove();
+                }, 200);
             }
 
-            var node;
-            if (diff[i].removed) {
-                node = '<del ' + delStyle + '>' + diff[i].value + '</del>';
-            } else if (diff[i].added) {
-                node = '<ins ' + insStyle + '>' + diff[i].value + '</ins>';
-            } else {
-                node = diff[i].value;
-            }
-            nodeArr.push(node);
         }
 
-        return '<pre>' + nodeArr.join('') + '</pre>';
-    }
+        function getBaseUrl() {
+            return window.location.protocol + '//' + window.location.host;
+        }
+
+        /**
+         * 文本比较
+         * @param  {[type]} oldS [description]
+         * @param  {[type]} newS [description]
+         * @return {[type]}      [description]
+         */
+        function diffS(oldS, newS, way) {
+            var ways = ['diffChars', 'diffWords', 'diffWordsWithSpace', 'diffLines'];
+            if (!ways.includes(way)) {
+                way = 'diffWords';
+            }
+            var delStyle = 'style="background-color: #e6cf56; text-decoration: line-through;"';
+            var insStyle = 'style="background-color: #98e287; text-decoration: none;"';
+            var diff = JsDiff[way](oldS, newS);
+            var nodeArr = [];
+            for (var i = 0; i < diff.length; i++) {
+
+                if (diff[i].added && diff[i + 1] && diff[i + 1].removed) {
+                    var swap = diff[i];
+                    diff[i] = diff[i + 1];
+                    diff[i + 1] = swap;
+                }
+
+                var node;
+                if (diff[i].removed) {
+                    node = '<del ' + delStyle + '>' + diff[i].value + '</del>';
+                } else if (diff[i].added) {
+                    node = '<ins ' + insStyle + '>' + diff[i].value + '</ins>';
+                } else {
+                    node = diff[i].value;
+                }
+                nodeArr.push(node);
+            }
+
+            return '<pre>' + nodeArr.join('') + '</pre>';
+        }
 
     </script>
 </body>
