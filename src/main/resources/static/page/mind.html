@@ -205,24 +205,47 @@
                         }
                     });
                 } else {
-                    $.get('/free/home/blog/' + id, {
-                        _: new Date().getTime(),
-                        inc: false
-                    }, function (data) {
-                        if (data.success) {
-                            if (typeof url('?copy') === 'undefined') { // edit
-                                blog = data.data.blog;
-                                $('#title').val(data.data.blog.title);
+                    var shareId = url('?shareId');
+                    // console.log('shareId: ' + shareId);
+                    if (shareId && shareId != '') {
+                        $.get('/free/blog/share/' + shareId, {
+                            _: new Date().getTime(),
+                            inc: false
+                        }, function (data) {
+                            if (data.success) {
+                                if (typeof url('?copy') === 'undefined') { // edit
+                                    blog = data.data;
+                                    $('#title').val(data.data.title);
+                                } else {
+                                    $('#title').val(data.data.title + ' (副本)');
+                                }
+
+                                initMind(JSON.parse(data.data.content))
+
                             } else {
-                                $('#title').val(data.data.blog.title + ' (副本)');
+                                toastr.error(data.data);
                             }
+                        });
+                    } else {
+                        $.get('/free/home/blog/' + id, {
+                            _: new Date().getTime(),
+                            inc: false
+                        }, function (data) {
+                            if (data.success) {
+                                if (typeof url('?copy') === 'undefined') { // edit
+                                    blog = data.data.blog;
+                                    $('#title').val(data.data.blog.title);
+                                } else {
+                                    $('#title').val(data.data.blog.title + ' (副本)');
+                                }
 
-                            initMind(JSON.parse(data.data.blog.content))
+                                initMind(JSON.parse(data.data.blog.content))
 
-                        } else {
-                            toastr.error(data.data);
-                        }
-                    });
+                            } else {
+                                toastr.error(data.data);
+                            }
+                        });
+                    }
                 }
             } else {
                 initMind();
