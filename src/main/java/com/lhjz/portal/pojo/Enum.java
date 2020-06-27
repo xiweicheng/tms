@@ -96,7 +96,7 @@ public class Enum {
 	}
 
 	public static enum Editor {
-		Markdown, Html;
+		Markdown, Html, Mind, Excel;
 	}
 
 	public static enum LinkType {

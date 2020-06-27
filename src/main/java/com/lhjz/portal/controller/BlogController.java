@@ -620,7 +620,7 @@ public class BlogController extends BaseController {
 
 	@RequestMapping(value = "get", method = RequestMethod.GET)
 	@ResponseBody
-	public RespBody get(@RequestParam("id") Long id) {
+	public RespBody get(@RequestParam("id") Long id, @RequestParam(value = "inc", defaultValue = "true") Boolean inc) {
 
 		Blog blog = blogRepository.findOne(id);
 
@@ -632,16 +632,18 @@ public class BlogController extends BaseController {
 			return RespBody.failed("您没有权限查看该博文!");
 		}
 
-		Long readCnt = blog.getReadCnt();
-		if (readCnt == null) {
-			readCnt = 1L;
-		} else {
-			readCnt = readCnt + 1;
+		if (inc) {
+			Long readCnt = blog.getReadCnt();
+			if (readCnt == null) {
+				readCnt = 1L;
+			} else {
+				readCnt = readCnt + 1;
+			}
+
+			blogRepository.updateReadCnt(readCnt, id);
+
+			blog.setReadCnt(readCnt);
 		}
-
-		blogRepository.updateReadCnt(readCnt, id);
-
-		blog.setReadCnt(readCnt);
 
 		return RespBody.succeed(blog);
 	}
