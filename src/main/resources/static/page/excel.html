@@ -57,6 +57,7 @@
 
         .topbar {
             padding: 16px;
+            height: 38px;
         }
 
         .readonly .topbar {
@@ -113,12 +114,11 @@
             -moz-border-radius: 2px;
             -webkit-border-radius: 2px;
         }
-
     </style>
 </head>
 
 <body>
-    <div id="editor">
+    <div id="editor" class="readonly">
         <div class="topbar">
             <input id="title" type="text" placeholder="标题">
             <button class="button -blue btn" id="save">保存</button>
@@ -220,7 +220,7 @@
         $(function () {
 
             var readonly = typeof url('?readonly') !== 'undefined';
-            readonly && $('#editor').addClass('readonly');
+            !readonly && $('#editor').removeClass('readonly');
 
             var blog = null;
 
@@ -468,7 +468,6 @@
             });
 
         });
-
     </script>
 </body>
 
