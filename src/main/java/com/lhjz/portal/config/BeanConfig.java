@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.SysConf;
 
 @Configuration
 public class BeanConfig {
@@ -19,6 +20,12 @@ public class BeanConfig {
 	@ConfigurationProperties(prefix = "tms.super")
 	User superUser() {
 		return new User();
+	}
+	
+	@Bean
+	@ConfigurationProperties(prefix = "tms.sys.conf")
+	SysConf sysConfBean() {
+		return new SysConf();
 	}
 
 }
