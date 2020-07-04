@@ -392,6 +392,37 @@
                 }
             });
 
+
+            window.addEventListener && window.addEventListener('message', (evt) => {
+
+                if (evt.origin != window.location.origin) return;
+
+                if (evt.data.source != 'blogClose') return;
+
+                if (evt.data.action == 'isUpdated') {
+
+                    var updated = false;
+
+                    var title = $('#title').val();
+                    var content = $('#edit').froalaEditor('html.get', true);
+
+                    if (blog) {
+                        updated = (blog.title != $.trim(title)) || (blog.content != $.trim(content));
+                    } else {
+                        updated = !!$.trim(title) || !!$.trim(content);
+                    }
+
+                    (window.parent && window.parent.postMessage) && (window.parent
+                        .postMessage({
+                            action: 'isUpdated',
+                            source: 'blogCloseAck',
+                            item: evt.data.item,
+                            updated: updated
+                        }, window.location.origin));
+                }
+
+            }, false);
+
             $('#save').click(function (event) {
 
                 var title = $('#title').val();
