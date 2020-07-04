@@ -114,6 +114,7 @@
             -moz-border-radius: 2px;
             -webkit-border-radius: 2px;
         }
+
     </style>
 </head>
 
@@ -206,7 +207,7 @@
                     .loadData(data ? data : {}) // load data
                     .change(data => {
                         // save data to db
-                        console.log(JSON.stringify(data));
+                        // console.log(JSON.stringify(data));
                     });
 
                 // data validation
@@ -328,6 +329,38 @@
                     });
                 }
             });
+
+            window.addEventListener && window.addEventListener('message', (evt) => {
+
+                if (evt.origin != window.location.origin) return;
+
+                if (evt.data.source != 'blogClose') return;
+
+                if (evt.data.action == 'isUpdated') {
+
+                    var updated = false;
+
+                    var title = $('#title').val();
+                    var content = JSON.stringify(excel.getData());
+
+                    if (blog) {
+                        updated = (blog.title != $.trim(title)) || (blog.content != $.trim(content));
+                    } else {
+                        updated = !!$.trim(title) || (!!$.trim(content) && content !=
+                            `[{"name":"sheet2","freeze":"A1","styles":[],"merges":[],"rows":{"len":100},"cols":{"len":26},"validations":[],"autofilter":{}}]`
+                        );
+                    }
+
+                    (window.parent && window.parent.postMessage) && (window.parent
+                        .postMessage({
+                            action: 'isUpdated',
+                            source: 'blogCloseAck',
+                            item: evt.data.item,
+                            updated: updated
+                        }, window.location.origin));
+                }
+
+            }, false);
 
             $('#save').click(function (event) {
 
@@ -468,6 +501,7 @@
             });
 
         });
+
     </script>
 </body>
 

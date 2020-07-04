@@ -104,6 +104,7 @@
             -moz-border-radius: 2px;
             -webkit-border-radius: 2px;
         }
+
     </style>
 </head>
 
@@ -285,6 +286,38 @@
                 }
             });
 
+            window.addEventListener && window.addEventListener('message', (evt) => {
+
+                if (evt.origin != window.location.origin) return;
+
+                if (evt.data.source != 'blogClose') return;
+
+                if (evt.data.action == 'isUpdated') {
+
+                    var updated = false;
+
+                    var title = $('#title').val();
+                    var content = mind.getAllDataString();
+
+                    if (blog) {
+                        updated = (blog.title != $.trim(title)) || (blog.content != $.trim(content));
+                    } else {
+                        updated = !!$.trim(title) || (!!$.trim(content) && content !=
+                            `{"nodeData":{"id":"root","topic":"新主题","root":true,"children":[]},"linkData":{}}`
+                            );
+                    }
+
+                    (window.parent && window.parent.postMessage) && (window.parent
+                        .postMessage({
+                            action: 'isUpdated',
+                            source: 'blogCloseAck',
+                            item: evt.data.item,
+                            updated: updated
+                        }, window.location.origin));
+                }
+
+            }, false);
+
             $('#save').click(function (event) {
 
                 var title = $('#title').val();
@@ -424,6 +457,7 @@
             });
 
         });
+
     </script>
 </body>
 
