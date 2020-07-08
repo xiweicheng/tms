@@ -344,7 +344,7 @@
                     var content = JSON.stringify(excel.getData());
 
                     if (blog) {
-                        updated = (blog.title != $.trim(title)) || (blog.content != $.trim(content));
+                        updated = (blog.title != title) || (blog.content != content);
                     } else {
                         updated = !!$.trim(title) || (!!$.trim(content) && content !=
                             `[{"name":"sheet2","freeze":"A1","styles":[],"merges":[],"rows":{"len":100},"cols":{"len":26},"validations":[],"autofilter":{}}]`

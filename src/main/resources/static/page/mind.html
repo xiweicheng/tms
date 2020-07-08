@@ -300,7 +300,7 @@
                     var content = mind.getAllDataString();
 
                     if (blog) {
-                        updated = (blog.title != $.trim(title)) || (blog.content != $.trim(content));
+                        updated = (blog.title != title) || (blog.content != content);
                     } else {
                         updated = !!$.trim(title) || (!!$.trim(content) && content !=
                             `{"nodeData":{"id":"root","topic":"新主题","root":true,"children":[]},"linkData":{}}`
