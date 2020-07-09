@@ -51,5 +51,10 @@ public final class SysConstant {
 	public static final String USER_NAME_VISITOR = "游客";
 
 	public static final String ONLINE_USERS = "online_users";
+	
+	public static final String LOCK_BLOGS = "lock_blogs";
+	
+	public static final String LOCK_BLOG_ID = "lock-blog-id";
+	public static final String NATIVE_HEADERS = "nativeHeaders";
 
 }

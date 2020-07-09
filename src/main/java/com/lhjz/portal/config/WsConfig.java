@@ -1,9 +1,6 @@
 package com.lhjz.portal.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -12,7 +9,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
 import com.lhjz.portal.component.WsChannelInterceptor;
-import com.lhjz.portal.constant.SysConstant;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -31,7 +27,7 @@ public class WsConfig extends AbstractWebSocketMessageBrokerConfigurer {
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 
-		registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS();
+		registry.addEndpoint("/ws", "/ws-lock").setAllowedOrigins("*").withSockJS();
 
 	}
 
@@ -56,18 +52,13 @@ public class WsConfig extends AbstractWebSocketMessageBrokerConfigurer {
 		registration.interceptors(channelInterceptor);
 	}
 
-	/** 
-	 * 输出通道参数设置 
-	 */
-	@Override
-	public void configureClientOutboundChannel(ChannelRegistration registration) {
-		//		registration.taskExecutor().corePoolSize(4).maxPoolSize(8);
-		registration.interceptors(channelInterceptor);
-	}
-
-	@Bean
-	public CacheManager cacheManager() {
-		return new ConcurrentMapCacheManager(SysConstant.ONLINE_USERS);
-	}
+	//	/** 
+	//	 * 输出通道参数设置 
+	//	 */
+	//	@Override
+	//	public void configureClientOutboundChannel(ChannelRegistration registration) {
+	//		//		registration.taskExecutor().corePoolSize(4).maxPoolSize(8);
+	//		registration.interceptors(channelInterceptor);
+	//	}
 
 }

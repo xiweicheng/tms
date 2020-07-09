@@ -3,6 +3,7 @@ package com.lhjz.portal.component;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,20 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 	@Override
 	public void postSend(org.springframework.messaging.Message<?> message, MessageChannel channel, boolean sent) {
 
+		log.info("post send message: {} channel: {} sent: {}", message, channel, sent);
+
+		Map<?, ?> map = (Map<?, ?>) message.getHeaders().get(SysConstant.NATIVE_HEADERS);
+		List<?> list = (map != null && map.containsKey(SysConstant.LOCK_BLOG_ID))
+				? (List<?>) map.get(SysConstant.LOCK_BLOG_ID)
+				: null;
+
+		Long blogId = null;
+		if (list != null && list.size() > 0) { // 博文编辑锁拦截器自行处理
+			blogId = Long.valueOf(list.get(0).toString());
+		}
+
+		log.info("post send blogId: {}", blogId);
+
 		StompHeaderAccessor sha = StompHeaderAccessor.wrap(message);
 
 		Authentication auth = (Authentication) message.getHeaders().get("simpUser");
@@ -47,12 +62,16 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 		}
 
 		//判断客户端的连接状态  
-		log.debug("cmd: " + sha.getCommand().name() + " username: " + username);
-		sha.getSessionId();
+		log.info("post send cmd: {} username: {}", sha.getCommand().name(), username);
+
 		switch (sha.getCommand()) {
 		case CONNECT:
 			wsSend(Cmd.ON, username, sha.getSessionId());
 			cacheManager.getCache(SysConstant.ONLINE_USERS).put(username + "@" + sha.getSessionId(), new Date());
+			if (blogId != null) {
+				cacheManager.getCache(SysConstant.LOCK_BLOGS).put(username + "@" + blogId + "@" + sha.getSessionId(),
+						new Date());
+			}
 			break;
 		case CONNECTED:
 			break;
@@ -63,6 +82,10 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 				wsSend(Cmd.OFF, username, sha.getSessionId());
 			}
 			cacheManager.getCache(SysConstant.ONLINE_USERS).evict(username + "@" + sha.getSessionId());
+
+			if (blogId != null) {
+				cacheManager.getCache(SysConstant.LOCK_BLOGS).evict(username + "@" + blogId + "@" + sha.getSessionId());
+			}
 			break;
 		default:
 			break;
