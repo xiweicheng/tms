@@ -10,6 +10,8 @@ public class WsLockPayload {
 	private Cmd cmd;
 
 	private String locker;
+	
+	private String name;
 
 	private Long blogId;
 

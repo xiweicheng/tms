@@ -20,6 +20,7 @@ import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.model.OnlinePayload;
 import com.lhjz.portal.model.OnlinePayload.Cmd;
 import com.lhjz.portal.model.WsLockPayload;
+import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.BlogLockService;
 import com.lhjz.portal.util.StringUtil;
 
@@ -37,6 +38,9 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 
 	@Autowired
 	BlogLockService blogLockService;
+
+	@Autowired
+	UserRepository userRepository;
 
 	@Override
 	public void postSend(org.springframework.messaging.Message<?> message, MessageChannel channel, boolean sent) {
@@ -79,7 +83,8 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 				log.info("ws lockBy: {}", lockBy);
 
 				wsLockSend(WsLockPayload.builder().cmd(com.lhjz.portal.model.WsLockPayload.Cmd.LOCK).locker(username)
-						.blogId(Long.valueOf(blogId)).sessionId(sha.getSessionId()).build());
+						.blogId(Long.valueOf(blogId)).sessionId(sha.getSessionId())
+						.name(userRepository.findOne(username).getName()).build());
 			} else {
 				wsSend(Cmd.ON, username, sha.getSessionId());
 				cacheManager.getCache(SysConstant.ONLINE_USERS).put(username + "@" + sha.getSessionId(), new Date());
