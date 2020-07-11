@@ -171,6 +171,8 @@
     <script type="text/javascript" src="cdn/lodash.core.min.js"></script>
     <!-- <script type="text/javascript" src="cdn/diff.min.js"></script> -->
     <script type="text/javascript" src="cdn/dropzone.min.js"></script>
+    <script type="text/javascript" src="cdn/sockjs.min.js"></script>
+    <script type="text/javascript" src="cdn/stomp.min.js"></script>
     <!-- Include Editor JS files. -->
     <script type="text/javascript" src="cdn/froala_editor.pkgd.min.js"></script>
     <script>
@@ -341,6 +343,14 @@
                         if (typeof url('?copy') === 'undefined') { // edit
                             blog = data.data;
                             $('#title').val(data.data.title);
+
+                            window.stompClient = Stomp.over(new SockJS('/ws-lock?blogId=' + blog.id));
+                            window.stompClient.debug = function () {};
+                            // this.stompClient.debug = function (msg) { console.log(msg) };
+                            window.stompClient.connect({}, function (frame) {}, function (err) {
+                                console.error(err);
+                            });
+
                         } else {
                             $('#title').val(data.data.title + ' (副本)');
                         }

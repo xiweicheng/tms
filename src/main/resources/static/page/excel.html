@@ -158,6 +158,8 @@
     <script type="text/javascript" src="cdn/lodash.core.min.js"></script>
     <script type="text/javascript" src="cdn/xspreadsheet.js"></script>
     <script type="text/javascript" src="cdn/xspreadsheet_zh-cn.js"></script>
+    <script type="text/javascript" src="cdn/sockjs.min.js"></script>
+    <script type="text/javascript" src="cdn/stomp.min.js"></script>
     <script>
         x_spreadsheet.locale('zh-cn');
 
@@ -240,6 +242,17 @@
                             if (typeof url('?copy') === 'undefined') { // edit
                                 blog = data.data;
                                 $('#title').val(data.data.title);
+
+                                if (!readonly) {
+                                    window.stompClient = Stomp.over(new SockJS('/ws-lock?blogId=' + blog
+                                        .id));
+                                    window.stompClient.debug = function () {};
+                                    // this.stompClient.debug = function (msg) { console.log(msg) };
+                                    window.stompClient.connect({}, function (frame) {}, function (err) {
+                                        console.error(err);
+                                    });
+                                }
+
                             } else {
                                 $('#title').val(data.data.title + ' (副本)');
                             }
