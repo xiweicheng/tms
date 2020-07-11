@@ -3,6 +3,7 @@
  */
 package com.lhjz.portal.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -36,13 +37,14 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 
 	List<Blog> findByStatusNot(Status status, Sort sort);
 
-	Page<Blog> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String searchT, String searchC, Pageable pageable);
+	Page<Blog> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String searchT, String searchC,
+			Pageable pageable);
 
-	List<Blog> findByStatusNotAndTitleContainingIgnoreCaseOrStatusNotAndContentContainingIgnoreCase(Status status, String searchT,
-			Status status2, String searchC, Sort sort);
+	List<Blog> findByStatusNotAndTitleContainingIgnoreCaseOrStatusNotAndContentContainingIgnoreCase(Status status,
+			String searchT, Status status2, String searchC, Sort sort);
 
-	List<Blog> findByCreatorAndStatusNotAndTitleContainingIgnoreCaseOrCreatorAndStatusNotAndContentContainingIgnoreCase(User creator,
-			Status status, String searchT, User creator2, Status status2, String searchC, Sort sort);
+	List<Blog> findByCreatorAndStatusNotAndTitleContainingIgnoreCaseOrCreatorAndStatusNotAndContentContainingIgnoreCase(
+			User creator, Status status, String searchT, User creator2, Status status2, String searchC, Sort sort);
 
 	List<Blog> findByCreatorAndStatusNot(User creator, Status status, Sort sort);
 
@@ -74,8 +76,8 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	Page<Blog> findByStatusNotAndCreatorOrStatusNotAndPrivatedFalse(Status status, User creator, Status status2,
 			Pageable pageable);
 
-	Page<Blog> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndStatusNotAndCreatorOrStatusNotAndPrivatedFalse(String searchT,
-			String searchC, Status status, User creator, Status status2, Pageable pageable);
+	Page<Blog> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndStatusNotAndCreatorOrStatusNotAndPrivatedFalse(
+			String searchT, String searchC, Status status, User creator, Status status2, Pageable pageable);
 
 	@Query(value = "SELECT * FROM `blog` WHERE blog.`status` <> 'Deleted' AND (privated = 0 OR creator = :username) AND (upper(title) LIKE upper(:search) OR upper(content) LIKE upper(:search)) ORDER BY id DESC LIMIT :start,:size", nativeQuery = true)
 	List<Blog> search(@Param("username") String username, @Param("search") String search, @Param("start") Integer start,
@@ -134,6 +136,11 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	@Modifying
 	@Query("update Blog b set b.voteZan = ?1, b.voteZanCnt = ?2 where b.id = ?3")
 	int updateVoteZan(String voteZan, Integer voteZanCnt, Long id);
+
+	@Transactional
+	@Modifying
+	@Query("update Blog b set b.locker = ?1, b.lockDate = ?2 where b.id = ?3")
+	int updateLock(User locker, Date lockDate, Long id);
 
 	Page<Blog> findByStatusNotAndOpenedTrue(Status status, Pageable pageable);
 

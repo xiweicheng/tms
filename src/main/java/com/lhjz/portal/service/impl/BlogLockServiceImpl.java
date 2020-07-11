@@ -51,7 +51,7 @@ public class BlogLockServiceImpl implements BlogLockService {
 			blog.setLockDate(new Date());
 		}
 
-		blogRepository.saveAndFlush(blog);
+		blogRepository.updateLock(blog.getLocker(), blog.getLockDate(), blogId);
 
 		return true;
 	}
@@ -75,7 +75,7 @@ public class BlogLockServiceImpl implements BlogLockService {
 			blog.setLocker(null);
 			blog.setLockDate(null);
 
-			blogRepository.saveAndFlush(blog);
+			blogRepository.updateLock(blog.getLocker(), blog.getLockDate(), blogId);
 
 			return true;
 		} else {
@@ -110,7 +110,7 @@ public class BlogLockServiceImpl implements BlogLockService {
 		blog.setLocker(userRepository.findOne(username));
 		blog.setLockDate(new Date());
 
-		blogRepository.saveAndFlush(blog);
+		blogRepository.updateLock(blog.getLocker(), blog.getLockDate(), blogId);
 
 		return true;
 	}
@@ -130,7 +130,7 @@ public class BlogLockServiceImpl implements BlogLockService {
 		blog.setLocker(null);
 		blog.setLockDate(null);
 
-		blogRepository.saveAndFlush(blog);
+		blogRepository.updateLock(blog.getLocker(), blog.getLockDate(), blogId);
 
 		return true;
 	}
