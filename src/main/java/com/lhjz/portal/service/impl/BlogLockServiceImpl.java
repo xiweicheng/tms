@@ -3,11 +3,16 @@
  */
 package com.lhjz.portal.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.UserRepository;
@@ -29,6 +34,9 @@ public class BlogLockServiceImpl implements BlogLockService {
 
 	@Autowired
 	BlogRepository blogRepository;
+
+	@Autowired
+	CacheManager cacheManager;
 
 	@Override
 	public Boolean lockBy(String username, Long blogId) {
@@ -133,6 +141,54 @@ public class BlogLockServiceImpl implements BlogLockService {
 		blogRepository.updateLock(blog.getLocker(), blog.getLockDate(), blogId);
 
 		return true;
+	}
+
+	@Override
+	public Boolean isRealLock(Long blogId) {
+
+		Blog blog = blogRepository.findOne(blogId);
+
+		if (blog == null) {
+			return false;
+		}
+
+		if (blog.getLocker() == null) {
+			return false;
+		}
+
+		// 记录的编辑锁定者没有真的实时在线，自动释放锁
+		if (!wsLockOnline(blog.getLocker().getUsername(), String.valueOf(blogId))) {
+
+			blogRepository.updateLock(null, null, blogId);
+
+			return false;
+		} else {
+			return true;
+		}
+
+	}
+
+	private boolean wsLockOnline(String username, String blogId) {
+
+		final List<Object> res = new ArrayList<>();
+
+		try {
+			@SuppressWarnings("unchecked")
+			ConcurrentHashMap<Object, Object> cache = (ConcurrentHashMap<Object, Object>) cacheManager
+					.getCache(SysConstant.LOCK_BLOGS).getNativeCache();
+
+			cache.forEachKey(1, key -> {
+				String un = String.valueOf(key).split("@")[0];
+				String bid = String.valueOf(key).split("@")[1];
+				if (un.equals(username) && bid.equals(blogId)) {
+					res.add(cache.get(key));
+				}
+			});
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+
+		return res.size() > 0;
 	}
 
 }

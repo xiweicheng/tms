@@ -103,6 +103,7 @@ import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.SpaceRepository;
 import com.lhjz.portal.repository.TagRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.service.BlogLockService;
 import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.DateUtil;
@@ -186,6 +187,9 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	ChatChannelService chatChannelService;
+	
+	@Autowired
+	BlogLockService blogLockService;
 
 	@Autowired
 	SimpMessagingTemplate messagingTemplate;
@@ -2573,5 +2577,12 @@ public class BlogController extends BaseController {
 		});
 
 		return RespBody.succeed();
+	}
+	
+	@GetMapping("check/lock")
+	@ResponseBody
+	public RespBody checkLock(@RequestParam("id") Long id) {
+
+		return RespBody.succeed(blogLockService.isRealLock(id));
 	}
 }

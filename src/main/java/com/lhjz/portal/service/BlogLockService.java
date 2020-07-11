@@ -9,6 +9,8 @@ package com.lhjz.portal.service;
  */
 public interface BlogLockService {
 	
+	Boolean isRealLock(Long blogId);
+	
 	Boolean isLock(Long blogId);
 	
 	Boolean isLockBy(String username, Long blogId);
