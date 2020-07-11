@@ -9,6 +9,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
 import com.lhjz.portal.component.WsChannelInterceptor;
+import com.lhjz.portal.component.WsHandshakeInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -16,6 +17,9 @@ public class WsConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
 	@Autowired
 	WsChannelInterceptor channelInterceptor;
+
+	@Autowired
+	WsHandshakeInterceptor wsHandshakeInterceptor;
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -27,7 +31,8 @@ public class WsConfig extends AbstractWebSocketMessageBrokerConfigurer {
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 
-		registry.addEndpoint("/ws", "/ws-lock").setAllowedOrigins("*").withSockJS();
+		registry.addEndpoint("/ws", "/ws-lock").setAllowedOrigins("*").addInterceptors(wsHandshakeInterceptor)
+				.withSockJS();
 
 	}
 

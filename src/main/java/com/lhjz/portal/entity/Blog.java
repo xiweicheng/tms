@@ -78,10 +78,10 @@ public class Blog implements Serializable {
 
 	@Column
 	private Boolean opened = Boolean.FALSE;
-	
+
 	@Column
 	private Integer tpl; // 模板：1：privated 2：opened 其他：非模板
-	
+
 	@Column(length = 2000)
 	private String tplDesc;
 
@@ -126,12 +126,19 @@ public class Blog implements Serializable {
 	private Integer voteCaiCnt;
 
 	private Long readCnt;
-	
+
 	private Long tplHotCnt; // 模板热度统计
-	
+
 	private String shareId;
-	
+
 	private Long sort; // 排序位置
+
+	@ManyToOne
+	@JoinColumn(name = "locker")
+	private User locker; // 编辑中的加锁用户
+
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date lockDate; // 编辑中的加锁时间
 
 	@ManyToOne
 	@JoinColumn(name = "space")
