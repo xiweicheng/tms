@@ -176,6 +176,9 @@
     <!-- Include Editor JS files. -->
     <script type="text/javascript" src="cdn/froala_editor.pkgd.min.js"></script>
     <script>
+        var taskItemHtml =
+            '<input class="tms-task-item" style="margin:0; min-width:21px;" type="checkbox" />';
+
         $(function () {
 
             var blog = null;
@@ -188,7 +191,7 @@
                 NAME: 'save'
             });
             $.FroalaEditor.RegisterCommand('save', {
-                title: '保存博文 (Ctrl+Shift+S)',
+                title: '保存博文 (ctrl+shift+s)',
                 focus: false,
                 undo: false,
                 refreshAfterCallback: false,
@@ -207,6 +210,21 @@
                 callback: function () {
                     $('#word2html-dropzone').click();
                 }
+            });
+            $.FroalaEditor.DefineIcon('task', {
+                NAME: 'check-square-o'
+            });
+            $.FroalaEditor.RegisterCommand('task', {
+                title: '任务列表 (ctrl+alt+t)',
+                focus: false,
+                undo: true,
+                refreshAfterCallback: false,
+                callback: taskHandler
+            });
+
+            $('#edit').on('click', 'input.tms-task-item', function (evt) {
+                // console.log(evt);
+                $(evt.currentTarget).attr("checked", $(evt.currentTarget).is(':checked'));
             });
 
             $('#word2html-dropzone').dropzone({
@@ -248,7 +266,8 @@
                     toolbarButtons: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough',
                         'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color',
                         'inlineStyle', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL',
-                        'formatUL', 'outdent', 'indent', '-', 'save', '|', 'word2html', 'insertLink',
+                        'formatUL', 'outdent', 'indent', '-', 'save', '|', 'word2html', 'task',
+                        'insertLink',
                         'insertImage', 'insertVideo', 'insertFile', 'insertTable', 'emoticons',
                         'specialCharacters', '|', 'quote', 'insertHR', 'undo', 'redo',
                         'clearFormatting', 'selectAll', 'print', 'help', 'html'
@@ -273,6 +292,7 @@
                     fontSizeSelection: true,
                     paragraphFormatSelection: true,
                     wordPasteModal: true,
+                    formEditButtons: [], // 禁用表单编辑插件
                     // enter: $.FroalaEditor.ENTER_BR,
                     enter: $.FroalaEditor.ENTER_DIV,
                     language: 'zh_cn',
@@ -326,10 +346,36 @@
                             toastr && toastr.error(JSON.stringify(err), '文件删除失败！');
                         });
                 }).on('froalaEditor.keydown', function (e, editor, keydownEvent) {
-                    // console.log(keydownEvent);
-                    if (keydownEvent.ctrlKey && keydownEvent.shiftKey && keydownEvent.keyCode ===
-                        83) { // ctrl+shift+s
+                    console.log(keydownEvent);
+                    if ((keydownEvent.ctrlKey || keydownEvent.metaKey) && keydownEvent.shiftKey &&
+                        keydownEvent.keyCode === 83) { // ctrl+shift+s
                         $('#save').click();
+                    } else if ((keydownEvent.ctrlKey || keydownEvent.metaKey) && keydownEvent.altKey &&
+                        keydownEvent.keyCode === 84) { // ctrl+alt+t
+                        taskHandler();
+                    } else if (keydownEvent.keyCode === 13) {
+
+                        var sbs = $('#edit').froalaEditor('selection.blocks');
+                        if (sbs && sbs.length > 0) {
+                            var $pre = $(sbs[0]).prev();
+                            var $item = $pre.children('input.tms-task-item');
+
+                            if ($item.size() === 1) {
+                                if ($.trim($pre.text())) {
+                                    $('#edit').froalaEditor('html.insert', taskItemHtml);
+                                } else {
+                                    $('#edit').froalaEditor('cursor.backspace');
+                                    $('#edit').froalaEditor('cursor.backspace');
+                                    // $('#edit').froalaEditor('cursor.backspace');
+                                    // $('#edit').froalaEditor('cursor.backspace');
+                                }
+                            }
+                        }
+
+                        // console.log($('#edit').froalaEditor('selection.blocks'));
+                        // console.log($('#edit').froalaEditor('selection.element'));
+                        // console.log($('#edit').froalaEditor('selection.endElement'));
+                        // console.log($('#edit').froalaEditor('selection.get'));
                     }
                 });
 
@@ -580,6 +626,29 @@
                 }
             });
         });
+
+        function taskHandler() {
+
+            var sbs = $('#edit').froalaEditor('selection.blocks');
+
+            _.each(sbs, function (e, i) {
+                $item = $(e).children('.tms-task-item');
+                if ($item.size() === 1) {
+                    $item.remove();
+                } else {
+                    if ($(e).text() || sbs.length > 1) {
+                        $(e).prepend(taskItemHtml);
+                    } else {
+                        $('#edit').froalaEditor('html.insert', taskItemHtml);
+                    }
+                }
+            });
+
+            // console.log($('#edit').froalaEditor('selection.blocks'));
+            // console.log($('#edit').froalaEditor('selection.element'));
+            // console.log($('#edit').froalaEditor('selection.endElement'));
+            // console.log($('#edit').froalaEditor('selection.get'));
+        }
 
         function openNewWin(url) {
 
