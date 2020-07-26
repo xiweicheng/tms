@@ -177,7 +177,7 @@
     <script type="text/javascript" src="cdn/froala_editor.pkgd.min.js"></script>
     <script>
         var taskItemHtml =
-            '<input class="tms-task-item" style="margin:0; min-width:21px;" type="checkbox" />';
+            '<input data-id="$id" class="tms-task-item" style="margin:0; width:21px;" type="checkbox" />';
 
         $(function () {
 
@@ -362,7 +362,7 @@
 
                             if ($item.size() === 1) {
                                 if ($.trim($pre.text())) {
-                                    $('#edit').froalaEditor('html.insert', taskItemHtml);
+                                    $('#edit').froalaEditor('html.insert', taskId());
                                 } else {
                                     $('#edit').froalaEditor('cursor.backspace');
                                     $('#edit').froalaEditor('cursor.backspace');
@@ -637,9 +637,9 @@
                     $item.remove();
                 } else {
                     if ($(e).text() || sbs.length > 1) {
-                        $(e).prepend(taskItemHtml);
+                        $(e).prepend(taskId());
                     } else {
-                        $('#edit').froalaEditor('html.insert', taskItemHtml);
+                        $('#edit').froalaEditor('html.insert', taskId());
                     }
                 }
             });
@@ -648,6 +648,12 @@
             // console.log($('#edit').froalaEditor('selection.element'));
             // console.log($('#edit').froalaEditor('selection.endElement'));
             // console.log($('#edit').froalaEditor('selection.get'));
+        }
+
+        var _index = 0;
+
+        function taskId() {
+            return taskItemHtml.replace('$id', new Date().getTime() + '-' + (_index++));
         }
 
         function openNewWin(url) {
