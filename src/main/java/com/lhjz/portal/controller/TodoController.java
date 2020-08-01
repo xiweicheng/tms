@@ -4,6 +4,7 @@
 package com.lhjz.portal.controller;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,9 +28,12 @@ import com.lhjz.portal.entity.Todo;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.TodoPriority;
+import com.lhjz.portal.pojo.TodoSortForm;
+import com.lhjz.portal.pojo.TodoSortItem;
 import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.TodoRepository;
 import com.lhjz.portal.repository.UserRepository;
+import com.lhjz.portal.util.JsonUtil;
 import com.lhjz.portal.util.StringUtil;
 
 /**
@@ -57,13 +62,14 @@ public class TodoController extends BaseController {
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody create(@RequestParam("title") String title,
+			@RequestParam(value = "sortIndex", required = false) Long sortIndex,
 			@RequestParam(value = "content", required = false) String content) {
 
 		if (StringUtil.isEmpty(title)) {
 			return RespBody.failed("标题不能为空!");
 		}
 
-		Todo todo = Todo.builder().title(title).content(content).build();
+		Todo todo = Todo.builder().title(title).content(content).sortIndex(sortIndex).build();
 
 		Todo todo2 = todoRepository.saveAndFlush(todo);
 
@@ -177,6 +183,27 @@ public class TodoController extends BaseController {
 		}
 
 		return RespBody.succeed(todo);
+	}
+	
+	@PostMapping("sort")
+	@ResponseBody
+	public RespBody sort(TodoSortForm todoSortForm) {
+
+		if (todoSortForm == null || StringUtil.isEmpty(todoSortForm.getItems())) {
+			return RespBody.failed("参数错误！");
+		}
+
+		TodoSortItem[] sortItems = JsonUtil.json2Object(todoSortForm.getItems(), TodoSortItem[].class);
+
+		Stream.of(sortItems).forEach(item -> {
+			Todo todo = todoRepository.findOne(item.getId());
+			if (item.getSort() != null & !item.getSort().equals(todo.getSortIndex())) {
+				todo.setSortIndex(item.getSort());
+				todoRepository.saveAndFlush(todo);
+			}
+		});
+
+		return RespBody.succeed();
 	}
 
 }
