@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tms-deploy
+  namespace: default
+  labels:
+    app: tms
+spec:
+  selector:
+    matchLabels:
+      app: tms
+      release: v1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tms
+        release: v1
+    spec:
+      containers:
+        - name: tms-mysql
+          image: registry.cn-hangzhou.aliyuncs.com/xiweicheng/tms-mysql:v1
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "pingan"
+        - name: tms-tomcat
+          image: registry.cn-hangzhou.aliyuncs.com/xiweicheng/tms-tomcat:v1
+          ports:
+            - containerPort: 8080
