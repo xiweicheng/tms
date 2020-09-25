@@ -54,7 +54,7 @@
 - 团队博文(wiki) 类似 [精简版confluence](http://baike.baidu.com/link?url=0TtAZuIP9nh31TCEQVSjtgS6-oUt9_M2mgdHu3XBSgF8DZR7u_Yv-XmUK3Yz133kx_2AhlFufEJhHJOgshXJJYst78ahDRto5NsSwWqdMBy) [蚂蚁笔记](https://leanote.com/)
 - 国际化翻译管理.
 
-### 沟通功能（基于websocket实时通讯）
+#### 沟通功能（基于websocket实时通讯）
 - 频道(组团沟通)（二级话题消息沟通）
 - 私聊(一对一)
 - markdown语法支持(内容排版不再单调)
@@ -74,7 +74,7 @@
 - 自定义频道组（方便批量一次性@一类多个人）
 - 更多贴心便捷操作等你发现
 
-### 团队博文(wiki)
+#### 团队博文(wiki)
 - 博文空间(便于博文组织,权限隔离)
 - Markdown、Html富文本、电子表格、思维导图、图表工具多种类型博文创作方式
 - 基于博文模板创建（可自由发布私有、公开的模板）
