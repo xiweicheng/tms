@@ -31,6 +31,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.CommentType;
+import com.lhjz.portal.pojo.Enum.Editor;
 import com.lhjz.portal.pojo.Enum.Status;
 
 import lombok.Data;
@@ -83,6 +84,10 @@ public class Comment implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Status status = Status.New;
+	
+	@Enumerated(EnumType.STRING)
+	@Column
+	private Editor editor;
 
 	@Enumerated(EnumType.STRING)
 	@Column

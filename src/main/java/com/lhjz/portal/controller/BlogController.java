@@ -187,7 +187,7 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	ChatChannelService chatChannelService;
-	
+
 	@Autowired
 	BlogLockService blogLockService;
 
@@ -1110,7 +1110,9 @@ public class BlogController extends BaseController {
 	@RequestMapping(value = "comment/create", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody createComment(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
-			@RequestParam("content") String content, @RequestParam("contentHtml") final String contentHtml,
+			@RequestParam("content") String content,
+			@RequestParam(value = "contentHtml", required = false) String contentHtml,
+			@RequestParam(value = "editor", required = false) String editor,
 			@RequestParam(value = "users", required = false) String users) {
 
 		if (!hasAuth(id)) {
@@ -1121,6 +1123,12 @@ public class BlogController extends BaseController {
 		comment.setContent(content);
 		comment.setTargetId(String.valueOf(id));
 		comment.setType(CommentType.Blog);
+
+		if (StringUtils.isNotBlank(editor)) {
+			comment.setEditor(Editor.valueOf(editor));
+		} else {
+			comment.setEditor(Editor.Markdown);
+		}
 
 		Comment comment2 = commentRepository.saveAndFlush(comment);
 
@@ -1178,6 +1186,14 @@ public class BlogController extends BaseController {
 			}
 		}
 
+		if (StringUtil.isEmpty(contentHtml)) {
+			if (Editor.Html.equals(comment2.getEditor())) {
+				contentHtml = comment.getContent();
+			} else {
+				contentHtml = "内容暂不支持查看，请点击链接查看！";
+			}
+		}
+
 		final String html = StringUtil.replace(
 				"<h1 style=\"color: blue;\">评论博文: <a target=\"_blank\" href=\"{?1}\">{?2}</a></h1><hr/>{?3}", href,
 				blog.getTitle(), contentHtml);
@@ -1198,8 +1214,10 @@ public class BlogController extends BaseController {
 	@ResponseBody
 	public RespBody updateComment(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
 			@RequestParam("cid") Long cid, @RequestParam("version") Long version,
-			@RequestParam("content") String content, @RequestParam("contentHtml") final String contentHtml,
-			@RequestParam("diff") final String diff, @RequestParam(value = "users", required = false) String users) {
+			@RequestParam("content") String content,
+			@RequestParam(value = "contentHtml", required = false) String contentHtml,
+			@RequestParam(value = "diff", required = false) String diff,
+			@RequestParam(value = "users", required = false) String users) {
 
 		Comment comment = commentRepository.findOne(cid);
 
@@ -1221,7 +1239,8 @@ public class BlogController extends BaseController {
 
 		comment.setContent(content);
 
-		logWithProperties(Action.Update, Target.Comment, cid, "content", diff, id);
+		logWithProperties(Action.Update, Target.Comment, cid, "content",
+				StringUtil.isEmpty(diff) ? StringUtil.EMPTY : diff, id);
 
 		Comment comment2 = commentRepository.saveAndFlush(comment);
 
@@ -1256,6 +1275,14 @@ public class BlogController extends BaseController {
 		String bCreator = blog.getCreator().getUsername();
 		if (!blog.getCreator().equals(loginUser) && !atUsers.contains(bCreator) && !fs.contains(bCreator)) {
 			wsSendToUsers(blog, comment2, Cmd.CU, WebUtil.getUsername(), bCreator);
+		}
+
+		if (StringUtil.isEmpty(contentHtml)) {
+			if (Editor.Html.equals(comment2.getEditor())) {
+				contentHtml = comment.getContent();
+			} else {
+				contentHtml = "内容暂不支持查看，请点击链接查看！";
+			}
 		}
 
 		final String html = StringUtil.replace(
@@ -2294,7 +2321,7 @@ public class BlogController extends BaseController {
 			dir = dirRepository.findOne(did);
 
 			if (dir == null) {
-				return RespBody.failed("对应分类不存在！"); 
+				return RespBody.failed("对应分类不存在！");
 			}
 		}
 
@@ -2578,7 +2605,7 @@ public class BlogController extends BaseController {
 
 		return RespBody.succeed();
 	}
-	
+
 	@GetMapping("check/lock")
 	@ResponseBody
 	public RespBody checkLock(@RequestParam("id") Long id) {
