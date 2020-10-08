@@ -112,10 +112,10 @@ public class FreeController extends BaseController {
 
 	@Autowired
 	ChatChannelService chatChannelService;
-	
+
 	@Autowired
 	BlogRepository blogRepository;
-	
+
 	@Autowired
 	CommentRepository commentRepository;
 
@@ -145,7 +145,7 @@ public class FreeController extends BaseController {
 
 	@RequestMapping(value = "user/pwd/reset", method = { RequestMethod.POST })
 	public RespBody resetUserPwd(@RequestBody Map<String, Object> params) {
-		
+
 		if (env.getProperty("tms.mail.switch.off", Boolean.class)) {
 			return RespBody.failed("系统暂未开启自助重置功能，请联系系统管理员重置！");
 		}
@@ -215,7 +215,7 @@ public class FreeController extends BaseController {
 
 	@RequestMapping(value = "user/register", method = { RequestMethod.POST })
 	public RespBody registerUser(@RequestBody Map<String, Object> params) {
-		
+
 		if (env.getProperty("tms.user.register.off", Boolean.class)) {
 			return RespBody.failed("系统注册功能暂未开放，请联系系统管理员！");
 		}
@@ -688,7 +688,7 @@ public class FreeController extends BaseController {
 			sb.append("> ").append(SysConstant.NEW_LINE);
 			sb.append(StringUtil.replace("> **审核：** **{?1}**  ", assignee)).append(SysConstant.NEW_LINE);
 		}
-		
+
 		if (StringUtil.isNotEmpty(name)) {
 			sb.append("> ").append(SysConstant.NEW_LINE);
 			sb.append(StringUtil.replace("> **标题：** {?1}  ", name)).append(SysConstant.NEW_LINE);
@@ -930,7 +930,7 @@ public class FreeController extends BaseController {
 
 		return sb;
 	}
-	
+
 	private int lenVal(String val) {
 
 		if (StringUtil.isEmpty(val)) {
@@ -939,7 +939,7 @@ public class FreeController extends BaseController {
 
 		return val.length();
 	}
-	
+
 	@GetMapping("blog/share/{id}")
 	@ResponseBody
 	public RespBody getShareBlog(@PathVariable("id") String shareId) {
@@ -955,13 +955,13 @@ public class FreeController extends BaseController {
 		readCnt = readCnt == null ? 1L : (readCnt + 1);
 
 		blogRepository.updateReadCnt(readCnt, blog.getId());
-		
+
 		blog.setReadCnt(readCnt);
 
 		return RespBody.succeed(blog);
 
 	}
-	
+
 	@GetMapping("blog/share/{id}/comments")
 	@ResponseBody
 	public RespBody getShareBlogComments(@PathVariable("id") String shareId,
@@ -976,11 +976,34 @@ public class FreeController extends BaseController {
 
 			return RespBody.succeed(page);
 		}
-		
+
 		return RespBody.failed("博文不存在！");
 
 	}
-	
+
+	@GetMapping("blog/comment/{id}")
+	@ResponseBody
+	public RespBody getComment(@PathVariable("id") Long id) {
+
+		Comment comment = commentRepository.findOne(id);
+
+		if (comment == null) {
+			return RespBody.failed("评论不存在！");
+		}
+
+		Blog blog = blogRepository.findOne(Long.valueOf(comment.getTargetId()));
+
+		if (blog != null) {
+
+			if (blog.getOpened() || StringUtil.isNotEmpty(blog.getShareId())) {
+				return RespBody.succeed(comment);
+			}
+		}
+
+		return RespBody.failed("权限不足！");
+
+	}
+
 	@GetMapping("config/sys")
 	@ResponseBody
 	public RespBody SysConfig() {
@@ -990,5 +1013,5 @@ public class FreeController extends BaseController {
 
 		return RespBody.succeed(sysConfigInfo);
 	}
-	
+
 }
