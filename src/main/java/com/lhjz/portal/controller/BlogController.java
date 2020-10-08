@@ -1132,7 +1132,8 @@ public class BlogController extends BaseController {
 
 		Comment comment2 = commentRepository.saveAndFlush(comment);
 
-		log(Action.Create, Target.Comment, comment2.getId(), content, id);
+		//		log(Action.Create, Target.Comment, comment2.getId(), content, id);
+		logWithProperties(Action.Create, Target.Comment, comment2.getId(), editor, content, id);
 
 		final User loginUser = getLoginUser();
 
