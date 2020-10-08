@@ -222,59 +222,171 @@
 
         $(function () {
 
+            var isComment = typeof url('?comment') !== 'undefined';
+            var id = url('?id');
+            var cid = url('?cid');
+
             var readonly = typeof url('?readonly') !== 'undefined';
             !readonly && $('#editor').removeClass('readonly');
 
             var blog = null;
+            var comment = null;
 
             // toastr弹出消息提示插件全局配置设置
             toastr.options.positionClass = 'toast-bottom-center';
             toastr.options.preventDuplicates = true;
 
-            var id = url('?id');
-            if (id) {
-                if (typeof url('?free') === 'undefined') {
-                    $.get('/admin/blog/get', {
-                        id: id,
-                        inc: false
-                    }, function (data) {
-                        if (data.success) {
-                            if (typeof url('?copy') === 'undefined') { // edit
-                                blog = data.data;
-                                $('#title').val(data.data.title);
+            if (isComment) { // comment
 
-                                if (!readonly) {
-                                    window.stompClient = Stomp.over(new SockJS('/ws-lock?blogId=' + blog
-                                        .id));
-                                    window.stompClient.debug = function () {};
-                                    // this.stompClient.debug = function (msg) { console.log(msg) };
-                                    window.stompClient.connect({}, function (frame) {}, function (err) {
-                                        console.error(err);
-                                    });
-                                }
+                $('#title').hide();
 
+                if (cid) {
+
+                    var isFree = typeof url('?free') !== 'undefined';
+
+                    if (isFree) {
+                        $.get('/free/blog/comment/' + cid, {}, function (data) {
+                            if (data.success) {
+                                comment = data.data;
+                                initExcel(JSON.parse(data.data.content));
                             } else {
-                                $('#title').val(data.data.title + ' (副本)');
+                                toastr.error(data.data);
                             }
-
-                            initExcel(JSON.parse(data.data.content))
-
-                        } else {
-                            toastr.error(data.data);
-                        }
-                    });
+                        });
+                    } else {
+                        $.get('/admin/blog/comment/get', {
+                            cid: cid
+                        }, function (data) {
+                            if (data.success) {
+                                comment = data.data;
+                                initExcel(JSON.parse(data.data.content))
+                            } else {
+                                toastr.error(data.data);
+                            }
+                        });
+                    }
                 } else {
-                    var shareId = url('?shareId');
-                    // console.log('shareId: ' + shareId);
-                    if (shareId && shareId != '') {
-                        $.get('/free/blog/share/' + shareId, {
-                            _: new Date().getTime(),
+                    initExcel();
+                }
+
+                $('#save').click(function (event) {
+
+                    var content = JSON.stringify(excel.getData());
+
+                    if (!content || !$.trim(content)) {
+                        toastr && toastr.error('博文评论内容不能为空！');
+                        return;
+                    }
+
+                    if (comment == null) {
+                        $.post('/admin/blog/comment/create', {
+                            basePath: window.location.protocol + '//' + window.location.host +
+                                '/page/index.html',
+                            id: id,
+                            editor: 'Excel',
+                            content: content
+                        }, function (data, textStatus, xhr) {
+                            if (data.success) {
+                                comment = data.data;
+                                toastr && toastr.success('博文评论保存成功！');
+                                (window.parent && window.parent.postMessage) && (window.parent
+                                    .postMessage({
+                                        action: 'created',
+                                        source: 'comment',
+                                        comment: data.data,
+                                        editor: 'excel'
+                                    }, window.location.origin));
+                            } else {
+                                toastr && toastr.error(data.data);
+                            }
+                        }).fail(function () {
+                            toastr && toastr.error('网络传输错误！');
+                        });
+                    } else {
+                        $.post('/admin/blog/comment/update', {
+                            basePath: window.location.protocol + '//' + window.location.host +
+                                '/page/index.html',
+                            id: id,
+                            cid: cid,
+                            version: comment.version,
+                            content: content
+                        }, function (data, textStatus, xhr) {
+                            if (data.success) {
+                                comment = data.data;
+                                toastr && toastr.success('博文评论保存成功！');
+                                (window.parent && window.parent.postMessage) && (window.parent
+                                    .postMessage({
+                                        action: 'updated',
+                                        source: 'comment',
+                                        comment: data.data,
+                                        editor: 'excel'
+                                    }, window.location.origin));
+                            } else {
+                                toastr && toastr.error(data.data);
+                            }
+                        }).fail(function () {
+                            toastr && toastr.error('网络传输错误！');
+                        });
+                    }
+                });
+
+                window.addEventListener && window.addEventListener('message', (evt) => {
+
+                    if (evt.origin != window.location.origin) return;
+
+                    if (evt.data.source != 'blogClose') return;
+
+                    if (evt.data.action == 'isUpdated') {
+
+                        var updated = false;
+
+                        var title = $('#title').val();
+                        var content = JSON.stringify(excel.getData());
+
+                        if (comment) {
+                            updated = (comment.content != content);
+                        } else {
+                            updated = (!!$.trim(content) && content !=
+                                `[{"name":"sheet2","freeze":"A1","styles":[],"merges":[],"rows":{"len":100},"cols":{"len":26},"validations":[],"autofilter":{}}]`
+                            );
+                        }
+
+                        (window.parent && window.parent.postMessage) && (window.parent
+                            .postMessage({
+                                action: 'isUpdated',
+                                source: 'blogCloseAck',
+                                item: evt.data.item,
+                                updated: updated
+                            }, window.location.origin));
+                    }
+
+                }, false);
+
+            } else { // blog
+
+                if (id) {
+                    if (typeof url('?free') === 'undefined') {
+                        $.get('/admin/blog/get', {
+                            id: id,
                             inc: false
                         }, function (data) {
                             if (data.success) {
                                 if (typeof url('?copy') === 'undefined') { // edit
                                     blog = data.data;
                                     $('#title').val(data.data.title);
+
+                                    if (!readonly) {
+                                        window.stompClient = Stomp.over(new SockJS('/ws-lock?blogId=' +
+                                            blog
+                                            .id));
+                                        window.stompClient.debug = function () {};
+                                        // this.stompClient.debug = function (msg) { console.log(msg) };
+                                        window.stompClient.connect({}, function (frame) {}, function (
+                                            err) {
+                                            console.error(err);
+                                        });
+                                    }
+
                                 } else {
                                     $('#title').val(data.data.title + ' (副本)');
                                 }
@@ -286,233 +398,259 @@
                             }
                         });
                     } else {
-                        $.get('/free/home/blog/' + id, {
-                            _: new Date().getTime(),
-                            inc: false
-                        }, function (data) {
-                            if (data.success) {
-                                if (typeof url('?copy') === 'undefined') { // edit
-                                    blog = data.data.blog;
-                                    $('#title').val(data.data.blog.title);
+                        var shareId = url('?shareId');
+                        // console.log('shareId: ' + shareId);
+                        if (shareId && shareId != '') {
+                            $.get('/free/blog/share/' + shareId, {
+                                _: new Date().getTime(),
+                                inc: false
+                            }, function (data) {
+                                if (data.success) {
+                                    if (typeof url('?copy') === 'undefined') { // edit
+                                        blog = data.data;
+                                        $('#title').val(data.data.title);
+                                    } else {
+                                        $('#title').val(data.data.title + ' (副本)');
+                                    }
+
+                                    initExcel(JSON.parse(data.data.content))
+
                                 } else {
-                                    $('#title').val(data.data.blog.title + ' (副本)');
+                                    toastr.error(data.data);
+                                }
+                            });
+                        } else {
+                            $.get('/free/home/blog/' + id, {
+                                _: new Date().getTime(),
+                                inc: false
+                            }, function (data) {
+                                if (data.success) {
+                                    if (typeof url('?copy') === 'undefined') { // edit
+                                        blog = data.data.blog;
+                                        $('#title').val(data.data.blog.title);
+                                    } else {
+                                        $('#title').val(data.data.blog.title + ' (副本)');
+                                    }
+
+                                    initExcel(JSON.parse(data.data.blog.content))
+
+                                } else {
+                                    toastr.error(data.data);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    initExcel();
+                }
+
+                // 博文保存选择，空间 + 分类
+                var spaces = [];
+
+                $('#saveFrm select[name="space"]').change(function (event) {
+                    var sid = $(this).val();
+                    $('#saveFrm select[name="dir"]').empty().append($('<option/>').text('(不指定分类)').attr(
+                        'value', ''));
+
+                    if (sid !== '') {
+                        $.each(spaces, function (index, space) {
+                            if (space.id == sid) {
+                                window._ && (space.dirs = _.sortBy(space.dirs, 'name'));
+                                $.each(space.dirs, function (index, dir) {
+                                    if (dir.status != 'Deleted') {
+                                        $('#saveFrm select[name="dir"]').append($(
+                                            '<option/>').text(dir.name).attr(
+                                            'value', dir.id));
+                                    }
+                                });
+
+                                var did = localStorage && localStorage.getItem(
+                                    'tms-blog-html-dir');
+                                if (_.some(space.dirs, {
+                                        id: +did
+                                    })) {
+                                    $('#saveFrm select[name="dir"]').val(did);
                                 }
 
-                                initExcel(JSON.parse(data.data.blog.content))
-
-                            } else {
-                                toastr.error(data.data);
+                                return false;
                             }
                         });
                     }
-                }
-            } else {
-                initExcel();
-            }
+                });
 
-            // 博文保存选择，空间 + 分类
-            var spaces = [];
+                window.addEventListener && window.addEventListener('message', (evt) => {
 
-            $('#saveFrm select[name="space"]').change(function (event) {
-                var sid = $(this).val();
-                $('#saveFrm select[name="dir"]').empty().append($('<option/>').text('(不指定分类)').attr(
-                    'value', ''));
+                    if (evt.origin != window.location.origin) return;
 
-                if (sid !== '') {
-                    $.each(spaces, function (index, space) {
-                        if (space.id == sid) {
-                            window._ && (space.dirs = _.sortBy(space.dirs, 'name'));
-                            $.each(space.dirs, function (index, dir) {
-                                if (dir.status != 'Deleted') {
-                                    $('#saveFrm select[name="dir"]').append($(
-                                        '<option/>').text(dir.name).attr(
-                                        'value', dir.id));
-                                }
-                            });
+                    if (evt.data.source != 'blogClose') return;
 
-                            var did = localStorage && localStorage.getItem('tms-blog-html-dir');
-                            if (_.some(space.dirs, {
-                                    id: +did
-                                })) {
-                                $('#saveFrm select[name="dir"]').val(did);
-                            }
+                    if (evt.data.action == 'isUpdated') {
 
-                            return false;
+                        var updated = false;
+
+                        var title = $('#title').val();
+                        var content = JSON.stringify(excel.getData());
+
+                        if (blog) {
+                            updated = (blog.title != title) || (blog.content != content);
+                        } else {
+                            updated = !!$.trim(title) || (!!$.trim(content) && content !=
+                                `[{"name":"sheet2","freeze":"A1","styles":[],"merges":[],"rows":{"len":100},"cols":{"len":26},"validations":[],"autofilter":{}}]`
+                            );
                         }
-                    });
-                }
-            });
 
-            window.addEventListener && window.addEventListener('message', (evt) => {
+                        (window.parent && window.parent.postMessage) && (window.parent
+                            .postMessage({
+                                action: 'isUpdated',
+                                source: 'blogCloseAck',
+                                item: evt.data.item,
+                                updated: updated
+                            }, window.location.origin));
+                    }
 
-                if (evt.origin != window.location.origin) return;
+                }, false);
 
-                if (evt.data.source != 'blogClose') return;
-
-                if (evt.data.action == 'isUpdated') {
-
-                    var updated = false;
+                $('#save').click(function (event) {
 
                     var title = $('#title').val();
                     var content = JSON.stringify(excel.getData());
 
-                    if (blog) {
-                        updated = (blog.title != title) || (blog.content != content);
-                    } else {
-                        updated = !!$.trim(title) || (!!$.trim(content) && content !=
-                            `[{"name":"sheet2","freeze":"A1","styles":[],"merges":[],"rows":{"len":100},"cols":{"len":26},"validations":[],"autofilter":{}}]`
-                        );
+                    if (!title || !$.trim(title)) {
+                        toastr && toastr.error('博文标题不能为空！');
+                        return;
                     }
 
-                    (window.parent && window.parent.postMessage) && (window.parent
-                        .postMessage({
-                            action: 'isUpdated',
-                            source: 'blogCloseAck',
-                            item: evt.data.item,
-                            updated: updated
-                        }, window.location.origin));
-                }
+                    if (!content || !$.trim(content)) {
+                        toastr && toastr.error('博文内容不能为空！');
+                        return;
+                    }
 
-            }, false);
+                    if (blog == null) {
+                        $.get('/admin/space/listMy', function (data) {
+                            if (data.success) {
 
-            $('#save').click(function (event) {
+                                spaces = data.data;
 
-                var title = $('#title').val();
-                var content = JSON.stringify(excel.getData());
+                                $('#saveFrm select[name="space"]').empty().append($('<option/>')
+                                    .text('(不指定空间)').attr('value', ''));
+                                $('#saveFrm select[name="dir"]').empty().append($('<option/>')
+                                    .text(
+                                        '(不指定分类)').attr('value', ''));
 
-                if (!title || !$.trim(title)) {
-                    toastr && toastr.error('博文标题不能为空！');
-                    return;
-                }
+                                window._ && (spaces = _.sortBy(spaces, 'name'));
+                                $.each(spaces, function (index, space) {
+                                    $('#saveFrm select[name="space"]').append($(
+                                            '<option/>')
+                                        .text(space.name).attr('value', space.id));
+                                });
 
-                if (!content || !$.trim(content)) {
-                    toastr && toastr.error('博文内容不能为空！');
-                    return;
-                }
+                                var sid = localStorage && localStorage.getItem(
+                                    'tms-blog-html-space');
+                                if (_.some(spaces, {
+                                        id: +sid
+                                    })) {
+                                    $('#saveFrm select[name="space"]').val(sid);
+                                    $('#saveFrm select[name="space"]').change();
+                                }
 
-                if (blog == null) {
-                    $.get('/admin/space/listMy', function (data) {
-                        if (data.success) {
+                                var privated = localStorage && localStorage.getItem(
+                                    'tms-blog-html-privated');
 
-                            spaces = data.data;
+                                $('#privated').prop("checked", privated == 'true');
 
-                            $('#saveFrm select[name="space"]').empty().append($('<option/>')
-                                .text('(不指定空间)').attr('value', ''));
-                            $('#saveFrm select[name="dir"]').empty().append($('<option/>').text(
-                                '(不指定分类)').attr('value', ''));
+                                $('#saveModal').modal({
+                                    fadeDuration: 200,
+                                    clickClose: false
+                                });
 
-                            window._ && (spaces = _.sortBy(spaces, 'name'));
-                            $.each(spaces, function (index, space) {
-                                $('#saveFrm select[name="space"]').append($('<option/>')
-                                    .text(space.name).attr('value', space.id));
-                            });
-
-                            var sid = localStorage && localStorage.getItem(
-                                'tms-blog-html-space');
-                            if (_.some(spaces, {
-                                    id: +sid
-                                })) {
-                                $('#saveFrm select[name="space"]').val(sid);
-                                $('#saveFrm select[name="space"]').change();
                             }
+                        });
+                    } else {
+                        $.post('/admin/blog/update', {
+                            url: window.location.protocol + '//' + window.location.host +
+                                '/page/index.html',
+                            id: blog.id,
+                            version: blog.version,
+                            title: title,
+                            content: content
+                        }, function (data, textStatus, xhr) {
+                            if (data.success) {
+                                blog = data.data;
+                                toastr && toastr.success('博文更新成功！');
+                                (window.parent && window.parent.postMessage) && (window.parent
+                                    .postMessage({
+                                        action: 'updated',
+                                        autoFollow: true,
+                                        source: 'blog',
+                                        blog: data.data
+                                    }, window.location.origin));
+                            } else {
+                                toastr && toastr.error(data.data);
+                            }
+                        }).fail(function () {
+                            toastr && toastr.error('网络传输错误！');
+                        });
+                    }
+                });
 
-                            var privated = localStorage && localStorage.getItem(
-                                'tms-blog-html-privated');
+                $('#saveFrm .btnOk').click(function (event) {
 
-                            $('#privated').prop("checked", privated == 'true');
+                    var title = $('#title').val();
+                    var content = JSON.stringify(excel.getData());
 
-                            $('#saveModal').modal({
-                                fadeDuration: 200,
-                                clickClose: false
-                            });
+                    if (!title || !$.trim(title)) {
+                        toastr && toastr.error('博文标题不能为空！');
+                        return;
+                    }
 
-                        }
-                    });
-                } else {
-                    $.post('/admin/blog/update', {
-                        url: window.location.protocol + '//' + window.location.host +
-                            '/page/index.html',
-                        id: blog.id,
-                        version: blog.version,
-                        title: title,
-                        content: content
-                    }, function (data, textStatus, xhr) {
-                        if (data.success) {
-                            blog = data.data;
-                            toastr && toastr.success('博文更新成功！');
-                            (window.parent && window.parent.postMessage) && (window.parent
-                                .postMessage({
-                                    action: 'updated',
-                                    autoFollow: true,
-                                    source: 'blog',
-                                    blog: data.data
-                                }, window.location.origin));
-                        } else {
-                            toastr && toastr.error(data.data);
-                        }
-                    }).fail(function () {
-                        toastr && toastr.error('网络传输错误！');
-                    });
-                }
-            });
+                    if (!content || !$.trim(content)) {
+                        toastr && toastr.error('博文内容不能为空！');
+                        return;
+                    }
 
-            $('#saveFrm .btnOk').click(function (event) {
+                    if (blog == null) {
 
-                var title = $('#title').val();
-                var content = JSON.stringify(excel.getData());
+                        $.modal.close();
 
-                if (!title || !$.trim(title)) {
-                    toastr && toastr.error('博文标题不能为空！');
-                    return;
-                }
+                        localStorage && localStorage.setItem('tms-blog-html-space', $(
+                            '#saveFrm select[name="space"]').val());
+                        localStorage && localStorage.setItem('tms-blog-html-dir', $(
+                            '#saveFrm select[name="dir"]').val());
+                        localStorage && localStorage.setItem('tms-blog-html-privated', $('#privated')
+                            .prop(
+                                "checked"));
 
-                if (!content || !$.trim(content)) {
-                    toastr && toastr.error('博文内容不能为空！');
-                    return;
-                }
-
-                if (blog == null) {
-
-                    $.modal.close();
-
-                    localStorage && localStorage.setItem('tms-blog-html-space', $(
-                        '#saveFrm select[name="space"]').val());
-                    localStorage && localStorage.setItem('tms-blog-html-dir', $(
-                        '#saveFrm select[name="dir"]').val());
-                    localStorage && localStorage.setItem('tms-blog-html-privated', $('#privated').prop(
-                        "checked"));
-
-                    $.post('/admin/blog/create', {
-                        url: window.location.protocol + '//' + window.location.host +
-                            '/page/index.html',
-                        spaceId: $('#saveFrm select[name="space"]').val(),
-                        dirId: $('#saveFrm select[name="dir"]').val(),
-                        title: title,
-                        content: content,
-                        editor: 'Excel',
-                        privated: $('#privated').prop("checked"),
-                        contentHtml: content
-                    }, function (data, textStatus, xhr) {
-                        if (data.success) {
-                            blog = data.data;
-                            toastr && toastr.success('博文保存成功！');
-                            $('#preview').show();
-                            (window.parent && window.parent.postMessage) && (window.parent
-                                .postMessage({
-                                    action: 'created',
-                                    source: 'blog',
-                                    blog: data.data,
-                                    editor: 'excel'
-                                }, window.location.origin));
-                        } else {
-                            toastr && toastr.error(data.data);
-                        }
-                    }).fail(function () {
-                        toastr && toastr.error('网络传输错误！');
-                    });
-                }
-            });
-
+                        $.post('/admin/blog/create', {
+                            url: window.location.protocol + '//' + window.location.host +
+                                '/page/index.html',
+                            spaceId: $('#saveFrm select[name="space"]').val(),
+                            dirId: $('#saveFrm select[name="dir"]').val(),
+                            title: title,
+                            content: content,
+                            editor: 'Excel',
+                            privated: $('#privated').prop("checked"),
+                            contentHtml: content
+                        }, function (data, textStatus, xhr) {
+                            if (data.success) {
+                                blog = data.data;
+                                toastr && toastr.success('博文保存成功！');
+                                $('#preview').show();
+                                (window.parent && window.parent.postMessage) && (window.parent
+                                    .postMessage({
+                                        action: 'created',
+                                        source: 'blog',
+                                        blog: data.data,
+                                        editor: 'excel'
+                                    }, window.location.origin));
+                            } else {
+                                toastr && toastr.error(data.data);
+                            }
+                        }).fail(function () {
+                            toastr && toastr.error('网络传输错误！');
+                        });
+                    }
+                });
+            }
         });
 
     </script>
