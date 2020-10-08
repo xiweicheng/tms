@@ -305,7 +305,7 @@
 
                     if (evt.origin != window.location.origin) return;
 
-                    if (evt.data.source != 'blogClose') return;
+                    if (evt.data.source != 'blogClose' && evt.data.source != 'commentMind') return;
 
                     if (evt.data.action == 'isUpdated') {
 
@@ -328,6 +328,14 @@
                                 item: evt.data.item,
                                 updated: updated
                             }, window.location.origin));
+                    } else if (evt.data.action == 'mindExport') {
+
+                        if (evt.data.source == 'commentMind') {
+
+                            if (evt.data.item.id != comment.id) return;
+
+                            window.painter.exportPng();
+                        }
                     }
 
                 }, false);
@@ -477,9 +485,12 @@
                             }, window.location.origin));
                     } else if (evt.data.action == 'mindExport') {
 
-                        if (evt.data.item.id != blog.id) return;
+                        if (evt.data.source == 'blogMind') {
 
-                        window.painter.exportPng();
+                            if (evt.data.item.id != blog.id) return;
+
+                            window.painter.exportPng();
+                        }
                     }
 
                 }, false);
