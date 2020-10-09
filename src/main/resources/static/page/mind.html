@@ -316,7 +316,7 @@
                         if (comment) {
                             updated = (comment.content != content);
                         } else {
-                            updated = !!$.trim(title) || (!!$.trim(content) && content !=
+                            updated = (!!$.trim(content) && content !=
                                 `{"nodeData":{"id":"root","topic":"新主题","root":true,"children":[]},"linkData":{}}`
                             );
                         }
