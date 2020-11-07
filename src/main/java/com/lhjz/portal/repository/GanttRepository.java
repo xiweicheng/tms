@@ -24,7 +24,7 @@ import com.lhjz.portal.pojo.Enum.Status;
  */
 public interface GanttRepository extends JpaRepository<Gantt, Long> {
 
-	@Query(value = "SELECT * FROM gantt WHERE status <> 'Deleted' channel = ?1 AND (upper(title) LIKE upper(?2)) AND (creator = ?3 OR privated = 0) ORDER BY id DESC LIMIT ?4,?5", nativeQuery = true)
+	@Query(value = "SELECT * FROM gantt WHERE status <> 'Deleted' channel = ?1 AND (upper(title) LIKE upper(?2)) AND (creator = ?3 OR privated = 0) ORDER BY id DESC LIMIT ?5 OFFSET ?4", nativeQuery = true)
 	List<Gantt> search(Channel channel, String search, User user, int startId, int limit);
 
 	@Query(value = "SELECT * FROM gantt WHERE status <> 'Deleted' channel = ?1 AND (upper(title) LIKE upper(?2)) AND (creator = ?3 OR privated = 0)", nativeQuery = true)

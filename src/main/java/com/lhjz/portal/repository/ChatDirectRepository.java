@@ -30,7 +30,7 @@ public interface ChatDirectRepository extends JpaRepository<ChatDirect, Long> {
 	List<ChatDirect> queryChatDirectAndIdGreaterThan(User chatfrom, User chatTo,
 			long id);
 
-	@Query(value = "SELECT * FROM chat_direct WHERE (creator = ?1 AND chat_to = ?2) OR (creator = ?2 AND chat_to = ?1) ORDER BY create_date DESC LIMIT ?3,?4", nativeQuery = true)
+	@Query(value = "SELECT * FROM chat_direct WHERE (creator = ?1 AND chat_to = ?2) OR (creator = ?2 AND chat_to = ?1) ORDER BY create_date DESC LIMIT ?4 OFFSET ?3", nativeQuery = true)
 	List<ChatDirect> queryChatDirect(User chatfrom, User chatTo, long start,
 			int limit);
 
@@ -49,7 +49,7 @@ public interface ChatDirectRepository extends JpaRepository<ChatDirect, Long> {
 	long countAllNew(User chatFrom, User chatTo, Long startId);
 
 	// 我 -> 其他人
-	@Query(value = "SELECT * FROM chat_direct WHERE creator = ?1 AND (upper(content) LIKE upper(?2)) ORDER BY create_date DESC LIMIT ?3,?4", nativeQuery = true)
+	@Query(value = "SELECT * FROM chat_direct WHERE creator = ?1 AND (upper(content) LIKE upper(?2)) ORDER BY create_date DESC LIMIT ?4 OFFSET ?3", nativeQuery = true)
 	List<ChatDirect> queryToOthers(User chatFrom, String search, int startId,
 			int limit);
 
@@ -58,7 +58,7 @@ public interface ChatDirectRepository extends JpaRepository<ChatDirect, Long> {
 	long countToOthers(User chatFrom, String search);
 
 	// 其他人 -> 我
-	@Query(value = "SELECT * FROM chat_direct WHERE chat_to = ?1 AND (upper(content) LIKE upper(?2)) ORDER BY create_date DESC LIMIT ?3,?4", nativeQuery = true)
+	@Query(value = "SELECT * FROM chat_direct WHERE chat_to = ?1 AND (upper(content) LIKE upper(?2)) ORDER BY create_date DESC LIMIT ?4 OFFSET ?3", nativeQuery = true)
 	List<ChatDirect> queryToMe(User chatTo, String search, int startId,
 			int limit);
 
@@ -67,7 +67,7 @@ public interface ChatDirectRepository extends JpaRepository<ChatDirect, Long> {
 	long countToMe(User chatTo, String search);
 
 	// 其他人 -> 我 & 我 -> 其他人
-	@Query(value = "SELECT * FROM chat_direct WHERE ((creator = ?1) OR (chat_to = ?1)) AND (upper(content) LIKE upper(?2)) ORDER BY create_date DESC LIMIT ?3,?4", nativeQuery = true)
+	@Query(value = "SELECT * FROM chat_direct WHERE ((creator = ?1) OR (chat_to = ?1)) AND (upper(content) LIKE upper(?2)) ORDER BY create_date DESC LIMIT ?4 OFFSET ?3", nativeQuery = true)
 	List<ChatDirect> queryAboutMe(User user, String search, int startId,
 			int limit);
 
@@ -76,7 +76,7 @@ public interface ChatDirectRepository extends JpaRepository<ChatDirect, Long> {
 	long countAboutMe(User user, String search);
 	
 	// 其他人 -> 我 & 我 -> 其他人
-	@Query(value = "SELECT DISTINCT cd.* FROM chat_direct cd, chat_label cl WHERE cl.chat_direct = cd.id and ((cd.creator = ?1) OR (cd.chat_to = ?1)) AND cl.status <> 'Deleted' AND cl.name in (?2) ORDER BY cd.create_date DESC LIMIT ?3,?4", nativeQuery = true)
+	@Query(value = "SELECT DISTINCT cd.* FROM chat_direct cd, chat_label cl WHERE cl.chat_direct = cd.id and ((cd.creator = ?1) OR (cd.chat_to = ?1)) AND cl.status <> 'Deleted' AND cl.name in (?2) ORDER BY cd.create_date DESC LIMIT ?4 OFFSET ?3", nativeQuery = true)
 	List<ChatDirect> queryAboutMeByTags(User user, List<String> tags, int startId,
 			int limit);
 	

@@ -79,7 +79,7 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	Page<Blog> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndStatusNotAndCreatorOrStatusNotAndPrivatedFalse(
 			String searchT, String searchC, Status status, User creator, Status status2, Pageable pageable);
 
-	@Query(value = "SELECT * FROM blog WHERE blog.status <> 'Deleted' AND (privated = 0 OR creator = :username) AND (upper(title) LIKE upper(:search) OR upper(content) LIKE upper(:search)) ORDER BY id DESC LIMIT :start,:size", nativeQuery = true)
+	@Query(value = "SELECT * FROM blog WHERE blog.status <> 'Deleted' AND (privated = 0 OR creator = :username) AND (upper(title) LIKE upper(:search) OR upper(content) LIKE upper(:search)) ORDER BY id DESC LIMIT :size OFFSET :start", nativeQuery = true)
 	List<Blog> search(@Param("username") String username, @Param("search") String search, @Param("start") Integer start,
 			@Param("size") Integer size);
 
