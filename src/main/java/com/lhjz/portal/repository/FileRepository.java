@@ -38,10 +38,10 @@ public interface FileRepository extends JpaRepository<File, Long> {
 	Page<File> findByToTypeAndUsernameAndToIdAndTypeAndNameContainingIgnoreCase(ToType toType, String username, String toId,
 			FileType fileType, String search, Pageable pageable);
 	
-	@Query(value = "SELECT * FROM `file` WHERE to_type IS NULL", nativeQuery = true)
+	@Query(value = "SELECT * FROM file WHERE to_type IS NULL", nativeQuery = true)
 	List<File> queryByToTypeIsNull();
 	
-	@Query(value = "SELECT * FROM `file` WHERE to_type IS NULL AND type = 'Attachment'", nativeQuery = true)
+	@Query(value = "SELECT * FROM file WHERE to_type IS NULL AND type = 'Attachment'", nativeQuery = true)
 	List<File> queryAttachmentByToTypeIsNull();
 
 	@Transactional

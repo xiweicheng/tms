@@ -29,7 +29,7 @@ public interface ChatPinRepository extends JpaRepository<ChatPin, Long> {
 	
 	Page<ChatPin> findByChannel(Channel channel, Pageable pageable);
 
-	@Query(value = "SELECT chat_pin.id, chat_pin.chat_channel FROM chat_pin WHERE channel = ?1 and `status` = 'New';", nativeQuery = true)
+	@Query(value = "SELECT chat_pin.id, chat_pin.chat_channel FROM chat_pin WHERE channel = ?1 and status = 'New';", nativeQuery = true)
 	List<Object> listByChannel(Long channelId);
 
 }
