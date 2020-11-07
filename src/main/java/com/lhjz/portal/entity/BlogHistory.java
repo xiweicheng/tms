@@ -53,7 +53,7 @@ public class BlogHistory implements Serializable {
 	@Column
 	private String title;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String content;
 
 	@ManyToOne

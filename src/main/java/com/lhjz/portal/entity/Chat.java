@@ -49,13 +49,13 @@ public class Chat implements Serializable {
 	@GeneratedValue
 	private Long id;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String content;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String voteZan;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String voteCai;
 
 	private Boolean openEdit;

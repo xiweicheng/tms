@@ -59,7 +59,7 @@ public class ChatReply implements Serializable {
 	@JoinColumn(name = "chat_channel")
 	private ChatChannel chatChannel;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String content;
 	
 	@Column(length = 1000)

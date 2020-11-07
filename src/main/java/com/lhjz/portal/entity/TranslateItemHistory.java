@@ -38,7 +38,7 @@ public class TranslateItemHistory implements Serializable,
 	@GeneratedValue
 	private Long id;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String itemContent;
 
 	private String itemCreator;

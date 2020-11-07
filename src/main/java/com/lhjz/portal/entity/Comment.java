@@ -58,13 +58,13 @@ public class Comment implements Serializable {
 
 	private String targetId;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String content;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String voteZan;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String voteCai;
 
 	private Integer voteZanCnt;

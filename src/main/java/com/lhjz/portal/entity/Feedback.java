@@ -43,7 +43,7 @@ public class Feedback implements Serializable {
 
 	private String url;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String content;
 	@NotBlank
 	@Column(nullable = false)

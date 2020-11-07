@@ -63,7 +63,7 @@ public class Blog implements Serializable {
 	@Column
 	private String title;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String content;
 
 	@Enumerated(EnumType.STRING)
@@ -115,10 +115,10 @@ public class Blog implements Serializable {
 	@Column
 	private BlogType type = BlogType.Own;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String voteZan;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String voteCai;
 
 	private Integer voteZanCnt;

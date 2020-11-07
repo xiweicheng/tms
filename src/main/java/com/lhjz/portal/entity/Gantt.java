@@ -62,7 +62,7 @@ public class Gantt implements Serializable {
 	@Column(length = 2000)
 	private String description;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String content;
 
 	@ManyToOne

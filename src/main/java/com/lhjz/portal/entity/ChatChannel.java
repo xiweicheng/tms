@@ -63,7 +63,7 @@ public class ChatChannel implements Serializable {
 	@JoinColumn(name = "channel")
 	private Channel channel;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String content;
 	
 	@Column(length = 1000)
@@ -100,10 +100,10 @@ public class ChatChannel implements Serializable {
 	@Column
 	private ChatType type = ChatType.Msg;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String voteZan;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String voteCai;
 
 	private Integer voteZanCnt;

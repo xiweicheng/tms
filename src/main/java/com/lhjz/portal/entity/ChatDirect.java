@@ -60,7 +60,7 @@ public class ChatDirect implements Serializable {
 	@JoinColumn(name = "chat_to")
 	private User chatTo;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String content;
 	
 	@Column(length = 1000)

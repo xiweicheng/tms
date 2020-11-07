@@ -56,10 +56,10 @@ public class Log implements Serializable {
 	private String targetId;
 
 	private String properties;
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String oldValue;
 
-	@Column(length = 16777216)
+	@Column(columnDefinition = "varchar")
 	private String newValue;
 
 	@ManyToOne
