@@ -29,10 +29,10 @@ public interface LabelRepository extends JpaRepository<Label, Long> {
 
 	Label findOneByNameAndChat(String name, Chat chat);
 	
-	@Query(value = "SELECT * FROM label WHERE creator = ?1 GROUP BY name;", nativeQuery = true)
-	List<Label> findByCreatorGroupByName(String creator);
-	
-	@Query(value = "SELECT * FROM label WHERE chat_id  IS NOT NULL GROUP BY name", nativeQuery = true)
-	List<Label> queryWikiLabels();
+	@Query(value = "SELECT name FROM label WHERE creator = ?1 GROUP BY name;", nativeQuery = true)
+	List<String> findNameByCreatorGroupByName(String creator);
+
+	@Query(value = "SELECT name FROM label WHERE chat_id IS NOT NULL GROUP BY name", nativeQuery = true)
+	List<String> queryWikiLabelNames();
 
 }
