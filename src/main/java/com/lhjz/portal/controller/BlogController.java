@@ -54,6 +54,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lhjz.portal.base.BaseController;
+import com.lhjz.portal.component.AsyncTask;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.entity.BlogAuthority;
@@ -136,6 +137,9 @@ public class BlogController extends BaseController {
 
 	@Value("${tms.bin.node.path}")
 	private String nodePath;
+	
+	@Value("${tms.chat.url.summary.off}")
+	Boolean off; // 是否关闭
 
 	@Autowired
 	BlogRepository blogRepository;
@@ -193,6 +197,9 @@ public class BlogController extends BaseController {
 
 	@Autowired
 	SimpMessagingTemplate messagingTemplate;
+	
+	@Autowired
+	AsyncTask asyncTask;
 
 	@PersistenceContext
 	private EntityManager em;
@@ -1131,6 +1138,10 @@ public class BlogController extends BaseController {
 		}
 
 		Comment comment2 = commentRepository.saveAndFlush(comment);
+		
+		if (!off) {
+			asyncTask.updateBlogComment(content, comment2.getId(), messagingTemplate, WebUtil.getUsername(), users);
+		}
 
 		//		log(Action.Create, Target.Comment, comment2.getId(), content, id);
 		logWithProperties(Action.Create, Target.Comment, comment2.getId(), editor, content, id);

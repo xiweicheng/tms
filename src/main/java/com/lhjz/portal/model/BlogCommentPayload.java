@@ -16,8 +16,10 @@ public class BlogCommentPayload {
 	private Long version;
 
 	private String username;
+	
+	private String atUsernames;
 
 	public static enum Cmd {
-		C, D;
+		C, D, U;
 	}
 }

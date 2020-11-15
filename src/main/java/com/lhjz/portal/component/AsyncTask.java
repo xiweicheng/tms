@@ -18,7 +18,9 @@ import com.lhjz.portal.component.core.IChatMsg;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatDirect;
 import com.lhjz.portal.entity.ChatReply;
+import com.lhjz.portal.entity.Comment;
 import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.BlogCommentPayload;
 import com.lhjz.portal.model.ChannelAtPayload;
 import com.lhjz.portal.model.ChannelPayload;
 import com.lhjz.portal.model.ChannelPayload.Cmd;
@@ -28,6 +30,7 @@ import com.lhjz.portal.pojo.Enum.ChatMsgType;
 import com.lhjz.portal.repository.ChatChannelRepository;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.ChatReplyRepository;
+import com.lhjz.portal.repository.CommentRepository;
 import com.lhjz.portal.util.HtmlUtil;
 import com.lhjz.portal.util.StringUtil;
 
@@ -54,6 +57,9 @@ public class AsyncTask {
 	ChatReplyRepository chatReplyRepository;
 
 	@Autowired
+	CommentRepository commentRepository;
+
+	@Autowired
 	IChatMsg chatMsg;
 
 	private final int LIMIT = 25;
@@ -76,6 +82,31 @@ public class AsyncTask {
 
 					chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content, username, atUsernames, null);
 					wsSendChannel(chatChannel2, messagingTemplate, username, atUsernames);
+				}
+			}
+		}
+	}
+
+	@Async
+	public void updateBlogComment(String content, Long id, SimpMessagingTemplate messagingTemplate, String username,
+			String atUsernames) {
+		String[] lines = content.trim().split("\n");
+		String lastLine = lines[lines.length - 1];
+		if (HtmlUtil.isUrl(lastLine)) {
+			String summary = HtmlUtil.summary(lastLine);
+			if (StringUtils.isNotEmpty(summary)) {
+				content = content + "\n" + summary;
+
+				Comment comment = commentRepository.findOne(id);
+
+				if (comment != null) {
+					comment.setContent(content);
+					Comment comment2 = commentRepository.saveAndFlush(comment);
+
+					messagingTemplate.convertAndSend("/blog/comment/update",
+							BlogCommentPayload.builder().id(comment.getId()).version(comment2.getVersion())
+									.bid(comment.getTargetId()).cmd(com.lhjz.portal.model.BlogCommentPayload.Cmd.U)
+									.username(username).atUsernames(atUsernames).build());
 				}
 			}
 		}
@@ -194,7 +225,7 @@ public class AsyncTask {
 			log.error(e.getMessage(), e);
 		}
 	}
-	
+
 	@Async
 	public void wsSendChannelNotice(Long id, Long cid, Set<String> users, String cmd,
 			SimpMessagingTemplate messagingTemplate) {
