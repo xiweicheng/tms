@@ -15,6 +15,7 @@
 - [如何在开发工具中运行](https://gitee.com/xiweicheng/tms/wikis/%E5%A6%82%E4%BD%95%E5%9C%A8%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E4%B8%AD%E8%BF%90%E8%A1%8C?sort_id=351959)
 - [TMS安装部署（传统方式）](https://gitee.com/xiweicheng/tms/wikis/TMS%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2%EF%BC%88%E4%BC%A0%E7%BB%9F%E6%96%B9%E5%BC%8F%EF%BC%89?sort_id=21982)
 - [TMS安装部署（docker-compose）](https://gitee.com/xiweicheng/tms/wikis/TMS%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2%EF%BC%88docker-compose%EF%BC%89?sort_id=21977)
+- [TMS安装部署（k8s方式）](https://gitee.com/xiweicheng/tms/wikis/TMS%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2%EF%BC%88k8s%E6%96%B9%E5%BC%8F%EF%BC%89?sort_id=3201498)
 
 
 ## Image show
