@@ -17,6 +17,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -46,7 +47,7 @@ import lombok.ToString;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Data
-@ToString(exclude = {"chatLabels"})
+@ToString(exclude = { "chatLabels" })
 @EqualsAndHashCode(of = "id")
 public class ChatDirect implements Serializable {
 
@@ -60,9 +61,10 @@ public class ChatDirect implements Serializable {
 	@JoinColumn(name = "chat_to")
 	private User chatTo;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String content;
-	
+
 	@Column(length = 1000)
 	private String ua;
 

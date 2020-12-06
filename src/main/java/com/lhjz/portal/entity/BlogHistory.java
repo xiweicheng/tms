@@ -14,6 +14,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -53,7 +54,8 @@ public class BlogHistory implements Serializable {
 	@Column
 	private String title;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String content;
 
 	@ManyToOne

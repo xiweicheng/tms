@@ -17,6 +17,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -58,13 +59,16 @@ public class Comment implements Serializable {
 
 	private String targetId;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String content;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String voteZan;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String voteCai;
 
 	private Integer voteZanCnt;
@@ -84,7 +88,7 @@ public class Comment implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Status status = Status.New;
-	
+
 	@Enumerated(EnumType.STRING)
 	@Column
 	private Editor editor;

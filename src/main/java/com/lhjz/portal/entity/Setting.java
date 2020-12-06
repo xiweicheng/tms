@@ -13,6 +13,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -38,7 +39,8 @@ public class Setting implements Serializable {
 	@GeneratedValue
 	private Long id;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String content;
 
 	@ManyToOne
@@ -140,11 +142,9 @@ public class Setting implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Setting [id=" + id + ", content=" + content + ", creator="
-				+ creator + ", updater=" + updater + ", settingType="
-				+ settingType + ", status=" + status + ", createDate="
-				+ createDate + ", updateDate=" + updateDate + ", version="
-				+ version + "]";
+		return "Setting [id=" + id + ", content=" + content + ", creator=" + creator + ", updater=" + updater
+				+ ", settingType=" + settingType + ", status=" + status + ", createDate=" + createDate + ", updateDate="
+				+ updateDate + ", version=" + version + "]";
 	}
 
 }

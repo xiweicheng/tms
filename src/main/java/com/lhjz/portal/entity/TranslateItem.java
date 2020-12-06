@@ -16,6 +16,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -48,7 +49,8 @@ public class TranslateItem implements Serializable {
 	@GeneratedValue
 	private Long id;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String content;
 
 	private String creator;

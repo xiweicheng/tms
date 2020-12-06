@@ -12,6 +12,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
@@ -43,7 +44,8 @@ public class Feedback implements Serializable {
 
 	private String url;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String content;
 	@NotBlank
 	@Column(nullable = false)
@@ -141,10 +143,9 @@ public class Feedback implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Feedback [id=" + id + ", name=" + name + ", mail=" + mail
-				+ ", phone=" + phone + ", url=" + url + ", content=" + content
-				+ ", username=" + username + ", status=" + status
-				+ ", createDate=" + createDate + ", version=" + version + "]";
+		return "Feedback [id=" + id + ", name=" + name + ", mail=" + mail + ", phone=" + phone + ", url=" + url
+				+ ", content=" + content + ", username=" + username + ", status=" + status + ", createDate="
+				+ createDate + ", version=" + version + "]";
 	}
 
 }

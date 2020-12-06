@@ -18,6 +18,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -62,7 +63,8 @@ public class Space implements Serializable {
 	@Column
 	private String name;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String description;
 
 	@Column
@@ -110,7 +112,7 @@ public class Space implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "channel")
 	private Channel channel;
-	
+
 	@Column
 	private Long sort;
 

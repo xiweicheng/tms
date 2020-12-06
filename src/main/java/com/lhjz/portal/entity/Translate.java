@@ -17,6 +17,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -68,7 +69,8 @@ public class Translate implements Serializable {
 
 	private String translator;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String search;
 
 	@Version

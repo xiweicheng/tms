@@ -13,6 +13,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -56,10 +57,12 @@ public class Log implements Serializable {
 	private String targetId;
 
 	private String properties;
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String oldValue;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String newValue;
 
 	@ManyToOne

@@ -14,6 +14,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -59,9 +60,10 @@ public class ChatReply implements Serializable {
 	@JoinColumn(name = "chat_channel")
 	private ChatChannel chatChannel;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String content;
-	
+
 	@Column(length = 1000)
 	private String ua;
 

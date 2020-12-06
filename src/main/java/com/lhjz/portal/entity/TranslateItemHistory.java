@@ -13,6 +13,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -29,8 +30,7 @@ import com.lhjz.portal.pojo.Enum.Status;
  * 
  */
 @Entity
-public class TranslateItemHistory implements Serializable,
-		Comparable<TranslateItemHistory> {
+public class TranslateItemHistory implements Serializable, Comparable<TranslateItemHistory> {
 
 	private static final long serialVersionUID = 6527806743802607179L;
 
@@ -38,7 +38,8 @@ public class TranslateItemHistory implements Serializable,
 	@GeneratedValue
 	private Long id;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String itemContent;
 
 	private String itemCreator;
@@ -137,11 +138,9 @@ public class TranslateItemHistory implements Serializable,
 
 	@Override
 	public String toString() {
-		return "TranslateItemHistory [id=" + id + ", itemContent="
-				+ itemContent + ", itemCreator=" + itemCreator + ", creator="
-				+ creator + ", status=" + status + ", itemCreateDate="
-				+ itemCreateDate + ", createDate=" + createDate + ", version="
-				+ version + "]";
+		return "TranslateItemHistory [id=" + id + ", itemContent=" + itemContent + ", itemCreator=" + itemCreator
+				+ ", creator=" + creator + ", status=" + status + ", itemCreateDate=" + itemCreateDate + ", createDate="
+				+ createDate + ", version=" + version + "]";
 	}
 
 	@Override

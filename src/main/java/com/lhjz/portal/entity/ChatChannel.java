@@ -17,6 +17,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -63,14 +64,15 @@ public class ChatChannel implements Serializable {
 	@JoinColumn(name = "channel")
 	private Channel channel;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String content;
-	
+
 	@Column(length = 1000)
 	private String ua;
 
 	private Boolean openEdit;
-	
+
 	// 是否是公告消息
 	private Boolean notice;
 
@@ -100,16 +102,18 @@ public class ChatChannel implements Serializable {
 	@Column
 	private ChatType type = ChatType.Msg;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String voteZan;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String voteCai;
 
 	private Integer voteZanCnt;
 
 	private Integer voteCaiCnt;
-	
+
 	@Version
 	private long version;
 
@@ -122,7 +126,7 @@ public class ChatChannel implements Serializable {
 
 	@OneToMany(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
 	List<ChatReply> chatReplies = new ArrayList<>();
-	
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
 	List<ChatChannelFollower> ChatChannelFollowers = new ArrayList<>();

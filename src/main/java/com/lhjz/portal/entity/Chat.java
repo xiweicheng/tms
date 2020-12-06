@@ -17,6 +17,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -49,13 +50,16 @@ public class Chat implements Serializable {
 	@GeneratedValue
 	private Long id;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String content;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String voteZan;
 
-	@Column(length = 16777216)
+	@Lob
+	@Column
 	private String voteCai;
 
 	private Boolean openEdit;
