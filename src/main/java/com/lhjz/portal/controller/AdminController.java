@@ -261,13 +261,11 @@ public class AdminController extends BaseController {
 		Collections.sort(groups);
 		
 		// login user labels
-		List<Label> labels = labelRepository.findByCreatorGroupByName(WebUtil
+		List<String> labelNames = labelRepository.findNameByCreatorGroupByName(WebUtil
 				.getUsername());
 		Set<String> lbls = null;
-		if (labels != null) {
-			lbls = labels.stream().map((label) -> {
-				return label.getName();
-			}).collect(Collectors.toSet());
+		if (labelNames != null) {
+			lbls = new HashSet<String>(labelNames);
 		} else {
 			lbls = new HashSet<String>();
 		}
@@ -402,13 +400,10 @@ public class AdminController extends BaseController {
 		}
 
 		// login user labels
-		List<Label> labels = labelRepository
-				.findByCreatorGroupByName(WebUtil.getUsername());
+		List<String> labelNames = labelRepository.findNameByCreatorGroupByName(WebUtil.getUsername());
 		Set<String> lbls = null;
-		if (labels != null) {
-			lbls = labels.stream().map((label) -> {
-				return label.getName();
-			}).collect(Collectors.toSet());
+		if (labelNames != null) {
+			lbls = new HashSet<String>(labelNames);
 		} else {
 			lbls = new HashSet<String>();
 		}
@@ -474,13 +469,10 @@ public class AdminController extends BaseController {
 		}
 
 		// login user labels
-		List<Label> labels = labelRepository
-				.findByCreatorGroupByName(WebUtil.getUsername());
+		List<String> labelNames = labelRepository.findNameByCreatorGroupByName(WebUtil.getUsername());
 		Set<String> lbls = null;
-		if (labels != null) {
-			lbls = labels.stream().map((label) -> {
-				return label.getName();
-			}).collect(Collectors.toSet());
+		if (labelNames != null) {
+			lbls = new HashSet<String>(labelNames);
 		} else {
 			lbls = new HashSet<String>();
 		}

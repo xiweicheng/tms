@@ -26,6 +26,8 @@ public class Authority implements java.io.Serializable {
 	/** serialVersionUID long */
 	private static final long serialVersionUID = 4129724544559824574L;
 	private AuthorityId id;
+
+	@Column(name = "auser")
 	private User user;
 
 	public Authority() {

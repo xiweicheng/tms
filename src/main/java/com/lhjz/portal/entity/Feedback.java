@@ -47,6 +47,7 @@ public class Feedback implements Serializable {
 	@Lob
 	@Column
 	private String content;
+	
 	@NotBlank
 	@Column(nullable = false)
 	private String username;

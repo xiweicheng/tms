@@ -57,22 +57,22 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 	@Query(value = "SELECT * FROM chat_channel WHERE channel = ?1 AND id > ?2 ORDER BY id ASC LIMIT ?3", nativeQuery = true)
 	List<ChatChannel> queryMoreNew(Channel channel, Long startId, int limit);
 
-	@Query(value = "SELECT * FROM `chat_channel` WHERE channel = ?1 AND (upper(content) LIKE upper(?2)) ORDER BY id DESC LIMIT ?3,?4", nativeQuery = true)
+	@Query(value = "SELECT * FROM chat_channel WHERE channel = ?1 AND (upper(content) LIKE upper(?2)) ORDER BY id DESC LIMIT ?4 OFFSET ?3", nativeQuery = true)
 	List<ChatChannel> queryAboutMe(Channel channel, String search, int startId, int limit);
 
-	@Query(value = "SELECT COUNT(*) FROM `chat_channel` WHERE channel = ?1 AND (upper(content) LIKE upper(?2))", nativeQuery = true)
+	@Query(value = "SELECT COUNT(*) FROM chat_channel WHERE channel = ?1 AND (upper(content) LIKE upper(?2))", nativeQuery = true)
 	long countAboutMe(Channel channel, String search);
 
-	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and cl.`status` <> 'Deleted' and cl.name in (?2) ORDER BY id DESC LIMIT ?3,?4", nativeQuery = true)
+	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and cl.status <> 'Deleted' and cl.name in (?2) ORDER BY id DESC LIMIT ?4 OFFSET ?3", nativeQuery = true)
 	List<ChatChannel> queryAboutMeByTags(Channel channel, List<String> tags, int startId, int limit);
 
-	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and cl.`status` <> 'Deleted' and cl.name in (?2)", nativeQuery = true)
+	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and cl.status <> 'Deleted' and cl.name in (?2)", nativeQuery = true)
 	long countAboutMeByTags(Channel channel, List<String> tags);
 
-	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and (upper(cc.content) like upper(?3)) and cl.`status` <> 'Deleted' and cl.name = ?2 ORDER BY id DESC LIMIT ?4,?5", nativeQuery = true)
+	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and (upper(cc.content) like upper(?3)) and cl.status <> 'Deleted' and cl.name = ?2 ORDER BY id DESC LIMIT ?5 OFFSET ?4", nativeQuery = true)
 	List<ChatChannel> queryAboutMeByTag(Channel channel, String tag, String condi, int startId, int limit);
 
-	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and (upper(cc.content) like upper(?3)) and cl.`status` <> 'Deleted' and cl.name = ?2", nativeQuery = true)
+	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl where cl.chat_channel = cc.id and cc.channel = ?1 and (upper(cc.content) like upper(?3)) and cl.status <> 'Deleted' and cl.name = ?2", nativeQuery = true)
 	long countAboutMeByTag(Channel channel, String tag, String condi);
 
 	@Query(value = "SELECT COUNT(*) FROM chat_channel WHERE channel = ?1 AND id >= ?2", nativeQuery = true)
@@ -86,10 +86,10 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 	@Query("update ChatChannel cc set cc.creator = ?1, cc.updater = ?2, cc.createDate = ?3, cc.updateDate = ?4 where cc.id = ?5")
 	int updateAuditing(User creator, User updater, Date createDate, Date updateDate, Long id);
 
-	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl WHERE cc.channel = ?1 AND cc.id = cl.chat_channel AND cc.`status` <> 'Deleted' AND cl.`status` <> 'Deleted' AND cl.`name` = ?2 ORDER BY cc.update_date DESC LIMIT ?3,?4", nativeQuery = true)
+	@Query(value = "SELECT DISTINCT cc.* FROM chat_channel cc, chat_label cl WHERE cc.channel = ?1 AND cc.id = cl.chat_channel AND cc.status <> 'Deleted' AND cl.status <> 'Deleted' AND cl.name = ?2 ORDER BY cc.update_date DESC LIMIT ?4 OFFSET ?3", nativeQuery = true)
 	List<ChatChannel> queryByChannelAndLabel(Long cid, String label, int start, int limit);
 
-	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl WHERE cc.channel = ?1 AND cc.id = cl.chat_channel AND cc.`status` <> 'Deleted' AND cl.`status` <> 'Deleted' AND cl.`name` = ?2", nativeQuery = true)
+	@Query(value = "SELECT COUNT(DISTINCT cc.id) FROM chat_channel cc, chat_label cl WHERE cc.channel = ?1 AND cc.id = cl.chat_channel AND cc.status <> 'Deleted' AND cl.status <> 'Deleted' AND cl.name = ?2", nativeQuery = true)
 	long countByChannelAndLabel(Long cid, String label);
 
 	List<ChatChannel> findByChannelAndNoticeAndStatusNotOrderByUpdateDateDesc(Channel channel, Boolean notice, Status status);

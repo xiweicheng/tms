@@ -56,7 +56,7 @@ public class BlogAuthority implements Serializable {
 	private Channel channel;
 
 	@ManyToOne
-	@JoinColumn(name = "user")
+	@JoinColumn(name = "auser")
 	private User user;
 
 	@ManyToOne
@@ -203,7 +203,7 @@ public class BlogAuthority implements Serializable {
 
 	@Override
 	public String toString() {
-		return "BlogAuthority [id=" + id + ", blog=" + blog + ", channel=" + channel + ", user=" + user + ", creator="
+		return "BlogAuthority [id=" + id + ", blog=" + blog + ", channel=" + channel + ", auser=" + user + ", creator="
 				+ creator + ", updater=" + updater + ", createDate=" + createDate + ", updateDate=" + updateDate
 				+ ", status=" + status + ", version=" + version + "]";
 	}

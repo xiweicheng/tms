@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -33,6 +34,7 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 	@Autowired
 	CacheManager cacheManager;
 
+	@Lazy
 	@Autowired
 	SimpMessagingTemplate messagingTemplate;
 

@@ -6,6 +6,7 @@ package com.lhjz.portal.service.impl;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ public class ChatChannelServiceImpl implements ChatChannelService {
 	@Autowired
 	ChatChannelRepository chatChannelRepository;
 
+	@Lazy
 	@Autowired
 	SimpMessagingTemplate messagingTemplate;
 

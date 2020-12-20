@@ -137,12 +137,10 @@ public class RootController extends BaseController {
 		Collections.sort(groups);
 
 		// login user labels
-		List<Label> labels = labelRepository.queryWikiLabels();
+		List<String> labelNames = labelRepository.queryWikiLabelNames();
 		Set<String> lbls = null;
-		if (labels != null) {
-			lbls = labels.stream().map((label) -> {
-				return label.getName();
-			}).collect(Collectors.toSet());
+		if (labelNames != null) {
+			lbls = new HashSet<String>(labelNames);
 		} else {
 			lbls = new HashSet<String>();
 		}

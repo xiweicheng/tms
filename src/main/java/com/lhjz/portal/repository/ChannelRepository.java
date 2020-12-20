@@ -25,7 +25,7 @@ public interface ChannelRepository extends JpaRepository<Channel, Long> {
 	
 	Channel findOneByName(String name);
 	
-	@Query(value = "SELECT COUNT(*) as cnt FROM channel WHERE `status` <> 'Deleted'", nativeQuery = true)
+	@Query(value = "SELECT COUNT(*) as cnt FROM channel WHERE status <> 'Deleted'", nativeQuery = true)
 	long countChannels();
 	
 	List<Channel> findTop6ByNameContainingIgnoreCaseAndStatusNot(String name, Status status);

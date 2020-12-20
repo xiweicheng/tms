@@ -47,10 +47,10 @@ public interface ChatAtRepository extends JpaRepository<ChatAt, Long> {
 	
 	ChatAt findOneByChatChannelAndChatReplyAndAtUser(ChatChannel chatChannel, ChatReply chatReply, User atUser);
 
-	@Query(value = "SELECT COUNT(*) FROM `chat_at` WHERE `chat_id` IS NOT NULL AND at_user = ?1 AND `status` = 'New';", nativeQuery = true)
+	@Query(value = "SELECT COUNT(*) FROM chat_at WHERE chat_id IS NOT NULL AND at_user = ?1 AND status = 'New';", nativeQuery = true)
 	long countChatAtUserNew(String atUser);
 	
-	@Query(value = "SELECT COUNT(*) FROM `chat_at` WHERE `chat_channel_id` IS NOT NULL AND creator <> ?1 AND at_user = ?1 AND `status` = 'New';", nativeQuery = true)
+	@Query(value = "SELECT COUNT(*) FROM chat_at WHERE chat_channel_id IS NOT NULL AND creator <> ?1 AND at_user = ?1 AND status = 'New';", nativeQuery = true)
 	long countChatChannelAtUserNew(String atUser);
 
 	@Transactional
@@ -80,6 +80,6 @@ public interface ChatAtRepository extends JpaRepository<ChatAt, Long> {
 	@Query(value = "DELETE FROM chat_at WHERE EXISTS(SELECT id FROM chat_channel b WHERE chat_at.chat_channel_id = b.id AND b.channel = ?1);", nativeQuery = true)
 	void deleteByChannel(Long channelId);
 	
-	@Query(value = "SELECT COUNT(*) as cnt FROM `chat_at` WHERE at_user = ?1 AND chat_channel_id > ?2", nativeQuery = true)
+	@Query(value = "SELECT COUNT(*) as cnt FROM chat_at WHERE at_user = ?1 AND chat_channel_id > ?2", nativeQuery = true)
 	long countChatChannelRecentAt(String atUsername, Long lastChatChannelId);
 }
