@@ -44,7 +44,7 @@ import lombok.ToString;
 @EntityListeners(AuditingEntityListener.class)
 @Data
 @EqualsAndHashCode(of = { "id" })
-@ToString(exclude = { "space", "channel", "auser" })
+@ToString(exclude = { "space", "channel", "user" })
 public class SpaceAuthority implements Serializable {
 
 	private static final long serialVersionUID = 1702854162010731723L;
@@ -64,7 +64,7 @@ public class SpaceAuthority implements Serializable {
 	private Channel channel;
 
 	@ManyToOne
-	@JoinColumn(name = "auser")
+	@JoinColumn(name = "_user")
 	private User user;
 
 	@ManyToOne
