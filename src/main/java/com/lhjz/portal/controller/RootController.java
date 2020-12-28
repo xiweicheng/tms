@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,6 @@ import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.Chat;
 import com.lhjz.portal.entity.Comment;
-import com.lhjz.portal.entity.Label;
 import com.lhjz.portal.entity.security.Group;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.Mail;
@@ -94,7 +92,7 @@ public class RootController extends BaseController {
 
 	@Autowired
 	Environment env;
-	
+
 	@RequestMapping()
 	public String index() {
 		return "forward:index.html";
@@ -106,7 +104,7 @@ public class RootController extends BaseController {
 			@PageableDefault(size = 2, sort = { "createDate" }, direction = Direction.DESC) Pageable pageable) {
 
 		Page<Chat> chats = null;
-		
+
 		boolean isLogin = WebUtil.isLogin();
 
 		if (StringUtil.isNotEmpty(id)) {
@@ -137,15 +135,8 @@ public class RootController extends BaseController {
 		Collections.sort(groups);
 
 		// login user labels
-		List<Label> labels = labelRepository.queryWikiLabels();
-		Set<String> lbls = null;
-		if (labels != null) {
-			lbls = labels.stream().map((label) -> {
-				return label.getName();
-			}).collect(Collectors.toSet());
-		} else {
-			lbls = new HashSet<String>();
-		}
+		List<String> labels = labelRepository.queryWikiLabels();
+		Set<String> lbls = new HashSet<String>(labels);
 
 		model.addAttribute("chats", chats);
 		model.addAttribute("users", users);
@@ -162,7 +153,7 @@ public class RootController extends BaseController {
 			@PageableDefault(sort = { "createDate" }, direction = Direction.DESC) Pageable pageable) {
 
 		Page<Chat> chats = null;
-		
+
 		boolean isLogin = WebUtil.isLogin();
 
 		if (StringUtil.isNotEmpty(search)) {
@@ -204,8 +195,9 @@ public class RootController extends BaseController {
 
 		try {
 			mailSender.sendHtmlByQueue(String.format("TMS-博文回复_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
-							new Date(), "href", href, "title", "博文回复消息", "content", content2)),
+					TemplateUtil.process("templates/mail/mail-dynamic",
+							MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title", "博文回复消息",
+									"content", content2)),
 					getLoginUserName(loginUser), Mail.instance().add(StringUtil.split(toAddrArr, ",")).get());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -213,18 +205,19 @@ public class RootController extends BaseController {
 
 		return RespBody.succeed(comment2);
 	}
-	
+
 	@RequestMapping(value = "free/wiki/latest", method = RequestMethod.GET)
 	@ResponseBody
-	public RespBody latestWiki(@PageableDefault(sort = { "createDate" }, direction = Direction.DESC) Pageable pageable) {
+	public RespBody latestWiki(
+			@PageableDefault(sort = { "createDate" }, direction = Direction.DESC) Pageable pageable) {
 
 		Page<Chat> chats = null;
-		
+
 		boolean isLogin = WebUtil.isLogin();
 
 		chats = isLogin ? chatRepository.findByType(ChatType.Wiki, pageable)
 				: chatRepository.findByTypeAndPrivated(ChatType.Wiki, false, pageable);
-		
+
 		chats.getContent().forEach((chat) -> {
 			chat.setContent(null);
 		});
@@ -302,11 +295,10 @@ public class RootController extends BaseController {
 		final String html = "<h3>投票博文内容:</h3><hr/>" + contentHtml;
 
 		try {
-			mailSender
-					.sendHtmlByQueue(String.format("TMS-博文投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
-							TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-									"date", new Date(), "href", href, "title", titleHtml, "content", html)),
-							getLoginUserName(loginUser), mail.get());
+			mailSender.sendHtmlByQueue(String.format("TMS-博文投票@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
+					TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser, "date",
+							new Date(), "href", href, "title", titleHtml, "content", html)),
+					getLoginUserName(loginUser), mail.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
