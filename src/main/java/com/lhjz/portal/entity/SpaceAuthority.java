@@ -64,7 +64,7 @@ public class SpaceAuthority implements Serializable {
 	private Channel channel;
 
 	@ManyToOne
-	@JoinColumn(name = "_user")
+	@JoinColumn(name = "username")
 	private User user;
 
 	@ManyToOne
