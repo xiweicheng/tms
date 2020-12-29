@@ -12,9 +12,9 @@ echo "mvn clean compile"
 mvn clean compile
 
 DT=`date +"%Y%m%d%H%M%S"`
-mkdir -p $DEST/backup/$DT
+mkdir -p $DEST/backup/tms/$DT
 mv $DEST/webapps/ROOT/WEB-INF/classes/com $DEST/backup/$DT
-echo "backup path: $DEST/backup/$DT"
+echo "backup path: $DEST/backup/tms/$DT"
 
 echo "cp tms to local tomcat"
 
