@@ -1,4 +1,4 @@
-FROM mysql:5.6
+FROM postgres:13
 
 LABEL MAINTAINER="xiweicheng@yeah.net"
 

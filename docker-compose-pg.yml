@@ -12,14 +12,14 @@ services:
       - "db"
   db:
     build:
-      context: ./db/mysql
+      context: ./db/postgres
     image: tms-db
     environment:
-      - MYSQL_ROOT_PASSWORD=pingan
+      - POSTGRES_PASSWORD=pingan
     networks:
       - backend
     ports:
-      - "3307:3306"
+      - "5433:5432"
 
 networks:
   backend:

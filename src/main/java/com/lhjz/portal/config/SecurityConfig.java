@@ -55,7 +55,7 @@ public class SecurityConfig {
 
 	@Configuration
 	@Order(order)
-	@Profile({ "dev", "prod" })
+	@Profile({ "dev", "prod", "prod-pg" })
 	public static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 		@Autowired
@@ -142,7 +142,7 @@ public class SecurityConfig {
 
 	@Configuration
 	@Order(order + 1)
-	@Profile({ "dev", "prod" })
+	@Profile({ "dev", "prod", "prod-pg" })
 	public static class SecurityConfiguration2 extends WebSecurityConfigurerAdapter {
 
 		@Override
