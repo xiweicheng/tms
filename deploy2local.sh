@@ -13,7 +13,7 @@ mvn clean compile
 
 DT=`date +"%Y%m%d%H%M%S"`
 mkdir -p $DEST/backup/tms/$DT
-mv $DEST/webapps/ROOT/WEB-INF/classes/com $DEST/backup/$DT
+mv $DEST/webapps/ROOT/WEB-INF/classes/com $DEST/backup/tms/$DT
 echo "backup path: $DEST/backup/tms/$DT"
 
 echo "cp tms to local tomcat"
