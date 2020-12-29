@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "deploy to tomcat start"
+echo "deploy tms to tomcat start"
 
 DEST=/Users/xiweicheng/Applications/apache-tomcat-8.5.59
 SRC=/Users/xiweicheng/tms
@@ -13,8 +13,12 @@ mvn clean compile
 
 DT=`date +"%Y%m%d%H%M%S"`
 mkdir -p $DEST/backup/tms/$DT
-mv $DEST/webapps/ROOT/WEB-INF/classes/com $DEST/backup/tms/$DT
+cp -rf $DEST/webapps/ROOT/WEB-INF/classes/com $DEST/backup/tms/$DT
 echo "backup path: $DEST/backup/tms/$DT"
+
+echo "rm com"
+
+rm -rf $DEST/webapps/ROOT/WEB-INF/classes/com
 
 echo "cp tms to local tomcat"
 
@@ -24,4 +28,4 @@ sh $DEST/bin/shutdown.sh
 sleep 5
 sh $DEST/bin/startup.sh
 
-echo "deploy to tomcat end"
+echo "deploy tms to tomcat end"
