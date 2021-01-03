@@ -78,6 +78,17 @@
             border: none;
             font-size: 14px;
         }
+        
+        #import {
+            color: #fff;
+            background: #00aaff;
+            padding: .25rem .5rem;
+            display: inline-block;
+            border-radius: 4px;
+            transition-duration: .25s;
+            border: none;
+            font-size: 14px;
+        }
 
         button.btn:hover {
             background: #1678c2;
@@ -114,6 +125,10 @@
             <input id="title" type="text" placeholder="标题">
             <button class="button -blue btn" id="save">保存</button>
             <span id="msg" style="color: red; padding-left: 16px;"></span>
+            <div style="display: inline-block;">
+                <input type="file" accept=".mind" id="files" style="display:none" onchange="importHandler();" />
+                <input type="button" id="import" value="导入" />
+            </div>
         </div>
         <div class="mind-container">
             <div id='mind'></div>
@@ -189,6 +204,29 @@
                 console.warn(err);
             }
 
+        }
+
+        $("#import").click(function () { //点击导入按钮，使files触发点击事件，然后完成读取文件的操作。
+            $("#files").click();
+        });
+
+        function importHandler() {
+            var selectedFile = document.getElementById("files").files[0]; //获取读取的File对象
+            var name = selectedFile.name; //读取选中文件的文件名
+            // var size = selectedFile.size; //读取选中文件的大小
+            // console.log("文件名:" + name + "大小：" + size);
+
+            var reader = new FileReader(); //这里是核心！！！读取操作就是由它完成的。
+            reader.readAsText(selectedFile); //读取文件的内容
+
+            reader.onload = function () {
+                try {
+                    $('#title').val(name.replace('.mind', ''));
+                    initMind(JSON.parse(this.result));
+                } catch (err) {
+                    alert(err);
+                }
+            };
         }
 
         $(function () {
