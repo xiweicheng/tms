@@ -14,15 +14,19 @@ mvn clean compile
 DT=`date +"%Y%m%d%H%M%S"`
 mkdir -p $DEST/backup/tms/$DT
 cp -rf $DEST/webapps/ROOT/WEB-INF/classes/com $DEST/backup/tms/$DT
+cp -rf $DEST/webapps/ROOT/WEB-INF/classes/static $DEST/backup/tms/$DT
+
 echo "backup path: $DEST/backup/tms/$DT"
 
-echo "rm com"
+echo "rm com & static"
 
 rm -rf $DEST/webapps/ROOT/WEB-INF/classes/com
+rm -rf $DEST/webapps/ROOT/WEB-INF/classes/static
 
 echo "cp tms to local tomcat"
 
 cp -rf $SRC/target/classes/com $DEST/webapps/ROOT/WEB-INF/classes
+cp -rf $SRC/target/classes/static $DEST/webapps/ROOT/WEB-INF/classes
 
 sh $DEST/bin/shutdown.sh
 sleep 5
