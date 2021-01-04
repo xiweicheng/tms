@@ -22,3 +22,4 @@ src/main/resources/md2pdf/node_modules/
 .project
 node_modules/
 .idea
+**/.DS_Store
