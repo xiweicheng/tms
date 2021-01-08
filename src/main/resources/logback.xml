@@ -13,8 +13,7 @@
 		<then>
 			<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 				<encoder>
-					<pattern>%d{HH:mm:ss.SSS} [%-28.28thread] %-5level %logger{36} - %msg%n
-					</pattern>
+					<pattern>%d{HH:mm:ss.SSS} [%-28.28thread] %-5level %logger{36} - %msg%n</pattern>
 				</encoder>
 			</appender>
 
@@ -22,23 +21,18 @@
 				<file>${LOG_PATH}/FILE_${LOG_FILE}</file>
 				<append>true</append>
 				<encoder>
-					<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36}
-						-
-						%msg%n</pattern>
+					<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
 				</encoder>
 			</appender>
 
 			<appender name="ROLLING_FILE"
 				class="ch.qos.logback.core.rolling.RollingFileAppender">
 				<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-					<fileNamePattern>${LOG_PATH}/ROLLING_FILE_%d{yyyy-MM-dd}_${LOG_FILE}
-					</fileNamePattern>
+					<fileNamePattern>${LOG_PATH}/ROLLING_FILE_%d{yyyy-MM-dd}_${LOG_FILE}</fileNamePattern>
 					<maxHistory>30</maxHistory>
 				</rollingPolicy>
 				<encoder>
-					<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36}
-						-
-						%msg%n</pattern>
+					<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
 				</encoder>
 			</appender>
 
@@ -60,15 +54,14 @@
 
 			<root level="INFO">
 				<appender-ref ref="STDOUT" />
-				<appender-ref ref="FILE" />
+				<!-- <appender-ref ref="FILE" /> -->
 				<appender-ref ref="ROLLING_FILE" />
 			</root>
 		</then>
 		<else>
 			<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 				<encoder>
-					<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
-					</pattern>
+					<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
 				</encoder>
 			</appender>
 			<root level="INFO">
