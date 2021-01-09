@@ -36,7 +36,6 @@
 				</encoder>
 			</appender>
 
-			<!-- <logger name="org.apache.activemq" level="OFF" /> -->
 			<!-- <logger name="org.apache.http" level="OFF" /> -->
 			<!-- <logger name="org.springframework.jndi" level="OFF" /> -->
 			<!-- <logger name="org.springframework.web" level="OFF" /> -->
@@ -50,7 +49,15 @@
 			<!-- <logger name="org.springframework.core" level="OFF" /> -->
 			<!-- <logger name="org.springframework.orm" level="INFO" /> -->
 			<!-- <logger name="org.hibernate.SQL" level="DEBUG" /> -->
-			<logger name="com.lhjz.portal" level="DEBUG" />
+			
+			<springProfile name="dev">
+				<logger name="com.lhjz.portal" level="DEBUG" />
+				<!-- <logger name="org.springframework.security" level="DEBUG" /> -->
+				<!-- <logger name="org.hibernate.SQL" level="DEBUG" /> -->
+			</springProfile>
+			<springProfile name="prod,prod-pg">
+				<logger name="com.lhjz.portal" level="INFO" />
+			</springProfile>
 
 			<root level="INFO">
 				<appender-ref ref="STDOUT" />
