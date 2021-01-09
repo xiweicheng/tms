@@ -228,12 +228,14 @@
                 $(evt.currentTarget).attr("checked", $(evt.currentTarget).is(':checked'));
             });
 
+            var uploadMaxFileSize = +(localStorage && localStorage.getItem(`tms-upload-max-file-size`));
+
             $('#word2html-dropzone').dropzone({
                 url: "/admin/file/upload/word2html",
                 paramName: 'file',
                 clickable: true,
                 dictDefaultMessage: '',
-                maxFilesize: 10,
+                maxFilesize: uploadMaxFileSize || 10,
                 acceptedFiles: '.doc,.docx',
                 init: function () {
                     this.on("sending", function (file, xhr, formData) {
@@ -297,7 +299,7 @@
                     // enter: $.FroalaEditor.ENTER_BR,
                     enter: $.FroalaEditor.ENTER_DIV,
                     language: 'zh_cn',
-                    fileMaxSize: 1024 * 1024 * 10,
+                    fileMaxSize: 1024 * 1024 * (uploadMaxFileSize || 10),
                     imageUploadURL: '/admin/file/upload/img',
                     imageUploadParams: {
                         toType: 'Blog',
