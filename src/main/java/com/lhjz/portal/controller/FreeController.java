@@ -1008,8 +1008,16 @@ public class FreeController extends BaseController {
 	@ResponseBody
 	public RespBody SysConfig() {
 
+		Integer uploadMaxFileSize = Integer.valueOf(10);
+
+		String maxFileSize = env.getProperty("spring.http.multipart.max-file-size");
+		if (StringUtil.isNotEmpty(maxFileSize)) {
+			uploadMaxFileSize = Integer.valueOf(maxFileSize.replace("Mb", "").replace("MB", ""));
+		}
+
 		SysConfigInfo sysConfigInfo = SysConfigInfo.builder().fileViewUrl(env.getProperty("tms.file.online.view.url"))
-				.userRegister(!env.getProperty("tms.user.register.off", Boolean.class)).build();
+				.userRegister(!env.getProperty("tms.user.register.off", Boolean.class))
+				.uploadMaxFileSize(uploadMaxFileSize).build();
 
 		return RespBody.succeed(sysConfigInfo);
 	}
