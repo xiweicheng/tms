@@ -59,30 +59,37 @@ public class File implements Serializable {
 	private String uuid;
 
 	@NotBlank
+	@Column(length = 100)
 	private String name;
 
 	@NotBlank
+	@Column(length = 100)
 	private String uuidName;
 
 	@NotBlank
+	@Column(length = 100)
 	private String username;
 
 	@NotBlank
 	private String path;
 
 	@Enumerated(EnumType.STRING)
+	@Column(length = 20)
 	private ToType toType;
 
+	@Column(length = 100)
 	private String toId;
 
 	// 上传所在频道消息，博文评论等的ID
+	@Column(length = 100)
 	private String atId;
 
 	@Enumerated(EnumType.STRING)
+	@Column(length = 20)
 	private FileType type;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
+	@Column(length = 20, nullable = false)
 	private Status status = Status.Normal;
 
 	@Temporal(TemporalType.TIMESTAMP)

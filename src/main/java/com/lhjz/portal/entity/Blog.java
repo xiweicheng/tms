@@ -66,7 +66,7 @@ public class Blog implements Serializable {
 	@GeneratedValue
 	private Long id;
 
-	@Column
+	@Column(length = 150)
 	private String title;
 
 	@Column(length = 100)
@@ -141,6 +141,7 @@ public class Blog implements Serializable {
 
 	private Long tplHotCnt; // 模板热度统计
 
+	@Column(length = 100)
 	private String shareId;
 
 	private Long sort; // 排序位置
