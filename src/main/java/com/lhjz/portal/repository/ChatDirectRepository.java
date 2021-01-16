@@ -87,4 +87,6 @@ public interface ChatDirectRepository extends JpaRepository<ChatDirect, Long> {
 	@Query(value = "SELECT * FROM chat_direct WHERE creator = ?1 AND (upper(content) LIKE upper(?2))", nativeQuery = true)
 	List<ChatDirect> queryByCreatorAndContentLike(String creator, String contentLike);
 	
+	ChatDirect findTopByUuid(String uuid);
+	
 }

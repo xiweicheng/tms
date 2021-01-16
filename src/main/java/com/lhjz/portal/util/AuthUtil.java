@@ -5,6 +5,8 @@ import java.util.Set;
 import com.lhjz.portal.constant.SysConstant;
 import com.lhjz.portal.entity.Channel;
 import com.lhjz.portal.entity.ChatChannel;
+import com.lhjz.portal.entity.ChatDirect;
+import com.lhjz.portal.entity.ChatReply;
 import com.lhjz.portal.entity.Space;
 import com.lhjz.portal.entity.SpaceAuthority;
 import com.lhjz.portal.entity.security.User;
@@ -29,6 +31,15 @@ public class AuthUtil {
 			return false;
 		}
 		return isSuperOrCreator(creator.getUsername());
+	}
+
+	public static boolean hasChannelAuth(ChatReply cr) {
+
+		if (cr == null) {
+			return false;
+		}
+
+		return hasChannelAuth(cr.getChatChannel());
 	}
 
 	public static boolean hasChannelAuth(ChatChannel cc) {
@@ -57,7 +68,7 @@ public class AuthUtil {
 		User loginUser = new User(WebUtil.getUsername());
 		return c.getMembers().contains(loginUser);
 	}
-	
+
 	public static boolean isChannelMember(Channel c) {
 
 		if (c == null) {
@@ -67,7 +78,7 @@ public class AuthUtil {
 		User loginUser = new User(WebUtil.getUsername());
 		return c.getMembers().contains(loginUser);
 	}
-	
+
 	public static boolean hasSpaceAuth(Space s) {
 
 		if (s == null) {
@@ -115,6 +126,21 @@ public class AuthUtil {
 		}
 
 		return exists;
+	}
+
+	public static boolean hasChannelAuth(ChatDirect chatDirect) {
+
+		if (chatDirect == null) {
+			return false;
+		}
+
+		if (isSuperOrCreator(chatDirect.getCreator().getUsername())) {
+			return true;
+		}
+
+		User loginUser = new User(WebUtil.getUsername());
+
+		return chatDirect.getChatTo().equals(loginUser);
 	}
 
 }

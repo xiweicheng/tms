@@ -68,6 +68,7 @@ import com.lhjz.portal.model.Mail;
 import com.lhjz.portal.model.Poll;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.model.ToastrPayload;
+import com.lhjz.portal.model.UuidBody;
 import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.ChatLabelType;
 import com.lhjz.portal.pojo.Enum.ChatMsgType;
@@ -1842,6 +1843,34 @@ public class ChatChannelController extends BaseController {
 				messagingTemplate);
 
 		return RespBody.succeed(id);
+
+	}
+
+	@GetMapping("get/by/uuid")
+	@ResponseBody
+	public RespBody getByUuid(@RequestParam("uuid") String uuid) {
+
+		ChatChannel chatChannel = chatChannelRepository.findTopByUuid(uuid);
+
+		if (chatChannel == null) {
+			ChatReply chatReply = chatReplyRepository.findTopByUuid(uuid);
+
+			if (chatReply == null) {
+				ChatDirect chatDirect = chatDirectRepository.findTopByUuid(uuid);
+
+				if (AuthUtil.hasChannelAuth(chatDirect)) {
+					return RespBody.succeed(UuidBody.builder().type("chatDirect").chatDirect(chatDirect).build());
+				}
+			} else if (AuthUtil.hasChannelAuth(chatReply)) {
+				return RespBody.succeed(UuidBody.builder().type("chatReply").chatReply(chatReply)
+						.chatChannel(chatReply.getChatChannel()).build());
+			}
+
+		} else if (AuthUtil.hasChannelAuth(chatChannel)) {
+			return RespBody.succeed(UuidBody.builder().type("chatChannel").chatChannel(chatChannel).build());
+		}
+
+		return RespBody.failed("您没有权限查看该消息内容!");
 
 	}
 }

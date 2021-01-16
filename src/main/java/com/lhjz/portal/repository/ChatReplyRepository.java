@@ -30,4 +30,6 @@ public interface ChatReplyRepository extends JpaRepository<ChatReply, Long> {
 
 	Page<ChatReply> findByChatChannelAndTypeAndStatusNot(ChatChannel chatChannel, ChatReplyType type, Status status,
 			Pageable pageable);
+	
+	ChatReply findTopByUuid(String uuid);
 }

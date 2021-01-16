@@ -96,4 +96,6 @@ public interface ChatChannelRepository extends JpaRepository<ChatChannel, Long> 
 	
 	ChatChannel findTopByChannelAndNoticeAndStatusNotOrderByUpdateDateDesc(Channel channel, Boolean notice, Status status);
 	
+	ChatChannel findTopByUuid(String uuid);
+
 }
