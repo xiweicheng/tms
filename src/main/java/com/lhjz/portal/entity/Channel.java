@@ -15,12 +15,15 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 import javax.validation.constraints.Pattern;
 
@@ -46,6 +49,7 @@ import lombok.ToString;
  * 
  */
 @Entity
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "uuid" }) }, indexes = { @Index(columnList = "uuid") })
 @EntityListeners(AuditingEntityListener.class)
 @Data
 @ToString(exclude = { "members", "subscriber", "channelGroups" })
@@ -64,7 +68,7 @@ public class Channel implements Serializable {
 
 	@Column
 	private String title;
-	
+
 	@Column(length = 100)
 	private String uuid;
 

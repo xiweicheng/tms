@@ -17,13 +17,16 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 import org.springframework.data.annotation.CreatedBy;
@@ -49,6 +52,8 @@ import lombok.ToString;
  * 
  */
 @Entity
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "uuid" }) }, indexes = { @Index(columnList = "title"),
+		@Index(columnList = "uuid"), @Index(columnList = "shareId") })
 @EntityListeners(AuditingEntityListener.class)
 @Data
 @ToString(exclude = { "blogAuthorities", "tags" })
@@ -63,7 +68,7 @@ public class Blog implements Serializable {
 
 	@Column
 	private String title;
-	
+
 	@Column(length = 100)
 	private String uuid;
 

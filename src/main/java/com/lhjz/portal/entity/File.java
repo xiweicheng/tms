@@ -14,11 +14,14 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -41,6 +44,9 @@ import lombok.ToString;
 @Data
 @ToString(exclude = { "fileTranslates" })
 @Entity
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "uuid" }) }, indexes = { @Index(columnList = "name"),
+		@Index(columnList = "uuidName"), @Index(columnList = "uuid"), @Index(columnList = "toId"),
+		@Index(columnList = "username") })
 public class File implements Serializable {
 
 	/** serialVersionUID (long) */
@@ -68,7 +74,7 @@ public class File implements Serializable {
 	private ToType toType;
 
 	private String toId;
-	
+
 	// 上传所在频道消息，博文评论等的ID
 	private String atId;
 
