@@ -162,6 +162,7 @@ public class FileController extends BaseController {
 	@ResponseBody
 	public RespBody upload(HttpServletRequest request, @RequestParam(value = "toType", required = false) String toType, // Channel | User
 			@RequestParam(value = "toId", required = false) String toId, // channelId | username
+			@RequestParam(value = "atId", required = false) String atId, // 所在消息、评论、博文ID
 			@RequestParam("file") MultipartFile[] files) {
 
 		logger.debug("upload file start...");
@@ -238,6 +239,10 @@ public class FileController extends BaseController {
 					file2.setToId(toId);
 				}
 
+				if (StringUtil.isNotEmpty(atId)) {
+					file2.setAtId(atId);
+				}
+
 				saveFiles.add(fileRepository.save(file2));
 
 				log(Action.Upload, Target.File, file2.getId());
@@ -256,6 +261,7 @@ public class FileController extends BaseController {
 	@ResponseBody
 	public RespBody base64(HttpServletRequest request, @RequestParam(value = "toType", required = false) String toType, // Channel | User
 			@RequestParam(value = "toId", required = false) String toId, // channelId | username
+			@RequestParam(value = "atId", required = false) String atId, // 所在消息、评论、博文ID
 			@RequestParam("dataURL") String dataURL, @RequestParam("type") String type) {
 
 		logger.debug("upload base64 start...");
@@ -318,6 +324,10 @@ public class FileController extends BaseController {
 				file2.setToType(ToType.valueOf(toType));
 				file2.setToId(toId);
 			}
+			
+			if (StringUtil.isNotEmpty(atId)) {
+				file2.setAtId(atId);
+			}
 
 			com.lhjz.portal.entity.File file = fileRepository.save(file2);
 
@@ -345,7 +355,7 @@ public class FileController extends BaseController {
 		}
 		return returnFileName;
 	}
-	
+
 	/**
 	 * 处理File新增uuid字段后，数据修正问题：将id复制到uuid（uuid需为空）
 	 * TODO 当数据量很大，算法存在问题，会报出sql异常（可多次触发解决，需要优化算法）
@@ -449,8 +459,9 @@ public class FileController extends BaseController {
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
 
-		Page<com.lhjz.portal.entity.File> files = fileRepository.findByToTypeAndUsernameAndToIdAndTypeAndNameContainingIgnoreCase(
-				ToType.User, WebUtil.getUsername(), name, FileType.valueOf(type), search, pageable);
+		Page<com.lhjz.portal.entity.File> files = fileRepository
+				.findByToTypeAndUsernameAndToIdAndTypeAndNameContainingIgnoreCase(ToType.User, WebUtil.getUsername(),
+						name, FileType.valueOf(type), search, pageable);
 
 		return RespBody.succeed(files);
 	}
@@ -679,7 +690,7 @@ public class FileController extends BaseController {
 		return new ArrayList<>();
 
 	}
-	
+
 	@ResponseBody
 	@PostMapping("upload/word2html")
 	public RespBody word2html(HttpServletRequest request, @RequestParam("file") MultipartFile file,

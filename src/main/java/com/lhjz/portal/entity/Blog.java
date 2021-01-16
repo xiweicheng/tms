@@ -63,6 +63,9 @@ public class Blog implements Serializable {
 
 	@Column
 	private String title;
+	
+	@Column(length = 100)
+	private String uuid;
 
 	@Lob
 	@Column

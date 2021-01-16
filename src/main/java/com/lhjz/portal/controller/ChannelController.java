@@ -82,6 +82,7 @@ public class ChannelController extends BaseController {
 	@ResponseBody
 	public RespBody create(@RequestParam("name") String name, @RequestParam("title") String title,
 			@RequestParam(value = "desc", required = false) String desc,
+			@RequestParam(value = "uuid", required = false) String uuid, 
 			@RequestParam(value = "privated", required = false) Boolean privated) {
 
 		if (StringUtil.isEmpty(name)) {
@@ -95,6 +96,8 @@ public class ChannelController extends BaseController {
 		Channel channel = new Channel();
 		channel.setName(name);
 		channel.setTitle(title);
+		channel.setUuid(uuid);
+		
 		if (desc != null) {
 			channel.setDescription(desc);
 		}

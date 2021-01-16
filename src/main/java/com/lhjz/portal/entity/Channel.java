@@ -64,6 +64,9 @@ public class Channel implements Serializable {
 
 	@Column
 	private String title;
+	
+	@Column(length = 100)
+	private String uuid;
 
 	@Column(length = 2000)
 	private String description;

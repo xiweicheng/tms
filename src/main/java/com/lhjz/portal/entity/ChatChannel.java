@@ -70,6 +70,9 @@ public class ChatChannel implements Serializable {
 
 	@Column(length = 1000)
 	private String ua;
+	
+	@Column(length = 100)
+	private String uuid;
 
 	private Boolean openEdit;
 
@@ -113,7 +116,7 @@ public class ChatChannel implements Serializable {
 	private Integer voteZanCnt;
 
 	private Integer voteCaiCnt;
-
+	
 	@Version
 	private long version;
 

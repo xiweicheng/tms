@@ -150,6 +150,7 @@ public class ChatDirectController extends BaseController {
 	@ResponseBody
 	public RespBody create(@RequestParam("baseUrl") String baseUrl, @RequestParam("path") String path,
 			@RequestParam("chatTo") String chatTo, @RequestParam("content") String content,
+			@RequestParam(value = "uuid", required = false) String uuid,
 			@RequestParam(value = "ua", required = false) String ua, @RequestParam("contentHtml") String contentHtml) {
 
 		if (StringUtil.isEmpty(content)) {
@@ -166,6 +167,7 @@ public class ChatDirectController extends BaseController {
 		chatDirect.setChatTo(chatToUser);
 		chatDirect.setContent(content);
 		chatDirect.setUa(ua);
+		chatDirect.setUuid(uuid);
 
 		ChatDirect chatDirect2 = chatDirectRepository.saveAndFlush(chatDirect);
 
@@ -410,7 +412,7 @@ public class ChatDirectController extends BaseController {
 
 		return RespBody.succeed(page);
 	}
-	
+
 	@PostMapping("download/md2html/{id}")
 	@ResponseBody
 	public RespBody downloadHtmlFromMd(HttpServletRequest request, @PathVariable Long id,
@@ -691,7 +693,8 @@ public class ChatDirectController extends BaseController {
 			return RespBody.failed("标签关联私聊消息不存在!");
 		}
 
-		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatDirectAndStatusNot(name, chatDirect, Status.Deleted);
+		ChatLabel chatLabel = chatLabelRepository.findOneByNameAndChatDirectAndStatusNot(name, chatDirect,
+				Status.Deleted);
 
 		User loginUser = getLoginUser();
 		ChatLabelType chatLabelType = ChatLabelType.valueOf(type);
@@ -751,7 +754,7 @@ public class ChatDirectController extends BaseController {
 			if (voters.contains(loginUser)) {
 				loginUser.getVoterChatLabels().remove(chatLabel);
 				voters.remove(loginUser);
-				
+
 				if (voters.size() == 0) {
 					chatLabel.setStatus(Status.Deleted);
 					chatLabel = chatLabelRepository.saveAndFlush(chatLabel);

@@ -68,6 +68,9 @@ public class File implements Serializable {
 	private ToType toType;
 
 	private String toId;
+	
+	// 上传所在频道消息，博文评论等的ID
+	private String atId;
 
 	@Enumerated(EnumType.STRING)
 	private FileType type;

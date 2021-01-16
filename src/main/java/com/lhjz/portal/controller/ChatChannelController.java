@@ -171,7 +171,8 @@ public class ChatChannelController extends BaseController {
 	@ResponseBody
 	public RespBody create(@RequestParam("url") String url,
 			@RequestParam(value = "usernames", required = false) String usernames,
-			@RequestParam(value = "ua", required = false) String ua, @RequestParam("channelId") Long channelId,
+			@RequestParam(value = "ua", required = false) String ua,
+			@RequestParam(value = "uuid", required = false) String uuid, @RequestParam("channelId") Long channelId,
 			@RequestParam("content") String content, @RequestParam("contentHtml") String contentHtml) {
 
 		if (StringUtil.isEmpty(content)) {
@@ -188,6 +189,7 @@ public class ChatChannelController extends BaseController {
 		chatChannel.setChannel(channel);
 		chatChannel.setContent(content);
 		chatChannel.setUa(ua);
+		chatChannel.setUuid(uuid);
 
 		ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
 
@@ -355,7 +357,7 @@ public class ChatChannelController extends BaseController {
 
 		chatMsg.put(chatChannel2, Action.Update, ChatMsgType.Content, null, usernames, null);
 		wsSend(chatChannel2, usernames);
-		
+
 		if (Boolean.TRUE.equals(chatChannel2.getNotice())) {
 
 			Set<String> users = chatChannel2.getChannel().getMembers().stream().map(user -> user.getUsername())
@@ -565,7 +567,7 @@ public class ChatChannelController extends BaseController {
 			String[] arr = search.split(":", 2);
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
 				String[] froms = arr[1].trim().split("\\s+");
-				
+
 				User user = getUser(froms[0]);
 
 				if (user != null) {
@@ -623,15 +625,16 @@ public class ChatChannelController extends BaseController {
 
 					if (intLists.size() > 0 && (intLists.get(0) instanceof Integer)) {
 						start = start.minusMinutes((Integer) intLists.get(0));
-					} 
-					
-					if (intLists.size() > 1 && (intLists.get(0) instanceof Integer) && (intLists.get(1) instanceof Integer)) {
+					}
+
+					if (intLists.size() > 1 && (intLists.get(0) instanceof Integer)
+							&& (intLists.get(1) instanceof Integer)) {
 						Integer i1 = (Integer) intLists.get(0);
 						Integer i2 = (Integer) intLists.get(1);
 						start = start.minusMinutes(Math.max(i1, i2));
 						end = end.minusMinutes(Math.min(i1, i2));
 					}
-					
+
 					if (intLists.size() > 1 && (intLists.get(1) instanceof String)) {
 						condi = (String) intLists.get(1);
 					} else if (intLists.size() > 2 && (intLists.get(2) instanceof String)) {
@@ -706,7 +709,7 @@ public class ChatChannelController extends BaseController {
 
 		return RespBody.succeed(chatStow3);
 	}
-	
+
 	@GetMapping("isMyStow")
 	@ResponseBody
 	public RespBody isMyStow(@RequestParam("id") Long id) {
@@ -860,10 +863,10 @@ public class ChatChannelController extends BaseController {
 
 		chatChannel.setOpenEdit(open);
 		chatChannelRepository.saveAndFlush(chatChannel);
-		
+
 		chatMsg.put(chatChannel, Action.Update, ChatMsgType.OpenEdit, WebUtil.getUsername(), null, null);
 		wsSend(chatChannel, null);
-//		chatChannelService.save(chatChannel);
+		//		chatChannelService.save(chatChannel);
 
 		return RespBody.succeed();
 	}
@@ -978,7 +981,7 @@ public class ChatChannelController extends BaseController {
 		return RespBody.succeed(new Poll(channelId, lastChatChannelId, isAt, cnt, cntAtUserNew, countMyRecentSchedule,
 				chatMsg.get(channelId)));
 	}
-	
+
 	@PostMapping("download/md2html/{id}")
 	@ResponseBody
 	public RespBody downloadHtmlFromMd(HttpServletRequest request, @PathVariable Long id,
@@ -1402,7 +1405,8 @@ public class ChatChannelController extends BaseController {
 	@ResponseBody
 	public RespBody addReply(@RequestParam("url") String url,
 			@RequestParam(value = "usernames", required = false) String usernames,
-			@RequestParam(value = "ua", required = false) String ua, @RequestParam("content") String content,
+			@RequestParam(value = "ua", required = false) String ua,
+			@RequestParam(value = "uuid", required = false) String uuid, @RequestParam("content") String content,
 			@RequestParam("contentHtml") String contentHtml, @RequestParam("id") Long id) {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);
@@ -1415,6 +1419,7 @@ public class ChatChannelController extends BaseController {
 		chatReply.setChatChannel(chatChannel);
 		chatReply.setContent(content);
 		chatReply.setUa(ua);
+		chatReply.setUuid(uuid);
 
 		ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
 
@@ -1772,7 +1777,7 @@ public class ChatChannelController extends BaseController {
 		return RespBody.succeed(chatLabelRepository.queryTagsByUser(WebUtil.getUsername()));
 
 	}
-	
+
 	@PostMapping("news/delete")
 	@ResponseBody
 	public RespBody deleteNews(@RequestParam("id") String id) {
@@ -1783,7 +1788,7 @@ public class ChatChannelController extends BaseController {
 		return RespBody.succeed(id);
 
 	}
-	
+
 	@PostMapping("notice/add")
 	@ResponseBody
 	public RespBody addNotice(@RequestParam("id") Long id) {
@@ -1815,7 +1820,7 @@ public class ChatChannelController extends BaseController {
 		return RespBody.succeed(id);
 
 	}
-	
+
 	@PostMapping("notice/remove")
 	@ResponseBody
 	public RespBody removeNotice(@RequestParam("id") Long id) {

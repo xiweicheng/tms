@@ -214,6 +214,7 @@ public class BlogController extends BaseController {
 			@RequestParam(value = "privated", required = false) Boolean privated,
 			@RequestParam(value = "opened", required = false) Boolean opened,
 			@RequestParam(value = "editor", required = false) String editor,
+			@RequestParam(value = "uuid", required = false) String uuid,
 			@RequestParam(value = "usernames", required = false) String usernames, @RequestParam("title") String title,
 			@RequestParam("content") String content, @RequestParam("contentHtml") String contentHtml) {
 
@@ -228,6 +229,7 @@ public class BlogController extends BaseController {
 		Blog blog = new Blog();
 		blog.setTitle(title);
 		blog.setContent(content);
+		blog.setUuid(uuid);
 
 		if (StringUtils.isNotBlank(editor)) {
 			blog.setEditor(Editor.valueOf(editor));
@@ -1122,6 +1124,7 @@ public class BlogController extends BaseController {
 			@RequestParam("content") String content,
 			@RequestParam(value = "contentHtml", required = false) String contentHtml,
 			@RequestParam(value = "editor", required = false) String editor,
+			@RequestParam(value = "uuid", required = false) String uuid,
 			@RequestParam(value = "users", required = false) String users) {
 
 		if (!hasAuth(id)) {
@@ -1132,6 +1135,7 @@ public class BlogController extends BaseController {
 		comment.setContent(content);
 		comment.setTargetId(String.valueOf(id));
 		comment.setType(CommentType.Blog);
+		comment.setUuid(uuid);
 
 		if (StringUtils.isNotBlank(editor)) {
 			comment.setEditor(Editor.valueOf(editor));

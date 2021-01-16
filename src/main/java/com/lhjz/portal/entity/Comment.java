@@ -74,6 +74,9 @@ public class Comment implements Serializable {
 	private Integer voteZanCnt;
 
 	private Integer voteCaiCnt;
+	
+	@Column(length = 100)
+	private String uuid;
 
 	@ManyToOne
 	@JoinColumn(name = "creator")
