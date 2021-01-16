@@ -26,7 +26,7 @@ rm -rf $DEST/webapps/ROOT/WEB-INF/classes/static
 echo "cp tms to local tomcat"
 
 cp -rf $SRC/target/classes/com $DEST/webapps/ROOT/WEB-INF/classes
-cp -rf $SRC/target/classes/static $DEST/webapps/ROOT/WEB-INF/classes
+cp -rf $SRC/src/main/resources/static $DEST/webapps/ROOT/WEB-INF/classes
 
 sh $DEST/bin/shutdown.sh
 sleep 5
