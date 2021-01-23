@@ -185,10 +185,10 @@
         var taskItemHtml =
             '<input data-id="$id" class="tms-task-item" style="margin:0; width:21px;" type="checkbox" />';
 
-        $(function () {
+        var blog = null;
+        var comment = null;
 
-            var blog = null;
-            var comment = null;
+        $(function () {
 
             // toastr弹出消息提示插件全局配置设置
             toastr.options.positionClass = 'toast-bottom-center';
@@ -337,6 +337,16 @@
                             toastr && toastr.error(JSON.stringify(err), '图片删除失败！');
                         });
                 })
+                .on('froalaEditor.file.beforeUpload', function (e, editor, file) {
+                    if (editor.opts.fileUploadParams) {
+                        editor.opts.fileUploadParams.atId = getAtId();
+                    }
+                })
+                .on('froalaEditor.image.beforeUpload', function (e, editor, img) {
+                    if (editor.opts.imageUploadParams) {
+                        editor.opts.imageUploadParams.atId = getAtId();
+                    }
+                })
                 // Catch image removal from the editor.
                 .on('froalaEditor.file.unlink', function (e, editor, link) {
                     $.ajax({
@@ -421,14 +431,19 @@
                     }
 
                     if (comment == null) {
+
+                        window.bc_uuid = window.bc_uuid || uuid();
+
                         $.post('/admin/blog/comment/create', {
                             basePath: window.location.protocol + '//' + window.location.host +
                                 '/page/index.html',
                             id: id,
                             editor: 'Html',
+                            uuid: window.bc_uuid,
                             content: content
                         }, function (data, textStatus, xhr) {
                             if (data.success) {
+                                window.bc_uuid = uuid();
                                 comment = data.data;
                                 toastr && toastr.success('博文评论保存成功！');
                                 (window.parent && window.parent.postMessage) && (window.parent
@@ -717,6 +732,8 @@
                             .prop(
                                 "checked"));
 
+                        window.b_uuid = window.b_uuid || uuid();
+
                         $.post('/admin/blog/create', {
                             url: window.location.protocol + '//' + window.location.host +
                                 '/page/index.html',
@@ -727,9 +744,11 @@
                             content: content,
                             editor: 'Html',
                             privated: $('#privated').prop("checked"),
+                            uuid: window.b_uuid,
                             contentHtml: content
                         }, function (data, textStatus, xhr) {
                             if (data.success) {
+                                window.b_uuid = uuid();
                                 blog = data.data;
                                 toastr && toastr.success('博文保存成功！');
                                 $('#preview').show();
@@ -799,7 +818,40 @@
 
         }
 
+        // 生成uuid
+        function uuid() {
+            var d = new Date().getTime();
+            var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = (d + Math.random() * 16) % 16 | 0;
+                d = Math.floor(d / 16);
+                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+            return uuid;
+        }
+
         function getBaseUrl() {
+            return window.location.protocol + '//' + window.location.host;
+        }
+
+        function getAtId() {
+
+            var isComment = typeof url('?comment') !== 'undefined';
+            if (isComment) {
+                if (comment) {
+                    return comment.uuid;
+                } else {
+                    window.bc_uuid = window.bc_uuid || uuid();
+                    return window.bc_uuid;
+                }
+            } else {
+                if (blog) {
+                    return blog.uuid;
+                } else {
+                    window.b_uuid = window.b_uuid || uuid();
+                    return window.b_uuid;
+                }
+            }
+
             return window.location.protocol + '//' + window.location.host;
         }
 
