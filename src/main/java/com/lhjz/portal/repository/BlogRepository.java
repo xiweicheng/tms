@@ -101,6 +101,11 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	@Modifying
 	@Query("update Blog b set b.privated = ?1, b.opened = ?2 where b.id = ?3")
 	int updatePrivatedAndOpened(Boolean privated, Boolean opened, Long id);
+	
+	@Transactional
+	@Modifying
+	@Query("update Blog b set b.fileReadonly = ?1 where b.id = ?2")
+	int updateFileReadonly(Boolean fileReadonly, Long id);
 
 	@Transactional
 	@Modifying
@@ -155,4 +160,7 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	Blog findTopByStatusNotAndOpenedTrueAndSpaceAndIdGreaterThanOrderByIdAsc(Status status, Space space, Long id);
 
 	Blog findTopByStatusNotAndShareId(Status status, String shareId);
+	
+	Blog findTopByUuid(String uuid);
+	
 }

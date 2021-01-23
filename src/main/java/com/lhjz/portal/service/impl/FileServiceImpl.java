@@ -51,6 +51,7 @@ public class FileServiceImpl implements FileService {
 	public com.lhjz.portal.entity.File uploadImg(HttpServletRequest request, MultipartFile file) throws Exception {
 
 		String realPath = WebUtil.getRealPath(request);
+		String atId = request.getParameter("atId");
 
 		String originalFileName = file.getOriginalFilename().replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
 		int lIndex = originalFileName.lastIndexOf(".");
@@ -104,6 +105,10 @@ public class FileServiceImpl implements FileService {
 
 		file2.setToType(ToType.Blog);
 
+		if (StringUtil.isNotEmpty(atId)) {
+			file2.setAtId(atId);
+		}
+
 		return fileRepository.save(file2);
 
 	}
@@ -128,6 +133,7 @@ public class FileServiceImpl implements FileService {
 	public com.lhjz.portal.entity.File uploadFile(HttpServletRequest request, MultipartFile file) throws Exception {
 
 		String realPath = WebUtil.getRealPath(request);
+		String atId = request.getParameter("atId");
 
 		String originalFileName = file.getOriginalFilename().replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
 		int lIndex = originalFileName.lastIndexOf(".");
@@ -159,6 +165,10 @@ public class FileServiceImpl implements FileService {
 		file2.setUuid(UUID.randomUUID().toString());
 
 		file2.setToType(ToType.Blog);
+
+		if (StringUtil.isNotEmpty(atId)) {
+			file2.setAtId(atId);
+		}
 
 		return fileRepository.save(file2);
 

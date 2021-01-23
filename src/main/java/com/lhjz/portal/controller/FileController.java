@@ -51,6 +51,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.collect.Lists;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.constant.SysConstant;
+import com.lhjz.portal.entity.Blog;
 import com.lhjz.portal.model.RespBody;
 import com.lhjz.portal.model.UploadResult;
 import com.lhjz.portal.pojo.Enum.Action;
@@ -59,6 +60,7 @@ import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.pojo.Enum.ToType;
 import com.lhjz.portal.pojo.FileForm;
+import com.lhjz.portal.repository.BlogRepository;
 import com.lhjz.portal.repository.FileRepository;
 import com.lhjz.portal.service.FileService;
 import com.lhjz.portal.util.ChineseUtil;
@@ -84,6 +86,9 @@ public class FileController extends BaseController {
 
 	@Autowired
 	FileRepository fileRepository;
+
+	@Autowired
+	BlogRepository blogRepository;
 
 	@Autowired
 	FileService fileService;
@@ -324,7 +329,7 @@ public class FileController extends BaseController {
 				file2.setToType(ToType.valueOf(toType));
 				file2.setToId(toId);
 			}
-			
+
 			if (StringUtil.isNotEmpty(atId)) {
 				file2.setAtId(atId);
 			}
@@ -391,6 +396,20 @@ public class FileController extends BaseController {
 				return;
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
+			}
+		}
+
+		// 判断博文是否限制了下载权限
+		if (!"1".equals(request.getParameter("onlinepreview")) && ToType.Blog.equals(file2.getToType())
+				&& StringUtil.isNotEmpty(file2.getAtId())) {
+			Blog blog = blogRepository.findTopByUuid(file2.getAtId());
+			if (blog != null && blog.getFileReadonly()) {
+				try {
+					response.sendError(401, "权限不足!");
+					return;
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
 			}
 		}
 

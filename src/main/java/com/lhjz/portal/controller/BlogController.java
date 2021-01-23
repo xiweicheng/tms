@@ -1428,6 +1428,25 @@ public class BlogController extends BaseController {
 		return RespBody.succeed(blogRepository.findOne(id));
 	}
 
+	@RequestMapping(value = "file/permission/update", method = RequestMethod.POST)
+	@ResponseBody
+	public RespBody updateFilePermission(@RequestParam("id") Long id, @RequestParam("readonly") Boolean readonly) {
+
+		Blog blog = blogRepository.findOne(id);
+
+		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
+			return RespBody.failed("您没有权限修改该博文文件附件权限!");
+		}
+
+		blogRepository.updateFileReadonly(readonly, id);
+
+		logWithProperties(Action.Update, Target.Blog, id, "fileReadonly", readonly, blog.getTitle());
+
+		em.detach(blog);
+
+		return RespBody.succeed(blogRepository.findOne(id));
+	}
+
 	@RequestMapping(value = "opened/update", method = RequestMethod.POST)
 	@ResponseBody
 	public RespBody updateOpened(@RequestParam("id") Long id, @RequestParam("opened") Boolean opened) {

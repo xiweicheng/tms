@@ -88,6 +88,9 @@ public class Blog implements Serializable {
 
 	@Column
 	private Boolean opened = Boolean.FALSE;
+	
+	@Column
+	private Boolean fileReadonly = Boolean.FALSE;
 
 	@Column
 	private Integer tpl; // 模板：1：privated 2：opened 其他：非模板
