@@ -33,12 +33,15 @@ import com.lhjz.portal.util.ImageUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.WebUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author xi
  *
  */
 @Service
 @Transactional
+@Slf4j
 public class FileServiceImpl implements FileService {
 
 	@Autowired
@@ -241,6 +244,21 @@ public class FileServiceImpl implements FileService {
 
 		return WordInfo.builder().file(file3).html(result.getValue()).build();
 
+	}
+
+	@Override
+	public boolean removeFileByAtId(String atId) {
+
+		try {
+			if (StringUtil.isEmpty(atId)) {
+				return false;
+			}
+
+			return fileRepository.updateFileByAtId(atId) != 0;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
 	}
 
 }

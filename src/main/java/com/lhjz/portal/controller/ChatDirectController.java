@@ -69,6 +69,7 @@ import com.lhjz.portal.repository.GroupRepository;
 import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.ChatChannelService;
+import com.lhjz.portal.service.FileService;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
@@ -135,6 +136,9 @@ public class ChatDirectController extends BaseController {
 
 	@Autowired
 	AsyncTask asyncTask;
+
+	@Autowired
+	FileService fileService;
 
 	private void wsSend(ChatDirect chatDirect, Cmd cmd) {
 		try {
@@ -271,6 +275,8 @@ public class ChatDirectController extends BaseController {
 			userRepository.save(voters);
 			userRepository.flush();
 		});
+
+		fileService.removeFileByAtId(chatDirect.getUuid());
 
 		chatDirectRepository.delete(chatDirect);
 

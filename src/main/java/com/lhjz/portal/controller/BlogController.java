@@ -107,6 +107,7 @@ import com.lhjz.portal.repository.TagRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.BlogLockService;
 import com.lhjz.portal.service.ChatChannelService;
+import com.lhjz.portal.service.FileService;
 import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.JsonUtil;
@@ -205,6 +206,9 @@ public class BlogController extends BaseController {
 
 	@PersistenceContext
 	private EntityManager em;
+
+	@Autowired
+	FileService fileService;
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
@@ -621,6 +625,8 @@ public class BlogController extends BaseController {
 		if (!isSuperOrCreator(blog.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限删除该博文!");
 		}
+		
+		fileService.removeFileByAtId(blog.getUuid());
 
 		blog.setStatus(Status.Deleted);
 
@@ -1343,6 +1349,8 @@ public class BlogController extends BaseController {
 			if (!isSuperOrCreator(comment.getCreator().getUsername())) {
 				return RespBody.failed("您没有权限删除该博文评论!");
 			}
+			
+			fileService.removeFileByAtId(comment.getUuid());
 
 			comment.setStatus(Status.Deleted);
 			commentRepository.saveAndFlush(comment);

@@ -29,4 +29,6 @@ public interface FileService {
 	List<File> listImg() throws Exception;
 	
 	WordInfo word2html(HttpServletRequest request, MultipartFile file) throws Exception;
+
+	boolean removeFileByAtId(String atId);
 }

@@ -29,18 +29,20 @@ import com.lhjz.portal.pojo.Enum.ToType;
 public interface FileRepository extends JpaRepository<File, Long> {
 
 	File findTopByUuidName(String uuidName);
-	
+
+	List<File> findByAtId(String atId);
+
 	File findTopByUuidAndStatusNot(String uuid, Status status);
 
-	Page<File> findByToTypeAndToIdAndTypeAndNameContainingIgnoreCase(ToType toType, String toId, FileType fileType, String search,
-			Pageable pageable);
+	Page<File> findByToTypeAndToIdAndTypeAndStatusNotAndNameContainingIgnoreCase(ToType toType, String toId,
+			FileType fileType, Status status, String search, Pageable pageable);
 
-	Page<File> findByToTypeAndUsernameAndToIdAndTypeAndNameContainingIgnoreCase(ToType toType, String username, String toId,
-			FileType fileType, String search, Pageable pageable);
-	
+	Page<File> findByToTypeAndUsernameAndToIdAndTypeAndStatusNotAndNameContainingIgnoreCase(ToType toType,
+			String username, String toId, FileType fileType, Status status, String search, Pageable pageable);
+
 	@Query(value = "SELECT * FROM file WHERE to_type IS NULL", nativeQuery = true)
 	List<File> queryByToTypeIsNull();
-	
+
 	@Query(value = "SELECT * FROM file WHERE to_type IS NULL AND type = 'Attachment'", nativeQuery = true)
 	List<File> queryAttachmentByToTypeIsNull();
 
@@ -48,12 +50,17 @@ public interface FileRepository extends JpaRepository<File, Long> {
 	@Modifying
 	@Query(value = "UPDATE file SET to_type = 'Channel', to_id = ?1 WHERE id = ?2", nativeQuery = true)
 	int updateFileToChannel(String toId, Long id);
-	
+
 	@Transactional
 	@Modifying
 	@Query(value = "UPDATE file SET to_type = 'User', to_id = ?1 WHERE id = ?2", nativeQuery = true)
 	int updateFileToUser(String toId, Long id);
-	
+
+	@Transactional
+	@Modifying
+	@Query(value = "UPDATE file SET status = 'Deleted' WHERE at_id = ?1", nativeQuery = true)
+	int updateFileByAtId(String atId);
+
 	List<File> findTop40ByTypeAndStatusNot(FileType type, Status status, Sort sort);
-	
+
 }

@@ -89,6 +89,7 @@ import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.ScheduleRepository;
 import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.ChatChannelService;
+import com.lhjz.portal.service.FileService;
 import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.MapUtil;
@@ -161,6 +162,9 @@ public class ChatChannelController extends BaseController {
 
 	@Autowired
 	ChatChannelService chatChannelService;
+
+	@Autowired
+	FileService fileService;
 
 	@Autowired
 	AsyncTask asyncTask;
@@ -464,6 +468,8 @@ public class ChatChannelController extends BaseController {
 			userRepository.save(voters);
 			userRepository.flush();
 		});
+
+		fileService.removeFileByAtId(chatChannel.getUuid());
 
 		chatChannelRepository.delete(id);
 
@@ -1622,6 +1628,8 @@ public class ChatChannelController extends BaseController {
 		List<ChatAt> chatAts = chatAtRepository.findByChatReply(chatReply);
 		chatAtRepository.delete(chatAts);
 		chatAtRepository.flush();
+
+		fileService.removeFileByAtId(chatReply.getUuid());
 
 		chatReplyRepository.delete(chatReply);
 
