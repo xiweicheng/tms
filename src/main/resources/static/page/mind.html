@@ -289,6 +289,7 @@
 
                 $('#save').click(function (event) {
 
+                    mind.cancelFocus();
                     var content = mind.getAllDataString();
 
                     if (!content || !$.trim(content)) {
@@ -358,6 +359,7 @@
 
                         var updated = false;
 
+                        mind.cancelFocus();
                         var content = mind.getAllDataString();
 
                         if (comment) {
@@ -513,6 +515,8 @@
                         var updated = false;
 
                         var title = $('#title').val();
+
+                        mind.cancelFocus();
                         var content = mind.getAllDataString();
 
                         if (blog) {
@@ -545,6 +549,8 @@
                 $('#save').click(function (event) {
 
                     var title = $('#title').val();
+
+                    mind.cancelFocus();
                     var content = mind.getAllDataString();
 
                     if (!title || !$.trim(title)) {
@@ -628,6 +634,8 @@
                 $('#saveFrm .btnOk').click(function (event) {
 
                     var title = $('#title').val();
+                    
+                    mind.cancelFocus();
                     var content = mind.getAllDataString();
 
                     if (!title || !$.trim(title)) {
