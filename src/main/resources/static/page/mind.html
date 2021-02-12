@@ -78,7 +78,7 @@
             border: none;
             font-size: 14px;
         }
-        
+
         #import {
             color: #fff;
             background: #00aaff;
@@ -94,6 +94,7 @@
             .topbar>input {
                 width: 250px;
             }
+
             #import {
                 display: none;
             }
@@ -179,17 +180,22 @@
     <script type="text/javascript" src="cdn/sockjs.min.js"></script>
     <script type="text/javascript" src="cdn/stomp.min.js"></script>
     <script>
+        var newMindStr = null;
+
         function initMind(data) {
 
             var readonly = typeof url('?readonly') !== 'undefined';
 
             if ($('#mind').length == 0) return;
 
+            var newMind = data ? null : MindElixir.new('新主题');
+            newMindStr = JSON.stringify(newMind);
+
             window.mind = new MindElixir({
                 el: '#mind',
                 direction: MindElixir.SIDE,
                 locale: 'cn',
-                data: data ? data : MindElixir.new('新主题'),
+                data: data ? data : newMind,
                 draggable: !readonly, // default true
                 editable: !readonly,
                 contextMenu: !readonly, // default true
@@ -522,9 +528,7 @@
                         if (blog) {
                             updated = (blog.title != title) || (blog.content != content);
                         } else {
-                            updated = !!$.trim(title) || (!!$.trim(content) && content !=
-                                `{"nodeData":{"id":"root","topic":"新主题","root":true,"children":[]},"linkData":{}}`
-                            );
+                            updated = !!$.trim(title) || (!!$.trim(content) && content != newMindStr);
                         }
 
                         (window.parent && window.parent.postMessage) && (window.parent
@@ -634,7 +638,7 @@
                 $('#saveFrm .btnOk').click(function (event) {
 
                     var title = $('#title').val();
-                    
+
                     mind.cancelFocus();
                     var content = mind.getAllDataString();
 
