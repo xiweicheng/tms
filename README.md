@@ -1,22 +1,22 @@
 # TMS(Teamwork Management System)
-> TMS是免费开源的团队协作(沟通,博文,国际化翻译)web系统(响应式界面设计,移动端适配).
->    
-> **repo:**  
-> https://gitee.com/xiweicheng/tms  
-> https://github.com/xiweicheng/tms  
+> TMS是基于频道模式的团队沟通协作+轻量级任务看板，支持mardown、富文本、在线表格和思维导图的团队博文wiki，i18n国际化翻译管理的响应式web开源团队协作系统。
+
+**代码仓库:**  
+- gitee：https://gitee.com/xiweicheng/tms  
+- github：https://github.com/xiweicheng/tms  
 
  **前端代码仓库（代码已经压缩打包到tms仓库中）：** 
 - 沟通博文：https://gitee.com/xiweicheng/tms-frontend
-- 着陆页： https://gitee.com/xiweicheng/tms-landing
+- 着陆首页：https://gitee.com/xiweicheng/tms-landing
 
 
 ## 如何运行
 
+- [TMS用户手册（使用指导）](https://gitee.com/xiweicheng/tms/wikis/%E7%9D%80%E9%99%86%E9%A1%B5?sort_id=3692705)
 - [如何在开发工具中运行](https://gitee.com/xiweicheng/tms/wikis/%E5%A6%82%E4%BD%95%E5%9C%A8%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E4%B8%AD%E8%BF%90%E8%A1%8C?sort_id=351959)
 - [TMS安装部署（传统方式）](https://gitee.com/xiweicheng/tms/wikis/TMS%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2%EF%BC%88%E4%BC%A0%E7%BB%9F%E6%96%B9%E5%BC%8F%EF%BC%89?sort_id=21982)
 - [TMS安装部署（docker-compose）](https://gitee.com/xiweicheng/tms/wikis/TMS%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2%EF%BC%88docker-compose%EF%BC%89?sort_id=21977)
 - [TMS安装部署（k8s方式）](https://gitee.com/xiweicheng/tms/wikis/TMS%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2%EF%BC%88k8s%E6%96%B9%E5%BC%8F%EF%BC%89?sort_id=3201498)
-- [TMS用户手册（使用指导）](https://gitee.com/xiweicheng/tms/wikis/%E7%9D%80%E9%99%86%E9%A1%B5?sort_id=3692705)
 
 
 ## Image show
@@ -84,7 +84,7 @@
 - 博文关注,收藏,历史（版本比较、回退）,权限,点赞,分享,开放游客访问
 - 博文评论
 - 博文多人协作编辑（需开启博文协助权限）
-- 导出 pdf & （markdown | html）
+- 导出 pdf、markdown、html、excel、png
 - 基于websocket的博文更新实时通知（协作更及时便捷）
 - 完整的博文操作变更历史审计和通知消息中心
 - 更多贴心便捷操作等你发现
