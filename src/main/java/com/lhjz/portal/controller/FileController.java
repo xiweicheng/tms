@@ -178,7 +178,7 @@ public class FileController extends BaseController {
 
 		for (MultipartFile file : files) {
 
-			String originalFileName = file.getOriginalFilename().replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
+			String originalFileName = file.getOriginalFilename();//.replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
 			int lIndex = originalFileName.lastIndexOf(".");
 			String type = lIndex == -1 ? SysConstant.EMPTY : originalFileName.substring(lIndex);
 
@@ -498,7 +498,7 @@ public class FileController extends BaseController {
 
 		for (MultipartFile file : files) {
 
-			String originalFileName = file.getOriginalFilename().replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
+			String originalFileName = file.getOriginalFilename();//.replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
 			int lIndex = originalFileName.lastIndexOf(".");
 			String type = lIndex == -1 ? SysConstant.EMPTY : originalFileName.substring(lIndex);
 

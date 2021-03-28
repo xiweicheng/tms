@@ -56,7 +56,7 @@ public class FileServiceImpl implements FileService {
 		String realPath = WebUtil.getRealPath(request);
 		String atId = request.getParameter("atId");
 
-		String originalFileName = file.getOriginalFilename().replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
+		String originalFileName = file.getOriginalFilename();//.replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
 		int lIndex = originalFileName.lastIndexOf(".");
 		String type = lIndex == -1 ? SysConstant.EMPTY : originalFileName.substring(lIndex);
 
@@ -138,7 +138,7 @@ public class FileServiceImpl implements FileService {
 		String realPath = WebUtil.getRealPath(request);
 		String atId = request.getParameter("atId");
 
-		String originalFileName = file.getOriginalFilename().replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
+		String originalFileName = file.getOriginalFilename();//.replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
 		int lIndex = originalFileName.lastIndexOf(".");
 		String type = lIndex == -1 ? SysConstant.EMPTY : originalFileName.substring(lIndex);
 
@@ -206,7 +206,7 @@ public class FileServiceImpl implements FileService {
 
 		String realPath = WebUtil.getRealPath(request);
 
-		String originalFileName = file.getOriginalFilename().replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
+		String originalFileName = file.getOriginalFilename();//.replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
 		int lIndex = originalFileName.lastIndexOf(".");
 		String type = lIndex == -1 ? SysConstant.EMPTY : originalFileName.substring(lIndex);
 
