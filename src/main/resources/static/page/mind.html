@@ -371,9 +371,7 @@
                         if (comment) {
                             updated = (comment.content != content);
                         } else {
-                            updated = (!!$.trim(content) && content !=
-                                `{"nodeData":{"id":"root","topic":"新主题","root":true,"children":[]},"linkData":{}}`
-                            );
+                            updated = (!!$.trim(content) && content != newMindStr);
                         }
 
                         (window.parent && window.parent.postMessage) && (window.parent
