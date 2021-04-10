@@ -88,7 +88,7 @@ public class Blog implements Serializable {
 
 	@Column
 	private Boolean opened = Boolean.FALSE;
-	
+
 	@Column
 	private Boolean fileReadonly = Boolean.FALSE;
 
@@ -136,18 +136,28 @@ public class Blog implements Serializable {
 	@Column
 	private String voteCai;
 
+	@Column
 	private Integer voteZanCnt;
 
+	@Column
 	private Integer voteCaiCnt;
 
+	@Column
 	private Long readCnt;
 
+	@Column
 	private Long tplHotCnt; // 模板热度统计
 
 	@Column(length = 100)
 	private String shareId;
 
 	private Long sort; // 排序位置
+
+	@Column
+	private Long pid; // 父博文ID
+
+	@Column
+	private Boolean hasChild = Boolean.FALSE;; // 是否有子级博文
 
 	@ManyToOne
 	@JoinColumn(name = "locker")

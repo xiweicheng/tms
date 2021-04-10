@@ -626,6 +626,7 @@
                     var content = $('#edit').froalaEditor('html.get', true);
                     var spaceId = url('?spaceId');
                     var dirId = url('?dirId');
+                    var pid = url('?pid');
 
                     if (!title || !$.trim(title)) {
                         toastr && toastr.error('博文标题不能为空！');
@@ -639,8 +640,8 @@
 
                     if (blog == null) {
 
-                        if (spaceId) { // 基于空间或者目录创建博文场景
-                            createBlog(spaceId, dirId);
+                        if (spaceId || pid) { // 基于空间或者目录创建博文场景
+                            createBlog(spaceId, dirId, pid);
                         } else {
                             $.get('/admin/space/listMy', function (data) {
                                 if (data.success) {
@@ -727,7 +728,7 @@
             }
         });
 
-        function createBlog(spaceId, dirId) {
+        function createBlog(spaceId, dirId, pid) {
 
             var title = $('#title').val();
             var content = $('#edit').froalaEditor('html.get', true);
@@ -744,7 +745,7 @@
 
             if (blog == null) {
 
-                if (!spaceId) {
+                if (!spaceId && !pid) {
 
                     $.modal.close();
 
@@ -766,6 +767,7 @@
                     spaceId: spaceId ? spaceId : $('#saveFrm select[name="space"]').val(),
                     dirId: dirId ? dirId : (spaceId ? '' : $('#saveFrm select[name="dir"]')
                         .val()), // 如果只是基于空间，目录设置为空
+                    pid: pid ? pid : '',
                     title: title,
                     content: content,
                     editor: 'Html',

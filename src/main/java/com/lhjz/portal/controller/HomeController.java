@@ -149,6 +149,22 @@ public class HomeController extends BaseController {
 		return RespBody.succeed(blogs);
 	}
 
+	@GetMapping("blog/list/by/pid")
+	public RespBody listBlogsByPid(@RequestParam("id") Long id) {
+
+		Blog blog = blogRepository.findOne(id);
+		if (blog == null || !Boolean.TRUE.equals(blog.getOpened())) {
+			return RespBody.failed("权限不足！");
+		}
+
+		List<Blog> blogs = blogRepository.findByStatusNotAndPidAndOpenedTrue(Status.Deleted, id).stream().peek(b -> {
+			b.setContent(null);
+			b.setBlogAuthorities(null);
+		}).collect(Collectors.toList());
+
+		return RespBody.succeed(blogs);
+	}
+
 	@GetMapping("blog/page/search")
 	public RespBody searchBlogByPage(@RequestParam("search") String search,
 			@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable) {
@@ -163,13 +179,14 @@ public class HomeController extends BaseController {
 		if (search.toLowerCase().startsWith("title:")) {
 			String[] arr = search.split(":", 2);
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
-				blogs = blogRepository.findByStatusNotAndTitleContainingIgnoreCaseAndOpenedTrue(Status.Deleted, arr[1], pageable);
+				blogs = blogRepository.findByStatusNotAndTitleContainingIgnoreCaseAndOpenedTrue(Status.Deleted, arr[1],
+						pageable);
 			}
 		} else if (search.toLowerCase().startsWith("content:")) {
 			String[] arr = search.split(":", 2);
 			if (StringUtil.isNotEmpty(arr[1].trim())) {
-				blogs = blogRepository.findByStatusNotAndContentContainingIgnoreCaseAndOpenedTrue(Status.Deleted, arr[1],
-						pageable);
+				blogs = blogRepository.findByStatusNotAndContentContainingIgnoreCaseAndOpenedTrue(Status.Deleted,
+						arr[1], pageable);
 			}
 		} else {
 			blogs = blogRepository

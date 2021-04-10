@@ -276,6 +276,7 @@
             var cid = url('?cid');
             var spaceId = url('?spaceId');
             var dirId = url('?dirId');
+            var pid = url('?pid');
 
             var readonly = typeof url('?readonly') !== 'undefined';
             !readonly && $('#editor').removeClass('readonly');
@@ -578,8 +579,8 @@
 
                     if (blog == null) {
 
-                        if (spaceId) {
-                            createBlog(spaceId, dirId);
+                        if (spaceId || pid) {
+                            createBlog(spaceId, dirId, pid);
                         } else {
                             $.get('/admin/space/listMy', function (data) {
                                 if (data.success) {
@@ -657,7 +658,7 @@
                 });
             }
 
-            function createBlog(spaceId, dirId) {
+            function createBlog(spaceId, dirId, pid) {
                 var title = $('#title').val();
                 var content = JSON.stringify(excel.getData());
 
@@ -673,7 +674,7 @@
 
                 if (blog == null) {
 
-                    if (!spaceId) {
+                    if (!spaceId && !pid) {
                         $.modal.close();
 
                         localStorage && localStorage.setItem('tms-blog-html-space', $(
@@ -690,6 +691,7 @@
                             '/page/index.html',
                         spaceId: spaceId ? spaceId : $('#saveFrm select[name="space"]').val(),
                         dirId: dirId ? dirId : (spaceId ? '' : $('#saveFrm select[name="dir"]').val()),
+                        pid: pid ? pid : '',
                         title: title,
                         content: content,
                         editor: 'Excel',
