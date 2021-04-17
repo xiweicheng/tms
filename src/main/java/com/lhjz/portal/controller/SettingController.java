@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -62,10 +63,8 @@ public class SettingController extends BaseController {
 	@RequestMapping(value = "mail/test", method = RequestMethod.POST)
 	@ResponseBody
 	@Secured({ "ROLE_SUPER", "ROLE_ADMIN" })
-	public RespBody testMail(@RequestParam("host") String host,
-			@RequestParam("port") int port,
-			@RequestParam("username") String username,
-			@RequestParam("password") String password,
+	public RespBody testMail(@RequestParam("host") String host, @RequestParam("port") int port,
+			@RequestParam("username") String username, @RequestParam("password") String password,
 			@RequestParam(value = "addr", required = true) String addr) {
 
 		if (StringUtil.isEmpty(host)) {
@@ -95,9 +94,8 @@ public class SettingController extends BaseController {
 		final Mail mail = Mail.instance().add(StringUtil.split(addr, ","));
 
 		try {
-			boolean sendSts = mailSender.sendHtml(
-					"邮箱服务配置测试邮件-" + System.currentTimeMillis(),
-					"恭喜您,邮箱服务配置成功!", null, mail.get());
+			boolean sendSts = mailSender.sendHtml("邮箱服务配置测试邮件-" + System.currentTimeMillis(), "恭喜您,邮箱服务配置成功!", null,
+					mail.get());
 			logger.info("邮箱服务配置测试邮件发送成功！");
 
 			if (sendSts) {
@@ -115,10 +113,8 @@ public class SettingController extends BaseController {
 	@RequestMapping(value = "mail/createOrUpdate", method = RequestMethod.POST)
 	@ResponseBody
 	@Secured({ "ROLE_SUPER", "ROLE_ADMIN" })
-	public RespBody createOrUpdateMail(@RequestParam("host") String host,
-			@RequestParam("port") int port,
-			@RequestParam("username") String username,
-			@RequestParam("password") String password,
+	public RespBody createOrUpdateMail(@RequestParam("host") String host, @RequestParam("port") int port,
+			@RequestParam("username") String username, @RequestParam("password") String password,
 			@RequestParam(value = "addr", required = false) String addr) {
 
 		if (StringUtil.isEmpty(host)) {
@@ -147,8 +143,7 @@ public class SettingController extends BaseController {
 		mailSettings.put("username", username);
 		mailSettings.put("password", password);
 
-		Setting setting = settingRepository
-				.findOneBySettingType(SettingType.Mail);
+		Setting setting = settingRepository.findOneBySettingType(SettingType.Mail);
 
 		if (setting == null) {
 			setting = new Setting();
@@ -166,8 +161,7 @@ public class SettingController extends BaseController {
 
 		settingRepository.saveAndFlush(setting);
 
-		final Mail mail = Mail.instance().addUsers(getLoginUser())
-				.add(StringUtil.split(toAddrArr, ","))
+		final Mail mail = Mail.instance().addUsers(getLoginUser()).add(StringUtil.split(toAddrArr, ","))
 				.add(StringUtil.split(addr, ","));
 
 		try {
@@ -185,8 +179,7 @@ public class SettingController extends BaseController {
 	@Secured({ "ROLE_SUPER", "ROLE_ADMIN" })
 	public RespBody getMailOpts() {
 
-		Setting setting = settingRepository
-				.findOneBySettingType(SettingType.Mail);
+		Setting setting = settingRepository.findOneBySettingType(SettingType.Mail);
 
 		if (setting == null) {
 
@@ -200,13 +193,53 @@ public class SettingController extends BaseController {
 
 			return RespBody.succeed(mailSettings);
 		} else {
-			Map<String, Object> mailSettings = JsonUtil.json2Object(
-					setting.getContent(),
-					Map.class);
+			Map<String, Object> mailSettings = JsonUtil.json2Object(setting.getContent(), Map.class);
 
 			mailSettings.put("password", "");
 
 			return RespBody.succeed(mailSettings);
+		}
+
+	}
+
+	@PostMapping("menus/save")
+	@ResponseBody
+	@Secured({ "ROLE_SUPER" })
+	public RespBody saveMenus(@RequestParam(value = "chat", required = false, defaultValue = "true") Boolean chat,
+			@RequestParam(value = "blog", required = false, defaultValue = "true") Boolean blog,
+			@RequestParam(value = "dynamic", required = false, defaultValue = "true") Boolean dynamic,
+			@RequestParam(value = "translate", required = false, defaultValue = "true") Boolean translate,
+			@RequestParam(value = "_import", required = false, defaultValue = "true") Boolean _import,
+			@RequestParam(value = "project", required = false, defaultValue = "true") Boolean project,
+			@RequestParam(value = "language", required = false, defaultValue = "true") Boolean language) {
+
+		Setting setting = settingRepository.findOneBySettingType(SettingType.Menus);
+
+		Map<String, Object> menusSettings = new HashMap<String, Object>();
+		menusSettings.put("chat", chat);
+		menusSettings.put("blog", blog);
+		menusSettings.put("dynamic", dynamic);
+		menusSettings.put("translate", translate);
+		menusSettings.put("_import", _import);
+		menusSettings.put("project", project);
+		menusSettings.put("language", language);
+
+		if (setting == null) {
+
+			setting = new Setting();
+			setting.setContent(JsonUtil.toJson(menusSettings));
+			setting.setSettingType(SettingType.Menus);
+
+			Setting setting2 = settingRepository.saveAndFlush(setting);
+
+			return RespBody.succeed(setting2);
+		} else {
+
+			setting.setContent(JsonUtil.toJson(menusSettings));
+
+			Setting setting2 = settingRepository.saveAndFlush(setting);
+
+			return RespBody.succeed(setting2);
 		}
 
 	}

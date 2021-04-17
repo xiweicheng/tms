@@ -6,12 +6,14 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <title>TMS-系统设置</title>
     <link rel="icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" th:href="@{/favicon.ico}" href="../../static/favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" type="text/css" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
-    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}" href="../../static/lib/semantic/semantic.min.css" />
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/semantic/semantic.min.css}"
+        href="../../static/lib/semantic/semantic.min.css" />
     <link rel="stylesheet" th:href="@{/lib/toastr/toastr.css}" href="../../static/lib/toastr/toastr.css" />
     <script th:replace="admin/template :: baiduTongji"></script>
 </head>
@@ -25,13 +27,16 @@
             <div id="context">
                 <div style="height:70px;"></div>
                 <div class="ui celled grid" style="margin-top: 0;">
-                    <div class="three wide column">
-                        <div class="ui fluid vertical pointing menu">
+                    <div class="three wide column tms-menus">
+                        <div class="ui fluid vertical pointing menu" data-tab="mail">
                             <a class="active item"><i class="mail icon"></i> 邮箱服务设置</a>
+                        </div>
+                        <div class="ui fluid vertical pointing menu" data-tab="menus">
+                            <a class="item"><i class="content icon"></i> 菜单功能设置</a>
                         </div>
                     </div>
                     <div class="thirteen wide stretched column">
-                        <div class="ui basic segment">
+                        <div class="ui basic segment tms-data-panel tms-mail">
                             <div class="ui form fm-mail-setting">
                                 <div class="required field">
                                     <label>主机</label>
@@ -59,6 +64,64 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="ui basic segment tms-data-panel tms-menus" style="display:none;">
+                            <div class="ui form fm-menus-setting">
+                                <div class="ui list">
+                                    <div class="item">
+                                        <div class="ui toggle checkbox">
+                                            <input th:if="${menus.chat}" type="checkbox" checked name="chat">
+                                            <input th:unless="${menus.chat}" type="checkbox" name="chat">
+                                            <label>团队沟通</label>
+                                        </div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="ui toggle checkbox">
+                                            <input th:if="${menus.blog}" type="checkbox" checked name="blog">
+                                            <input th:unless="${menus.blog}" type="checkbox" name="blog">
+                                            <label>团队博文</label>
+                                        </div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="ui toggle checkbox">
+                                            <input th:if="${menus.dynamic}" type="checkbox" checked name="dynamic">
+                                            <input th:unless="${menus.dynamic}" type="checkbox" name="dynamic">
+                                            <label>翻译动态</label>
+                                        </div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="ui toggle checkbox">
+                                            <input th:if="${menus.translate}" type="checkbox" checked name="translate">
+                                            <input th:unless="${menus.translate}" type="checkbox" name="translate">
+                                            <label>翻译管理</label>
+                                        </div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="ui toggle checkbox">
+                                            <input th:if="${menus._import}" type="checkbox" checked name="import">
+                                            <input th:unless="${menus._import}" type="checkbox" name="import">
+                                            <label>导入导出</label>
+                                        </div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="ui toggle checkbox">
+                                            <input th:if="${menus.project}" type="checkbox" checked name="project">
+                                            <input th:unless="${menus.project}" type="checkbox" name="project">
+                                            <label>项目管理</label>
+                                        </div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="ui toggle checkbox">
+                                            <input th:if="${menus.language}" type="checkbox" checked name="language">
+                                            <input th:unless="${menus.language}" type="checkbox" name="language">
+                                            <label>语言管理</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ui blue submit button btn-save-menus">
+                                    保存
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -68,31 +131,69 @@
     <script type="text/javascript" th:src="@{/admin/js/deps-base.js}" src="../../static/admin/js/deps-base.js"></script>
     <script type="text/javascript" th:src="@{/admin/js/admin.js}" src="../../static/admin/js/admin.js"></script>
     <script type="text/javascript">
-    jQuery(function($) {
+        jQuery(function ($) {
 
-        var baseURL = Utils.getBaseURL();
-
-        $('.button.btn-test-setting').click(function(event) {
-            $.post('admin/setting/mail/test', Utils.formData('.ui.form.fm-mail-setting'), function(data, textStatus, xhr) {
-                if (data.success) {
-                    toastr.success('测试邮件发送成功!');
-                } else {
-                    toastr.error(data.data, '测试邮件发送失败!');
-                }
+            var baseURL = Utils.getBaseURL();
+            
+            $('.tms-menus > .menu').click(function(event) {
+            		
+            		$('.tms-menus > .menu > a.item').removeClass('active');
+            		$(event.currentTarget).children('a.item').addClass('active');
+            		
+            		var tab = $(event.currentTarget).attr('data-tab');
+            		$('.tms-data-panel').hide();
+            		$('.tms-' + tab).show();
             });
-        });
 
-        $('.button.btn-save-setting').click(function(event) {
-            $.post('admin/setting/mail/createOrUpdate', Utils.formData('.ui.form.fm-mail-setting'), function(data, textStatus, xhr) {
-                if (data.success) {
-                    toastr.success('保存成功!');
-                } else {
-                    toastr.error(data.data, '保存失败!');
-                }
+            $('.button.btn-test-setting').click(function (event) {
+                $.post('admin/setting/mail/test', Utils.formData('.ui.form.fm-mail-setting'), function (
+                    data, textStatus, xhr) {
+                    if (data.success) {
+                        toastr.success('测试邮件发送成功!');
+                    } else {
+                        toastr.error(data.data, '测试邮件发送失败!');
+                    }
+                });
             });
-        });
 
-    });
+            $('.button.btn-save-setting').click(function (event) {
+                $.post('admin/setting/mail/createOrUpdate', Utils.formData('.ui.form.fm-mail-setting'),
+                    function (data, textStatus, xhr) {
+                        if (data.success) {
+                            toastr.success('保存成功!');
+                        } else {
+                            toastr.error(data.data, '保存失败!');
+                        }
+                    });
+            });
+
+            $('.fm-menus-setting .ui.checkbox').checkbox();
+            
+            $('.button.btn-save-menus').click(function (event) {
+                $.post('admin/setting/menus/save', {
+                        chat: $('input[name="chat"]').parent('.checkbox').checkbox('is checked'),
+                        blog: $('input[name="blog"]').parent('.checkbox').checkbox('is checked'),
+                        dynamic: $('input[name="dynamic"]').parent('.checkbox').checkbox(
+                            'is checked'),
+                        translate: $('input[name="translate"]').parent('.checkbox').checkbox(
+                            'is checked'),
+                        _import: $('input[name="import"]').parent('.checkbox').checkbox(
+                            'is checked'),
+                        project: $('input[name="project"]').parent('.checkbox').checkbox(
+                            'is checked'),
+                        language: $('input[name="language"]').parent('.checkbox').checkbox(
+                            'is checked'),
+                    },
+                    function (data, textStatus, xhr) {
+                        if (data.success) {
+                            toastr.success('保存成功!');
+                        } else {
+                            toastr.error(data.data, '保存失败!');
+                        }
+                    });
+            });
+
+        });
     </script>
 </body>
 

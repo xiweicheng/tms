@@ -124,6 +124,8 @@ public class AdminController extends BaseController {
 
 		logger.debug("Enter method: {}", "login");
 
+		initMenus(model);
+
 		return "admin/login";
 	}
 
@@ -143,6 +145,8 @@ public class AdminController extends BaseController {
 		model.addAttribute("cntChat", chatRepository.count());
 		model.addAttribute("cntChannel", channelRepository.countChannels());
 		model.addAttribute("cntBlog", blogRepository.countBlogs());
+
+		initMenus(model);
 
 		return "admin/index";
 	}
@@ -182,6 +186,8 @@ public class AdminController extends BaseController {
 		model.addAttribute("groups", groups);
 		model.addAttribute("loginUser", getLoginUser());
 
+		initMenus(model);
+
 		return "admin/user";
 	}
 
@@ -201,6 +207,8 @@ public class AdminController extends BaseController {
 		model.addAttribute("users", users);
 		model.addAttribute("user", getLoginUser());
 
+		initMenus(model);
+
 		return "admin/project";
 	}
 
@@ -217,11 +225,16 @@ public class AdminController extends BaseController {
 		// model.addAttribute("users", users);
 		model.addAttribute("user", getLoginUser());
 
+		initMenus(model);
+
 		return "admin/language";
 	}
 
 	@RequestMapping("feedback")
 	public String feedback(Model model) {
+
+		initMenus(model);
+
 		return "admin/feedback";
 	}
 
@@ -262,6 +275,8 @@ public class AdminController extends BaseController {
 		model.addAttribute("groups", groups);
 		model.addAttribute("labels", new TreeSet<>(lbls));
 		model.addAttribute("user", getLoginUser());
+
+		initMenus(model);
 
 		return "admin/dynamic";
 	}
@@ -383,6 +398,8 @@ public class AdminController extends BaseController {
 		model.addAttribute("user", getLoginUser());
 		model.addAttribute("users", userRepository.findAll());
 
+		initMenus(model);
+
 		return "admin/translate";
 	}
 
@@ -451,6 +468,8 @@ public class AdminController extends BaseController {
 		model.addAttribute("users", userRepository.findAll());
 		model.addAttribute("notifiers", StringUtil.join(",", notifiers));
 
+		initMenus(model);
+
 		return "admin/import";
 	}
 
@@ -479,7 +498,34 @@ public class AdminController extends BaseController {
 			model.addAttribute("mail", mailSettings);
 		}
 
+		initMenus(model);
+
 		return "admin/setting";
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> initMenus(Model model) {
+
+		Setting setting2 = settingRepository.findOneBySettingType(SettingType.Menus);
+		if (setting2 != null) {
+			Map<String, Object> menusSettings = JsonUtil.json2Object(setting2.getContent(), Map.class);
+			model.addAttribute("menus", menusSettings);
+
+			return menusSettings;
+		} else {
+			Map<String, Object> menusSettings = new HashMap<String, Object>();
+			menusSettings.put("chat", Boolean.TRUE);
+			menusSettings.put("blog", Boolean.TRUE);
+			menusSettings.put("dynamic", Boolean.TRUE);
+			menusSettings.put("translate", Boolean.TRUE);
+			menusSettings.put("_import", Boolean.TRUE);
+			menusSettings.put("project", Boolean.TRUE);
+			menusSettings.put("language", Boolean.TRUE);
+
+			model.addAttribute("menus", menusSettings);
+
+			return menusSettings;
+		}
 	}
 
 	@GetMapping("sys/conf")

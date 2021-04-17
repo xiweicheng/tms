@@ -33,19 +33,19 @@
     <div th:with="uri=${#httpServletRequest.requestURI}" th:fragment="sidebar-menu" class="ui left thin vertical inverted labeled icon sidebar menu ad-index-menu">
         <a th:classappend="(${#strings.contains(uri, '/admin/index')} or ${#strings.endsWith(uri,'/admin/')} or ${#strings.endsWith(uri,'/admin')}) ? 'active' : ''" class="item" th:href="@{/admin}" href="index.html"> <i class="home icon"></i> 主页
         </a>
-        <a class="item" target="_blank" th:href="${'/page/index.html#/chat/@' + #authentication.name}" href="/page/index.html#/chat/@admin"> <i class="chat icon"></i> 团队沟通
+        <a th:if="${menus.chat}" class="item" target="_blank" th:href="${'/page/index.html#/chat/@' + #authentication.name}" href="/page/index.html#/chat/@admin"> <i class="chat icon"></i> 团队沟通
         </a>
-        <a class="item" target="_blank" th:href="${'/page/index.html#/blog'}" href="/page/index.html#/blog"> <i class="wikipedia icon"></i> 团队博文
+        <a th:if="${menus.blog}" class="item" target="_blank" th:href="${'/page/index.html#/blog'}" href="/page/index.html#/blog"> <i class="wikipedia icon"></i> 团队博文
         </a>
-        <a th:classappend="${#strings.contains(uri, '/admin/dynamic')} ? 'active' : ''" class="item mi-dynamic" th:href="@{/admin/dynamic}" href="dynamic.html"> <i class="at icon"></i> 翻译动态
+        <a th:if="${menus.dynamic}" th:classappend="${#strings.contains(uri, '/admin/dynamic')} ? 'active' : ''" class="item mi-dynamic" th:href="@{/admin/dynamic}" href="dynamic.html"> <i class="at icon"></i> 翻译动态
         </a>
-        <a th:classappend="${#strings.contains(uri, '/admin/translate')} ? 'active' : ''" class="item mi-translate" th:href="@{/admin/translate}" href="translate.html"> <i class="world icon"></i> 翻译管理
+        <a th:if="${menus.translate}" th:classappend="${#strings.contains(uri, '/admin/translate')} ? 'active' : ''" class="item mi-translate" th:href="@{/admin/translate}" href="translate.html"> <i class="world icon"></i> 翻译管理
         </a>
-        <a th:classappend="${#strings.contains(uri, '/admin/import')} ? 'active' : ''" class="item mi-import" th:href="@{/admin/import}" href="import.html"> <i class="retweet icon"></i> 导入导出
+        <a th:if="${menus._import}" th:classappend="${#strings.contains(uri, '/admin/import')} ? 'active' : ''" class="item mi-import" th:href="@{/admin/import}" href="import.html"> <i class="retweet icon"></i> 导入导出
         </a>
-        <a th:classappend="${#strings.contains(uri, '/admin/project')} ? 'active' : ''" class="item" th:href="@{/admin/project}" href="project.html"> <i class="suitcase icon"></i> 项目管理
+        <a th:if="${menus.project}" th:classappend="${#strings.contains(uri, '/admin/project')} ? 'active' : ''" class="item" th:href="@{/admin/project}" href="project.html"> <i class="suitcase icon"></i> 项目管理
         </a>
-        <a th:classappend="${#strings.contains(uri, '/admin/language')} ? 'active' : ''" class="item" th:href="@{/admin/language}" href="language.html"> <i class="flag icon"></i> 语言管理
+        <a th:if="${menus.language}" th:classappend="${#strings.contains(uri, '/admin/language')} ? 'active' : ''" class="item" th:href="@{/admin/language}" href="language.html"> <i class="flag icon"></i> 语言管理
         </a>
         <a th:classappend="${#strings.contains(uri, '/admin/user')} ? 'active' : ''" class="item" th:href="@{/admin/user}" href="user.html"> <i class="user icon"></i> 用户管理
         </a>
@@ -92,25 +92,25 @@
                     <a th:classappend="(${#strings.contains(uri, '/admin/index')} or ${#strings.endsWith(uri,'/admin/')} or ${#strings.endsWith(uri,'/admin')}) ? 'active' : ''" class="item" th:href="@{/admin}" href="index.html">
                         <i class="home icon"></i> 主页
                     </a>
-                    <a class="item" target="_blank" th:href="${'/page/index.html#/chat/@' + #authentication.name}" href="/page/index.html#/chat/@admin">
+                    <a th:if="${menus.chat}" class="item" target="_blank" th:href="${'/page/index.html#/chat/@' + #authentication.name}" href="/page/index.html#/chat/@admin">
                         <i class="chat icon"></i> 团队沟通
                     </a>
-                    <a class="item" target="_blank" th:href="${'/page/index.html#/blog'}" href="/page/index.html#/blog">
+                    <a th:if="${menus.blog}" class="item" target="_blank" th:href="${'/page/index.html#/blog'}" href="/page/index.html#/blog">
                         <i class="wikipedia icon"></i> 团队博文
                     </a>
-                    <a th:classappend="${#strings.contains(uri, '/admin/dynamic')} ? 'active' : ''" class="item mi-dynamic" th:href="@{/admin/dynamic}" href="dynamic.html">
+                    <a th:if="${menus.dynamic}" th:classappend="${#strings.contains(uri, '/admin/dynamic')} ? 'active' : ''" class="item mi-dynamic" th:href="@{/admin/dynamic}" href="dynamic.html">
                         <i class="at icon"></i> 翻译动态
                     </a>
-                    <a th:classappend="${#strings.contains(uri, '/admin/translate')} ? 'active' : ''" class="item mi-translate" th:href="@{/admin/translate}" href="translate.html">
+                    <a th:if="${menus.translate}" th:classappend="${#strings.contains(uri, '/admin/translate')} ? 'active' : ''" class="item mi-translate" th:href="@{/admin/translate}" href="translate.html">
                         <i class="world icon"></i> 翻译管理
                     </a>
-                    <a th:classappend="${#strings.contains(uri, '/admin/import')} ? 'active' : ''" class="item mi-import" th:href="@{/admin/import}" href="import.html">
+                    <a th:if="${menus._import}" th:classappend="${#strings.contains(uri, '/admin/import')} ? 'active' : ''" class="item mi-import" th:href="@{/admin/import}" href="import.html">
                         <i class="retweet icon"></i> 导入导出
                     </a>
-                    <a th:classappend="${#strings.contains(uri, '/admin/project')} ? 'active' : ''" class="item" th:href="@{/admin/project}" href="project.html">
+                    <a th:if="${menus.project}" th:classappend="${#strings.contains(uri, '/admin/project')} ? 'active' : ''" class="item" th:href="@{/admin/project}" href="project.html">
                         <i class="suitcase icon"></i> 项目管理
                     </a>
-                    <a th:classappend="${#strings.contains(uri, '/admin/language')} ? 'active' : ''" class="item" th:href="@{/admin/language}" href="language.html">
+                    <a th:if="${menus.language}" th:classappend="${#strings.contains(uri, '/admin/language')} ? 'active' : ''" class="item" th:href="@{/admin/language}" href="language.html">
                         <i class="flag icon"></i> 语言管理
                     </a>
                     <a th:classappend="${#strings.contains(uri, '/admin/user')} ? 'active' : ''" class="item" th:href="@{/admin/user}" href="user.html">
@@ -132,7 +132,7 @@
                   欢迎使用TMS团队协作系统!
                 </h2>
                 <div class="ui container six column stackable centered grid" style="margin-top:50px;">
-                    <div class="aligined centered column">
+                    <div th:if="${menus.project}" class="aligined centered column">
                         <div class="ui move reveal">
                             <div class="visible content centered">
                                 <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
@@ -168,7 +168,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="aligined centered column">
+                    <div th:if="${menus.chat}" class="aligined centered column">
                         <div class="ui move down reveal">
                             <div class="visible content">
                                 <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
@@ -186,7 +186,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="aligined centered column">
+                    <div th:if="${menus.blog}" class="aligined centered column">
                         <div class="ui rotate left reveal">
                             <div class="visible content">
                                 <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
@@ -204,7 +204,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="aligined centered column">
+                    <div th:if="${menus.language}" class="aligined centered column">
                         <div class="ui move up reveal">
                             <div class="visible content">
                                 <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
@@ -222,7 +222,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="aligined centered column">
+                    <div th:if="${menus.translate}" class="aligined centered column">
                         <div class="ui fade rotate reveal">
                             <div class="visible content">
                                 <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
