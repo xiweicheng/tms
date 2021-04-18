@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.collect.Lists;
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Chat;
@@ -506,21 +507,34 @@ public class AdminController extends BaseController {
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> initMenus(Model model) {
 
+		List<String> keys = Lists.newArrayList("chat", "blog", "dynamic", "translate", "_import", "project", "language",
+				"user", "link");
+
 		Setting setting2 = settingRepository.findOneBySettingType(SettingType.Menus);
 		if (setting2 != null) {
-			Map<String, Object> menusSettings = JsonUtil.json2Object(setting2.getContent(), Map.class);
+			Map<String, Object> _menusSettings = JsonUtil.json2Object(setting2.getContent(), Map.class);
+
+			if (_menusSettings == null) {
+				_menusSettings = new HashMap<String, Object>();
+			}
+
+			final Map<String, Object> menusSettings = _menusSettings;
+
+			keys.forEach(key -> {
+				if (!menusSettings.containsKey(key)) {
+					menusSettings.put(key, Boolean.TRUE);
+				}
+			});
+
 			model.addAttribute("menus", menusSettings);
 
 			return menusSettings;
 		} else {
 			Map<String, Object> menusSettings = new HashMap<String, Object>();
-			menusSettings.put("chat", Boolean.TRUE);
-			menusSettings.put("blog", Boolean.TRUE);
-			menusSettings.put("dynamic", Boolean.TRUE);
-			menusSettings.put("translate", Boolean.TRUE);
-			menusSettings.put("_import", Boolean.TRUE);
-			menusSettings.put("project", Boolean.TRUE);
-			menusSettings.put("language", Boolean.TRUE);
+
+			keys.forEach(key -> {
+				menusSettings.put(key, Boolean.TRUE);
+			});
 
 			model.addAttribute("menus", menusSettings);
 

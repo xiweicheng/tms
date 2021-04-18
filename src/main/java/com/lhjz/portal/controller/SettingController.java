@@ -211,7 +211,9 @@ public class SettingController extends BaseController {
 			@RequestParam(value = "translate", required = false, defaultValue = "true") Boolean translate,
 			@RequestParam(value = "_import", required = false, defaultValue = "true") Boolean _import,
 			@RequestParam(value = "project", required = false, defaultValue = "true") Boolean project,
-			@RequestParam(value = "language", required = false, defaultValue = "true") Boolean language) {
+			@RequestParam(value = "language", required = false, defaultValue = "true") Boolean language,
+			@RequestParam(value = "user", required = false, defaultValue = "true") Boolean user,
+			@RequestParam(value = "link", required = false, defaultValue = "true") Boolean link) {
 
 		Setting setting = settingRepository.findOneBySettingType(SettingType.Menus);
 
@@ -223,6 +225,8 @@ public class SettingController extends BaseController {
 		menusSettings.put("_import", _import);
 		menusSettings.put("project", project);
 		menusSettings.put("language", language);
+		menusSettings.put("user", user);
+		menusSettings.put("link", link);
 
 		if (setting == null) {
 

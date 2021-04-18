@@ -47,7 +47,7 @@
         </a>
         <a th:if="${menus.language}" th:classappend="${#strings.contains(uri, '/admin/language')} ? 'active' : ''" class="item" th:href="@{/admin/language}" href="language.html"> <i class="flag icon"></i> 语言管理
         </a>
-        <a th:classappend="${#strings.contains(uri, '/admin/user')} ? 'active' : ''" class="item" th:href="@{/admin/user}" href="user.html"> <i class="user icon"></i> 用户管理
+        <a th:if="${menus.user}" th:classappend="${#strings.contains(uri, '/admin/user')} ? 'active' : ''" class="item" th:href="@{/admin/user}" href="user.html"> <i class="user icon"></i> 用户管理
         </a>
         <a sec:authorize="hasRole('ROLE_SUPER')" th:classappend="${#strings.contains(uri, '/admin/setting')} ? 'active' : ''" class="item" th:href="@{/admin/setting}" href="setting.html"> <i class="settings icon"></i> 系统设置
         </a>
@@ -113,13 +113,13 @@
                     <a th:if="${menus.language}" th:classappend="${#strings.contains(uri, '/admin/language')} ? 'active' : ''" class="item" th:href="@{/admin/language}" href="language.html">
                         <i class="flag icon"></i> 语言管理
                     </a>
-                    <a th:classappend="${#strings.contains(uri, '/admin/user')} ? 'active' : ''" class="item" th:href="@{/admin/user}" href="user.html">
+                    <a th:if="${menus.user}" th:classappend="${#strings.contains(uri, '/admin/user')} ? 'active' : ''" class="item" th:href="@{/admin/user}" href="user.html">
                         <i class="user icon"></i> 用户管理
                     </a>
                     <a sec:authorize="hasRole('ROLE_SUPER')" th:classappend="${#strings.contains(uri, '/admin/setting')} ? 'active' : ''" class="item" th:href="@{/admin/setting}" href="setting.html">
                         <i class="settings icon"></i> 系统设置
                     </a>
-                    <div class="ui dropdown item tms-dd-sys-links">
+                    <div th:if="${menus.link}" class="ui dropdown item tms-dd-sys-links">
                         <i class="dropdown icon"></i> 系统外链
                         <div class="menu tms-sys-links"></div>
                     </div>
@@ -150,7 +150,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="aligined centered column">
+                    <div th:if="${menus.user}" class="aligined centered column">
                         <div class="ui move up reveal">
                             <div class="visible content">
                                 <h2 class="ui center aligned icon header" style="width:133px; height:133px; background-color: white;">
