@@ -22,6 +22,7 @@ import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.service.FileService;
 import com.lhjz.portal.util.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +110,11 @@ public class ChatDirectController extends BaseController {
             messagingTemplate.convertAndSendToUser(chatDirect.getChatTo().getUsername(), "/direct/update",
                     DirectPayload.builder().uuid(UUID.randomUUID().toString()).cmd(cmd).username(WebUtil.getUsername())
                             .id(chatDirect.getId()).build());
+
+            if (!StringUtils.equals(chatDirect.getChatTo().getUsername(), WebUtil.getUsername())) {
+                messagingTemplate.convertAndSendToUser(WebUtil.getUsername(), "/direct/update", DirectPayload.builder()
+                        .uuid(UUID.randomUUID().toString()).cmd(cmd).username(WebUtil.getUsername()).id(chatDirect.getId()).build());
+            }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -157,7 +163,7 @@ public class ChatDirectController extends BaseController {
             e.printStackTrace();
         }
 
-        return RespBody.succeed();
+        return RespBody.succeed(chatDirect2);
     }
 
     @RequestMapping(value = "update", method = RequestMethod.POST)
@@ -796,6 +802,32 @@ public class ChatDirectController extends BaseController {
         List<Object> chatStows = chatStowRepository.listChatDirects(principal.getName());
 
         return RespBody.succeed(chatStows);
+    }
+
+    @GetMapping("isMyStow")
+    @ResponseBody
+    public RespBody isMyStow(@RequestParam("id") Long id) {
+
+        ChatDirect chatDirect = chatDirectRepository.findOne(id);
+
+        if (chatDirect == null) {
+            return RespBody.failed("私聊消息不存在,可能已经被删除!");
+        }
+
+        if (!AuthUtil.hasChannelAuth(chatDirect)) {
+            return RespBody.failed("权限不足!");
+        }
+
+        ChatStow chatStow = chatStowRepository.findOneByChatDirectAndStowUser(chatDirect, getLoginUser());
+
+        if (chatStow != null) {
+            ChatStow chatStow2 = new ChatStow();
+            chatStow2.setId(chatStow.getId());
+            chatStow = chatStow2;
+        }
+
+        return RespBody.succeed(chatStow);
+
     }
 
 }

@@ -169,6 +169,12 @@ public class AsyncTask {
 		}
 	}
 
+	@Async
+	public void updateChatDirect(ChatDirect chatDirect, com.lhjz.portal.model.DirectPayload.Cmd cmd,
+								 SimpMessagingTemplate messagingTemplate, String username) {
+		wsSendDirect(chatDirect, cmd, messagingTemplate, username);
+	}
+
 	private void wsSendDirect(ChatDirect chatDirect, com.lhjz.portal.model.DirectPayload.Cmd cmd,
 			SimpMessagingTemplate messagingTemplate, String username) {
 		try {

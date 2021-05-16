@@ -107,7 +107,7 @@ public class ChannelTaskController extends BaseController {
 	}
 
 	@PostMapping("status/update")
-	public RespBody listBy(@RequestParam("from") String from, @RequestParam("to") String to,
+	public RespBody updateStatus(@RequestParam("from") String from, @RequestParam("to") String to,
 			@RequestParam("id") Long id, @RequestParam(value = "all", defaultValue = "false") Boolean all) {
 
 		ChatChannel chatChannel = chatChannelRepository.findOne(id);

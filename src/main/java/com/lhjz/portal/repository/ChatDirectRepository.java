@@ -3,13 +3,12 @@
  */
 package com.lhjz.portal.repository;
 
-import java.util.List;
-
+import com.lhjz.portal.entity.ChatDirect;
+import com.lhjz.portal.entity.security.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.lhjz.portal.entity.ChatDirect;
-import com.lhjz.portal.entity.security.User;
+import java.util.List;
 
 /**
  * 
@@ -88,5 +87,11 @@ public interface ChatDirectRepository extends JpaRepository<ChatDirect, Long> {
 	List<ChatDirect> queryByCreatorAndContentLike(String creator, String contentLike);
 	
 	ChatDirect findTopByUuid(String uuid);
-	
+
+	@Query(value = "SELECT DISTINCT cd.* FROM chat_direct cd, chat_label cl WHERE (cd.chat_to = ?1 or cd.creator = ?1) AND cd.id = cl.chat_direct AND cd. STATUS <> 'Deleted' AND cl. STATUS <> 'Deleted' AND cl. NAME = ?2 ORDER BY cd.update_date DESC LIMIT ?4 OFFSET ?3", nativeQuery = true)
+	List<ChatDirect> queryByUserAndLabel(String username, String label, int start, int limit);
+
+	@Query(value = "SELECT COUNT(DISTINCT cd.id) FROM chat_direct cd, chat_label cl WHERE (cd.chat_to = ?1 or cd.creator = ?1) AND cd.id = cl.chat_direct AND cd. STATUS <> 'Deleted' AND cl. STATUS <> 'Deleted' AND cl. NAME = ?2", nativeQuery = true)
+	long countByUserAndLabel(String username, String label);
+
 }
