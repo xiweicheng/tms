@@ -22,7 +22,8 @@ public class TmsUserApprovalHandler extends ApprovalStoreUserApprovalHandler {
 	 * @param clientDetailsService
 	 *            a client details service
 	 */
-	public void setClientDetailsService(
+	@Override
+    public void setClientDetailsService(
 			ClientDetailsService clientDetailsService) {
 		this.clientDetailsService = clientDetailsService;
 		super.setClientDetailsService(clientDetailsService);

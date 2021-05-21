@@ -1,51 +1,59 @@
 package com.lhjz.portal.util;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 线程处理工具类.
- * 
+ *
+ * @author xiweicheng
+ * @version 1.0
  * @creation 2014年4月17日 下午10:53:22
  * @modification 2014年4月17日 下午10:53:22
  * @company
- * @author xiweicheng
- * @version 1.0
- * 
  */
 public final class ThreadUtil {
 
-	private static ThreadLocal<String> tl = new ThreadLocal<>();
+    private static ThreadLocal<String> tl = new ThreadLocal<>();
 
-	private static ExecutorService pool = Executors.newCachedThreadPool();
+//	private static ExecutorService pool = Executors.newCachedThreadPool();
 
-	public static void setCurrentAuditor(String username) {
-		tl.set(username);
-	}
+    private static ExecutorService pool = new ThreadPoolExecutor(5, 200,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>(1024), new ThreadFactoryBuilder()
+            .setNameFormat("single-pool-%d").build(), new ThreadPoolExecutor.AbortPolicy());
 
-	public static String getCurrentAuditor() {
-		return tl.get();
-	}
+    public static void setCurrentAuditor(String username) {
+        tl.set(username);
+    }
 
-	public static void clearCurrentAuditor() {
-		tl.remove();
-	}
+    public static String getCurrentAuditor() {
+        return tl.get();
+    }
 
-	/**
-	 * 执行线程池任务.
-	 * 
-	 * @author xiweicheng
-	 * @creation 2014年4月17日 下午10:52:57
-	 * @modification 2014年4月17日 下午10:52:57
-	 * @param command
-	 */
-	public static void exec(Runnable... commands) {
+    public static void clearCurrentAuditor() {
+        tl.remove();
+    }
 
-		if (commands.length > 0) {
-			for (Runnable runnable : commands) {
-				pool.execute(runnable);
-			}
-		}
-	}
+    /**
+     * 执行线程池任务.
+     *
+     * @param command
+     * @author xiweicheng
+     * @creation 2014年4月17日 下午10:52:57
+     * @modification 2014年4月17日 下午10:52:57
+     */
+    public static void exec(Runnable... commands) {
+
+        if (commands.length > 0) {
+            for (Runnable runnable : commands) {
+                pool.execute(runnable);
+            }
+        }
+    }
 
 }

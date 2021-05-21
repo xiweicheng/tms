@@ -176,28 +176,37 @@ public class BlogAuthority implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		BlogAuthority other = (BlogAuthority) obj;
 		if (blog == null) {
-			if (other.blog != null)
+			if (other.blog != null) {
 				return false;
-		} else if (!blog.equals(other.blog))
+			}
+		} else if (!blog.equals(other.blog)) {
 			return false;
+		}
 		if (channel == null) {
-			if (other.channel != null)
+			if (other.channel != null) {
 				return false;
-		} else if (!channel.equals(other.channel))
+			}
+		} else if (!channel.equals(other.channel)) {
 			return false;
+		}
 		if (user == null) {
-			if (other.user != null)
+			if (other.user != null) {
 				return false;
-		} else if (!user.equals(other.user))
+			}
+		} else if (!user.equals(other.user)) {
 			return false;
+		}
 		return true;
 	}
 

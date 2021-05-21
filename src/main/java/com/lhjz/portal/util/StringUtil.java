@@ -74,8 +74,9 @@ public final class StringUtil {
 	 * @return boolean
 	 */
 	public static boolean isEmail(String str) {
-		if (isEmpty(str))
-			return false;
+		if (isEmpty(str)) {
+            return false;
+        }
 		return str.matches("^[\\w-]+(\\.[\\w-]+)*@[\\w-]+(\\.[\\w-]+)+$");
 	}
 
@@ -86,8 +87,9 @@ public final class StringUtil {
 	 * @return boolean
 	 */
 	public static boolean isMobile(String str) {
-		if (isEmpty(str))
-			return false;
+		if (isEmpty(str)) {
+            return false;
+        }
 		return str.matches("^(13|14|15|18)\\d{9}$");
 	}
 

@@ -42,13 +42,17 @@ public class AuthorityId implements java.io.Serializable {
 		this.authority = authority;
 	}
 
+	@Override
 	public boolean equals(Object other) {
-		if ((this == other))
+		if ((this == other)) {
 			return true;
-		if ((other == null))
+		}
+		if ((other == null)) {
 			return false;
-		if (!(other instanceof AuthorityId))
+		}
+		if (!(other instanceof AuthorityId)) {
 			return false;
+		}
 		AuthorityId castOther = (AuthorityId) other;
 
 		return ((this.getUsername() == castOther.getUsername()) || (this.getUsername() != null
@@ -57,6 +61,7 @@ public class AuthorityId implements java.io.Serializable {
 						&& castOther.getAuthority() != null && this.getAuthority().equals(castOther.getAuthority())));
 	}
 
+	@Override
 	public int hashCode() {
 		int result = 17;
 

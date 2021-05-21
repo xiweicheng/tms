@@ -33,8 +33,9 @@ public final class HtmlUtil {
 
 	public static String favicon(String icon, String url) {
 
-		if (StringUtils.isEmpty(icon))
-			return StringUtils.EMPTY;
+		if (StringUtils.isEmpty(icon)) {
+            return StringUtils.EMPTY;
+        }
 
 		icon = StringUtils.trim(icon);
 

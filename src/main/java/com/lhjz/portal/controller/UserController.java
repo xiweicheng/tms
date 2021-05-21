@@ -796,18 +796,24 @@ public class UserController extends BaseController {
 
 		User user = userRepository.findOne(userExtraForm.getUsername());
 
-		if (userExtraForm.getPhone() != null)
+		if (userExtraForm.getPhone() != null) {
 			user.setPhone(userExtraForm.getPhone());
-		if (userExtraForm.getMobile() != null)
+		}
+		if (userExtraForm.getMobile() != null) {
 			user.setMobile(userExtraForm.getMobile());
-		if (userExtraForm.getPlace() != null)
+		}
+		if (userExtraForm.getPlace() != null) {
 			user.setPlace(userExtraForm.getPlace());
-		if (userExtraForm.getLevel() != null)
+		}
+		if (userExtraForm.getLevel() != null) {
 			user.setLevel(userExtraForm.getLevel());
-		if (userExtraForm.getHobby() != null)
+		}
+		if (userExtraForm.getHobby() != null) {
 			user.setHobby(userExtraForm.getHobby());
-		if (userExtraForm.getIntroduce() != null)
+		}
+		if (userExtraForm.getIntroduce() != null) {
 			user.setIntroduce(userExtraForm.getIntroduce());
+		}
 
 		User user2 = userRepository.saveAndFlush(user);
 

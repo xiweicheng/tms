@@ -17,8 +17,9 @@ public class AjaxAwareLoginUrlAuthenticationEntryPoint extends LoginUrlAuthentic
 		super(loginFormUrl);
 	}
 
-	public void commence(final HttpServletRequest request, final HttpServletResponse response,
-			final AuthenticationException authException) throws IOException, ServletException {
+	@Override
+    public void commence(final HttpServletRequest request, final HttpServletResponse response,
+                         final AuthenticationException authException) throws IOException, ServletException {
 		if (Arrays.asList("XMLHttpRequest|fetch".split("\\|")).contains(request.getHeader("X-Requested-With"))) {
 			// 对于ajax请求不重定向 而是返回错误代码
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access Denied");

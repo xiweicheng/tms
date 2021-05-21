@@ -42,13 +42,17 @@ public class GroupAuthorityId implements java.io.Serializable {
 		this.authority = authority;
 	}
 
-	public boolean equals(Object other) {
-		if ((this == other))
-			return true;
-		if ((other == null))
-			return false;
-		if (!(other instanceof GroupAuthorityId))
-			return false;
+	@Override
+    public boolean equals(Object other) {
+		if ((this == other)) {
+            return true;
+        }
+		if ((other == null)) {
+            return false;
+        }
+		if (!(other instanceof GroupAuthorityId)) {
+            return false;
+        }
 		GroupAuthorityId castOther = (GroupAuthorityId) other;
 
 		return (this.getGroupId() == castOther.getGroupId())
@@ -56,7 +60,8 @@ public class GroupAuthorityId implements java.io.Serializable {
 						&& castOther.getAuthority() != null && this.getAuthority().equals(castOther.getAuthority())));
 	}
 
-	public int hashCode() {
+	@Override
+    public int hashCode() {
 		int result = 17;
 
 		result = 37 * result + (int) this.getGroupId();

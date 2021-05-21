@@ -6,7 +6,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -54,7 +54,7 @@ public class ChatMsgImpl implements IChatMsg {
 				for (ChatMsgItem msg : msgs) {
 					if (msg.equals(chatMsgItem)) {
 						log.debug("update list item {} to {}", msg, chatMsgItem);
-						BeanUtils.copyProperties(msg, chatMsgItem);
+						BeanUtils.copyProperties(chatMsgItem, msg);
 						break;
 					}
 				}

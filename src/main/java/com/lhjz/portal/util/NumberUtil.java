@@ -161,7 +161,7 @@ public final class NumberUtil {
 			throw new IllegalArgumentException("Argument[val2]can not be null.");
 		}
 
-		return v1 == val2;
+		return v1.equals(val2);
 	}
 
 	/**
