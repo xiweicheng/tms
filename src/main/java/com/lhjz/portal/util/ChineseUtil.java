@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChineseUtil {
 
-	private static final Pattern p1 = Pattern.compile("\\s*|\t*|\r*|\n*");
+	private static final Pattern PATTERN = Pattern.compile("\\s*|\t*|\r*|\n*");
 
 	private static boolean isChinese(char c) {
 		Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
@@ -24,7 +24,7 @@ public class ChineseUtil {
 	}
 
 	public static boolean isMessyCode(String strName) {
-		Matcher m = p1.matcher(strName);
+		Matcher m = PATTERN.matcher(strName);
 		String after = m.replaceAll("");
 		String temp = after.replaceAll("\\p{P}", "");
 		char[] ch = temp.trim().toCharArray();
@@ -50,7 +50,7 @@ public class ChineseUtil {
 	public static boolean isMessyCode2(String strName) {
 
 		try {
-			Matcher m = p1.matcher(strName);
+			Matcher m = PATTERN.matcher(strName);
 			String after = m.replaceAll("");
 			String temp = after.replaceAll("\\p{P}", "");
 			char[] ch = temp.trim().toCharArray();

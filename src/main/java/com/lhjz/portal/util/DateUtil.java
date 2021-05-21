@@ -1,14 +1,14 @@
 /** WebUtil.java */
 package com.lhjz.portal.util;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeFieldType;
 
 /**
  * @author XiWeiCheng
@@ -27,8 +27,6 @@ public final class DateUtil {
 	public static final String FORMAT4 = "yyyy/MM/dd";
 	public static final String FORMAT5 = "yyyyMMddHHmmss";
 	public static final String FORMAT6 = "yyyyMMdd";
-
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat(FORMAT2);
 
 	private DateUtil() {
 		super();
@@ -82,9 +80,12 @@ public final class DateUtil {
 			return DateUtil.EMPTY;
 		}
 
-		dateFormat.applyPattern(format);
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FORMAT2);
 
-		return dateFormat.format(date);
+
+		simpleDateFormat.applyPattern(format);
+
+		return simpleDateFormat.format(date);
 	}
 
 	/**

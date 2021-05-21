@@ -21,9 +21,9 @@ public class JsonUtil {
 	private JsonUtil() {
 	}
 
-	private static final Gson gson1 = new GsonBuilder().disableHtmlEscaping().setDateFormat("yyyy/MM/dd HH:mm:ss")
+	private static final Gson GSON_1 = new GsonBuilder().disableHtmlEscaping().setDateFormat("yyyy/MM/dd HH:mm:ss")
 			.create();
-	private static final Gson gson2 = new GsonBuilder().disableHtmlEscaping().setDateFormat("yyyy/MM/dd HH:mm:ss")
+	private static final Gson GSON_2 = new GsonBuilder().disableHtmlEscaping().setDateFormat("yyyy/MM/dd HH:mm:ss")
 			.setPrettyPrinting().create();
 
 	private static JsonParser jsonParser = new JsonParser();
@@ -37,7 +37,7 @@ public class JsonUtil {
 	public static String toJson(Object object) {
 
 		try {
-			return gson1.toJson(object);
+			return GSON_1.toJson(object);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage(), e);
@@ -56,7 +56,7 @@ public class JsonUtil {
 		try {
 			JsonElement jsonElement = jsonParser.parse(json);
 
-			return gson2.toJson(jsonElement);
+			return GSON_2.toJson(jsonElement);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage(), e);
@@ -78,7 +78,7 @@ public class JsonUtil {
 			if (logger.isDebugEnabled()) {
 				logger.debug(json);
 			}
-			return gson1.fromJson(json, classOfT);
+			return GSON_1.fromJson(json, classOfT);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage(), e);
@@ -100,7 +100,7 @@ public class JsonUtil {
 			if (logger.isDebugEnabled()) {
 				logger.debug(toJson(object));
 			}
-			return gson1.fromJson(toJson(object), classOfT);
+			return GSON_1.fromJson(toJson(object), classOfT);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage(), e);

@@ -136,6 +136,6 @@ public class ChatChannel implements Serializable {
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
-	List<ChatChannelFollower> ChatChannelFollowers = new ArrayList<>();
+	List<ChatChannelFollower> chatChannelFollowers = new ArrayList<>();
 
 }

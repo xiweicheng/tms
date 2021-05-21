@@ -39,7 +39,7 @@ import com.lhjz.portal.component.LoginSuccessHandler;
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
-	static final int order = -10;
+	static final int ORDER = -10;
 
 	@Autowired
 	DataSource dataSource;
@@ -54,7 +54,7 @@ public class SecurityConfig {
 	}
 
 	@Configuration
-	@Order(order)
+	@Order(ORDER)
 	@Profile({ "dev", "prod", "prod-pg" })
 	public static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
@@ -141,7 +141,7 @@ public class SecurityConfig {
 	}
 
 	@Configuration
-	@Order(order + 1)
+	@Order(ORDER + 1)
 	@Profile({ "dev", "prod", "prod-pg" })
 	public static class SecurityConfiguration2 extends WebSecurityConfigurerAdapter {
 

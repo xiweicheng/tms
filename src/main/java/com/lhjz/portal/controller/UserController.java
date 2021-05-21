@@ -139,7 +139,7 @@ public class UserController extends BaseController {
 
 		log(Action.Create, Target.Authority, authority.getId().toString());
 
-		if (role.equalsIgnoreCase("admin")) {
+		if ("admin".equalsIgnoreCase(role)) {
 			Authority authority2 = new Authority();
 			authority2.setId(new AuthorityId(StringUtils.trim(userForm.getUsername()), Role.ROLE_ADMIN.name()));
 
