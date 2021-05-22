@@ -103,6 +103,6 @@ public class ChannelGroup implements Serializable {
 
 	@Builder.Default
 	@ManyToMany(mappedBy = "joinChannelGroups")
-	Set<User> members = new HashSet<User>();
+	private Set<User> members = new HashSet<>();
 
 }

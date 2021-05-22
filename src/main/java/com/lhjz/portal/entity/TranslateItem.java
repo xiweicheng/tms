@@ -85,6 +85,6 @@ public class TranslateItem implements Serializable {
 	private Language language;
 
 	@OneToMany(mappedBy = "translateItem", cascade = { CascadeType.REMOVE })
-	Set<TranslateItemHistory> translateItemHistories = new HashSet<>();
+	private Set<TranslateItemHistory> translateItemHistories = new HashSet<>();
 
 }

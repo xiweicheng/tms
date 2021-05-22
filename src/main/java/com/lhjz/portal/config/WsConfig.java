@@ -1,5 +1,7 @@
 package com.lhjz.portal.config;
 
+import com.lhjz.portal.component.WsChannelInterceptor;
+import com.lhjz.portal.component.WsHandshakeInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -8,62 +10,37 @@ import org.springframework.web.socket.config.annotation.AbstractWebSocketMessage
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
-import com.lhjz.portal.component.WsChannelInterceptor;
-import com.lhjz.portal.component.WsHandshakeInterceptor;
-
 @Configuration
 @EnableWebSocketMessageBroker
 public class WsConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
-	@Autowired
-	WsChannelInterceptor channelInterceptor;
+    @Autowired
+    WsChannelInterceptor channelInterceptor;
 
-	@Autowired
-	WsHandshakeInterceptor wsHandshakeInterceptor;
+    @Autowired
+    WsHandshakeInterceptor wsHandshakeInterceptor;
 
-	@Override
-	public void configureMessageBroker(MessageBrokerRegistry config) {
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry config) {
 
-		config.enableSimpleBroker("/channel", "/direct", "/blog");
-		config.setApplicationDestinationPrefixes("/chat");
-	}
+        config.enableSimpleBroker("/channel", "/direct", "/blog");
+        config.setApplicationDestinationPrefixes("/chat");
+    }
 
-	@Override
-	public void registerStompEndpoints(StompEndpointRegistry registry) {
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
 
-		registry.addEndpoint("/ws", "/ws-lock").setAllowedOrigins("*").addInterceptors(wsHandshakeInterceptor)
-				.withSockJS();
+        registry.addEndpoint("/ws", "/ws-lock").setAllowedOrigins("*").addInterceptors(wsHandshakeInterceptor)
+                .withSockJS();
 
-	}
+    }
 
-	/** 
-	 * 消息传输参数配置 
-	 */
-	//	@Override
-	//	public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-	//		registry.setMessageSizeLimit(8192) //设置消息字节数大小  
-	//				.setSendBufferSizeLimit(8192)//设置消息缓存大小  
-	//				.setSendTimeLimit(10000); //设置消息发送时间限制毫秒  
-	//	}
-
-	/** 
-	 * 输入通道参数设置 
-	 */
-	@Override
-	public void configureClientInboundChannel(ChannelRegistration registration) {
-		//		registration.taskExecutor().corePoolSize(4) //设置消息输入通道的线程池线程数  
-		//				.maxPoolSize(8)//最大线程数  
-		//				.keepAliveSeconds(60);//线程活动时间  
-		registration.interceptors(channelInterceptor);
-	}
-
-	//	/** 
-	//	 * 输出通道参数设置 
-	//	 */
-	//	@Override
-	//	public void configureClientOutboundChannel(ChannelRegistration registration) {
-	//		//		registration.taskExecutor().corePoolSize(4).maxPoolSize(8);
-	//		registration.interceptors(channelInterceptor);
-	//	}
+    /**
+     * 输入通道参数设置
+     */
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(channelInterceptor);
+    }
 
 }

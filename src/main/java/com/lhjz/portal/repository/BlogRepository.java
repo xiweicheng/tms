@@ -31,16 +31,9 @@ import com.lhjz.portal.pojo.Enum.Status;
  */
 public interface BlogRepository extends JpaRepository<Blog, Long> {
 
-	//	Page<Blog> findByStatusNot(Status status, Pageable pageable);
-
 	List<Blog> findByStatusNotAndTags_nameIn(Status status, List<String> tags, Sort sort);
 
-	//	List<Blog> findByStatusNot(Status status, Sort sort);
-
 	List<Blog> findByPidIsNullAndStatusNot(Status status, Sort sort);
-
-	//	Page<Blog> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String searchT, String searchC,
-	//			Pageable pageable);
 
 	List<Blog> findByStatusNotAndTitleContainingIgnoreCaseOrStatusNotAndContentContainingIgnoreCase(Status status,
 			String searchT, Status status2, String searchC, Sort sort);

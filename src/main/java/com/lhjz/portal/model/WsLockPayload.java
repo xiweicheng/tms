@@ -17,7 +17,7 @@ public class WsLockPayload {
 
 	private String sessionId;
 
-	public static enum Cmd {
+	public enum Cmd {
 		LOCK, UNLOCK;
 	}
 }

@@ -94,16 +94,16 @@ public class Translate implements Serializable {
 	private Project project;
 
 	@OneToMany(mappedBy = "translate", cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
-	private Set<TranslateItem> translateItems = new HashSet<TranslateItem>();
+	private Set<TranslateItem> translateItems = new HashSet<>();
 
 	@ManyToMany(mappedBy = "watcherTranslates")
-	Set<User> watchers = new HashSet<User>();
+	private Set<User> watchers = new HashSet<>();
 
 	@OneToMany(mappedBy = "translate", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	Set<Label> labels = new HashSet<Label>();
+	private Set<Label> labels = new HashSet<>();
 
 	@ManyToMany(mappedBy = "fileTranslates", cascade = CascadeType.REMOVE)
-	Set<File> files = new HashSet<File>();
+	private Set<File> files = new HashSet<>();
 
 	@Override
 	public String toString() {

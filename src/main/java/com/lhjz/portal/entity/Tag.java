@@ -97,6 +97,6 @@ public class Tag implements Serializable {
 	@ManyToMany
 	@JoinTable(name = "tag_blog", joinColumns = { @JoinColumn(name = "tag_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "blog_id") })
-	private Set<Blog> blogs = new HashSet<Blog>();
+	private Set<Blog> blogs = new HashSet<>();
 
 }

@@ -12,9 +12,7 @@ import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.TodoPriority;
 import com.lhjz.portal.pojo.TodoSortForm;
 import com.lhjz.portal.pojo.TodoSortItem;
-import com.lhjz.portal.repository.LogRepository;
 import com.lhjz.portal.repository.TodoRepository;
-import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.JsonUtil;
 import com.lhjz.portal.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
@@ -26,7 +24,12 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -41,12 +44,6 @@ public class TodoController extends BaseController {
 
     @Autowired
     TodoRepository todoRepository;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    LogRepository logRepository;
 
     @Autowired
     MailSender mailSender;
@@ -197,7 +194,7 @@ public class TodoController extends BaseController {
 
         Stream.of(sortItems).forEach(item -> {
             Todo todo = todoRepository.findOne(item.getId());
-            if (item.getSort() != null & !item.getSort().equals(todo.getSortIndex())) {
+            if (item.getSort() != null && !item.getSort().equals(todo.getSortIndex())) {
                 todo.setSortIndex(item.getSort());
                 todoRepository.saveAndFlush(todo);
             }

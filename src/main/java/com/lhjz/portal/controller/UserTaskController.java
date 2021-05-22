@@ -18,7 +18,6 @@ import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
 import com.lhjz.portal.repository.ChatDirectRepository;
 import com.lhjz.portal.repository.ChatLabelRepository;
-import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.WebUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -49,9 +48,6 @@ public class UserTaskController extends BaseController {
 
     @Autowired
     ChatLabelRepository chatLabelRepository;
-
-    @Autowired
-    UserRepository userRepository;
 
     @Autowired
     MailSender mailSender;
@@ -104,7 +100,7 @@ public class UserTaskController extends BaseController {
 
             boolean updated = false;
 
-            if (all) {
+            if (Boolean.TRUE.equals(all)) {
                 for (User user : voters) {
                     user.getVoterChatLabels().remove(chatLabelFrom);
                 }
@@ -244,9 +240,9 @@ public class UserTaskController extends BaseController {
 
             Set<User> voters = chatLabel.getVoters();
 
-            voters.forEach(voter -> {
-                voter.getVoterChatLabels().remove(chatLabel);
-            });
+            voters.forEach(voter ->
+                    voter.getVoterChatLabels().remove(chatLabel)
+            );
 
             logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", chatLabel.getName());
 

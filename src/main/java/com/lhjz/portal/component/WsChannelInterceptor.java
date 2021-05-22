@@ -47,8 +47,6 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 	@Override
 	public void postSend(org.springframework.messaging.Message<?> message, MessageChannel channel, boolean sent) {
 
-//		log.info("post send message: {} channel: {} sent: {}", message, channel, sent);
-
 		Map<?, ?> attrsMap = (Map<?, ?>) message.getHeaders().get("simpSessionAttributes");
 
 		String path = String.valueOf(attrsMap.get("path"));

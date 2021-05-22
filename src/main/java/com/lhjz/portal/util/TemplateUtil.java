@@ -18,7 +18,10 @@ import org.thymeleaf.templateresolver.TemplateResolver;
  */
 public class TemplateUtil {
 
-	public static TemplateEngine templateEngine;
+	public static final TemplateEngine templateEngine;
+
+	private TemplateUtil() {
+	}
 
 	static {
 

@@ -31,7 +31,7 @@ public class ChannelAtPayload {
 	
 	private String ctitle;
 
-	public static enum Cmd {
+	public enum Cmd {
 		C, U, RC, RU;
 	}
 }

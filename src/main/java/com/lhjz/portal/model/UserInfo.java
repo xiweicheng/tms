@@ -35,9 +35,10 @@ public class UserInfo implements Serializable {
 	private String loginRemoteAddress;
 	private long loginCount = 0;
 
-	private Set<String> authorities = new HashSet<String>(0);
+	private Set<String> authorities = new HashSet<>(0);
 
 	public UserInfo() {
+		super();
 	}
 
 	public String getUsername() {

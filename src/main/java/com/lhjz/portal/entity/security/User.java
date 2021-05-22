@@ -122,46 +122,46 @@ public class User implements java.io.Serializable, Comparable<User> {
 	@ManyToMany
 	@JoinTable(name = "user_project", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "project_id") })
-	private Set<Project> projects = new HashSet<Project>();
+	private Set<Project> projects = new HashSet<>();
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
-	private Set<Authority> authorities = new HashSet<Authority>(0);
+	private Set<Authority> authorities = new HashSet<>(0);
 
 	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "watcher_project", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "project_id") })
-	private Set<Project> watcherProjects = new HashSet<Project>();
+	private Set<Project> watcherProjects = new HashSet<>();
 
 	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "watcher_translate", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "translate_id") })
-	private Set<Translate> watcherTranslates = new HashSet<Translate>();
+	private Set<Translate> watcherTranslates = new HashSet<>();
 
 	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "voter_chat", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "chat_id") })
-	private Set<Chat> voterChats = new HashSet<Chat>();
+	private Set<Chat> voterChats = new HashSet<>();
 
 	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "member_channel", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "channel_id") })
-	private Set<Channel> joinChannels = new HashSet<Channel>();
+	private Set<Channel> joinChannels = new HashSet<>();
 
 	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "subscriber_channel", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "channel_id") })
-	private Set<Channel> subscribeChannels = new HashSet<Channel>();
+	private Set<Channel> subscribeChannels = new HashSet<>();
 
 	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "actor_schedule", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "schedule_id") })
-	private Set<Schedule> actSchedules = new HashSet<Schedule>();
+	private Set<Schedule> actSchedules = new HashSet<>();
 
 	@JsonIgnore
 	@ManyToMany

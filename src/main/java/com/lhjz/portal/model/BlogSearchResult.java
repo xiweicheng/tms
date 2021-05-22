@@ -15,8 +15,8 @@ public class BlogSearchResult implements Serializable {
 
 	private static final long serialVersionUID = 4908485605547721160L;
 
-	List<Blog> blogs;
+	private List<Blog> blogs;
 	
-	List<Comment> comments;
+	private List<Comment> comments;
 
 }

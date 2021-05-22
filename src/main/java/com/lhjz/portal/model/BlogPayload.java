@@ -26,7 +26,7 @@ public class BlogPayload {
 	
 	private Boolean openEdit;
 
-	public static enum Cmd {
+	public enum Cmd {
 		R, C, U, OU, D, At, Open, CC, CU, CD, F, FCC, FCU, CAt;
 	}
 }

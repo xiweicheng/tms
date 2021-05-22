@@ -20,11 +20,12 @@ public final class ThreadUtil {
 
     private static ThreadLocal<String> tl = new ThreadLocal<>();
 
-//	private static ExecutorService pool = Executors.newCachedThreadPool();
+    private ThreadUtil() {
+    }
 
     private static ExecutorService pool = new ThreadPoolExecutor(5, 200,
             0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(1024), new ThreadFactoryBuilder()
+            new LinkedBlockingQueue<>(1024), new ThreadFactoryBuilder()
             .setNameFormat("single-pool-%d").build(), new ThreadPoolExecutor.AbortPolicy());
 
     public static void setCurrentAuditor(String username) {

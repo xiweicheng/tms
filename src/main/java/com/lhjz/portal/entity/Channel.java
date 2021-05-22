@@ -112,12 +112,12 @@ public class Channel implements Serializable {
 	private long version;
 
 	@ManyToMany(mappedBy = "joinChannels")
-	Set<User> members = new HashSet<User>();
+	private Set<User> members = new HashSet<>();
 
 	@ManyToMany(mappedBy = "subscribeChannels")
-	Set<User> subscriber = new HashSet<User>();
+	private Set<User> subscriber = new HashSet<>();
 
 	@OneToMany(mappedBy = "channel")
-	Set<ChannelGroup> channelGroups = new HashSet<>();
+	private Set<ChannelGroup> channelGroups = new HashSet<>();
 
 }
