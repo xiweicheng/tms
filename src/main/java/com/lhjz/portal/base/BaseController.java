@@ -42,7 +42,7 @@ public abstract class BaseController {
 	protected LogRepository logRepository;
 
 	@Autowired
-	UserRepository userRepository;
+	protected UserRepository userRepository;
 
 	@Autowired
 	protected Environment env;
