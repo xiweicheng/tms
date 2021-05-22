@@ -14,6 +14,9 @@ import com.lhjz.portal.pojo.Enum.Status;
 
 public class AuthUtil {
 
+	private AuthUtil() {
+	}
+
 	public static boolean isSuper() {
 		return WebUtil.getUserAuthorities().contains(SysConstant.ROLE_SUPER);
 	}
@@ -61,7 +64,7 @@ public class AuthUtil {
 			return false;
 		}
 
-		if (!c.getPrivated()) {
+		if (Boolean.FALSE.equals(c.getPrivated())) {
 			return true;
 		}
 
@@ -104,7 +107,7 @@ public class AuthUtil {
 			return true;
 		}
 
-		if (!s.getPrivated()) { // 非私有的
+		if (Boolean.FALSE.equals(s.getPrivated())) { // 非私有的
 			return true;
 		}
 

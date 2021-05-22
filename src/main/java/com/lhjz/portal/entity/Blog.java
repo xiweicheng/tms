@@ -157,7 +157,7 @@ public class Blog implements Serializable {
 	private Long pid; // 父博文ID
 
 	@Column
-	private Boolean hasChild = Boolean.FALSE;; // 是否有子级博文
+	private Boolean hasChild = Boolean.FALSE; // 是否有子级博文
 
 	@ManyToOne
 	@JoinColumn(name = "locker")
@@ -177,6 +177,6 @@ public class Blog implements Serializable {
 	private long version;
 
 	@ManyToMany(mappedBy = "blogs", fetch = FetchType.EAGER)
-	private Set<Tag> tags = new HashSet<Tag>();
+	private Set<Tag> tags = new HashSet<>();
 
 }

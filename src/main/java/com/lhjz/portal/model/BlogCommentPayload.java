@@ -19,7 +19,7 @@ public class BlogCommentPayload {
 	
 	private String atUsernames;
 
-	public static enum Cmd {
+	public enum Cmd {
 		C, D, U;
 	}
 }

@@ -7,29 +7,31 @@ import org.apache.log4j.Logger;
 
 public class BeanUtil {
 
-	private static final Logger logger = Logger.getLogger(BeanUtil.class);
+    private static final Logger logger = Logger.getLogger(BeanUtil.class);
 
-	public static void copyNotEmptyFields(Object src, Object dest) {
+    private BeanUtil() {
+    }
 
-		try {
-			Map<String, String> describe = BeanUtils.describe(src);
+    public static void copyNotEmptyFields(Object src, Object dest) {
 
-			for (String name : describe.keySet()) {
-				try {
-					if (describe.get(name) != null) {
-						BeanUtils.setProperty(dest, name, describe.get(name));
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error(e.getMessage(), e);
-					continue;
-				}
-			}
+        try {
+            Map<String, String> describe = BeanUtils.describe(src);
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e.getMessage(), e);
-		}
-	}
+            describe.entrySet().forEach(es -> {
+                try {
+                    if (es.getValue() != null) {
+                        BeanUtils.setProperty(dest, es.getKey(), es.getValue());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logger.error(e.getMessage(), e);
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage(), e);
+        }
+    }
 
 }

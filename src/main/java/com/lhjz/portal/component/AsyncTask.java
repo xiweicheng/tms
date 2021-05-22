@@ -62,7 +62,7 @@ public class AsyncTask {
 	@Autowired
 	IChatMsg chatMsg;
 
-	private final int LIMIT = 25;
+	private static final int LIMIT = 25;
 
 	@Async
 	public void updateChatChannel(String content, Long id, SimpMessagingTemplate messagingTemplate, String username,
