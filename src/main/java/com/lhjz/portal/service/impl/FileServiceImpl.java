@@ -4,12 +4,14 @@
 package com.lhjz.portal.service.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.lhjz.portal.exception.BizException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileServiceImpl implements FileService {
 
+	public static final String SPLIT = "/";
 	@Autowired
 	Environment env;
 
@@ -51,12 +54,12 @@ public class FileServiceImpl implements FileService {
 	FileRepository fileRepository;
 
 	@Override
-	public com.lhjz.portal.entity.File uploadImg(HttpServletRequest request, MultipartFile file) throws Exception {
+	public com.lhjz.portal.entity.File uploadImg(HttpServletRequest request, MultipartFile file) throws BizException {
 
 		String realPath = WebUtil.getRealPath(request);
 		String atId = request.getParameter("atId");
 
-		String originalFileName = file.getOriginalFilename();//.replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
+		String originalFileName = file.getOriginalFilename();
 		int lIndex = originalFileName.lastIndexOf(".");
 		String type = lIndex == -1 ? SysConstant.EMPTY : originalFileName.substring(lIndex);
 
@@ -72,20 +75,28 @@ public class FileServiceImpl implements FileService {
 		int sizeLarge = env.getProperty("lhjz.upload.img.scale.size.large", Integer.class);
 		int sizeHuge = env.getProperty("lhjz.upload.img.scale.size.huge", Integer.class);
 
-		// make upload dir if not exists
-		FileUtils.forceMkdir(new File(realPath + storePath + sizeOriginal));
-		FileUtils.forceMkdir(new File(realPath + storePath + sizeLarge));
-		FileUtils.forceMkdir(new File(realPath + storePath + sizeHuge));
+		try {
+			// make upload dir if not exists
+			FileUtils.forceMkdir(new File(realPath + storePath + sizeOriginal));
+			FileUtils.forceMkdir(new File(realPath + storePath + sizeLarge));
+			FileUtils.forceMkdir(new File(realPath + storePath + sizeHuge));
+		} catch (IOException e) {
+			throw new BizException(e.getMessage());
+		}
 
 		// relative file path
-		String path = storePath + sizeOriginal + "/" + uuidName;// 原始图片存放
-		String pathLarge = storePath + sizeLarge + "/" + uuidName;// 缩放图片存放
-		String pathHuge = storePath + sizeHuge + "/" + uuidName;// 缩放图片存放
+		String path = storePath + sizeOriginal + SPLIT + uuidName;// 原始图片存放
+		String pathLarge = storePath + sizeLarge + SPLIT + uuidName;// 缩放图片存放
+		String pathHuge = storePath + sizeHuge + SPLIT + uuidName;// 缩放图片存放
 
 		// absolute file path
 		String filePath = realPath + path;
-		// store into webapp dir
-		file.transferTo(new File(filePath));
+		try {
+			// store into webapp dir
+			file.transferTo(new File(filePath));
+		} catch (IOException e) {
+			throw new BizException(e.getMessage());
+		}
 
 		// scale image size as thumbnail
 		// 图片缩放处理.120*120
@@ -93,7 +104,7 @@ public class FileServiceImpl implements FileService {
 		// 图片缩放处理.640*640
 		ImageUtil.scale2(filePath, realPath + pathHuge, sizeHuge, sizeHuge, true);
 
-		path2 = storePath + sizeOriginal + "/";
+		path2 = storePath + sizeOriginal + SPLIT;
 		fileType = FileType.Image;
 
 		// 保存记录到数据库
@@ -120,7 +131,7 @@ public class FileServiceImpl implements FileService {
 	public boolean removeImg(String src) {
 
 		// src /upload/img/120/54a68013-9ea5-4722-b90b-c0c17260f600.png
-		String[] split = StringUtils.split(src, "/");
+		String[] split = StringUtils.split(src, SPLIT);
 		if (split != null && split.length > 0) {
 			com.lhjz.portal.entity.File img = fileRepository.findTopByUuidName(split[split.length - 1]);
 			if (img != null) {
@@ -133,12 +144,12 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
-	public com.lhjz.portal.entity.File uploadFile(HttpServletRequest request, MultipartFile file) throws Exception {
+	public com.lhjz.portal.entity.File uploadFile(HttpServletRequest request, MultipartFile file) throws BizException {
 
 		String realPath = WebUtil.getRealPath(request);
 		String atId = request.getParameter("atId");
 
-		String originalFileName = file.getOriginalFilename();//.replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
+		String originalFileName = file.getOriginalFilename();
 		int lIndex = originalFileName.lastIndexOf(".");
 		String type = lIndex == -1 ? SysConstant.EMPTY : originalFileName.substring(lIndex);
 
@@ -149,10 +160,14 @@ public class FileServiceImpl implements FileService {
 		String storeAttachmentPath = env.getProperty("lhjz.upload.attachment.store.path");
 		String path2 = null;
 		FileType fileType = null;
-		FileUtils.forceMkdir(new File(realPath + storeAttachmentPath));
-		String filePath = realPath + storeAttachmentPath + uuidName;
-		// store into webapp dir
-		file.transferTo(new File(filePath));
+		try {
+			FileUtils.forceMkdir(new File(realPath + storeAttachmentPath));
+			String filePath = realPath + storeAttachmentPath + uuidName;
+			// store into webapp dir
+			file.transferTo(new File(filePath));
+		} catch (IOException e) {
+			throw new BizException(e.getMessage());
+		}
 
 		path2 = storeAttachmentPath;
 		fileType = FileType.Attachment;
@@ -180,8 +195,7 @@ public class FileServiceImpl implements FileService {
 	@Override
 	public boolean removeFile(String src) {
 
-		// src /admin/file/download/${uuid}
-		String[] split = StringUtils.split(src, "/");
+		String[] split = StringUtils.split(src, SPLIT);
 		if (split != null && split.length > 0) {
 			com.lhjz.portal.entity.File file = fileRepository.findTopByUuidAndStatusNot(split[split.length - 1],
 					Status.Deleted);
@@ -195,18 +209,18 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
-	public List<com.lhjz.portal.entity.File> listImg() throws Exception {
+	public List<com.lhjz.portal.entity.File> listImg() throws BizException {
 
 		return fileRepository.findTop40ByTypeAndStatusNot(FileType.Image, Status.Deleted,
 				new Sort(Direction.DESC, "id"));
 	}
 
 	@Override
-	public WordInfo word2html(HttpServletRequest request, MultipartFile file) throws Exception {
+	public WordInfo word2html(HttpServletRequest request, MultipartFile file) throws BizException {
 
 		String realPath = WebUtil.getRealPath(request);
 
-		String originalFileName = file.getOriginalFilename();//.replaceAll("\\[|\\]|\\{|\\}|\\(|\\)", "\\$");
+		String originalFileName = file.getOriginalFilename();
 		int lIndex = originalFileName.lastIndexOf(".");
 		String type = lIndex == -1 ? SysConstant.EMPTY : originalFileName.substring(lIndex);
 
@@ -217,10 +231,15 @@ public class FileServiceImpl implements FileService {
 		String storeAttachmentPath = env.getProperty("lhjz.upload.attachment.store.path");
 		String path2 = null;
 		FileType fileType = null;
-		FileUtils.forceMkdir(new File(realPath + storeAttachmentPath));
-		String filePath = realPath + storeAttachmentPath + uuidName;
-		// store into webapp dir
-		file.transferTo(new File(filePath));
+		String filePath = null;
+		try {
+			FileUtils.forceMkdir(new File(realPath + storeAttachmentPath));
+			filePath = realPath + storeAttachmentPath + uuidName;
+			// store into webapp dir
+			file.transferTo(new File(filePath));
+		} catch (IOException e) {
+			throw new BizException(e.getMessage());
+		}
 
 		path2 = storeAttachmentPath;
 		fileType = FileType.Attachment;
@@ -240,7 +259,12 @@ public class FileServiceImpl implements FileService {
 		com.lhjz.portal.entity.File file3 = fileRepository.save(file2);
 
 		DocumentConverter converter = new DocumentConverter();
-		Result<String> result = converter.convertToHtml(new File(filePath));
+		Result<String> result = null;
+		try {
+			result = converter.convertToHtml(new File(filePath));
+		} catch (IOException e) {
+			throw new BizException(e.getMessage());
+		}
 
 		return WordInfo.builder().file(file3).html(result.getValue()).build();
 

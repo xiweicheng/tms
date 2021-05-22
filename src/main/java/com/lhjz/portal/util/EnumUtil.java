@@ -13,6 +13,9 @@ public class EnumUtil {
 	private static final Logger logger = LoggerFactory
 			.getLogger(EnumUtil.class);
 
+	private EnumUtil() {
+	}
+
 	public static Status status(String status) {
 
 		for (Status sts : Status.values()) {

@@ -13,7 +13,7 @@ public class OnlinePayload {
 	
 	private String sessionId;
 
-	public static enum Cmd {
+	public enum Cmd {
 		ON, B, L, OFF; // online,busy,left,offline
 	}
 }

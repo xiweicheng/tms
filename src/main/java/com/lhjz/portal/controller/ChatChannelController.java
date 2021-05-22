@@ -3,51 +3,6 @@
  */
 package com.lhjz.portal.controller;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.security.Principal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.AsyncTask;
 import com.lhjz.portal.component.MailSender;
@@ -87,7 +42,6 @@ import com.lhjz.portal.repository.ChatPinRepository;
 import com.lhjz.portal.repository.ChatReplyRepository;
 import com.lhjz.portal.repository.ChatStowRepository;
 import com.lhjz.portal.repository.ScheduleRepository;
-import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.service.FileService;
 import com.lhjz.portal.util.AuthUtil;
@@ -97,6 +51,51 @@ import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
 import com.lhjz.portal.util.ValidateUtil;
 import com.lhjz.portal.util.WebUtil;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.security.Principal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author xi
@@ -128,9 +127,6 @@ public class ChatChannelController extends BaseController {
 
     @Autowired
     ChatDirectRepository chatDirectRepository;
-
-    @Autowired
-    UserRepository userRepository;
 
     @Autowired
     ScheduleRepository scheduleRepository;
@@ -195,13 +191,13 @@ public class ChatChannelController extends BaseController {
 
         ChatChannel chatChannel2 = chatChannelService.save(chatChannel);
 
-        if (!off) {
+        if (Boolean.FALSE.equals(off)) {
             asyncTask.updateChatChannel(content, chatChannel2.getId(), messagingTemplate, WebUtil.getUsername(),
                     usernames);
         }
 
         final String href = url + "?id=" + chatChannel2.getId();
-        final String html = contentHtml; // StringUtil.md2Html(contentHtml, false, true);
+        final String html = contentHtml;
         final User loginUser = getLoginUser();
 
         final Mail mail = Mail.instance();
@@ -209,11 +205,11 @@ public class ChatChannelController extends BaseController {
 
         if (StringUtil.isNotEmpty(usernames)) {
 
-            Map<String, User> atUserMap = new HashMap<String, User>();
+            Map<String, User> atUserMap = new HashMap<>();
             String[] usernameArr = usernames.split(",");
 
             if (StringUtil.isNotEmpty(usernames)) {
-                Arrays.asList(usernameArr).stream().forEach((username) -> {
+                Arrays.asList(usernameArr).stream().forEach(username -> {
                     User user = getUser(username);
                     if (user != null) {
                         mail.addUsers(user);
@@ -222,9 +218,9 @@ public class ChatChannelController extends BaseController {
                 });
             }
 
-            List<ChatAt> chatAtList = new ArrayList<ChatAt>();
+            List<ChatAt> chatAtList = new ArrayList<>();
             // 保存chatAt关系
-            atUserMap.values().forEach((user) -> {
+            atUserMap.values().forEach(user -> {
                 ChatAt chatAt = new ChatAt();
                 chatAt.setChatChannel(chatChannel2);
                 chatAt.setAtUser(user);
@@ -292,7 +288,7 @@ public class ChatChannelController extends BaseController {
         }
 
         Page<ChatChannel> page = chatChannelRepository.findByChannel(channel, pageable);
-        page.forEach(cc -> reduceChatChannel(cc));
+        page.forEach(this::reduceChatChannel);
 
         return RespBody.succeed(page);
     }
@@ -349,7 +345,7 @@ public class ChatChannelController extends BaseController {
 
         ChatChannel chatChannel = chatChannelRepository.findOne(id);
 
-        Boolean isOpenEdit = chatChannel.getOpenEdit() == null ? false : chatChannel.getOpenEdit();
+        boolean isOpenEdit = Boolean.TRUE.equals(chatChannel.getOpenEdit());
 
         if (!isSuperOrCreator(chatChannel.getCreator().getUsername()) && !isOpenEdit) {
             return RespBody.failed("您没有权限编辑该消息内容!");
@@ -378,7 +374,7 @@ public class ChatChannelController extends BaseController {
 
         if (Boolean.TRUE.equals(chatChannel2.getNotice())) {
 
-            Set<String> users = chatChannel2.getChannel().getMembers().stream().map(user -> user.getUsername())
+            Set<String> users = chatChannel2.getChannel().getMembers().stream().map(User::getUsername)
                     .collect(Collectors.toSet());
 
             asyncTask.wsSendChannelNotice(chatChannel2.getId(), chatChannel2.getChannel().getId(), users, "U",
@@ -398,16 +394,16 @@ public class ChatChannelController extends BaseController {
 
         final Mail mail = Mail.instance();
         mail.addUsers(chatChannel.getChannel().getSubscriber(), loginUser);
-        mail.addUsers(chatChannel.getChatChannelFollowers().stream().map(ccf -> ccf.getCreator())
+        mail.addUsers(chatChannel.getChatChannelFollowers().stream().map(ChatChannelFollower::getCreator)
                 .collect(Collectors.toList()), loginUser);
 
         if (StringUtil.isNotEmpty(usernames)) {
 
-            Map<String, User> atUserMap = new HashMap<String, User>();
+            Map<String, User> atUserMap = new HashMap<>();
             String[] usernameArr = usernames.split(",");
 
             if (StringUtil.isNotEmpty(usernames)) {
-                Arrays.asList(usernameArr).stream().forEach((username) -> {
+                Arrays.asList(usernameArr).stream().forEach(username -> {
                     User user = getUser(username);
                     if (user != null) {
                         mail.addUsers(user);
@@ -416,9 +412,9 @@ public class ChatChannelController extends BaseController {
                 });
             }
 
-            List<ChatAt> chatAtList = new ArrayList<ChatAt>();
+            List<ChatAt> chatAtList = new ArrayList<>();
             // 保存chatAt关系
-            atUserMap.values().forEach((user) -> {
+            atUserMap.values().forEach(user -> {
 
                 ChatAt chatAt2 = chatAtRepository.findOneByChatChannelAndAtUserAndChatReplyNull(chatChannel2, user);
                 if (chatAt2 == null) {
@@ -518,7 +514,7 @@ public class ChatChannelController extends BaseController {
         }
 
         List<ChatChannel> chats = chatChannelRepository.latest(channel, id);
-        chats.forEach(cc -> reduceChatChannel(cc));
+        chats.forEach(this::reduceChatChannel);
 
         return RespBody.succeed(chats);
     }
@@ -529,7 +525,7 @@ public class ChatChannelController extends BaseController {
                          @RequestParam("size") Integer size, @RequestParam("channelId") Long channelId) {
 
         long count = 0;
-        List<ChatChannel> chats = new ArrayList<>();
+        List<ChatChannel> chats;
 
         Channel channel = channelRepository.findOne(channelId);
 
@@ -537,7 +533,7 @@ public class ChatChannelController extends BaseController {
             return RespBody.failed("权限不足!");
         }
 
-        if (last) {
+        if (Boolean.TRUE.equals(last)) {
             count = chatChannelRepository.countAllOld(channel, start);
             chats = chatChannelRepository.queryMoreOld(channel, start, size);
         } else {
@@ -545,7 +541,7 @@ public class ChatChannelController extends BaseController {
             chats = chatChannelRepository.queryMoreNew(channel, start, size);
         }
 
-        chats.forEach(cc -> reduceChatChannel(cc));
+        chats.forEach(this::reduceChatChannel);
 
         return RespBody.succeed(chats).addMsg(count);
     }
@@ -635,7 +631,7 @@ public class ChatChannelController extends BaseController {
                     }
 
                     return v;
-                }).filter(date -> date != null).collect(Collectors.toList());
+                }).filter(Objects::nonNull).collect(Collectors.toList());
 
                 if (!intLists.isEmpty()) {
 
@@ -679,14 +675,14 @@ public class ChatChannelController extends BaseController {
                 }
             }
         } else {
-            String _search = "%" + search + "%";
-            chats = chatChannelRepository.queryAboutMe(channel, _search, pageable.getOffset(), pageable.getPageSize());
-            cnt = chatChannelRepository.countAboutMe(channel, _search);
+            String searchVal = "%" + search + "%";
+            chats = chatChannelRepository.queryAboutMe(channel, searchVal, pageable.getOffset(), pageable.getPageSize());
+            cnt = chatChannelRepository.countAboutMe(channel, searchVal);
         }
 
         Page<ChatChannel> page = new PageImpl<>(chats, pageable, cnt);
 
-        page.forEach(cc -> reduceChatChannel(cc));
+        page.forEach(this::reduceChatChannel);
 
         return RespBody.succeed(page);
     }
@@ -778,7 +774,7 @@ public class ChatChannelController extends BaseController {
         Page<ChatStow> chatStows = chatStowRepository.findByChatIsNullAndStowUserAndStatus(getLoginUser(),
                 Status.New, pageable);
 
-        chatStows.forEach(cs -> reduceChatStow(cs));
+        chatStows.forEach(this::reduceChatStow);
 
         return RespBody.succeed(chatStows);
     }
@@ -815,7 +811,7 @@ public class ChatChannelController extends BaseController {
         Page<ChatAt> chatAts = chatAtRepository.findByChatChannelNotNullAndAtUserAndStatus(getLoginUser(), Status.New,
                 pageable);
 
-        chatAts.forEach(ca -> reduceChatAt(ca));
+        chatAts.forEach(this::reduceChatAt);
 
         return RespBody.succeed(chatAts);
     }
@@ -893,7 +889,6 @@ public class ChatChannelController extends BaseController {
 
         chatMsg.put(chatChannel, Action.Update, ChatMsgType.OpenEdit, WebUtil.getUsername(), null, null);
         wsSend(chatChannel, null);
-        //		chatChannelService.save(chatChannel);
 
         return RespBody.succeed();
     }
@@ -998,7 +993,7 @@ public class ChatChannelController extends BaseController {
                          @RequestParam("lastChatChannelId") Long lastChatChannelId,
                          @RequestParam(value = "isAt", required = false, defaultValue = "false") Boolean isAt) {
 
-        long cnt = isAt ? chatAtRepository.countChatChannelRecentAt(WebUtil.getUsername(), lastChatChannelId)
+        long cnt = Boolean.TRUE.equals(isAt) ? chatAtRepository.countChatChannelRecentAt(WebUtil.getUsername(), lastChatChannelId)
                 : chatChannelRepository.countQueryRecent(channelId, lastChatChannelId);
 
         long cntAtUserNew = chatAtRepository.countChatChannelAtUserNew(WebUtil.getUsername());
@@ -1012,7 +1007,7 @@ public class ChatChannelController extends BaseController {
     @PostMapping("download/md2html/{id}")
     @ResponseBody
     public RespBody downloadHtmlFromMd(HttpServletRequest request, @PathVariable Long id,
-                                       @RequestParam(value = "content") String content) throws Exception {
+                                       @RequestParam(value = "content") String content) {
 
         logger.debug("download chatChannel md2html start...");
 
@@ -1039,7 +1034,7 @@ public class ChatChannelController extends BaseController {
 
         if (!md2fileHtml.exists()) {
             try {
-                FileUtils.writeStringToFile(md2fileHtml, content, "UTF-8");
+                FileUtils.writeStringToFile(md2fileHtml, content, StandardCharsets.UTF_8);
             } catch (IOException e) {
                 e.printStackTrace();
                 return RespBody.failed(e.getMessage());
@@ -1051,7 +1046,7 @@ public class ChatChannelController extends BaseController {
 
     @RequestMapping(value = "download/{id}", method = RequestMethod.GET)
     public void download(HttpServletRequest request, HttpServletResponse response, @PathVariable Long id,
-                         @RequestParam(value = "type", defaultValue = "pdf") String type) throws Exception {
+                         @RequestParam(value = "type", defaultValue = "pdf") String type) {
 
         logger.debug("download channel chat start...");
 
@@ -1062,7 +1057,8 @@ public class ChatChannelController extends BaseController {
                 response.sendError(404, "下载频道消息不存在!");
                 return;
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
+                return;
             }
         }
 
@@ -1092,7 +1088,7 @@ public class ChatChannelController extends BaseController {
 
         if (!fileMd.exists()) {
             try {
-                FileUtils.writeStringToFile(fileMd, chatChannel.getContent(), "UTF-8");
+                FileUtils.writeStringToFile(fileMd, chatChannel.getContent(), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -1106,7 +1102,7 @@ public class ChatChannelController extends BaseController {
                         : new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
 
                 String nodeCmd = StringUtil.replace("node {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
-                logger.debug("Node CMD: " + nodeCmd);
+                logger.debug("Node CMD: {}", nodeCmd);
                 Process process = Runtime.getRuntime().exec(nodeCmd);
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String s = null;
@@ -1116,12 +1112,12 @@ public class ChatChannelController extends BaseController {
                 process.waitFor();
                 logger.debug("Md2pdf done!");
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
+                Thread.currentThread().interrupt();
             }
         }
 
         // 1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
-        // response.setContentType("multipart/form-data");
         response.setContentType("application/x-msdownload;");
         response.addHeader("Content-Type", "text/html; charset=utf-8");
         String dnFileName = null;
@@ -1145,26 +1141,15 @@ public class ChatChannelController extends BaseController {
         response.setHeader("Content-Disposition", "attachment; fileName=" + StringUtil.encodingFileName(dnFileName));
         response.setHeader("Content-Length", dnFileLength);
 
-        java.io.BufferedInputStream bis = null;
-        java.io.BufferedOutputStream bos = null;
-
-        try {
-            bis = new BufferedInputStream(new FileInputStream(dnFile));
-            bos = new BufferedOutputStream(response.getOutputStream());
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(dnFile));
+             BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
             byte[] buff = new byte[2048];
             int bytesRead;
             while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
                 bos.write(buff, 0, bytesRead);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (bis != null) {
-                bis.close();
-            }
-            if (bos != null) {
-                bos.close();
-            }
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -1212,9 +1197,7 @@ public class ChatChannelController extends BaseController {
             Stream.of(channels.split(",")).forEach(name -> {
                 Channel channel = channelRepository.findOneByName(name);
                 if (channel != null) {
-                    channel.getMembers().forEach(user -> {
-                        mail.addUsers(user);
-                    });
+                    channel.getMembers().forEach(mail::addUsers);
 
                     ChatChannel chatChannel = new ChatChannel();
                     chatChannel.setChannel(channel);
@@ -1394,7 +1377,7 @@ public class ChatChannelController extends BaseController {
         ChatPin chatPin = chatPinRepository.findOneByChannelAndChatChannel(channel, chatChannel);
 
         if (chatPin != null) {
-            if (pin) {
+            if (Boolean.TRUE.equals(pin)) {
                 return RespBody.succeed(chatPin).code(Code.Created);
             }
             chatPinRepository.delete(chatPin);
@@ -1419,8 +1402,6 @@ public class ChatChannelController extends BaseController {
         if (!AuthUtil.hasChannelAuth(channel)) {
             return RespBody.failed("权限不足!");
         }
-
-        //		List<ChatPin> chatPins = chatPinRepository.findByChannel(channel);
 
         Page<ChatPin> chatPinsPage = chatPinRepository.findByChannel(channel, pageable);
 
@@ -1450,7 +1431,7 @@ public class ChatChannelController extends BaseController {
 
         ChatReply chatReply2 = chatReplyRepository.saveAndFlush(chatReply);
 
-        if (!off) {
+        if (Boolean.FALSE.equals(off)) {
             asyncTask.updateChatReply(content, chatReply2.getId(), messagingTemplate, WebUtil.getUsername(), usernames);
         }
 
@@ -1473,22 +1454,22 @@ public class ChatChannelController extends BaseController {
         }
 
         final String href = url + "?id=" + chatChannel.getId() + "&rid=" + chatReply2.getId();
-        final String html = contentHtml; // StringUtil.md2Html(contentHtml, false, true);
+        final String html = contentHtml;
         final User loginUser = getLoginUser();
 
         final Mail mail = Mail.instance();
         mail.addUsers(chatChannel.getChannel().getSubscriber(), loginUser);
         mail.addUsers(Arrays.asList(chatChannel.getCreator()), loginUser);
-        mail.addUsers(chatChannel.getChatChannelFollowers().stream().map(ccf -> ccf.getCreator())
+        mail.addUsers(chatChannel.getChatChannelFollowers().stream().map(ChatChannelFollower::getCreator)
                 .collect(Collectors.toList()), loginUser);
 
         if (StringUtil.isNotEmpty(usernames)) {
 
-            Map<String, User> atUserMap = new HashMap<String, User>();
+            Map<String, User> atUserMap = new HashMap<>();
             String[] usernameArr = usernames.split(",");
 
             if (StringUtil.isNotEmpty(usernames)) {
-                Arrays.asList(usernameArr).stream().forEach((username) -> {
+                Arrays.asList(usernameArr).stream().forEach(username -> {
                     User user = getUser(username);
                     if (user != null) {
                         mail.addUsers(user);
@@ -1497,9 +1478,9 @@ public class ChatChannelController extends BaseController {
                 });
             }
 
-            List<ChatAt> chatAtList = new ArrayList<ChatAt>();
+            List<ChatAt> chatAtList = new ArrayList<>();
             // 保存chatAt关系
-            atUserMap.values().forEach((user) -> {
+            atUserMap.values().forEach(user -> {
                 ChatAt chatAt2 = chatAtRepository.findOneByChatChannelAndChatReplyAndAtUser(chatChannel, chatReply2,
                         user);
                 if (chatAt2 == null) {
@@ -1574,16 +1555,16 @@ public class ChatChannelController extends BaseController {
         final Mail mail = Mail.instance();
         mail.addUsers(chatReply.getChatChannel().getChannel().getSubscriber(), loginUser);
         mail.addUsers(Arrays.asList(chatReply.getChatChannel().getCreator()), loginUser);
-        mail.addUsers(chatReply.getChatChannel().getChatChannelFollowers().stream().map(ccf -> ccf.getCreator())
+        mail.addUsers(chatReply.getChatChannel().getChatChannelFollowers().stream().map(ChatChannelFollower::getCreator)
                 .collect(Collectors.toList()), loginUser);
 
         if (StringUtil.isNotEmpty(usernames)) {
 
-            Map<String, User> atUserMap = new HashMap<String, User>();
+            Map<String, User> atUserMap = new HashMap<>();
             String[] usernameArr = usernames.split(",");
 
             if (StringUtil.isNotEmpty(usernames)) {
-                Arrays.asList(usernameArr).stream().forEach((username) -> {
+                Arrays.asList(usernameArr).stream().forEach(username -> {
                     User user = getUser(username);
                     if (user != null) {
                         mail.addUsers(user);
@@ -1592,9 +1573,9 @@ public class ChatChannelController extends BaseController {
                 });
             }
 
-            List<ChatAt> chatAtList = new ArrayList<ChatAt>();
+            List<ChatAt> chatAtList = new ArrayList<>();
             // 保存chatAt关系
-            atUserMap.values().forEach((user) -> {
+            atUserMap.values().forEach(user -> {
                 ChatAt chatAt2 = chatAtRepository.findOneByChatChannelAndChatReplyAndAtUser(chatReply2.getChatChannel(),
                         chatReply2, user);
                 if (chatAt2 == null) {
@@ -1840,7 +1821,7 @@ public class ChatChannelController extends BaseController {
 
         chatChannelRepository.saveAndFlush(chatChannel);
 
-        Set<String> users = chatChannel.getChannel().getMembers().stream().map(user -> user.getUsername())
+        Set<String> users = chatChannel.getChannel().getMembers().stream().map(User::getUsername)
                 .collect(Collectors.toSet());
 
         asyncTask.wsSendChannelNotice(chatChannel.getId(), chatChannel.getChannel().getId(), users, "C",
@@ -1864,7 +1845,7 @@ public class ChatChannelController extends BaseController {
 
         chatChannelRepository.saveAndFlush(chatChannel);
 
-        Set<String> users = chatChannel.getChannel().getMembers().stream().map(user -> user.getUsername())
+        Set<String> users = chatChannel.getChannel().getMembers().stream().map(User::getUsername)
                 .collect(Collectors.toSet());
 
         asyncTask.wsSendChannelNotice(chatChannel.getId(), chatChannel.getChannel().getId(), users, "D",

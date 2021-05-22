@@ -90,6 +90,6 @@ public class ChatLabel implements Serializable {
 	private ChatDirect chatDirect;
 
 	@ManyToMany(mappedBy = "voterChatLabels")
-	Set<User> voters = new HashSet<>();
+	private Set<User> voters = new HashSet<>();
 
 }

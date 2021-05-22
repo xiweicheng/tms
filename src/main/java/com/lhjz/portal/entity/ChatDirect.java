@@ -101,6 +101,6 @@ public class ChatDirect implements Serializable {
 	private long version;
 
 	@OneToMany(mappedBy = "chatDirect", cascade = { CascadeType.REMOVE })
-	List<ChatLabel> chatLabels = new ArrayList<>();
+	private List<ChatLabel> chatLabels = new ArrayList<>();
 
 }

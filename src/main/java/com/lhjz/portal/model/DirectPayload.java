@@ -15,7 +15,7 @@ public class DirectPayload {
 
 	private String username;
 
-	public static enum Cmd {
+	public enum Cmd {
 		R, C, U, D;
 	}
 }

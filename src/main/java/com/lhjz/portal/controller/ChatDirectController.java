@@ -7,7 +7,11 @@ import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.AsyncTask;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.constant.SysConstant;
-import com.lhjz.portal.entity.*;
+import com.lhjz.portal.entity.Channel;
+import com.lhjz.portal.entity.ChatChannel;
+import com.lhjz.portal.entity.ChatDirect;
+import com.lhjz.portal.entity.ChatLabel;
+import com.lhjz.portal.entity.ChatStow;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.model.DirectPayload;
 import com.lhjz.portal.model.DirectPayload.Cmd;
@@ -17,10 +21,23 @@ import com.lhjz.portal.pojo.Enum.Action;
 import com.lhjz.portal.pojo.Enum.ChatLabelType;
 import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.pojo.Enum.Target;
-import com.lhjz.portal.repository.*;
+import com.lhjz.portal.repository.ChannelRepository;
+import com.lhjz.portal.repository.ChatAtRepository;
+import com.lhjz.portal.repository.ChatDirectRepository;
+import com.lhjz.portal.repository.ChatLabelRepository;
+import com.lhjz.portal.repository.ChatStowRepository;
+import com.lhjz.portal.repository.GroupMemberRepository;
+import com.lhjz.portal.repository.GroupRepository;
 import com.lhjz.portal.service.ChatChannelService;
 import com.lhjz.portal.service.FileService;
-import com.lhjz.portal.util.*;
+import com.lhjz.portal.util.AuthUtil;
+import com.lhjz.portal.util.DateUtil;
+import com.lhjz.portal.util.MapUtil;
+import com.lhjz.portal.util.StringUtil;
+import com.lhjz.portal.util.TemplateUtil;
+import com.lhjz.portal.util.ThreadUtil;
+import com.lhjz.portal.util.ValidateUtil;
+import com.lhjz.portal.util.WebUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -36,14 +53,31 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -72,16 +106,10 @@ public class ChatDirectController extends BaseController {
     ChatChannelService chatChannelService;
 
     @Autowired
-    UserRepository userRepository;
-
-    @Autowired
     GroupRepository groupRepository;
 
     @Autowired
     GroupMemberRepository groupMemberRepository;
-
-    @Autowired
-    LogRepository logRepository;
 
     @Autowired
     ChatAtRepository chatAtRepository;
@@ -149,7 +177,7 @@ public class ChatDirectController extends BaseController {
 
         wsSend(chatDirect2, Cmd.C);
 
-        final String html = contentHtml; // StringUtil.md2Html(contentHtml, false, true);
+        final String html = contentHtml;
         final User loginUser = getLoginUser();
         final String href = baseUrl + path + "#/chat/@" + loginUser.getUsername() + "?id=" + chatDirect2.getId();
 
@@ -311,7 +339,7 @@ public class ChatDirectController extends BaseController {
 
         List<ChatDirect> chats = chatDirectRepository.queryChatDirect(loginUser, chatToUser, start, limit);
 
-        Page<ChatDirect> page = new PageImpl<ChatDirect>(chats, pageable, total);
+        Page<ChatDirect> page = new PageImpl<>(chats, pageable, total);
 
         return RespBody.succeed(page);
     }
@@ -344,7 +372,7 @@ public class ChatDirectController extends BaseController {
 
         long count = 0;
         List<ChatDirect> chats = null;
-        if (last) {
+        if (Boolean.TRUE.equals(last)) {
             count = chatDirectRepository.countAllOld(getLoginUser(), chatToUser, start);
             chats = chatDirectRepository.queryMoreOld(getLoginUser(), chatToUser, start, size);
         } else {
@@ -379,9 +407,9 @@ public class ChatDirectController extends BaseController {
                 cnt = chatDirectRepository.countAboutMeByTags(loginUser, Arrays.asList(tags));
             }
         } else {
-            String _search = "%" + search + "%";
-            chats = chatDirectRepository.queryAboutMe(loginUser, _search, pageable.getOffset(), pageable.getPageSize());
-            cnt = chatDirectRepository.countAboutMe(loginUser, _search);
+            String searchVal = "%" + search + "%";
+            chats = chatDirectRepository.queryAboutMe(loginUser, searchVal, pageable.getOffset(), pageable.getPageSize());
+            cnt = chatDirectRepository.countAboutMe(loginUser, searchVal);
         }
 
         Page<ChatDirect> page = new PageImpl<>(chats, pageable, cnt);
@@ -392,7 +420,7 @@ public class ChatDirectController extends BaseController {
     @PostMapping("download/md2html/{id}")
     @ResponseBody
     public RespBody downloadHtmlFromMd(HttpServletRequest request, @PathVariable Long id,
-                                       @RequestParam(value = "content") String content) throws Exception {
+                                       @RequestParam(value = "content") String content) {
 
         logger.debug("download chatDirect md2html start...");
 
@@ -419,7 +447,7 @@ public class ChatDirectController extends BaseController {
 
         if (!md2fileHtml.exists()) {
             try {
-                FileUtils.writeStringToFile(md2fileHtml, content, "UTF-8");
+                FileUtils.writeStringToFile(md2fileHtml, content, StandardCharsets.UTF_8);
             } catch (IOException e) {
                 e.printStackTrace();
                 return RespBody.failed(e.getMessage());
@@ -431,7 +459,7 @@ public class ChatDirectController extends BaseController {
 
     @RequestMapping(value = "download/{id}", method = RequestMethod.GET)
     public void download(HttpServletRequest request, HttpServletResponse response, @PathVariable Long id,
-                         @RequestParam(value = "type", defaultValue = "pdf") String type) throws Exception {
+                         @RequestParam(value = "type", defaultValue = "pdf") String type) {
 
         logger.debug("download direct chat start...");
 
@@ -452,6 +480,7 @@ public class ChatDirectController extends BaseController {
                 return;
             } catch (IOException e) {
                 e.printStackTrace();
+                return;
             }
         }
 
@@ -472,7 +501,7 @@ public class ChatDirectController extends BaseController {
 
         if (!fileMd.exists()) {
             try {
-                FileUtils.writeStringToFile(fileMd, chatDirect.getContent(), "UTF-8");
+                FileUtils.writeStringToFile(fileMd, chatDirect.getContent(), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -486,7 +515,7 @@ public class ChatDirectController extends BaseController {
                         : new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
 
                 String nodeCmd = StringUtil.replace("node {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
-                logger.debug("Node CMD: " + nodeCmd);
+                logger.debug("Node CMD: {}", nodeCmd);
                 Process process = Runtime.getRuntime().exec(nodeCmd);
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String s = null;
@@ -496,12 +525,12 @@ public class ChatDirectController extends BaseController {
                 process.waitFor();
                 logger.debug("Md2pdf done!");
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
+                Thread.currentThread().interrupt();
             }
         }
 
         // 1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
-        // response.setContentType("multipart/form-data");
         response.setContentType("application/x-msdownload;");
         response.addHeader("Content-Type", "text/html; charset=utf-8");
         String dnFileName = null;
@@ -529,26 +558,16 @@ public class ChatDirectController extends BaseController {
         response.setHeader("Content-Disposition", "attachment; fileName=" + StringUtil.encodingFileName(dnFileName));
         response.setHeader("Content-Length", dnFileLength);
 
-        java.io.BufferedInputStream bis = null;
-        java.io.BufferedOutputStream bos = null;
 
-        try {
-            bis = new BufferedInputStream(new FileInputStream(dnFile));
-            bos = new BufferedOutputStream(response.getOutputStream());
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(dnFile));
+             BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
             byte[] buff = new byte[2048];
             int bytesRead;
             while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
                 bos.write(buff, 0, bytesRead);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (bis != null) {
-                bis.close();
-            }
-            if (bos != null) {
-                bos.close();
-            }
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -607,9 +626,7 @@ public class ChatDirectController extends BaseController {
             Stream.of(channels.split(",")).forEach(name -> {
                 Channel channel = channelRepository.findOneByName(name);
                 if (channel != null) {
-                    channel.getMembers().forEach(user -> {
-                        mail.addUsers(user);
-                    });
+                    channel.getMembers().forEach(mail::addUsers);
 
                     ChatChannel chatChannel = new ChatChannel();
                     chatChannel.setChannel(channel);
@@ -640,8 +657,8 @@ public class ChatDirectController extends BaseController {
                         getLoginUserName(loginUser), mail.get());
                 logger.info("沟通消息分享邮件发送成功！");
             } catch (Exception e) {
-                e.printStackTrace();
-                logger.error("沟通消息分享邮件发送失败！");
+                logger.error("沟通消息分享邮件发送失败！", e);
+                Thread.currentThread().interrupt();
             }
 
         });

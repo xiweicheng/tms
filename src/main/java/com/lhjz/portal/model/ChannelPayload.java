@@ -19,7 +19,7 @@ public class ChannelPayload {
 	
 	private String atUsernames;
 
-	public static enum Cmd {
+	public enum Cmd {
 		R, C, U, D;
 	}
 }

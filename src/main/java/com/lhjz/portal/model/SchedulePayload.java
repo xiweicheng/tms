@@ -15,7 +15,7 @@ public class SchedulePayload {
 
 	private String creator;
 
-	public static enum Cmd {
+	public enum Cmd {
 		R, C, U, D;
 	}
 }

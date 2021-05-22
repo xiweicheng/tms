@@ -31,6 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ExcelUtil {
 
+	private ExcelUtil() {
+	}
+
 	public static List<List<List<String>>> read(String path) {
 
 		if (path.toLowerCase().endsWith(".xls")) {
@@ -78,7 +81,6 @@ public class ExcelUtil {
 		} else { // 不是日期格式
 			cell.setCellType(CellType.STRING);
 			return cell.getStringCellValue();
-			//			return String.valueOf(cell.getNumericCellValue());
 		}
 
 		double value = cell.getNumericCellValue();

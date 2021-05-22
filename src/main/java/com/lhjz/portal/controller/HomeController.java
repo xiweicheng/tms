@@ -3,9 +3,18 @@
  */
 package com.lhjz.portal.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.Lists;
+import com.lhjz.portal.base.BaseController;
+import com.lhjz.portal.component.MailSender;
+import com.lhjz.portal.entity.Blog;
+import com.lhjz.portal.entity.Comment;
+import com.lhjz.portal.entity.Space;
+import com.lhjz.portal.model.BlogInfo;
+import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.repository.BlogRepository;
+import com.lhjz.portal.repository.CommentRepository;
+import com.lhjz.portal.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,20 +31,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.collect.Lists;
-import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender;
-import com.lhjz.portal.entity.Blog;
-import com.lhjz.portal.entity.Comment;
-import com.lhjz.portal.entity.Space;
-import com.lhjz.portal.model.BlogInfo;
-import com.lhjz.portal.model.RespBody;
-import com.lhjz.portal.pojo.Enum.Status;
-import com.lhjz.portal.repository.BlogRepository;
-import com.lhjz.portal.repository.CommentRepository;
-import com.lhjz.portal.repository.LogRepository;
-import com.lhjz.portal.repository.UserRepository;
-import com.lhjz.portal.util.StringUtil;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 
@@ -54,13 +51,7 @@ public class HomeController extends BaseController {
 	BlogRepository blogRepository;
 
 	@Autowired
-	UserRepository userRepository;
-
-	@Autowired
 	CommentRepository commentRepository;
-
-	@Autowired
-	LogRepository logRepository;
 
 	@Autowired
 	MailSender mailSender;

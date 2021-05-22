@@ -19,8 +19,6 @@ import java.util.List;
  */
 public final class CollectionUtil {
 
-	// private static Logger logger = Logger.getLogger(MapUtil.class);
-
 	private CollectionUtil() {
 		super();
 	}
@@ -57,7 +55,7 @@ public final class CollectionUtil {
 	 * @return
 	 */
 	public static <T> List<T> reverseList(List<T> list) {
-		List<T> newList = new ArrayList<T>();
+		List<T> newList = new ArrayList<>();
 		list.stream().forEach((l) -> {
 			newList.add(0, l);
 		});

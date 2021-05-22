@@ -176,7 +176,7 @@ public class SHA1 {
 
 	// 将字节数组转换为十六进制字符串
 	private static String byteArrayToHexString(byte[] bytearray) {
-		StringBuffer strDigest = new StringBuffer();
+		StringBuilder strDigest = new StringBuilder();
 		for (int i = 0; i < bytearray.length; i++) {
 			strDigest.append(byteToHexString(bytearray[i]));
 		}

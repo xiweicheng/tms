@@ -3,10 +3,18 @@
  */
 package com.lhjz.portal.entity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.pojo.Enum.ChatType;
+import com.lhjz.portal.pojo.Enum.Status;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -27,21 +35,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
-
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.lhjz.portal.entity.security.User;
-import com.lhjz.portal.pojo.Enum.ChatType;
-import com.lhjz.portal.pojo.Enum.Status;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 
@@ -125,17 +122,17 @@ public class ChatChannel implements Serializable {
 	private long version;
 
 	@OneToMany(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
-	List<ChatLabel> chatLabels = new ArrayList<>();
+	private List<ChatLabel> chatLabels = new ArrayList<>();
 
 	@JsonIgnore
 	@OneToOne(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
-	ChatPin chatPin;
+	private ChatPin chatPin;
 
 	@OneToMany(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
-	List<ChatReply> chatReplies = new ArrayList<>();
+	private List<ChatReply> chatReplies = new ArrayList<>();
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "chatChannel", cascade = { CascadeType.REMOVE })
-	List<ChatChannelFollower> chatChannelFollowers = new ArrayList<>();
+	private List<ChatChannelFollower> chatChannelFollowers = new ArrayList<>();
 
 }

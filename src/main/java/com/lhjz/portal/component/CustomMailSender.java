@@ -194,7 +194,6 @@ public class CustomMailSender {
 				message.setSubject(MimeUtility.encodeText(
 						mailInfo.getSubject(), "UTF-8", "B"));
 			} catch (UnsupportedEncodingException e1) {
-				e1.printStackTrace();
 				logger.error("邮件附件设置主题，Error:" + e1.getMessage(), e1);
 			}
 			message.setSentDate(new Date());
@@ -230,7 +229,6 @@ public class CustomMailSender {
 						fileBodyPart.setFileName(MimeUtility.encodeText(
 								fileDataSource.getName(), "UTF-8", "B"));
 					} catch (UnsupportedEncodingException e) {
-						e.printStackTrace();
 						logger.error("邮件附件设置失败，Error:" + e.getMessage(), e);
 					}
 
@@ -246,7 +244,6 @@ public class CustomMailSender {
 			return true;
 
 		} catch (MessagingException ex) {
-			ex.printStackTrace();
 			logger.error("邮件发送失败，Error:" + ex.getMessage(), ex);
 		}
 

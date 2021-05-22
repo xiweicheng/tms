@@ -94,7 +94,7 @@ public class Chat implements Serializable {
 	private long version;
 
 	@ManyToMany(mappedBy = "voterChats")
-	Set<User> voters = new HashSet<>();
+	private Set<User> voters = new HashSet<>();
 
 	@Column
 	private Boolean privated = Boolean.FALSE;
@@ -103,6 +103,6 @@ public class Chat implements Serializable {
 	private String title;
 
 	@OneToMany(mappedBy = "chat", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-	Set<Label> labels = new HashSet<>();
+	private Set<Label> labels = new HashSet<>();
 
 }

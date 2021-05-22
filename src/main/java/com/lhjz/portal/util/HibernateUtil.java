@@ -19,6 +19,9 @@ public class HibernateUtil {
 
     public static final SessionFactory SESSION_FACTORY;
 
+    private HibernateUtil() {
+    }
+
     static {
         try {
             // 采用默认的hibernate.cfg.xml来启动一个Configuration的实例
@@ -27,9 +30,8 @@ public class HibernateUtil {
                     .applySettings(configuration.getProperties());
             // 由Configuration的实例来创建一个SessionFactory实例
             SESSION_FACTORY = configuration.buildSessionFactory(builder.build());
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             // Make sure you log the exception, as it might be swallowed
-            System.err.println("Initial SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
         }
     }
@@ -42,7 +44,7 @@ public class HibernateUtil {
     public static final ThreadLocal<Session> SESSION_THREAD_LOCAL = new ThreadLocal<Session>();
 
     public static Session currentSession() throws HibernateException {
-        Session s = (Session) SESSION_THREAD_LOCAL.get();
+        Session s = SESSION_THREAD_LOCAL.get();
         // 如果该线程还没有Session,则创建一个新的Session
         if (s == null) {
             s = SESSION_FACTORY.openSession();
@@ -52,15 +54,11 @@ public class HibernateUtil {
         return s;
     }
 
-    public static void remove() throws HibernateException {
-        SESSION_THREAD_LOCAL.remove();
-    }
-
     public static void closeSession() throws HibernateException {
-        Session s = (Session) SESSION_THREAD_LOCAL.get();
+        Session s = SESSION_THREAD_LOCAL.get();
         if (s != null) {
             s.close();
         }
-        SESSION_THREAD_LOCAL.set(null);
+        SESSION_THREAD_LOCAL.remove();
     }
 }

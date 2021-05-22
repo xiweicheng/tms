@@ -117,8 +117,6 @@ public final class HtmlUtil {
 			map.put("desc", desc.attr("content"));
 			map.put("icon", favicon(icon.attr("href"), url));
 
-			System.out.println(StringUtil.replaceByMap(tpl, map));
-
 			return StringUtil.replaceByMap(tpl, map);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);

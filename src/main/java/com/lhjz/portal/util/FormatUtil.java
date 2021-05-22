@@ -10,6 +10,9 @@ public final class FormatUtil {
 
 	private static final String EMPTY_STRING = "";
 
+	private FormatUtil() {
+	}
+
 	public static String format(String tpl, Map<String, Object> dataModelMap) {
 
 		try {

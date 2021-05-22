@@ -3,6 +3,17 @@
  */
 package com.lhjz.portal.controller;
 
+import com.lhjz.portal.base.BaseController;
+import com.lhjz.portal.component.MailSender;
+import com.lhjz.portal.entity.Channel;
+import com.lhjz.portal.entity.Gantt;
+import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.repository.ChannelRepository;
+import com.lhjz.portal.repository.GanttRepository;
+import com.lhjz.portal.util.AuthUtil;
+import com.lhjz.portal.util.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,21 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender;
-import com.lhjz.portal.entity.Channel;
-import com.lhjz.portal.entity.Gantt;
-import com.lhjz.portal.model.RespBody;
-import com.lhjz.portal.pojo.Enum.Status;
-import com.lhjz.portal.repository.ChannelRepository;
-import com.lhjz.portal.repository.GanttRepository;
-import com.lhjz.portal.repository.LogRepository;
-import com.lhjz.portal.repository.UserRepository;
-import com.lhjz.portal.util.AuthUtil;
-import com.lhjz.portal.util.StringUtil;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -47,12 +43,6 @@ public class GanttController extends BaseController {
 
 	@Autowired
 	ChannelRepository channelRepository;
-
-	@Autowired
-	UserRepository userRepository;
-
-	@Autowired
-	LogRepository logRepository;
 
 	@Autowired
 	MailSender mailSender;

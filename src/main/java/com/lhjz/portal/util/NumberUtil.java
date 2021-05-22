@@ -280,7 +280,7 @@ public final class NumberUtil {
 	 * @return
 	 */
 	public static String random(int length) {
-		StringBuffer sBuffer = new StringBuffer();
+		StringBuilder sBuffer = new StringBuilder();
 
 		for (int i = 0; i < length; i++) {
 			sBuffer.append(random.nextInt(10));

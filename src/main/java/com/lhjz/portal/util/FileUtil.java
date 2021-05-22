@@ -2,8 +2,10 @@ package com.lhjz.portal.util;
 
 public class FileUtil {
 
-	// private static final Logger logger = Logger.getLogger(FileUtil.class);
 	private static final String EMPTY = "";
+
+	private FileUtil() {
+	}
 
 	/**
 	 * 获取文件名.

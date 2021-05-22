@@ -1,11 +1,14 @@
 package com.lhjz.portal.util;
 
+import com.google.common.collect.Sets;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class CommonUtil {
 
-	// private static final Logger logger = Logger.getLogger(CommonUtil.class);
+	private CommonUtil() {
+	}
 
 	/**
 	 * 转换win换行符成html<br/>
@@ -21,12 +24,9 @@ public class CommonUtil {
 	}
 
 	public static Set<String> arr2Set(String... arr) {
-		Set<String> set = new HashSet<String>();
 		if (arr != null) {
-			for (String string : arr) {
-				set.add(string);
-			}
+			return Sets.newHashSet(arr);
 		}
-		return set;
+		return new HashSet<String>();
 	}
 }

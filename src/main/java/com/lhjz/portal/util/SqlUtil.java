@@ -196,7 +196,7 @@ public final class SqlUtil {
 			return EMPTY;
 		}
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("CRUD Params:").append(SysConstant.NEW_LINE);
 
 		for (Object object : params) {
@@ -224,7 +224,7 @@ public final class SqlUtil {
 			return EMPTY;
 		}
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("CRUD Params:").append(SysConstant.NEW_LINE);
 
 		for (Object[] objectArr : params) {
