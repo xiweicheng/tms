@@ -56,8 +56,6 @@ public class MailSender {
             new LinkedBlockingQueue<Runnable>(1024), new ThreadFactoryBuilder()
             .setNameFormat("single-pool-%d").build(), new ThreadPoolExecutor.AbortPolicy());
 
-//	private static ExecutorService pool = Executors.newSingleThreadExecutor();
-
     public JavaMailSenderImpl getMailSender() {
         return (JavaMailSenderImpl) mailSender;
     }

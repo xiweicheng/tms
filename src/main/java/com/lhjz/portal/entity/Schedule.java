@@ -116,7 +116,7 @@ public class Schedule implements Serializable {
 	private long version;
 
 	@ManyToMany(mappedBy = "actSchedules")
-	Set<User> actors = new HashSet<User>();
+	private Set<User> actors = new HashSet<User>();
 
 	public Long getId() {
 		return id;

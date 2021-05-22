@@ -3,22 +3,6 @@
  */
 package com.lhjz.portal.controller;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.component.MailSender;
 import com.lhjz.portal.entity.Channel;
@@ -32,9 +16,23 @@ import com.lhjz.portal.repository.ChannelRepository;
 import com.lhjz.portal.repository.DirRepository;
 import com.lhjz.portal.repository.SpaceAuthorityRepository;
 import com.lhjz.portal.repository.SpaceRepository;
-import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 
@@ -61,9 +59,6 @@ public class SpaceController extends BaseController {
 	@Autowired
 	DirRepository dirRepository;
 
-	@Autowired
-	UserRepository userRepository;
-	
 	@Autowired
 	MailSender mailSender;
 
@@ -187,55 +182,6 @@ public class SpaceController extends BaseController {
 
 		return RespBody.succeed(spaces);
 	}
-
-//	private boolean hasAuth(Space s) {
-//
-//		if (s == null) {
-//			return false;
-//		}
-//
-//		if (isSuper()) { // 超级用户
-//			return true;
-//		}
-//
-//		if (s.getStatus().equals(Status.Deleted)) { // 过滤掉删除的
-//			return false;
-//		}
-//
-//		User loginUser = new User(WebUtil.getUsername());
-//
-//		// 过滤掉没有权限的
-//		if (s.getCreator().equals(loginUser)) { // 我创建的
-//			return true;
-//		}
-//
-//		if (Boolean.TRUE.equals(s.getOpened())) {
-//			return true;
-//		}
-//
-//		if (!s.getPrivated()) { // 非私有的
-//			return true;
-//		}
-//
-//		boolean exists = false;
-//		for (SpaceAuthority sa : s.getSpaceAuthorities()) {
-//			if (loginUser.equals(sa.getUser())) {
-//				exists = true;
-//				break;
-//			} else {
-//				Channel channel = sa.getChannel();
-//				if (channel != null) {
-//					Set<User> members = channel.getMembers();
-//					if (members.contains(loginUser)) {
-//						exists = true;
-//						break;
-//					}
-//				}
-//			}
-//		}
-//
-//		return exists;
-//	}
 
 	@RequestMapping(value = "listMy", method = RequestMethod.GET)
 	@ResponseBody

@@ -20,6 +20,7 @@ public class RunAsAuth {
 		try {
 			this.authenticationOld = SecurityContextHolder.getContext().getAuthentication();
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 	}
@@ -45,6 +46,7 @@ public class RunAsAuth {
 			SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		
 		return this;
@@ -54,6 +56,7 @@ public class RunAsAuth {
 		try {
 			SecurityContextHolder.getContext().setAuthentication(this.authenticationOld);
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		
 		return this;

@@ -18,8 +18,6 @@ import java.util.Map;
  */
 public final class MapUtil {
 
-	// private static Logger logger = Logger.getLogger(MapUtil.class);
-
 	private MapUtil() {
 		super();
 	}

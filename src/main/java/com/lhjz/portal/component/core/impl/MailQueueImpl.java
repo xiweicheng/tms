@@ -13,7 +13,6 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 public class MailQueueImpl implements MailQueue {
 
-	// BlockingQueue<MailItem> mailQueue = new LinkedBlockingQueue<MailItem>();
 	ConcurrentLinkedQueue<MailItem> mailQueue = new ConcurrentLinkedQueue<MailItem>();
 
 	@Override

@@ -82,7 +82,7 @@ public class Project implements Serializable, Comparable<Project> {
 	private Set<Translate> translates = new HashSet<>();
 
 	@ManyToMany(mappedBy = "watcherProjects")
-	Set<User> watchers = new HashSet<>();
+	private Set<User> watchers = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "language_id")

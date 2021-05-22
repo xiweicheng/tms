@@ -3,13 +3,16 @@
  */
 package com.lhjz.portal.controller;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.mail.MessagingException;
-
+import com.lhjz.portal.base.BaseController;
+import com.lhjz.portal.component.MailSender;
+import com.lhjz.portal.entity.Setting;
+import com.lhjz.portal.model.Mail;
+import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.pojo.Enum.SettingType;
+import com.lhjz.portal.pojo.Enum.Status;
+import com.lhjz.portal.repository.SettingRepository;
+import com.lhjz.portal.util.JsonUtil;
+import com.lhjz.portal.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +26,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.component.MailSender;
-import com.lhjz.portal.entity.Setting;
-import com.lhjz.portal.model.Mail;
-import com.lhjz.portal.model.RespBody;
-import com.lhjz.portal.pojo.Enum.SettingType;
-import com.lhjz.portal.pojo.Enum.Status;
-import com.lhjz.portal.repository.LogRepository;
-import com.lhjz.portal.repository.SettingRepository;
-import com.lhjz.portal.util.JsonUtil;
-import com.lhjz.portal.util.StringUtil;
+import javax.mail.MessagingException;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -47,9 +44,6 @@ import com.lhjz.portal.util.StringUtil;
 public class SettingController extends BaseController {
 
 	static Logger logger = LoggerFactory.getLogger(SettingController.class);
-
-	@Autowired
-	LogRepository logRepository;
 
 	@Autowired
 	SettingRepository settingRepository;

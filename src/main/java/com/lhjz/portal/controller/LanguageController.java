@@ -3,23 +3,6 @@
  */
 package com.lhjz.portal.controller;
 
-import java.util.Date;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.validation.Valid;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.lhjz.portal.base.BaseController;
 import com.lhjz.portal.entity.Language;
 import com.lhjz.portal.entity.Project;
@@ -35,8 +18,22 @@ import com.lhjz.portal.repository.LanguageRepository;
 import com.lhjz.portal.repository.ProjectRepository;
 import com.lhjz.portal.repository.TranslateItemRepository;
 import com.lhjz.portal.repository.TranslateRepository;
-import com.lhjz.portal.repository.UserRepository;
 import com.lhjz.portal.util.WebUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.validation.Valid;
+import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 
@@ -65,9 +62,6 @@ public class LanguageController extends BaseController {
 
 	@Autowired
 	LabelRepository labelRepository;
-
-	@Autowired
-	UserRepository userRepository;
 
 	@Autowired
 	AuthorityRepository authorityRepository;

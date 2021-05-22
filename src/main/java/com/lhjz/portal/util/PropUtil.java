@@ -22,7 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class PropUtil {
 
-	public static Properties properties;
+	public static final Properties properties;
+
+	private PropUtil() {
+	}
 
 	static {
 		properties = new Properties();

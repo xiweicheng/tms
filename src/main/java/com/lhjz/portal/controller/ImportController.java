@@ -353,8 +353,6 @@ public class ImportController extends BaseController {
 			mail2.addHref("新增", baseURL, translateAction, projectId, newLabel);
 		}
 
-		// log(Action.Import, Target.Import, content);
-
 		final Mail mail = Mail.instance();
 
 		final User loginUser = getLoginUser();
@@ -424,7 +422,6 @@ public class ImportController extends BaseController {
 			}
 
 			String data = JsonUtil.toJson(root);
-			// log(Action.Export, Target.Import, data);
 
 			return RespBody.succeed(data).addMsg(map.size());
 		} else {
@@ -440,7 +437,6 @@ public class ImportController extends BaseController {
 			Collections.sort(list);
 
 			String data = StringUtil.join("\r\n", list);
-			// log(Action.Export, Target.Import, data);
 
 			return RespBody.succeed(data).addMsg(map.size());
 		}

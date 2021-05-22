@@ -471,6 +471,7 @@ public class ChatDirectController extends BaseController {
                 return;
             } catch (IOException e) {
                 e.printStackTrace();
+                return;
             }
         }
 

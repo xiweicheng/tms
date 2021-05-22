@@ -739,6 +739,7 @@ public final class ImageUtil {
                 try {
                     bais.close();
                 } catch (IOException ioe) {
+                    ioe.printStackTrace();
                 }
             }
 
@@ -746,6 +747,7 @@ public final class ImageUtil {
                 try {
                     mcis.close();
                 } catch (IOException ioe) {
+                    ioe.printStackTrace();
                 }
             }
         }

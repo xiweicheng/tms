@@ -3,8 +3,10 @@
  */
 package com.lhjz.portal.config;
 
-import javax.sql.DataSource;
-
+import com.lhjz.portal.component.AjaxAwareLoginUrlAuthenticationEntryPoint;
+import com.lhjz.portal.component.AjaxSimpleUrlAuthenticationFailureHandler;
+import com.lhjz.portal.component.AjaxSimpleUrlLogoutSuccessHandler;
+import com.lhjz.portal.component.LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,136 +24,127 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
-import com.lhjz.portal.component.AjaxAwareLoginUrlAuthenticationEntryPoint;
-import com.lhjz.portal.component.AjaxSimpleUrlAuthenticationFailureHandler;
-import com.lhjz.portal.component.AjaxSimpleUrlLogoutSuccessHandler;
-import com.lhjz.portal.component.LoginSuccessHandler;
+import javax.sql.DataSource;
 
 /**
- * 
  * @author xi
- * 
  * @date 2015年3月30日 下午9:42:00
- * 
  */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
-	static final int ORDER = -10;
+    static final int ORDER = -10;
 
-	@Autowired
-	DataSource dataSource;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
-	@Autowired
-	PasswordEncoder passwordEncoder;
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth, DataSource dataSource) throws Exception {
 
-	@Autowired
-	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.jdbcAuthentication().dataSource(dataSource).passwordEncoder(passwordEncoder);
+    }
 
-		auth.jdbcAuthentication().dataSource(dataSource).passwordEncoder(passwordEncoder);
-	}
+    @Configuration
+    @Order(ORDER)
+    @Profile({"dev", "prod", "prod-pg"})
+    public static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	@Configuration
-	@Order(ORDER)
-	@Profile({ "dev", "prod", "prod-pg" })
-	public static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+        @Autowired
+        LoginSuccessHandler loginSuccessHandler;
 
-		@Autowired
-		DataSource dataSource;
+        @Autowired
+        AjaxSimpleUrlAuthenticationFailureHandler ajaxSimpleUrlAuthenticationFailureHandler;
 
-		@Autowired
-		LoginSuccessHandler loginSuccessHandler;
+        @Autowired
+        PersistentTokenRepository persistentTokenRepository;
 
-		@Autowired
-		AjaxSimpleUrlAuthenticationFailureHandler ajaxSimpleUrlAuthenticationFailureHandler;
+        @Bean
+        public PersistentTokenRepository persistentTokenRepository(DataSource dataSource) {
+            JdbcTokenRepositoryImpl db = new JdbcTokenRepositoryImpl();
+            db.setDataSource(dataSource);
+            return db;
+        }
 
-		@Bean
-		public PersistentTokenRepository persistentTokenRepository() {
-			JdbcTokenRepositoryImpl db = new JdbcTokenRepositoryImpl();
-			db.setDataSource(dataSource);
-			return db;
-		}
+        @Bean
+        public AuthenticationEntryPoint authenticationEntryPoint() {
+            return new AjaxAwareLoginUrlAuthenticationEntryPoint("/admin/login");
+        }
 
-		@Bean
-		public AuthenticationEntryPoint authenticationEntryPoint() {
-			return new AjaxAwareLoginUrlAuthenticationEntryPoint("/admin/login");
-		}
+        @Bean
+        public LogoutSuccessHandler logoutSuccessHandler() {
+            return new AjaxSimpleUrlLogoutSuccessHandler("/admin/login?logout");
+        }
 
-		@Bean
-		public LogoutSuccessHandler logoutSuccessHandler() {
-			return new AjaxSimpleUrlLogoutSuccessHandler("/admin/login?logout");
-		}
+        @Override
+        public void configure(WebSecurity web) throws Exception {
+            // @formatter:off
+            web.ignoring().antMatchers(
+                    "/admin/file/download/**",
+                    "/admin/css/**",
+                    "/admin/img/**",
+                    "/admin/js/**",
+                    "/admin/login",
+                    "/admin/page/**",
+                    "/admin/vuejs/**",
+                    "/img/**",
+                    "/landing/**",
+                    "/lib/**",
+                    "/page/**",
+                    "/index.html",
+                    "/favicon.ico");
+            // @formatter:on
+        }
 
-		@Override
-		public void configure(WebSecurity web) throws Exception {
-			// @formatter:off
-			web.ignoring().antMatchers(
-					"/admin/file/download/**", 
-					"/admin/css/**", 
-					"/admin/img/**", 
-					"/admin/js/**",
-					"/admin/login", 
-					"/admin/page/**",
-					"/admin/vuejs/**",
-					"/img/**",
-					"/landing/**",
-					"/lib/**",
-					"/page/**",
-					"/index.html",
-					"/favicon.ico");
-			// @formatter:on
-		}
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+            // @formatter:off
+            http
+                    .authorizeRequests()
+                    .antMatchers("/admin/**", "/api/**", "/ws/**")
+                    .authenticated()
+                    .and()
+                    .exceptionHandling()
+                    .authenticationEntryPoint(authenticationEntryPoint())
+                    .and().httpBasic()
+                    .and()
+                    .formLogin()
+                    .loginPage("/admin/login")
+                    .permitAll()
+                    .loginProcessingUrl("/admin/signin")
+                    .successHandler(loginSuccessHandler)
+                    .failureHandler(ajaxSimpleUrlAuthenticationFailureHandler)
+                    .and()
+                    .logout()
+                    .logoutUrl("/admin/logout")
+                    .permitAll()
+                    .logoutSuccessHandler(logoutSuccessHandler())
+                    .and()
+                    .rememberMe()
+                    .tokenRepository(persistentTokenRepository)
+                    .tokenValiditySeconds(1209600)
+                    .and()
+                    .csrf()
+                    .disable();
+            // @formatter:on
+        }
 
-			// @formatter:off
-			http
-				.authorizeRequests()
-				.antMatchers("/admin/**", "/api/**", "/ws/**")
-					.authenticated()
-				.and()
-					.exceptionHandling()
-					.authenticationEntryPoint(authenticationEntryPoint())
-				.and().httpBasic()
-				.and()
-					.formLogin()
-					.loginPage("/admin/login")
-					.permitAll()
-					.loginProcessingUrl("/admin/signin")
-					.successHandler(loginSuccessHandler)
-					.failureHandler(ajaxSimpleUrlAuthenticationFailureHandler)
-				.and()
-					.logout()
-					.logoutUrl("/admin/logout")
-					.permitAll()
-					.logoutSuccessHandler(logoutSuccessHandler())
-				.and()
-					.rememberMe()
-					.tokenRepository(persistentTokenRepository())
-					.tokenValiditySeconds(1209600)
-				.and()
-					.csrf()
-					.disable();
-			// @formatter:on
-		}
+    }
 
-	}
+    @Configuration
+    @Order(ORDER + 1)
+    @Profile({"dev", "prod", "prod-pg"})
+    public static class SecurityConfiguration2 extends WebSecurityConfigurerAdapter {
 
-	@Configuration
-	@Order(ORDER + 1)
-	@Profile({ "dev", "prod", "prod-pg" })
-	public static class SecurityConfiguration2 extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+            http.authorizeRequests().antMatchers("/", "/free/**").permitAll().and().csrf().disable();
 
-			http.authorizeRequests().antMatchers("/", "/free/**").permitAll().and().csrf().disable();
+        }
 
-		}
-
-	}
+    }
 
 }
