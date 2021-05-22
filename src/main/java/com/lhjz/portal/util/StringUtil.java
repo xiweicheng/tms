@@ -540,7 +540,7 @@ public final class StringUtil {
 
     public static String nl2br(String content) {
         if (StringUtil.isNotEmpty(content)) {
-            return content.replace("\n", "<br/>");
+            return content.replaceAll("\n", "<br/>");
         }
 
         return content;
