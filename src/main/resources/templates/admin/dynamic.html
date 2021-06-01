@@ -719,7 +719,7 @@
                                                 <img style="height:35px;" th:if="${#strings.isEmpty(u.name)}" th:src="@{/image/head.png}" src="../../static/image/head.png">
                                             </a>
                                             <div class="content">
-                                                <div class="header" th:text="${(#strings.isEmpty(u.name) ? u.username : u.name) + ' - ' + u.mails + ' (' + u.username + ')'}">张三 - weicheng.xi@newtouch.cn (xiweicheng)</div>
+                                                <div class="header" th:text="${(#strings.isEmpty(u.name) ? u.username : u.name) + ' - ' + u.mails + ' (' + u.username + ')'}">张三 - tms@tms.cn (tms)</div>
                                             </div>
                                         </div>
                                         <div class="item" th:each="g : ${groups}" th:attr="data-type=${'group'}, data-value=${g.groupName}, data-label=${g.groupName}">

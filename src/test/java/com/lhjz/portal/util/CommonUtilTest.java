@@ -119,7 +119,7 @@ public class CommonUtilTest {
 		//		System.out.println(SchedulePriority.Middle.name());
 		//		System.out.println(StringUtil.replace("xx{~{?1}}xxx", "cccc"));
 		//		
-		//		System.out.println(StringUtil.parseUrl("http://jira00.sh1.newtouch.com/rest/api/2/issue/13701"));
+		//		System.out.println(StringUtil.parseUrl("http://jira00.tms.com/rest/api/2/issue/13701"));
 		//	
 		//		String read = JsonPath.read("{}", "$.name");
 		//		System.out.println(read);
@@ -141,22 +141,6 @@ public class CommonUtilTest {
 		System.out.println(ThreadUtil.getCurrentAuditor());
 		ThreadUtil.clearCurrentAuditor();
 		System.out.println(ThreadUtil.getCurrentAuditor());
-	}
-
-	@org.junit.Test
-	public void testUrl() throws MalformedURLException {
-		URL url = new URL("http://code.paic.com.cn/eim/cloud-ucp-im-console.git?branch=develop");
-		String query = url.getQuery();
-		System.out.println(url.getQuery());
-		System.out.println(query.split("=")[1]);
-
-		String path = url.getPath(); // /hys_git_test4/439141543.git
-		String repoAddr = path != null ? path.replace(".git", "") : StringUtil.EMPTY;
-
-		System.out.println(repoAddr);
-
-		System.out.println(GitAction.OPEN.name());
-
 	}
 
 	// public static void main(String[] args) {

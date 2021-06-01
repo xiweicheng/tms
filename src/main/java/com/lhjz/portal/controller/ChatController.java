@@ -724,8 +724,6 @@ public class ChatController extends BaseController {
     @ResponseBody
     public RespBody getReplies(@RequestParam("id") Long id) {
 
-        // [回复#871](http://translation.sh1.newtouch.com/admin/dynamic?id=871)
-
         String query = StringUtil.replaceByKV(
                 "%[回复#{id}](%/admin/dynamic?id={id})%", "id", id);
 

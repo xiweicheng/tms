@@ -1,37 +1,5 @@
 {
     "links": [{
-        "title": "JIRA",
-        "href": "http://jira00.sh1.newtouch.com/",
-        "disabled": false
-    }, {
-        "title": "Confluence",
-        "href": "http://wiki00.sh1.newtouch.com/",
-        "disabled": false
-    }, {
-        "title": "Stash",
-        "href": "http://stash0.sh1.newtouch.com/",
-        "disabled": false
-    }, {
-        "title": "Jenkins",
-        "href": "http://220.248.17.34:8073/",
-        "disabled": false
-    }, {
-        "title": "Swagger",
-        "href": "http://218.245.64.3:45417/api/swagger-ui.html",
-        "disabled": false
-    }, {
-        "title": "Console(开发)",
-        "href": "http://220.248.17.34:8063/",
-        "disabled": true
-    }, {
-        "title": "Console(测试)",
-        "href": "http://hd3.console.newtouchwork.com/",
-        "disabled": false
-    }, {
-        "title": "Console(Mock)",
-        "href": "http://x-console.sh1.newtouch.com/",
-        "disabled": false
-    }, {
         "title": "绘图(draw)",
         "href": "https://www.draw.io/",
         "disabled": true

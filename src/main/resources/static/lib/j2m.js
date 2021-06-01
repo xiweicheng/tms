@@ -42,7 +42,6 @@
 	 */
 	function toJ(input) {
 
-		// ![5242c580-bba2-41cf-831f-b33b503eb1b9.png](http://translation.sh1.newtouch.com/upload/img/0/5242c580-bba2-41cf-831f-b33b503eb1b9.png) -> !http://translation.sh1.newtouch.com/upload/img/0/5242c580-bba2-41cf-831f-b33b503eb1b9.png!
 		input = input.replace(/!\[.*\]\((.*)\)/g, '\n!$1!\n');
 
 		// > some text -> {quote}some text{quote}
