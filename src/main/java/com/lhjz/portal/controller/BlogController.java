@@ -1398,11 +1398,9 @@ public class BlogController extends BaseController {
 
         Blog blog = blogRepository.findOne(id);
 
-        if (!isSuperOrCreator(blog.getCreator().getUsername())) {
-            if (blog.getSpace() == null
-                    || (!blog.getSpace().getCreator().getUsername().equals(WebUtil.getUsername()))) {
-                return RespBody.failed("您没有权限修改该博文从属空间!");
-            }
+        if (!isSuperOrCreator(blog.getCreator().getUsername()) && (blog.getSpace() == null
+                || (!blog.getSpace().getCreator().getUsername().equals(WebUtil.getUsername())))) {
+            return RespBody.failed("您没有权限修改该博文从属空间!");
         }
 
         Space space = sid != null ? spaceRepository.findOne(sid) : null;
@@ -1423,9 +1421,9 @@ public class BlogController extends BaseController {
 
         if (space != null && dir != null) {
             val = space.getName() + " / " + dir.getName();
-        } else if (space != null && dir == null) {
+        } else if (space != null) {
             val = space.getName();
-        } else if (space == null && dir != null) {
+        } else if (dir != null) {
             val = dir.getName();
         }
 

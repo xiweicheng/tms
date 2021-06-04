@@ -113,7 +113,7 @@ public class GanttController extends BaseController {
 			return RespBody.failed("甘特图不存在!");
 		}
 
-		if (!isSuperOrCreator(gantt.getCreator()) && !gantt.getOpenEdit()
+		if (!isSuperOrCreator(gantt.getCreator()) && !Boolean.TRUE.equals(gantt.getOpenEdit())
 				&& !isCreator(gantt.getChannel().getCreator().getUsername())) {
 			return RespBody.failed("权限不足！");
 		}
@@ -181,7 +181,7 @@ public class GanttController extends BaseController {
 			return RespBody.failed("甘特图不存在!");
 		}
 
-		if (!AuthUtil.isChannelMember(gantt.getChannel()) && !gantt.getOpened()) {
+		if (!AuthUtil.isChannelMember(gantt.getChannel()) && !Boolean.TRUE.equals(gantt.getOpened())) {
 			return RespBody.failed("频道权限不足!");
 		}
 

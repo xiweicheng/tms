@@ -608,15 +608,6 @@ public class FreeController extends BaseController {
 
     }
 
-    private int lenVal(String val) {
-
-        if (StringUtil.isEmpty(val)) {
-            return 0;
-        }
-
-        return val.length();
-    }
-
     @GetMapping("blog/share/{id}")
     @ResponseBody
     public RespBody getShareBlog(@PathVariable("id") String shareId) {

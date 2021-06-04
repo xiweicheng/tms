@@ -189,13 +189,9 @@ public class CustomMailSender {
 			}
 
 			message.addRecipients(Message.RecipientType.TO,
-					toAddresses.toArray(new Address[] {}));
-			try {
-				message.setSubject(MimeUtility.encodeText(
-						mailInfo.getSubject(), "UTF-8", "B"));
-			} catch (UnsupportedEncodingException e1) {
-				logger.error("邮件附件设置主题，Error:" + e1.getMessage(), e1);
-			}
+					toAddresses.toArray(new Address[]{}));
+			message.setSubject(MimeUtility.encodeText(
+					mailInfo.getSubject(), "UTF-8", "B"));
 			message.setSentDate(new Date());
 
 			Multipart multipart = new MimeMultipart();
@@ -224,13 +220,9 @@ public class CustomMailSender {
 					fileBodyPart
 							.setDataHandler(new DataHandler(fileDataSource));
 
-					try {
-						// 设置文件名，可以不是原来的文件名。
-						fileBodyPart.setFileName(MimeUtility.encodeText(
-								fileDataSource.getName(), "UTF-8", "B"));
-					} catch (UnsupportedEncodingException e) {
-						logger.error("邮件附件设置失败，Error:" + e.getMessage(), e);
-					}
+					// 设置文件名，可以不是原来的文件名。
+					fileBodyPart.setFileName(MimeUtility.encodeText(
+							fileDataSource.getName(), "UTF-8", "B"));
 
 					multipart.addBodyPart(fileBodyPart);
 				}
@@ -245,6 +237,8 @@ public class CustomMailSender {
 
 		} catch (MessagingException ex) {
 			logger.error("邮件发送失败，Error:" + ex.getMessage(), ex);
+		} catch (UnsupportedEncodingException e1) {
+			logger.error("邮件附件设置主题，Error:" + e1.getMessage(), e1);
 		}
 
 		return false;
