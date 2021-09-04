@@ -1,8 +1,7 @@
 package com.lhjz.portal.util;
 
 import lombok.extern.slf4j.Slf4j;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -44,6 +43,8 @@ public final class ImageUtil {
     private static final int IMAGE_SIZE = 120;
 
     private static AffineTransform transform = new AffineTransform();
+
+    private static final Base64 BASE_64 = new Base64();
 
     private ImageUtil() {
     }
@@ -804,9 +805,7 @@ public final class ImageUtil {
             log.error(e.getMessage(), e);
         }
         // 对字节数组Base64编码
-        BASE64Encoder encoder = new BASE64Encoder();
-
-        return outputStream != null ? encoder.encode(outputStream.toByteArray()) : StringUtil.EMPTY; // 返回Base64编码过的字节数组字符串
+        return outputStream != null ? BASE_64.encodeAsString(outputStream.toByteArray()) : StringUtil.EMPTY; // 返回Base64编码过的字节数组字符串
     }
 
     // base64字符串转化成图片
@@ -817,10 +816,10 @@ public final class ImageUtil {
             return false;
         }
 
-        BASE64Decoder decoder = new BASE64Decoder();
+        Base64 decoder = new Base64();
         try {
             // Base64解码
-            byte[] b = decoder.decodeBuffer(base64);
+            byte[] b = decoder.decode(base64);
             for (int i = 0; i < b.length; ++i) {
                 if (b[i] < 0) {// 调整异常数据
                     b[i] += 256;
