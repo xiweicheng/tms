@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta content='tms,chat,wiki,translation,blog,markdown,group,team,teamwork,聊天,沟通,知识库,博文,国际化翻译,团队协作' name='Keywords'>
+    <meta content='TMS是免费开源的团队协作(团队沟通,博文知识库,国际化翻译i18n)web系统(响应式界面设计,移动端适配).' name='Description'>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <title>TMS博文</title>
+    <!-- Include CSS for icons. -->
+    <!-- <link href="cdn/font-awesome.min.css" rel="stylesheet" type="text/css" /> -->
+    <link href="cdn/toastr.min.css" rel="stylesheet" type="text/css" />
+    <!-- jQuery Modal -->
+    <link href="cdn/jquery.modal.min.css" rel="stylesheet" type="text/css" />
+    <link rel='stylesheet' href='cdn/luckysheet/plugins/css/pluginsCss.css' />
+    <link rel='stylesheet' href='cdn/luckysheet/plugins/plugins.css' />
+    <link rel='stylesheet' href='cdn/luckysheet/css/luckysheet.css' />
+    <link rel='stylesheet' href='cdn/luckysheet/assets/iconfont/iconfont.css' />
+
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .blocker {
+            z-index: 99;
+        }
+
+        div#editor {
+            width: 100%;
+            position: relative;
+            height: 100vh;
+        }
+
+        .sheet-container {
+            height: calc(100% - 70px);
+            overflow: auto;
+        }
+
+        .readonly .sheet-container {
+            height: 100%;
+        }
+
+        #sheet {
+            height: 100%;
+            position: relative;
+        }
+
+        #sheet>.x-spreadsheet {
+            height: 100% !important;
+        }
+
+        #toast-container {
+            z-index: 9999999999 !important;
+        }
+
+        .topbar {
+            padding: 16px;
+            height: 38px;
+        }
+
+        .readonly .topbar {
+            display: none;
+        }
+
+        .topbar>input {
+            width: 400px;
+            font-size: 26px;
+            box-sizing: border-box;
+            outline: 0;
+            border: 0;
+            box-shadow: 0px 1px 0px 0px #dddddd;
+            padding-right: 80px;
+        }
+
+        .topbar>button {
+            font-size: 12px;
+        }
+
+        button.btn {
+            color: #fff;
+            background: #2185d0;
+            padding: .5rem 1rem;
+            display: inline-block;
+            border-radius: 4px;
+            transition-duration: .25s;
+            border: none;
+            font-size: 14px;
+        }
+
+        #import {
+            color: #fff;
+            background: #00aaff;
+            padding: .25rem .5rem;
+            display: inline-block;
+            border-radius: 4px;
+            transition-duration: .25s;
+            border: none;
+            font-size: 14px;
+        }
+
+        @media only screen and (max-width: 767px) {
+            .topbar>input {
+                width: 250px;
+            }
+
+            #import {
+                display: none;
+            }
+        }
+
+        button.btn:hover {
+            background: #1678c2;
+        }
+
+        #saveFrm .row {
+            padding-bottom: 8px;
+        }
+
+        #saveFrm label {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #saveFrm select {
+            background: #fafdfe;
+            height: 28px;
+            width: 440px;
+            margin-top: 3px;
+            line-height: 28px;
+            border: 1px solid #9bc0dd;
+            -moz-border-radius: 2px;
+            -webkit-border-radius: 2px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="editor" class="readonly">
+        <div class="topbar">
+            <input id="title" type="text" placeholder="标题">
+            <button class="button -blue btn" id="save">保存</button>
+            <span id="msg" style="color: red; padding-left: 16px;"></span>
+            <div style="display: inline-block;">
+                <input type="file" accept=".sheet" id="files" style="display:none" onchange="importHandler();" />
+                <input type="button" id="import" value="导入" />
+            </div>
+        </div>
+        <div class="sheet-container">
+            <div id='sheet'></div>
+        </div>
+    </div>
+    <!-- Modal HTML embedded directly into document -->
+    <div id="saveModal" class="modal">
+        <div id="saveFrm" style="padding-top: 16px;">
+            <div class="row">
+                <label>选择空间</label>
+                <select name="space"></select>
+            </div>
+            <div class="row">
+                <label>选择分类</label>
+                <select name="dir"></select>
+            </div>
+            <div class="row">
+                <input id="privated" type="checkbox">
+                <label for="privated">私有博文（不公开）</label>
+            </div>
+            <div class="row" style="padding-top: 16px;">
+                <button class="btnOk btn">确定</button>
+            </div>
+        </div>
+    </div>
+    <!-- <p><a href="#saveModal" rel="modal:open">Open Modal</a></p> -->
+    <!-- Include jQuery lib. -->
+    <script type="text/javascript" src="cdn/jquery.min.js"></script>
+    <script type="text/javascript" src="cdn/toastr.min.js"></script>
+    <script type="text/javascript" src="cdn/url.min.js"></script>
+    <script type="text/javascript" src="cdn/lodash.core.min.js"></script>
+    <script type="text/javascript" src="cdn/sockjs.min.js"></script>
+    <script type="text/javascript" src="cdn/stomp.min.js"></script>
+    <script src="cdn/luckysheet/plugins/js/plugin.js"></script>
+    <script src="cdn/luckysheet/luckysheet.umd.js"></script>
+    <script type="text/javascript" src="cdn/jquery.modal.min.js"></script>
+    <script>
+        function initSheet(data) {
+
+            // console.log(data);
+
+            var readonly = typeof url('?readonly') !== 'undefined';
+
+            if ($('#sheet').length == 0) return;
+
+            try {
+
+                //配置项
+                var options = {
+                    container: 'sheet', //luckysheet为容器id
+                    showinfobar: false,
+                    showtoolbar: !readonly,
+                    showtoolbarConfig: {
+                        image: false,
+                        print: false
+                    },
+                    // showsheetbar: !readonly,
+                    showstatisticBar: !readonly,
+                    sheetFormulaBar: !readonly,
+                    enableAddRow: !readonly,
+                    enableAddBackTop: !readonly,
+                    lang: 'zh',
+                    data: !!data ? data : null
+                };
+
+                luckysheet.create(options)
+
+            } catch (err) {
+                console.warn(err);
+            }
+
+        }
+
+        $("#import").click(function () { //点击导入按钮，使files触发点击事件，然后完成读取文件的操作。
+            $("#files").click();
+        });
+
+        function importHandler() {
+            var selectedFile = document.getElementById("files").files[0]; //获取读取的File对象
+            var name = selectedFile.name; //读取选中文件的文件名
+            // var size = selectedFile.size; //读取选中文件的大小
+            // console.log("文件名:" + name + "大小：" + size);
+
+            var reader = new FileReader(); //这里是核心！！！读取操作就是由它完成的。
+            reader.readAsText(selectedFile); //读取文件的内容
+
+            reader.onload = function () {
+                try {
+                    $('#title').val(name.replace('.sheet', ''));
+                    initSheet(JSON.parse(this.result));
+                } catch (err) {
+                    alert(err);
+                }
+            };
+        }
+
+        $(function () {
+
+            var isComment = typeof url('?comment') !== 'undefined';
+            var id = url('?id');
+            var cid = url('?cid');
+            var spaceId = url('?spaceId');
+            var dirId = url('?dirId');
+            var pid = url('?pid');
+
+            var readonly = typeof url('?readonly') !== 'undefined';
+            !readonly && $('#editor').removeClass('readonly');
+
+            var blog = null;
+            var comment = null;
+
+            // toastr弹出消息提示插件全局配置设置
+            toastr.options.positionClass = 'toast-bottom-center';
+            toastr.options.preventDuplicates = true;
+
+            if (isComment) { // comment
+
+                $('#title').hide();
+
+                if (cid) {
+
+                    var isFree = typeof url('?free') !== 'undefined';
+
+                    if (isFree) {
+                        $.get('/free/blog/comment/' + cid, {}, function (data) {
+                            if (data.success) {
+                                comment = data.data;
+                                initSheet(JSON.parse(data.data.content));
+                            } else {
+                                toastr.error(data.data);
+                            }
+                        });
+                    } else {
+                        $.get('/admin/blog/comment/get', {
+                            cid: cid
+                        }, function (data) {
+                            if (data.success) {
+                                comment = data.data;
+                                initSheet(JSON.parse(data.data.content))
+                            } else {
+                                toastr.error(data.data);
+                            }
+                        });
+                    }
+                } else {
+                    initSheet();
+                }
+
+                $('#save').click(function (event) {
+
+                    var content = JSON.stringify(luckysheet.getAllSheets());
+
+                    // console.log(content);
+
+                    if (!content || !$.trim(content)) {
+                        toastr && toastr.error('博文评论内容不能为空！');
+                        return;
+                    }
+
+                    if (comment == null) {
+                        $.post('/admin/blog/comment/create', {
+                            basePath: window.location.protocol + '//' + window.location.host +
+                                '/page/index.html',
+                            id: id,
+                            editor: 'Sheet',
+                            content: content
+                        }, function (data, textStatus, xhr) {
+                            if (data.success) {
+                                comment = data.data;
+                                toastr && toastr.success('博文评论保存成功！');
+                                (window.parent && window.parent.postMessage) && (window.parent
+                                    .postMessage({
+                                        action: 'created',
+                                        source: 'comment',
+                                        comment: data.data,
+                                        editor: 'sheet'
+                                    }, window.location.origin));
+                            } else {
+                                toastr && toastr.error(data.data);
+                            }
+                        }).fail(function () {
+                            toastr && toastr.error('网络传输错误！');
+                        });
+                    } else {
+                        $.post('/admin/blog/comment/update', {
+                            basePath: window.location.protocol + '//' + window.location.host +
+                                '/page/index.html',
+                            id: id,
+                            cid: cid,
+                            version: comment.version,
+                            content: content
+                        }, function (data, textStatus, xhr) {
+                            if (data.success) {
+                                comment = data.data;
+                                toastr && toastr.success('博文评论保存成功！');
+                                (window.parent && window.parent.postMessage) && (window.parent
+                                    .postMessage({
+                                        action: 'updated',
+                                        source: 'comment',
+                                        comment: data.data,
+                                        editor: 'sheet'
+                                    }, window.location.origin));
+                            } else {
+                                toastr && toastr.error(data.data);
+                            }
+                        }).fail(function () {
+                            toastr && toastr.error('网络传输错误！');
+                        });
+                    }
+                });
+
+                window.addEventListener && window.addEventListener('message', (evt) => {
+
+                    if (evt.origin != window.location.origin) return;
+
+                    if (evt.data.source != 'blogClose') return;
+
+                    if (evt.data.action == 'isUpdated') {
+
+                        var updated = false;
+
+                        var title = $('#title').val();
+                        var content = JSON.stringify(luckysheet.getAllSheets());
+
+                        // console.log(content);
+
+                        if (comment) {
+                            updated = (comment.content != content);
+                        } else {
+                            updated = (!!$.trim(content) && content !=
+                                ``
+                            );
+                        }
+
+                        (window.parent && window.parent.postMessage) && (window.parent
+                            .postMessage({
+                                action: 'isUpdated',
+                                source: 'blogCloseAck',
+                                item: evt.data.item,
+                                updated: updated
+                            }, window.location.origin));
+                    }
+
+                }, false);
+
+            } else { // blog
+
+                if (id) {
+                    if (typeof url('?free') === 'undefined') {
+                        $.get('/admin/blog/get', {
+                            id: id,
+                            inc: false
+                        }, function (data) {
+                            if (data.success) {
+                                if (typeof url('?copy') === 'undefined') { // edit
+                                    blog = data.data;
+                                    $('#title').val(data.data.title);
+
+                                    if (!readonly) {
+                                        window.stompClient = Stomp.over(new SockJS('/ws-lock?blogId=' +
+                                            blog
+                                            .id));
+                                        window.stompClient.debug = function () {};
+                                        // this.stompClient.debug = function (msg) { console.log(msg) };
+                                        window.stompClient.connect({}, function (frame) {}, function (
+                                            err) {
+                                            console.error(err);
+                                        });
+                                    }
+
+                                } else {
+                                    $('#title').val(data.data.title + ' (副本)');
+                                }
+
+                                initSheet(JSON.parse(data.data.content))
+
+                            } else {
+                                toastr.error(data.data);
+                            }
+                        });
+                    } else {
+                        var shareId = url('?shareId');
+                        // console.log('shareId: ' + shareId);
+                        if (shareId && shareId != '') {
+                            $.get('/free/blog/share/' + shareId, {
+                                _: new Date().getTime(),
+                                inc: false
+                            }, function (data) {
+                                if (data.success) {
+                                    if (typeof url('?copy') === 'undefined') { // edit
+                                        blog = data.data;
+                                        $('#title').val(data.data.title);
+                                    } else {
+                                        $('#title').val(data.data.title + ' (副本)');
+                                    }
+
+                                    initSheet(JSON.parse(data.data.content))
+
+                                } else {
+                                    toastr.error(data.data);
+                                }
+                            });
+                        } else {
+                            $.get('/free/home/blog/' + id, {
+                                _: new Date().getTime(),
+                                inc: false
+                            }, function (data) {
+                                if (data.success) {
+                                    if (typeof url('?copy') === 'undefined') { // edit
+                                        blog = data.data.blog;
+                                        $('#title').val(data.data.blog.title);
+                                    } else {
+                                        $('#title').val(data.data.blog.title + ' (副本)');
+                                    }
+
+                                    initSheet(JSON.parse(data.data.blog.content))
+
+                                } else {
+                                    toastr.error(data.data);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    initSheet();
+                }
+
+                // 博文保存选择，空间 + 分类
+                var spaces = [];
+
+                $('#saveFrm select[name="space"]').change(function (event) {
+                    var sid = $(this).val();
+                    $('#saveFrm select[name="dir"]').empty().append($('<option/>').text('(不指定分类)').attr(
+                        'value', ''));
+
+                    if (sid !== '') {
+                        $.each(spaces, function (index, space) {
+                            if (space.id == sid) {
+                                window._ && (space.dirs = _.sortBy(space.dirs, 'name'));
+                                $.each(space.dirs, function (index, dir) {
+                                    if (dir.status != 'Deleted') {
+                                        $('#saveFrm select[name="dir"]').append($(
+                                            '<option/>').text(dir.name).attr(
+                                            'value', dir.id));
+                                    }
+                                });
+
+                                var did = localStorage && localStorage.getItem(
+                                    'tms-blog-html-dir');
+                                if (_.some(space.dirs, {
+                                        id: +did
+                                    })) {
+                                    $('#saveFrm select[name="dir"]').val(did);
+                                }
+
+                                return false;
+                            }
+                        });
+                    }
+                });
+
+                window.addEventListener && window.addEventListener('message', (evt) => {
+
+                    if (evt.origin != window.location.origin) return;
+
+                    if (evt.data.source != 'blogClose') return;
+
+                    if (evt.data.action == 'isUpdated') {
+
+                        var updated = false;
+
+                        var title = $('#title').val();
+                        var content = JSON.stringify(luckysheet.getAllSheets());
+
+                        if (blog) {
+                            updated = (blog.title != title) || (blog.content != content);
+                        } else {
+                            updated = !!$.trim(title) || (!!$.trim(content) && content !=
+                                ``
+                            );
+                        }
+
+                        (window.parent && window.parent.postMessage) && (window.parent
+                            .postMessage({
+                                action: 'isUpdated',
+                                source: 'blogCloseAck',
+                                item: evt.data.item,
+                                updated: updated
+                            }, window.location.origin));
+                    }
+
+                }, false);
+
+                $('#save').click(function (event) {
+
+                    var title = $('#title').val();
+                    var content = JSON.stringify(luckysheet.getAllSheets());
+
+                    // console.log(content);
+
+                    if (!title || !$.trim(title)) {
+                        toastr && toastr.error('博文标题不能为空！');
+                        return;
+                    }
+
+                    if (!content || !$.trim(content)) {
+                        toastr && toastr.error('博文内容不能为空！');
+                        return;
+                    }
+
+                    if (blog == null) {
+
+                        if (spaceId || pid) {
+                            createBlog(spaceId, dirId, pid);
+                        } else {
+                            $.get('/admin/space/listMy', function (data) {
+                                if (data.success) {
+
+                                    spaces = data.data;
+
+                                    $('#saveFrm select[name="space"]').empty().append($(
+                                            '<option/>')
+                                        .text('(不指定空间)').attr('value', ''));
+                                    $('#saveFrm select[name="dir"]').empty().append($(
+                                            '<option/>')
+                                        .text(
+                                            '(不指定分类)').attr('value', ''));
+
+                                    window._ && (spaces = _.sortBy(spaces, 'name'));
+                                    $.each(spaces, function (index, space) {
+                                        $('#saveFrm select[name="space"]').append($(
+                                                '<option/>')
+                                            .text(space.name).attr('value', space
+                                                .id));
+                                    });
+
+                                    var sid = localStorage && localStorage.getItem(
+                                        'tms-blog-html-space');
+                                    if (_.some(spaces, {
+                                            id: +sid
+                                        })) {
+                                        $('#saveFrm select[name="space"]').val(sid);
+                                        $('#saveFrm select[name="space"]').change();
+                                    }
+
+                                    var privated = localStorage && localStorage.getItem(
+                                        'tms-blog-html-privated');
+
+                                    $('#privated').prop("checked", privated == 'true');
+
+                                    $('#saveModal').modal({
+                                        fadeDuration: 200,
+                                        clickClose: false
+                                    });
+
+                                }
+                            });
+                        }
+                    } else {
+                        $.post('/admin/blog/update', {
+                            url: window.location.protocol + '//' + window.location.host +
+                                '/page/index.html',
+                            id: blog.id,
+                            version: blog.version,
+                            title: title,
+                            content: content
+                        }, function (data, textStatus, xhr) {
+                            if (data.success) {
+                                blog = data.data;
+                                toastr && toastr.success('博文更新成功！');
+                                (window.parent && window.parent.postMessage) && (window.parent
+                                    .postMessage({
+                                        action: 'updated',
+                                        autoFollow: true,
+                                        source: 'blog',
+                                        blog: data.data
+                                    }, window.location.origin));
+                            } else {
+                                toastr && toastr.error(data.data);
+                            }
+                        }).fail(function () {
+                            toastr && toastr.error('网络传输错误！');
+                        });
+                    }
+                });
+
+                $('#saveFrm .btnOk').click(function (event) {
+                    createBlog();
+                });
+            }
+
+            function createBlog(spaceId, dirId, pid) {
+                var title = $('#title').val();
+                var content = JSON.stringify(luckysheet.getAllSheets());
+
+                if (!title || !$.trim(title)) {
+                    toastr && toastr.error('博文标题不能为空！');
+                    return;
+                }
+
+                if (!content || !$.trim(content)) {
+                    toastr && toastr.error('博文内容不能为空！');
+                    return;
+                }
+
+                if (blog == null) {
+
+                    if (!spaceId && !pid) {
+                        $.modal.close();
+
+                        localStorage && localStorage.setItem('tms-blog-html-space', $(
+                            '#saveFrm select[name="space"]').val());
+                        localStorage && localStorage.setItem('tms-blog-html-dir', $(
+                            '#saveFrm select[name="dir"]').val());
+                        localStorage && localStorage.setItem('tms-blog-html-privated', $('#privated')
+                            .prop(
+                                "checked"));
+                    }
+
+                    $.post('/admin/blog/create', {
+                        url: window.location.protocol + '//' + window.location.host +
+                            '/page/index.html',
+                        spaceId: spaceId ? spaceId : $('#saveFrm select[name="space"]').val(),
+                        dirId: dirId ? dirId : (spaceId ? '' : $('#saveFrm select[name="dir"]').val()),
+                        pid: pid ? pid : '',
+                        title: title,
+                        content: content,
+                        editor: 'Sheet',
+                        privated: spaceId ? false : $('#privated').prop("checked"),
+                        contentHtml: content
+                    }, function (data, textStatus, xhr) {
+                        if (data.success) {
+                            blog = data.data;
+                            toastr && toastr.success('博文保存成功！');
+                            $('#preview').show();
+                            (window.parent && window.parent.postMessage) && (window.parent
+                                .postMessage({
+                                    action: 'created',
+                                    source: 'blog',
+                                    blog: data.data,
+                                    editor: 'sheet'
+                                }, window.location.origin));
+                        } else {
+                            toastr && toastr.error(data.data);
+                        }
+                    }).fail(function () {
+                        toastr && toastr.error('网络传输错误！');
+                    });
+                }
+            }
+        });
+
+    </script>
+</body>
+
+</html>
