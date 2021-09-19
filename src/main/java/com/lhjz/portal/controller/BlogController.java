@@ -1628,7 +1628,7 @@ public class BlogController extends BaseController {
         File filePdf = null;
         File exportFile = null;
 
-        if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type)) {
+        if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type)) {
             String exportFileName = blog.getId() + "_" + blogUpdateDate + "." + type;
             exportFilePath = path + uploadPath + exportFileName;
 
@@ -1719,7 +1719,7 @@ public class BlogController extends BaseController {
             dnFileName = blog.getTitle().trim() + ".html";
             dnFileLength = String.valueOf(md2fileHtml.length());
             dnFile = md2fileHtml;
-        } else if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type)) { // download mind or excel
+        } else if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type)) { // download mind or excel
             if (exportFile == null) {
                 throw new BizException(ERR_FILE_NOT_EXISTS);
             }
@@ -1792,7 +1792,7 @@ public class BlogController extends BaseController {
         File filePdf = null;
         File exportFile = null;
 
-        if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type)) {
+        if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type)) {
             String exportFileName = comment.getId() + "_" + commentUpdateDate + "." + type;
             exportFilePath = path + uploadPath + exportFileName;
 
@@ -1883,7 +1883,7 @@ public class BlogController extends BaseController {
             dnFileName = blog.getTitle().trim() + "_评论_" + comment.getId() + ".html";
             dnFileLength = String.valueOf(md2fileHtml.length());
             dnFile = md2fileHtml;
-        } else if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type)) { // download mind or excel
+        } else if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type)) { // download mind or excel
             if (exportFile == null) {
                 throw new BizException(ERR_FILE_NOT_EXISTS);
             }
