@@ -218,7 +218,6 @@ public class LuckySheetUtil {
                     }
                     if (r != null) {
                         cell.getCellStyle().setBorderRight(bordMap.get((int) r.get("style"))); //右边框
-                        int bg = Integer.parseInt(r.getString("color").replace("#", ""), 16);
                         cell.getCellStyle().setRightBorderColor(new XSSFColor(toColor(r.getString("color"))));//右边框颜色
                     }
                     if (t != null) {
