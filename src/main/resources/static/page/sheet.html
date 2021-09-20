@@ -304,7 +304,14 @@
                     item.chart.forEach((chart, i) => {
 
                         var chart = _.clone(ls[index].chart[i]);
-                        chart.chartOptions = _.clone(chartmix.default.getChartJson(chart.chart_id));
+                        var co = {};
+                        try {
+                            co = chartmix.default.getChartJson(chart.chart_id);
+                        } catch (error) {
+                            console.log(error);
+                        }
+
+                        chart.chartOptions = _.clone(co);
 
                         ls[index].chart[i] = chart;
 
