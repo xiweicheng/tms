@@ -303,17 +303,19 @@
                 if (item.chart) {
                     item.chart.forEach((chart, i) => {
 
-                        var chart = _.clone(ls[index].chart[i]);
-                        var co = {};
+                        var chart2 = _.clone(ls[index].chart[i]);
+                        var co = {
+                            chart_id: chart.chart_id
+                        };
                         try {
                             co = chartmix.default.getChartJson(chart.chart_id);
                         } catch (error) {
                             console.log(error);
                         }
 
-                        chart.chartOptions = _.clone(co);
+                        chart2.chartOptions = _.clone(co);
 
-                        ls[index].chart[i] = chart;
+                        ls[index].chart[i] = chart2;
 
                         let div = document.getElementById(chart.chart_id + '_c');
                         if (div && div.style) {
