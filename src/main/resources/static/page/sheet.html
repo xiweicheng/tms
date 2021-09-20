@@ -151,7 +151,7 @@
             <button class="button -blue btn" id="save">保存</button>
             <span id="msg" style="color: red; padding-left: 16px;"></span>
             <div style="display: inline-block;">
-                <input type="file" accept=".sheet" id="files" style="display:none" onchange="importHandler();" />
+                <input type="file" accept=".sheet,.xlsx" id="files" style="display:none" onchange="importHandler();" />
                 <input type="button" id="import" value="导入" />
             </div>
         </div>
@@ -187,8 +187,9 @@
     <script type="text/javascript" src="cdn/lodash.core.min.js"></script>
     <script type="text/javascript" src="cdn/sockjs.min.js"></script>
     <script type="text/javascript" src="cdn/stomp.min.js"></script>
-    <script src="cdn/luckysheet/plugins/js/plugin.js"></script>
-    <script src="cdn/luckysheet/luckysheet.umd.js"></script>
+    <script type="text/javascript" src="cdn/luckysheet/plugins/js/plugin.js"></script>
+    <script type="text/javascript" src="cdn/luckysheet/luckysheet.umd.js"></script>
+    <script type="text/javascript" src="cdn/luckysheet/luckyexcel.umd.js"></script>
     <script type="text/javascript" src="cdn/jquery.modal.min.js"></script>
     <script>
         function initSheet(data) {
@@ -224,7 +225,10 @@
                     data: !!data ? data : null
                 };
 
-                luckysheet.create(options)
+                if (window.luckysheet) {
+                    luckysheet.destroy();
+                    luckysheet.create(options);
+                }
 
             } catch (err) {
                 console.warn(err);
@@ -237,22 +241,52 @@
         });
 
         function importHandler() {
+
             var selectedFile = document.getElementById("files").files[0]; //获取读取的File对象
             var name = selectedFile.name; //读取选中文件的文件名
+            // var type = selectedFile.type;
             // var size = selectedFile.size; //读取选中文件的大小
             // console.log("文件名:" + name + "大小：" + size);
 
-            var reader = new FileReader(); //这里是核心！！！读取操作就是由它完成的。
-            reader.readAsText(selectedFile); //读取文件的内容
+            var index = _.lastIndexOf(name, ".");
+            var title = name.substring(0, index);
+            $('#title').val(title);
 
-            reader.onload = function () {
-                try {
-                    $('#title').val(name.replace('.sheet', ''));
-                    initSheet(JSON.parse(this.result));
-                } catch (err) {
-                    alert(err);
+            try {
+                if (_.endsWith(name, ".sheet")) {
+
+                    var reader = new FileReader(); //这里是核心！！！读取操作就是由它完成的。
+                    reader.readAsText(selectedFile); //读取文件的内容
+
+                    reader.onload = function () {
+                        try {
+                            initSheet(JSON.parse(this.result));
+                        } catch (err) {
+                            alert(err);
+                        }
+                    };
+
+                } else {
+
+                    LuckyExcel.transformExcelToLucky(selectedFile, function (exportJson, luckysheetfile) {
+
+                        if (exportJson.sheets == null || exportJson.sheets.length == 0) {
+                            alert(
+                                "Failed to read the content of the excel file, currently does not support xls files!"
+                            );
+                            return;
+                        }
+
+                        // console.log(exportJson, luckysheetfile);
+
+                        initSheet(exportJson.sheets);
+
+                    });
+
                 }
-            };
+            } catch (err) {
+                alert(err);
+            }
         }
 
         $(function () {

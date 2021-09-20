@@ -59,6 +59,7 @@ import com.lhjz.portal.service.FileService;
 import com.lhjz.portal.util.AuthUtil;
 import com.lhjz.portal.util.DateUtil;
 import com.lhjz.portal.util.JsonUtil;
+import com.lhjz.portal.util.LuckySheetUtil;
 import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
@@ -1628,7 +1629,9 @@ public class BlogController extends BaseController {
         File filePdf = null;
         File exportFile = null;
 
-        if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type)) {
+        boolean matchType = "mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type);
+
+        if (matchType) {
             String exportFileName = blog.getId() + "_" + blogUpdateDate + "." + type;
             exportFilePath = path + uploadPath + exportFileName;
 
@@ -1641,6 +1644,21 @@ public class BlogController extends BaseController {
 
                     FileUtils.writeStringToFile(exportFile, content, StandardCharsets.UTF_8);
                 } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if ("xlsx".equalsIgnoreCase(type)) {
+            String exportFileName = blog.getId() + "_" + blogUpdateDate + "." + type;
+            String exportDir = path + uploadPath;
+            exportFilePath = exportDir + exportFileName;
+
+            exportFile = new File(exportFilePath);
+
+            if (!exportFile.exists()) {
+                try {
+                    String content = blog.getContent();
+                    LuckySheetUtil.exportLuckySheetXlsxByPOI(exportDir, exportFileName, content);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -1719,20 +1737,22 @@ public class BlogController extends BaseController {
             dnFileName = blog.getTitle().trim() + ".html";
             dnFileLength = String.valueOf(md2fileHtml.length());
             dnFile = md2fileHtml;
-        } else if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type)) { // download mind or excel
-            if (exportFile == null) {
-                throw new BizException(ERR_FILE_NOT_EXISTS);
+        } else {
+            if (matchType || "xlsx".equalsIgnoreCase(type)) { // download mind or excel
+                if (exportFile == null) {
+                    throw new BizException(ERR_FILE_NOT_EXISTS);
+                }
+                dnFileName = blog.getTitle().trim() + "." + type;
+                dnFileLength = String.valueOf(exportFile.length());
+                dnFile = exportFile;
+            } else { // download pdf
+                if (filePdf == null) {
+                    throw new BizException(ERR_FILE_NOT_EXISTS);
+                }
+                dnFileName = blog.getTitle().trim() + ".pdf";
+                dnFileLength = String.valueOf(filePdf.length());
+                dnFile = filePdf;
             }
-            dnFileName = blog.getTitle().trim() + "." + type;
-            dnFileLength = String.valueOf(exportFile.length());
-            dnFile = exportFile;
-        } else { // download pdf
-            if (filePdf == null) {
-                throw new BizException(ERR_FILE_NOT_EXISTS);
-            }
-            dnFileName = blog.getTitle().trim() + ".pdf";
-            dnFileLength = String.valueOf(filePdf.length());
-            dnFile = filePdf;
         }
         // 2.设置文件头：最后一个参数是设置下载文件名
         response.setHeader("Content-Disposition", "attachment; fileName=" + StringUtil.encodingFileName(dnFileName));
@@ -1792,7 +1812,9 @@ public class BlogController extends BaseController {
         File filePdf = null;
         File exportFile = null;
 
-        if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type)) {
+        boolean matchType = "mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type);
+
+        if (matchType) {
             String exportFileName = comment.getId() + "_" + commentUpdateDate + "." + type;
             exportFilePath = path + uploadPath + exportFileName;
 
@@ -1805,6 +1827,21 @@ public class BlogController extends BaseController {
 
                     FileUtils.writeStringToFile(exportFile, content, StandardCharsets.UTF_8);
                 } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if ("xlsx".equalsIgnoreCase(type)) {
+            String exportFileName = comment.getId() + "_" + commentUpdateDate + "." + type;
+            String exportDir = path + uploadPath;
+            exportFilePath = exportDir + exportFileName;
+
+            exportFile = new File(exportFilePath);
+
+            if (!exportFile.exists()) {
+                try {
+                    String content = blog.getContent();
+                    LuckySheetUtil.exportLuckySheetXlsxByPOI(exportDir, exportFileName, content);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -1883,7 +1920,7 @@ public class BlogController extends BaseController {
             dnFileName = blog.getTitle().trim() + "_评论_" + comment.getId() + ".html";
             dnFileLength = String.valueOf(md2fileHtml.length());
             dnFile = md2fileHtml;
-        } else if ("mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type)) { // download mind or excel
+        } else if (matchType || "xlsx".equalsIgnoreCase(type)) { // download mind or excel
             if (exportFile == null) {
                 throw new BizException(ERR_FILE_NOT_EXISTS);
             }
