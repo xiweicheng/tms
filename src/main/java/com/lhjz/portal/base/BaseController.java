@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -36,6 +37,7 @@ import com.lhjz.portal.util.WebUtil;
  * @date Apr 2, 2015 2:59:47 PM
  * 
  */
+@Slf4j
 public abstract class BaseController {
 
 	@Autowired
@@ -144,6 +146,8 @@ public abstract class BaseController {
 					(Map<String, ?>) RespBody.failed(ex.getMessage())
 							.addMsg(ex.toString()).asMap());
 		}
+
+		log.error("全局异常拦截错误：" + ex.getMessage(), ex);
 
 		return new ModelAndView("admin/error", "error", Message.error(
 				ex.getMessage()).detail(ex.toString()));
