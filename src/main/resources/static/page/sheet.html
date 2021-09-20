@@ -30,7 +30,7 @@
         }
 
         .blocker {
-            z-index: 99;
+            z-index: 999;
         }
 
         div#editor {
@@ -292,6 +292,36 @@
             }
         }
 
+        function getAllSheets() {
+
+            // return JSON.stringify(luckysheet.getAllSheets());
+
+            // let ls = luckysheet.getLuckysheetfile()
+            let ls = luckysheet.getAllSheets();
+
+            ls.forEach((item, index) => {
+                if (item.chart) {
+                    item.chart.forEach((chart, i) => {
+
+                        var chart = _.clone(ls[index].chart[i]);
+                        chart.chartOptions = _.clone(chartmix.default.getChartJson(chart.chart_id));
+
+                        ls[index].chart[i] = chart;
+
+                        let div = document.getElementById(chart.chart_id + '_c');
+                        if (div.style) {
+                            ls[index].chart[i].left = parseInt(div.style.left)
+                            ls[index].chart[i].top = parseInt(div.style.top)
+                            ls[index].chart[i].width = parseInt(div.style.width)
+                            ls[index].chart[i].height = parseInt(div.style.height)
+                        }
+                    })
+                }
+            });
+
+            return JSON.stringify(ls)
+        }
+
         $(function () {
 
             var isComment = typeof url('?comment') !== 'undefined';
@@ -346,7 +376,7 @@
 
                 $('#save').click(function (event) {
 
-                    var content = JSON.stringify(luckysheet.getAllSheets());
+                    var content = getAllSheets();
 
                     // console.log(content);
 
@@ -418,7 +448,7 @@
                         var updated = false;
 
                         var title = $('#title').val();
-                        var content = JSON.stringify(luckysheet.getAllSheets());
+                        var content = getAllSheets();
 
                         // console.log(content);
 
@@ -568,7 +598,7 @@
                         var updated = false;
 
                         var title = $('#title').val();
-                        var content = JSON.stringify(luckysheet.getAllSheets());
+                        var content = getAllSheets();
 
                         if (blog) {
                             updated = (blog.title != title) || (blog.content != content);
@@ -592,7 +622,7 @@
                 $('#save').click(function (event) {
 
                     var title = $('#title').val();
-                    var content = JSON.stringify(luckysheet.getAllSheets());
+                    var content = getAllSheets();
 
                     // console.log(content);
 
@@ -689,7 +719,7 @@
 
             function createBlog(spaceId, dirId, pid) {
                 var title = $('#title').val();
-                var content = JSON.stringify(luckysheet.getAllSheets());
+                var content = getAllSheets();
 
                 if (!title || !$.trim(title)) {
                     toastr && toastr.error('博文标题不能为空！');
