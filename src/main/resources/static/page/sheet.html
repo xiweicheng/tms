@@ -316,7 +316,7 @@
                         ls[index].chart[i] = chart;
 
                         let div = document.getElementById(chart.chart_id + '_c');
-                        if (div.style) {
+                        if (div && div.style) {
                             ls[index].chart[i].left = parseInt(div.style.left)
                             ls[index].chart[i].top = parseInt(div.style.top)
                             ls[index].chart[i].width = parseInt(div.style.width)
