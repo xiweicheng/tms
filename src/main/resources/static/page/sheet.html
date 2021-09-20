@@ -21,6 +21,7 @@
     <link rel='stylesheet' href='cdn/luckysheet/plugins/plugins.css' />
     <link rel='stylesheet' href='cdn/luckysheet/css/luckysheet.css' />
     <link rel='stylesheet' href='cdn/luckysheet/assets/iconfont/iconfont.css' />
+    <!-- <link rel='stylesheet' href='cdn/luckysheet/expendPlugins/chart/chartmix.css' /> -->
 
 
     <style>
@@ -190,6 +191,7 @@
     <script type="text/javascript" src="cdn/luckysheet/plugins/js/plugin.js"></script>
     <script type="text/javascript" src="cdn/luckysheet/luckysheet.umd.js"></script>
     <script type="text/javascript" src="cdn/luckysheet/luckyexcel.umd.js"></script>
+    <!-- <script type="text/javascript" src="cdn/luckysheet/expendPlugins/chart/chartmix.umd.min.js"></script> -->
     <script type="text/javascript" src="cdn/jquery.modal.min.js"></script>
     <script>
         function initSheet(data) {
@@ -222,6 +224,7 @@
                     enableAddRow: !readonly,
                     enableAddBackTop: !readonly,
                     lang: 'zh',
+                    plugins: ['chart'],
                     data: !!data ? data : null
                 };
 
