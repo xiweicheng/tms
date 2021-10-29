@@ -32,6 +32,7 @@
 ![输入图片说明](https://images.gitee.com/uploads/images/2020/0524/095637_6624a690_19723.png "屏幕截图.png")
 - 博文
 ![输入图片说明](https://images.gitee.com/uploads/images/2020/0524/095759_aed0a835_19723.png "屏幕截图.png")
+![输入图片说明](https://images.gitee.com/uploads/images/2021/1016/112533_8bb4e2a0_19723.png "屏幕截图.png")
 - i18n国际化翻译
 ![输入图片说明](https://images.gitee.com/uploads/images/2020/0524/100111_088dcdf4_19723.png "屏幕截图.png")
 ![输入图片说明](https://images.gitee.com/uploads/images/2020/0524/100201_956e39e6_19723.png "屏幕截图.png")
