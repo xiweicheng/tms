@@ -915,10 +915,10 @@ public class TranslateController extends BaseController {
             // 缩放图
             // scale image size as thumbnail
             // 图片缩放处理.120*120
-            ImageUtil.scale2(filePath, realPath + pathLarge, sizeLarge,
+            ImageUtil.scale(filePath, realPath + pathLarge, sizeLarge,
                     sizeLarge, true);
             // 图片缩放处理.640*640
-            ImageUtil.scale2(filePath, realPath + pathHuge, sizeHuge, sizeHuge,
+            ImageUtil.scale(filePath, realPath + pathHuge, sizeHuge, sizeHuge,
                     true);
 
             // 保存记录到数据库
