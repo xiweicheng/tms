@@ -111,6 +111,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -137,7 +138,6 @@ public class BlogController extends BaseController {
     public static final String FOLLOWER = "follower";
     public static final String CID = "?cid=";
     public static final String ERR_NO_AUTH = "权限不足！";
-    public static final String UTF_8 = "UTF-8";
     public static final String ERR_FILE_NOT_EXISTS = "文件不存在！";
 
     static Logger logger = LoggerFactory.getLogger(BlogController.class);
@@ -284,7 +284,6 @@ public class BlogController extends BaseController {
         log(Action.Create, Target.Blog, blog2.getId(), blog2.getTitle());
 
         final String href = url + BLOG_PATH + blog2.getId();
-        final String html = contentHtml;
         final User loginUser = getLoginUser();
 
         final Mail mail = Mail.instance();
@@ -292,7 +291,7 @@ public class BlogController extends BaseController {
 
             if (StringUtil.isNotEmpty(usernames)) {
                 String[] usernameArr = usernames.split(",");
-                Arrays.asList(usernameArr).stream().forEach(username ->
+                Arrays.stream(usernameArr).forEach(username ->
                         mail.addUsers(getUser(username))
                 );
 
@@ -304,7 +303,7 @@ public class BlogController extends BaseController {
                         .sendHtmlByQueue(String.format("TMS-博文频道@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
                                 TemplateUtil.process(TEMPLATES_MAIL_MAIL_DYNAMIC,
                                         MapUtil.objArr2Map(USER, loginUser, DATE, new Date(), HREF, href, TITLE,
-                                                "下面的博文消息中有@到你", CONTENT, html)),
+                                                "下面的博文消息中有@到你", CONTENT, contentHtml)),
                                 getLoginUserName(loginUser), mail.get());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -528,7 +527,7 @@ public class BlogController extends BaseController {
             }
 
             mail.addUsers(followers.stream().map(BlogFollower::getCreator).collect(Collectors.toList()), loginUser);
-            mail.addUsers(Arrays.asList(blog2.getCreator()), loginUser);
+            mail.addUsers(Collections.singletonList(blog2.getCreator()), loginUser);
 
             // 博文更新通知优先级： @  > 我关注的 > 我的
 
@@ -547,7 +546,7 @@ public class BlogController extends BaseController {
             }
 
             if (usernameArr.size() > 0) {
-                usernameArr.stream().forEach(username ->
+                usernameArr.forEach(username ->
                         mail.addUsers(getUser(username))
                 );
 
@@ -591,7 +590,7 @@ public class BlogController extends BaseController {
             return RespBody.failed(FAIL_MSG_NO_AUTH_EDIT_BLOG);
         }
 
-        if (blog.getVersion() != version.longValue()) {
+        if (blog.getVersion() != version) {
             return RespBody.failed("该博文已经被其他人更新,请刷新博文重新编辑提交!");
         }
 
@@ -841,8 +840,8 @@ public class BlogController extends BaseController {
         String title = "";
         final User loginUser = getLoginUser();
 
+        String voteZan = blog.getVoteZan();
         if (VoteType.Zan.name().equalsIgnoreCase(type)) {
-            String voteZan = blog.getVoteZan();
             if (isVoterExists(voteZan)) {
                 return RespBody.failed("您已经投票[赞]过！");
             } else {
@@ -862,7 +861,6 @@ public class BlogController extends BaseController {
             }
 
         } else {
-            String voteZan = blog.getVoteZan();
             if (isVoterExists(voteZan)) {
                 String vz = this.calcVoters(voteZan);
                 Integer voteZanCnt = blog.getVoteZanCnt();
@@ -910,8 +908,8 @@ public class BlogController extends BaseController {
         String title = "";
         final User loginUser = getLoginUser();
 
+        String voteZan = comment.getVoteZan();
         if (VoteType.Zan.name().equalsIgnoreCase(type)) {
-            String voteZan = comment.getVoteZan();
             if (isVoterExists(voteZan)) {
                 return RespBody.failed("您已经投票[赞]过！");
             } else {
@@ -928,7 +926,6 @@ public class BlogController extends BaseController {
             }
 
         } else {
-            String voteZan = comment.getVoteZan();
             if (isVoterExists(voteZan)) {
                 comment.setVoteZan(this.calcVoters(voteZan));
                 Integer voteZanCnt = comment.getVoteZanCnt();
@@ -1064,7 +1061,7 @@ public class BlogController extends BaseController {
 
     @RequestMapping(value = "comment/share", method = RequestMethod.POST)
     @ResponseBody
-    public RespBody shareComment(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
+    public RespBody shareComment(@RequestParam("id") Long id,
                                  @RequestParam(HREF) final String href, @RequestParam("html") String html,
                                  @RequestParam(value = "desc", required = false) String desc,
                                  @RequestParam(value = "users", required = false) String users,
@@ -1182,7 +1179,7 @@ public class BlogController extends BaseController {
         Blog blog = blogRepository.findOne(id);
 
         Mail mail = Mail.instance();
-        mail.addUsers(Arrays.asList(blog.getCreator()), loginUser);
+        mail.addUsers(Collections.singletonList(blog.getCreator()), loginUser);
 
         // 博文更新通知优先级： @  > 我关注的 > 我的
 
@@ -1270,7 +1267,7 @@ public class BlogController extends BaseController {
             return RespBody.failed("您没有权限编辑该博文评论!");
         }
 
-        if (comment.getVersion() != version.longValue()) {
+        if (comment.getVersion() != version) {
             return RespBody.failed("该博文评论已经被其他人更新,请刷新页面重新编辑提交!");
         }
 
@@ -1292,7 +1289,7 @@ public class BlogController extends BaseController {
         Blog blog = blogRepository.findOne(id);
 
         Mail mail = Mail.instance();
-        mail.addUsers(Arrays.asList(blog.getCreator()), loginUser);
+        mail.addUsers(Collections.singletonList(blog.getCreator()), loginUser);
 
         // 博文更新通知优先级： @  > 我关注的 > 我的
 
@@ -1621,9 +1618,9 @@ public class BlogController extends BaseController {
 
         String blogUpdateDate = DateUtil.format(blog.getUpdateDate(), DateUtil.FORMAT9);
 
-        String exportFilePath = null;
-        String mdFilePath = null;
-        String pdfFilePath = null;
+        String exportFilePath;
+        String mdFilePath;
+        String pdfFilePath;
         String md2htmlFilePath = null;
         File fileMd = null;
         File filePdf = null;
@@ -1677,7 +1674,7 @@ public class BlogController extends BaseController {
             if (!fileMd.exists()) {
                 try {
 
-                    String content = StringUtil.EMPTY;
+                    String content;
 
                     if (Editor.Html.equals(blog.getEditor())) {
                         content = "<!DOCTYPE html><html><head><meta charset='utf-8' /><meta http-equiv='X-UA-Compatible' content='IE=edge' /><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no' /><meta content='tms,chat,wiki,translation,blog,markdown,group,team,teamwork,聊天,沟通,知识库,博文,国际化翻译,团队协作' name='Keywords'><meta content='TMS是免费开源的团队协作(团队沟通,博文知识库,国际化翻译i18n)web系统(响应式界面设计,移动端适配).' name='Description'></head><body><div class='markdown-body'><style>.markdown-body .tms-chat-msg-code-trigger{display: none;}.markdown-body{font-size:14px;line-height:1.6}.markdown-body>:first-child{margin-top:0!important}.markdown-body>:last-child{margin-bottom:0!important}.markdown-body a{word-break:break-all}.markdown-body a.absent{color:#C00}.markdown-body a.anchor{bottom:0;cursor:pointer;display:block;left:0;margin-left:-30px;padding-left:30px;position:absolute;top:0}.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6{cursor:text;font-weight:700;margin:20px 0 10px;padding:0;position:relative;word-break:break-all;}.markdown-body h1 .mini-icon-link,.markdown-body h2 .mini-icon-link,.markdown-body h3 .mini-icon-link,.markdown-body h4 .mini-icon-link,.markdown-body h5 .mini-icon-link,.markdown-body h6 .mini-icon-link{color:#000;display:none}.markdown-body h1:hover a.anchor,.markdown-body h2:hover a.anchor,.markdown-body h3:hover a.anchor,.markdown-body h4:hover a.anchor,.markdown-body h5:hover a.anchor,.markdown-body h6:hover a.anchor{line-height:1;margin-left:-22px;padding-left:0;text-decoration:none;top:15%}.markdown-body h1:hover a.anchor .mini-icon-link,.markdown-body h2:hover a.anchor .mini-icon-link,.markdown-body h3:hover a.anchor .mini-icon-link,.markdown-body h4:hover a.anchor .mini-icon-link,.markdown-body h5:hover a.anchor .mini-icon-link,.markdown-body h6:hover a.anchor .mini-icon-link{display:inline-block}.markdown-body hr:after,.markdown-body hr:before{display:table;content:''}.markdown-body h1 code,.markdown-body h1 tt,.markdown-body h2 code,.markdown-body h2 tt,.markdown-body h3 code,.markdown-body h3 tt,.markdown-body h4 code,.markdown-body h4 tt,.markdown-body h5 code,.markdown-body h5 tt,.markdown-body h6 code,.markdown-body h6 tt{font-size:inherit}.markdown-body h1{color:#000;font-size:28px}.markdown-body h2{border-bottom:1px solid #CCC;color:#000;font-size:24px}.markdown-body h3{font-size:18px}.markdown-body h4{font-size:16px}.markdown-body h5{font-size:14px}.markdown-body h6{color:#777;font-size:14px}.markdown-body blockquote,.markdown-body dl,.markdown-body ol,.markdown-body p,.markdown-body pre,.markdown-body table,.markdown-body ul{margin:15px 0}.markdown-body hr{overflow:hidden;background:#e7e7e7;height:4px;padding:0;margin:16px 0;border:0;-moz-box-sizing:content-box;box-sizing:content-box}.markdown-body h1+p,.markdown-body h2+p,.markdown-body h3+p,.markdown-body h4+p,.markdown-body h5+p,.markdown-body h6+p,.markdown-body ol li>:first-child,.markdown-body ul li>:first-child{margin-top:0}.markdown-body hr:after{clear:both}.markdown-body a:first-child h1,.markdown-body a:first-child h2,.markdown-body a:first-child h3,.markdown-body a:first-child h4,.markdown-body a:first-child h5,.markdown-body a:first-child h6,.markdown-body>h1:first-child,.markdown-body>h1:first-child+h2,.markdown-body>h2:first-child,.markdown-body>h3:first-child,.markdown-body>h4:first-child,.markdown-body>h5:first-child,.markdown-body>h6:first-child{margin-top:0;padding-top:0}.markdown-body li p.first{display:inline-block}.markdown-body ol,.markdown-body ul{padding-left:30px}.markdown-body ol.no-list,.markdown-body ul.no-list{list-style-type:none;padding:0}.markdown-body ol ol,.markdown-body ol ul,.markdown-body ul ol,.markdown-body ul ul{margin-bottom:0}.markdown-body dl{padding:0}.markdown-body dl dt{font-size:14px;font-style:italic;font-weight:700;margin:15px 0 5px;padding:0}.markdown-body dl dt:first-child{padding:0}.markdown-body dl dt>:first-child{margin-top:0}.markdown-body dl dt>:last-child{margin-bottom:0}.markdown-body dl dd{margin:0 0 15px;padding:0 15px}.markdown-body blockquote>:first-child,.markdown-body dl dd>:first-child{margin-top:0}.markdown-body blockquote>:last-child,.markdown-body dl dd>:last-child{margin-bottom:0}.markdown-body blockquote{border-left:4px solid #DDD;color:#777;padding:0 15px}.markdown-body table{border-collapse:collapse}.markdown-body table th{font-weight:700}.markdown-body table td,.markdown-body table th{border:1px solid #CCC;padding:6px 13px}.markdown-body table tr{background-color:#FFF;border-top:1px solid #CCC}.markdown-body table tr:nth-child(2n){background-color:#F8F8F8}.markdown-body img{max-width:100%}.markdown-body span.frame{display:block;overflow:hidden}.markdown-body span.frame>span{border:1px solid #DDD;display:block;float:left;margin:13px 0 0;overflow:hidden;padding:7px;width:auto}.markdown-body span.frame span img{display:block;float:left}.markdown-body span.frame span span{clear:both;color:#333;display:block;padding:5px 0 0}.markdown-body span.align-center{clear:both;display:block;overflow:hidden}.markdown-body span.align-center>span{display:block;margin:13px auto 0;overflow:hidden;text-align:center}.markdown-body span.align-center span img{margin:0 auto;text-align:center}.markdown-body span.align-right{clear:both;display:block;overflow:hidden}.markdown-body span.align-right>span{display:block;margin:13px 0 0;overflow:hidden;text-align:right}.markdown-body span.align-right span img{margin:0;text-align:right}.markdown-body span.float-left{display:block;float:left;margin-right:13px;overflow:hidden}.markdown-body span.float-left span{margin:13px 0 0}.markdown-body span.float-right{display:block;float:right;margin-left:13px;overflow:hidden}.markdown-body span.float-right>span{display:block;margin:13px auto 0;overflow:hidden;text-align:right}.markdown-body code,.markdown-body tt{background-color:#F8F8F8;border:1px solid #EAEAEA;border-radius:3px;margin:0 2px;padding:0 5px;white-space:normal}.markdown-body pre>code{background:none;border:none;margin:0;padding:0;white-space:pre}.markdown-body .highlight pre,.markdown-body pre{background-color:#F8F8F8;border:1px solid #CCC;border-radius:3px;font-size:13px;line-height:19px;overflow:auto;padding:6px 10px}.markdown-body pre code,.markdown-body pre tt{background-color:transparent;border:none}.markdown-body .emoji{width:1.5em;height:1.5em;display:inline-block;margin-bottom:-.25em;background-size:contain;}</style>"
@@ -1699,14 +1696,14 @@ public class BlogController extends BaseController {
                 try {
 
                     String pathNode = StringUtil.isNotEmpty(md2pdfPath) ? md2pdfPath
-                            : new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
+                            : new File(Objects.requireNonNull(Class.class.getResource("/md2pdf")).getPath()).getAbsolutePath();
 
                     String node = StringUtil.isNotEmpty(nodePath) ? nodePath : "node";
                     String nodeCmd = StringUtil.replace(node + " {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
                     logger.info("Node CMD: {}", nodeCmd);
                     Process process = Runtime.getRuntime().exec(nodeCmd);
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                    String s = null;
+                    String s;
                     while ((s = bufferedReader.readLine()) != null) {
                         logger.info(s);
                     }
@@ -1722,9 +1719,9 @@ public class BlogController extends BaseController {
         // 1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
         response.setContentType("application/x-msdownload;");
         response.addHeader("Content-Type", "text/html; charset=utf-8");
-        String dnFileName = null;
-        String dnFileLength = null;
-        File dnFile = null;
+        String dnFileName;
+        String dnFileLength;
+        File dnFile;
         if ("md".equalsIgnoreCase(type) || "html".equalsIgnoreCase(type)) { // download markdown or html
             if (fileMd == null) {
                 throw new BizException(ERR_FILE_NOT_EXISTS);
@@ -1804,9 +1801,9 @@ public class BlogController extends BaseController {
 
         String commentUpdateDate = DateUtil.format(comment.getUpdateDate(), DateUtil.FORMAT9);
 
-        String exportFilePath = null;
-        String mdFilePath = null;
-        String pdfFilePath = null;
+        String exportFilePath;
+        String mdFilePath;
+        String pdfFilePath;
         String md2htmlFilePath = null;
         File fileMd = null;
         File filePdf = null;
@@ -1860,7 +1857,7 @@ public class BlogController extends BaseController {
             if (!fileMd.exists()) {
                 try {
 
-                    String content = StringUtil.EMPTY;
+                    String content;
 
                     if (Editor.Html.equals(comment.getEditor())) {
                         content = "<!DOCTYPE html><html><head><meta charset='utf-8' /><meta http-equiv='X-UA-Compatible' content='IE=edge' /><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no' /><meta content='tms,chat,wiki,translation,blog,markdown,group,team,teamwork,聊天,沟通,知识库,博文,国际化翻译,团队协作' name='Keywords'><meta content='TMS是免费开源的团队协作(团队沟通,博文知识库,国际化翻译i18n)web系统(响应式界面设计,移动端适配).' name='Description'></head><body><div class='markdown-body'><style>.markdown-body .tms-chat-msg-code-trigger{display: none;}.markdown-body{font-size:14px;line-height:1.6}.markdown-body>:first-child{margin-top:0!important}.markdown-body>:last-child{margin-bottom:0!important}.markdown-body a{word-break:break-all}.markdown-body a.absent{color:#C00}.markdown-body a.anchor{bottom:0;cursor:pointer;display:block;left:0;margin-left:-30px;padding-left:30px;position:absolute;top:0}.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6{cursor:text;font-weight:700;margin:20px 0 10px;padding:0;position:relative;word-break:break-all;}.markdown-body h1 .mini-icon-link,.markdown-body h2 .mini-icon-link,.markdown-body h3 .mini-icon-link,.markdown-body h4 .mini-icon-link,.markdown-body h5 .mini-icon-link,.markdown-body h6 .mini-icon-link{color:#000;display:none}.markdown-body h1:hover a.anchor,.markdown-body h2:hover a.anchor,.markdown-body h3:hover a.anchor,.markdown-body h4:hover a.anchor,.markdown-body h5:hover a.anchor,.markdown-body h6:hover a.anchor{line-height:1;margin-left:-22px;padding-left:0;text-decoration:none;top:15%}.markdown-body h1:hover a.anchor .mini-icon-link,.markdown-body h2:hover a.anchor .mini-icon-link,.markdown-body h3:hover a.anchor .mini-icon-link,.markdown-body h4:hover a.anchor .mini-icon-link,.markdown-body h5:hover a.anchor .mini-icon-link,.markdown-body h6:hover a.anchor .mini-icon-link{display:inline-block}.markdown-body hr:after,.markdown-body hr:before{display:table;content:''}.markdown-body h1 code,.markdown-body h1 tt,.markdown-body h2 code,.markdown-body h2 tt,.markdown-body h3 code,.markdown-body h3 tt,.markdown-body h4 code,.markdown-body h4 tt,.markdown-body h5 code,.markdown-body h5 tt,.markdown-body h6 code,.markdown-body h6 tt{font-size:inherit}.markdown-body h1{color:#000;font-size:28px}.markdown-body h2{border-bottom:1px solid #CCC;color:#000;font-size:24px}.markdown-body h3{font-size:18px}.markdown-body h4{font-size:16px}.markdown-body h5{font-size:14px}.markdown-body h6{color:#777;font-size:14px}.markdown-body blockquote,.markdown-body dl,.markdown-body ol,.markdown-body p,.markdown-body pre,.markdown-body table,.markdown-body ul{margin:15px 0}.markdown-body hr{overflow:hidden;background:#e7e7e7;height:4px;padding:0;margin:16px 0;border:0;-moz-box-sizing:content-box;box-sizing:content-box}.markdown-body h1+p,.markdown-body h2+p,.markdown-body h3+p,.markdown-body h4+p,.markdown-body h5+p,.markdown-body h6+p,.markdown-body ol li>:first-child,.markdown-body ul li>:first-child{margin-top:0}.markdown-body hr:after{clear:both}.markdown-body a:first-child h1,.markdown-body a:first-child h2,.markdown-body a:first-child h3,.markdown-body a:first-child h4,.markdown-body a:first-child h5,.markdown-body a:first-child h6,.markdown-body>h1:first-child,.markdown-body>h1:first-child+h2,.markdown-body>h2:first-child,.markdown-body>h3:first-child,.markdown-body>h4:first-child,.markdown-body>h5:first-child,.markdown-body>h6:first-child{margin-top:0;padding-top:0}.markdown-body li p.first{display:inline-block}.markdown-body ol,.markdown-body ul{padding-left:30px}.markdown-body ol.no-list,.markdown-body ul.no-list{list-style-type:none;padding:0}.markdown-body ol ol,.markdown-body ol ul,.markdown-body ul ol,.markdown-body ul ul{margin-bottom:0}.markdown-body dl{padding:0}.markdown-body dl dt{font-size:14px;font-style:italic;font-weight:700;margin:15px 0 5px;padding:0}.markdown-body dl dt:first-child{padding:0}.markdown-body dl dt>:first-child{margin-top:0}.markdown-body dl dt>:last-child{margin-bottom:0}.markdown-body dl dd{margin:0 0 15px;padding:0 15px}.markdown-body blockquote>:first-child,.markdown-body dl dd>:first-child{margin-top:0}.markdown-body blockquote>:last-child,.markdown-body dl dd>:last-child{margin-bottom:0}.markdown-body blockquote{border-left:4px solid #DDD;color:#777;padding:0 15px}.markdown-body table{border-collapse:collapse}.markdown-body table th{font-weight:700}.markdown-body table td,.markdown-body table th{border:1px solid #CCC;padding:6px 13px}.markdown-body table tr{background-color:#FFF;border-top:1px solid #CCC}.markdown-body table tr:nth-child(2n){background-color:#F8F8F8}.markdown-body img{max-width:100%}.markdown-body span.frame{display:block;overflow:hidden}.markdown-body span.frame>span{border:1px solid #DDD;display:block;float:left;margin:13px 0 0;overflow:hidden;padding:7px;width:auto}.markdown-body span.frame span img{display:block;float:left}.markdown-body span.frame span span{clear:both;color:#333;display:block;padding:5px 0 0}.markdown-body span.align-center{clear:both;display:block;overflow:hidden}.markdown-body span.align-center>span{display:block;margin:13px auto 0;overflow:hidden;text-align:center}.markdown-body span.align-center span img{margin:0 auto;text-align:center}.markdown-body span.align-right{clear:both;display:block;overflow:hidden}.markdown-body span.align-right>span{display:block;margin:13px 0 0;overflow:hidden;text-align:right}.markdown-body span.align-right span img{margin:0;text-align:right}.markdown-body span.float-left{display:block;float:left;margin-right:13px;overflow:hidden}.markdown-body span.float-left span{margin:13px 0 0}.markdown-body span.float-right{display:block;float:right;margin-left:13px;overflow:hidden}.markdown-body span.float-right>span{display:block;margin:13px auto 0;overflow:hidden;text-align:right}.markdown-body code,.markdown-body tt{background-color:#F8F8F8;border:1px solid #EAEAEA;border-radius:3px;margin:0 2px;padding:0 5px;white-space:normal}.markdown-body pre>code{background:none;border:none;margin:0;padding:0;white-space:pre}.markdown-body .highlight pre,.markdown-body pre{background-color:#F8F8F8;border:1px solid #CCC;border-radius:3px;font-size:13px;line-height:19px;overflow:auto;padding:6px 10px}.markdown-body pre code,.markdown-body pre tt{background-color:transparent;border:none}.markdown-body .emoji{width:1.5em;height:1.5em;display:inline-block;margin-bottom:-.25em;background-size:contain;}</style>"
@@ -1882,14 +1879,14 @@ public class BlogController extends BaseController {
                 try {
 
                     String pathNode = StringUtil.isNotEmpty(md2pdfPath) ? md2pdfPath
-                            : new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
+                            : new File(Objects.requireNonNull(Class.class.getResource("/md2pdf")).getPath()).getAbsolutePath();
 
                     String node = StringUtil.isNotEmpty(nodePath) ? nodePath : "node";
                     String nodeCmd = StringUtil.replace(node + " {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
                     logger.info("Node CMD: {}", nodeCmd);
                     Process process = Runtime.getRuntime().exec(nodeCmd);
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                    String s = null;
+                    String s;
                     while ((s = bufferedReader.readLine()) != null) {
                         logger.info(s);
                     }
@@ -1905,9 +1902,9 @@ public class BlogController extends BaseController {
         // 1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
         response.setContentType("application/x-msdownload;");
         response.addHeader("Content-Type", "text/html; charset=utf-8");
-        String dnFileName = null;
-        String dnFileLength = null;
-        File dnFile = null;
+        String dnFileName;
+        String dnFileLength;
+        File dnFile;
         if ("md".equalsIgnoreCase(type) || "html".equalsIgnoreCase(type)) { // download markdown or html
             if (fileMd == null) {
                 throw new BizException(ERR_FILE_NOT_EXISTS);
@@ -2269,7 +2266,7 @@ public class BlogController extends BaseController {
 
         blogAuthorityRepository.flush();
 
-        blog.getBlogAuthorities().removeAll(list);
+        list.forEach(blog.getBlogAuthorities()::remove);
 
         return RespBody.succeed(blog);
     }
@@ -2531,7 +2528,7 @@ public class BlogController extends BaseController {
     private List<Log> getLogs(Long id) {
 
         List<Target> targets = Arrays.asList(Target.Blog, Target.Comment);
-        List<Log> logs = null;
+        List<Log> logs;
         if (id != null) {
             logs = logRepository.findTop50ByStatusNotAndTargetInAndIdLessThanOrderByIdDesc(Status.Deleted, targets, id);
         } else {
@@ -2893,6 +2890,7 @@ public class BlogController extends BaseController {
 
         BlogSortItem[] sortItems = JsonUtil.json2Object(blogSortForm.getItems(), BlogSortItem[].class);
 
+        assert sortItems != null;
         Stream.of(sortItems).forEach(item -> {
             Blog blog = blogRepository.findOne(item.getId());
             if (blog.getSpace() == null || AuthUtil.hasSpaceAuth(blog.getSpace())
@@ -2915,6 +2913,7 @@ public class BlogController extends BaseController {
 
         BlogSortItem[] sortItems = JsonUtil.json2Object(blogSortForm.getItems(), BlogSortItem[].class);
 
+        assert sortItems != null;
         Stream.of(sortItems).forEach(item -> {
             Dir dir = dirRepository.findOne(item.getId());
             if (AuthUtil.hasSpaceAuth(dir.getSpace())
@@ -2937,6 +2936,7 @@ public class BlogController extends BaseController {
 
         BlogSortItem[] sortItems = JsonUtil.json2Object(blogSortForm.getItems(), BlogSortItem[].class);
 
+        assert sortItems != null;
         Stream.of(sortItems).forEach(item -> {
             Space space = spaceRepository.findOne(item.getId());
             if (isSuperOrCreator(space.getCreator())
