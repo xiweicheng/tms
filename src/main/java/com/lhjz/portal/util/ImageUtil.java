@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
@@ -15,16 +13,12 @@ import java.awt.image.ColorConvertOp;
 import java.awt.image.CropImageFilter;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -687,72 +681,6 @@ public final class ImageUtil {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
-    }
-
-    /**
-     * 获取文件类型.
-     *
-     * @param path
-     * @return
-     * @throws IOException
-     * @author xiweicheng
-     * @creation 2014年4月14日 下午1:25:05
-     * @modification 2014年4月14日 下午1:25:05
-     */
-    public static String getImageType(String path) throws IOException {
-
-        String type = "";
-        ByteArrayInputStream bais = null;
-        MemoryCacheImageInputStream mcis = null;
-        BufferedInputStream buff = null;
-
-        try (FileInputStream fis = new FileInputStream(path)) {
-
-            int leng = fis.available();
-            buff = new BufferedInputStream(fis);
-            byte[] mapObj = new byte[leng];
-            buff.read(mapObj, 0, leng);
-
-            bais = new ByteArrayInputStream(mapObj);
-            mcis = new MemoryCacheImageInputStream(bais);
-            Iterator<ImageReader> itr = ImageIO.getImageReaders(mcis);
-            while (itr.hasNext()) {
-                ImageReader reader = itr.next();
-                if (reader instanceof com.sun.imageio.plugins.gif.GIFImageReader) {
-                    type = "gif";
-                } else if (reader instanceof com.sun.imageio.plugins.jpeg.JPEGImageReader) {
-                    type = "jpg";
-                } else if (reader instanceof com.sun.imageio.plugins.png.PNGImageReader) {
-                    type = "png";
-                } else if (reader instanceof com.sun.imageio.plugins.bmp.BMPImageReader) {
-                    type = "bmp";
-                }
-            }
-        } finally {
-            if (buff != null) {
-                try {
-                    buff.close();
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                }
-            }
-            if (bais != null) {
-                try {
-                    bais.close();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            }
-
-            if (mcis != null) {
-                try {
-                    mcis.close();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            }
-        }
-        return type;
     }
 
     /**
