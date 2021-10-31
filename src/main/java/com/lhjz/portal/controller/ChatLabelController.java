@@ -3,20 +3,17 @@
  */
 package com.lhjz.portal.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lhjz.portal.base.BaseController;
+import com.lhjz.portal.entity.security.User;
+import com.lhjz.portal.model.RespBody;
+import com.lhjz.portal.repository.ChatLabelRepository;
+import com.lhjz.portal.util.WebUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.lhjz.portal.base.BaseController;
-import com.lhjz.portal.entity.security.User;
-import com.lhjz.portal.model.RespBody;
-import com.lhjz.portal.repository.ChatLabelRepository;
-import com.lhjz.portal.util.WebUtil;
 
 /**
  * 
@@ -28,8 +25,6 @@ import com.lhjz.portal.util.WebUtil;
 @Controller
 @RequestMapping("admin/chat/label")
 public class ChatLabelController extends BaseController {
-
-	static Logger logger = LoggerFactory.getLogger(ChatLabelController.class);
 
 	@Autowired
 	ChatLabelRepository chatLabelRepository;

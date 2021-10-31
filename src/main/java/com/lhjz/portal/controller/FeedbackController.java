@@ -96,14 +96,12 @@ public class FeedbackController extends BaseController {
 
 		final User loginUser = getLoginUser();
 
-		final String href = baseURL;
-
 		feedback2.setContent(CommonUtil.replaceLinebreak(feedback2.getContent()));
 
 		try {
 			mailSender.sendHtmlByQueue(String.format("TMS-用户反馈_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
 					TemplateUtil.process("templates/mail/feedback",
-							MapUtil.objArr2Map("feedback", feedback2, "user", loginUser, "href", href)),
+							MapUtil.objArr2Map("feedback", feedback2, "user", loginUser, "href", baseURL)),
 					getLoginUserName(loginUser), Mail.instance().add(StringUtil.split(toAddrArr, ",")).get());
 		} catch (Exception e) {
 			e.printStackTrace();

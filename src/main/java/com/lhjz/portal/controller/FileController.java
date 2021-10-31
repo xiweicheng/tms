@@ -35,7 +35,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -66,7 +65,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -80,6 +78,7 @@ import java.util.stream.Collectors;
 public class FileController extends BaseController {
 
     public static final String SPLIT = "/";
+    public static final int INT_100 = 100;
     static Logger logger = LoggerFactory.getLogger(FileController.class);
 
     @Autowired
@@ -93,7 +92,7 @@ public class FileController extends BaseController {
 
     @RequestMapping(value = "list", method = RequestMethod.POST)
     @ResponseBody
-    public RespBody list(HttpServletRequest request, HttpServletResponse response, ModelMap model, Locale locale) {
+    public RespBody list(ModelMap model) {
 
         String storePath = env.getProperty("lhjz.upload.img.store.path");
         int sizeLarge = env.getProperty("lhjz.upload.img.scale.size.large", Integer.class);
@@ -112,8 +111,7 @@ public class FileController extends BaseController {
 
     @RequestMapping(value = "update", method = RequestMethod.POST)
     @ResponseBody
-    public RespBody update(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale,
-                           @Valid FileForm fileForm, BindingResult bindingResult) {
+    public RespBody update(@Valid FileForm fileForm, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             return RespBody.failed(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage)
@@ -124,7 +122,7 @@ public class FileController extends BaseController {
         if (file.getStatus() == Status.Bultin) {
             return RespBody.failed("内置文件，不能修改！");
         }
-        if (!hasAuth(file)) {
+        if (hasNoAuth(file)) {
             return RespBody.failed("没有该文件的编辑权限！");
         }
 
@@ -137,20 +135,19 @@ public class FileController extends BaseController {
         return RespBody.succeed(fileRepository.save(file));
     }
 
-    private boolean hasAuth(com.lhjz.portal.entity.File file) {
-        return isSuperOrCreator(file.getUsername());
+    private boolean hasNoAuth(com.lhjz.portal.entity.File file) {
+        return !isSuperOrCreator(file.getUsername());
     }
 
     @RequestMapping(value = "delete", method = RequestMethod.POST)
     @ResponseBody
-    public RespBody delete(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale,
-                           @RequestParam(value = "id", required = true) Long id) {
+    public RespBody delete(@RequestParam(value = "id") Long id) {
 
         com.lhjz.portal.entity.File file = fileRepository.findOne(id);
         if (file.getStatus() == Status.Bultin) {
             return RespBody.failed("内置文件，不能删除！");
         }
-        if (!hasAuth(file)) {
+        if (hasNoAuth(file)) {
             return RespBody.failed("没有该文件的删除权限！");
         }
 
@@ -172,7 +169,7 @@ public class FileController extends BaseController {
 
         String realPath = WebUtil.getRealPath(request);
 
-        List<com.lhjz.portal.entity.File> saveFiles = new ArrayList<com.lhjz.portal.entity.File>();
+        List<com.lhjz.portal.entity.File> saveFiles = new ArrayList<>();
 
         for (MultipartFile file : files) {
 
@@ -186,8 +183,8 @@ public class FileController extends BaseController {
 
             try {
                 String storeAttachmentPath = env.getProperty("lhjz.upload.attachment.store.path");
-                String path2 = null;
-                FileType fileType = null;
+                String path2;
+                FileType fileType;
                 if (!ImageUtil.isImage(originalFileName)) { // 不是图片按附件上传处理
                     FileUtils.forceMkdir(new File(realPath + storeAttachmentPath));
                     String filePath = realPath + storeAttachmentPath + uuidName;
@@ -349,7 +346,7 @@ public class FileController extends BaseController {
         try {
             returnFileName = URLEncoder.encode(fileName, "UTF-8");
             returnFileName = StringUtils.replace(returnFileName, "+", "%20");
-            if (returnFileName.length() > 100) {
+            if (returnFileName.length() > INT_100) {
                 returnFileName = new String(fileName.getBytes("GBK"), StandardCharsets.ISO_8859_1);
                 returnFileName = StringUtils.replace(returnFileName, " ", "%20");
             }
@@ -364,7 +361,7 @@ public class FileController extends BaseController {
      * TODO 当数据量很大，算法存在问题，会报出sql异常（可多次触发解决，需要优化算法）
      * Update {your_table} set {source_field} = {object_field} WHERE cause
      *
-     * @return
+     * @return 返回体
      */
     @PostMapping("copyId2uuid")
     @ResponseBody
@@ -546,7 +543,7 @@ public class FileController extends BaseController {
 
     private boolean isMessyCode(List<String[]> rows) {
         return rows.stream()
-                .anyMatch(row -> Arrays.asList(row).stream().anyMatch(ChineseUtil::isMessyCode3));
+                .anyMatch(row -> Arrays.stream(row).anyMatch(ChineseUtil::isMessyCode3));
     }
 
     private String csv2md2(String csvPath) {
@@ -579,17 +576,13 @@ public class FileController extends BaseController {
             return "";
         }
 
-        List<String[]> rows = rowAll;
-
-        List<String> row = Arrays.asList(rows.get(0));
-        List<Integer> colWidths = row.stream().map(cell -> maxColWitdh(rows, row.indexOf(cell)))
+        List<String> row = Arrays.asList(rowAll.get(0));
+        List<Integer> colWidths = row.stream().map(cell -> maxColWitdh(rowAll, row.indexOf(cell)))
                 .collect(Collectors.toList());
 
-        List<String> rows2 = rows.stream().map(item -> {
+        List<String> rows2 = rowAll.stream().map(item -> {
             List<String> cells = Arrays.asList(item);
-            return "| " + cells.stream().map(cell -> {
-                return StringUtils.rightPad(cell, colWidths.get(cells.indexOf(cell)) - cell.length() + 1);
-            }).collect(Collectors.joining(" | ")) + " |";
+            return "| " + cells.stream().map(cell -> StringUtils.rightPad(cell, colWidths.get(cells.indexOf(cell)) - cell.length() + 1)).collect(Collectors.joining(" | ")) + " |";
         }).collect(Collectors.toList());
 
         String headerSplit = "|" + colWidths.stream().map(item -> StringUtils.rightPad("", item + 3, "-"))
@@ -676,7 +669,7 @@ public class FileController extends BaseController {
 
         try {
             return fileService.listImg().stream().map(img -> {
-                Map<Object, Object> imgs = new HashMap<Object, Object>();
+                Map<Object, Object> imgs = new HashMap<>();
                 imgs.put("url", SPLIT + img.getPath() + img.getUuidName());
 
                 String storePath = env.getProperty("lhjz.upload.img.store.path");
@@ -697,8 +690,7 @@ public class FileController extends BaseController {
 
     @ResponseBody
     @PostMapping("upload/word2html")
-    public RespBody word2html(HttpServletRequest request, @RequestParam("file") MultipartFile file,
-                              @RequestParam(value = "baseUrl", defaultValue = "") String baseUrl) {
+    public RespBody word2html(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
 
         logger.debug("upload word2html start...");
 
