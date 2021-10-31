@@ -76,6 +76,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -177,7 +178,6 @@ public class ChatDirectController extends BaseController {
 
         wsSend(chatDirect2, Cmd.C);
 
-        final String html = contentHtml;
         final User loginUser = getLoginUser();
         final String href = baseUrl + path + "#/chat/@" + loginUser.getUsername() + "?id=" + chatDirect2.getId();
 
@@ -185,7 +185,7 @@ public class ChatDirectController extends BaseController {
             mailSender.sendHtmlByQueue(String.format("TMS-私聊@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
                     TemplateUtil.process("templates/mail/mail-dynamic",
                             MapUtil.objArr2Map("user", loginUser, "date", new Date(), "href", href, "title", "发给你的私聊消息",
-                                    "content", html)),
+                                    "content", contentHtml)),
                     getLoginUserName(loginUser), Mail.instance().addUsers(chatToUser).get());
         } catch (Exception e) {
             e.printStackTrace();
@@ -285,12 +285,12 @@ public class ChatDirectController extends BaseController {
         return RespBody.succeed();
     }
 
-    boolean isCreatorOrChatter(ChatDirect chatDirect) {
+    boolean isNoCreatorOrChatter(ChatDirect chatDirect) {
         User creator = chatDirect.getCreator();
         User chatTo = chatDirect.getChatTo();
         User loginUser = getLoginUser();
 
-        return (loginUser.equals(creator) || loginUser.equals(chatTo));
+        return (!loginUser.equals(creator) && !loginUser.equals(chatTo));
     }
 
     @RequestMapping(value = "get", method = RequestMethod.GET)
@@ -299,7 +299,7 @@ public class ChatDirectController extends BaseController {
 
         ChatDirect chatDirect = chatDirectRepository.findOne(id);
 
-        if (!isCreatorOrChatter(chatDirect)) {
+        if (isNoCreatorOrChatter(chatDirect)) {
             return RespBody.failed("没有权限查看该私聊消息!");
         }
 
@@ -325,13 +325,12 @@ public class ChatDirectController extends BaseController {
 
         if (StringUtil.isNotEmpty(id)) {
             long cntGtId = chatDirectRepository.countGtId(loginUser, chatToUser, id);
-            int size = limit;
-            long page = cntGtId / size;
-            if (cntGtId % size == 0) {
+            long page = cntGtId / limit;
+            if (cntGtId % limit == 0) {
                 page--;
             }
 
-            pageable = new PageRequest(page > -1 ? (int) page : 0, size, Direction.DESC, "createDate");
+            pageable = new PageRequest(page > -1 ? (int) page : 0, limit, Direction.DESC, "createDate");
             start = pageable.getOffset();
         }
 
@@ -370,8 +369,8 @@ public class ChatDirectController extends BaseController {
             return RespBody.failed("聊天对象不存在!");
         }
 
-        long count = 0;
-        List<ChatDirect> chats = null;
+        long count;
+        List<ChatDirect> chats;
         if (Boolean.TRUE.equals(last)) {
             count = chatDirectRepository.countAllOld(getLoginUser(), chatToUser, start);
             chats = chatDirectRepository.queryMoreOld(getLoginUser(), chatToUser, start, size);
@@ -430,7 +429,7 @@ public class ChatDirectController extends BaseController {
             return RespBody.failed("下载私聊消息不存在!");
         }
 
-        if (!isCreatorOrChatter(chatDirect)) {
+        if (isNoCreatorOrChatter(chatDirect)) {
             return RespBody.failed("您没有权限下载该私聊消息!");
         }
 
@@ -475,7 +474,7 @@ public class ChatDirectController extends BaseController {
             }
         }
 
-        if (!isCreatorOrChatter(chatDirect)) {
+        if (isNoCreatorOrChatter(chatDirect)) {
             try {
                 response.sendError(401, "没有权限下载该私聊消息!");
                 return;
@@ -513,13 +512,13 @@ public class ChatDirectController extends BaseController {
         if (!filePdf.exists()) {
             try {
                 String pathNode = StringUtil.isNotEmpty(md2pdfPath) ? md2pdfPath
-                        : new File(Class.class.getClass().getResource("/md2pdf").getPath()).getAbsolutePath();
+                        : new File(Objects.requireNonNull(Class.class.getResource("/md2pdf")).getPath()).getAbsolutePath();
 
                 String nodeCmd = StringUtil.replace("node {?1} {?2} {?3}", pathNode, mdFilePath, pdfFilePath);
                 logger.debug("Node CMD: {}", nodeCmd);
                 Process process = Runtime.getRuntime().exec(nodeCmd);
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String s = null;
+                String s;
                 while ((s = bufferedReader.readLine()) != null) {
                     logger.debug(s);
                 }
@@ -534,9 +533,9 @@ public class ChatDirectController extends BaseController {
         // 1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
         response.setContentType("application/x-msdownload;");
         response.addHeader("Content-Type", "text/html; charset=utf-8");
-        String dnFileName = null;
-        String dnFileLength = null;
-        File dnFile = null;
+        String dnFileName;
+        String dnFileLength;
+        File dnFile;
         String name = chatDirect.getChatTo().getName();
         if (StringUtil.isEmpty(name)) {
             name = chatDirect.getChatTo().getUsername();
@@ -572,20 +571,20 @@ public class ChatDirectController extends BaseController {
         }
     }
 
-    private boolean hasAuth(ChatDirect cd) {
+    private boolean hasNoAuth(ChatDirect cd) {
 
         if (isSuperOrCreator(cd.getCreator().getUsername())) {
-            return true;
+            return false;
         }
 
         User loginUser = new User(WebUtil.getUsername());
 
-        return cd.getChatTo().equals(loginUser);
+        return !cd.getChatTo().equals(loginUser);
     }
 
     @RequestMapping(value = "share", method = RequestMethod.POST)
     @ResponseBody
-    public RespBody share(@RequestParam("basePath") String basePath, @RequestParam("id") Long id,
+    public RespBody share(@RequestParam("id") Long id,
                           @RequestParam("href") final String href, @RequestParam("html") String html,
                           @RequestParam(value = "desc", required = false) String desc,
                           @RequestParam(value = "users", required = false) String users,
@@ -594,7 +593,7 @@ public class ChatDirectController extends BaseController {
 
         ChatDirect chatDirect2 = chatDirectRepository.findOne(id);
 
-        if (!hasAuth(chatDirect2)) {
+        if (hasNoAuth(chatDirect2)) {
             return RespBody.failed("您没有权限分享该沟通消息!");
         }
 
@@ -695,7 +694,7 @@ public class ChatDirectController extends BaseController {
 
         String href = url + "#/chat/@" + loginUser.getUsername() + "?id=" + chatDirect.getId();
         Mail mail = Mail.instance().addUsers(chatDirect.getCreator());
-        String title = null;
+        String title;
 
         if (chatLabelType.equals(ChatLabelType.Emoji)) {
             title = StringUtil.replace(
@@ -793,7 +792,7 @@ public class ChatDirectController extends BaseController {
             return RespBody.failed("收藏私聊消息不存在,可能已经被删除!");
         }
 
-        if (!hasAuth(chatDirect)) {
+        if (hasNoAuth(chatDirect)) {
             return RespBody.failed("权限不足!");
         }
 
