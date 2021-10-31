@@ -20,7 +20,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -51,20 +50,18 @@ public class LuckySheetUtil {
         //创建操作Excel的XSSFWorkbook对象
         XSSFWorkbook excel = new XSSFWorkbook();
 
-        for (int sheetIndex = 0; sheetIndex < jsonArray.size(); sheetIndex++) {
+        for (Object o : jsonArray) {
             //获取sheet
-            JSONObject jsonObject = (JSONObject) jsonArray.get(sheetIndex);
+            JSONObject jsonObject = (JSONObject) o;
             JSONArray celldataObjectList = jsonObject.getJSONArray("celldata");//获取所有单元格（坐标，内容，字体类型，字体大小...）
             JSONArray rowObjectList = jsonObject.getJSONArray("visibledatarow");
             JSONArray colObjectList = jsonObject.getJSONArray("visibledatacolumn");
-//            JSONArray dataObjectList = jsonObject.getJSONArray("data");//获取所有单元格,与celldata类似（坐标，内容，字体类型，字体大小...）
-//            JSONObject mergeObject = jsonObject.getJSONObject("config").getJSONObject("merge");//合并单元格
             JSONObject columnlenObject = jsonObject.getJSONObject("config").getJSONObject("columnlen");//表格列宽
             JSONObject rowlenObject = jsonObject.getJSONObject("config").getJSONObject("rowlen");//表格行高
             JSONArray borderInfoObjectList = jsonObject.getJSONObject("config").getJSONArray("borderInfo");//边框样式
 
             //参考：https://blog.csdn.net/jdtugfcg/article/details/84100315
-            XSSFCellStyle cellStyle = excel.createCellStyle();
+            excel.createCellStyle();
             //创建XSSFSheet对象
             XSSFSheet sheet = excel.createSheet(jsonObject.getString("name"));
 
@@ -108,8 +105,6 @@ public class LuckySheetUtil {
 
             try (OutputStream out = new FileOutputStream(newFileDir + newFileName)) {
                 excel.write(out);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -119,9 +114,9 @@ public class LuckySheetUtil {
     /**
      * 合并单元格与填充单元格颜色
      *
-     * @param jsonObjectValue
-     * @param sheet
-     * @param style
+     * @param jsonObjectValue jsonObjectValue
+     * @param sheet           sheet
+     * @param style           style
      */
     private static void setMergeAndColorByObject(JSONObject jsonObjectValue, XSSFSheet sheet, XSSFCellStyle style) {
 
@@ -144,9 +139,10 @@ public class LuckySheetUtil {
         }
         //填充顏色
         if (jsonObjectValue.getString("bg") != null) {
-
-            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);    //设置填充方案
-            style.setFillForegroundColor(new XSSFColor(toColor(jsonObjectValue.getString("bg"))));  //设置填充颜色
+            // 设置填充方案
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            // 设置填充颜色
+            style.setFillForegroundColor(new XSSFColor(toColor(jsonObjectValue.getString("bg"))));
         }
 
     }
@@ -170,7 +166,7 @@ public class LuckySheetUtil {
         return color;
     }
 
-    private static void setBorder(JSONArray borderInfoObjectList, XSSFWorkbook workbook, XSSFSheet sheet) {
+    private static void setBorder(JSONArray borderInfoObjectList, XSSFSheet sheet) {
 
         //设置边框样式map
         Map<Integer, BorderStyle> bordMap = new HashMap<>();
@@ -192,11 +188,11 @@ public class LuckySheetUtil {
         //设置边框
         if (borderInfoObjectList != null && borderInfoObjectList.size() > 0) {
 
-            for (int i = 0; i < borderInfoObjectList.size(); i++) {
+            for (Object o : borderInfoObjectList) {
 
-                JSONObject borderInfoObject = (JSONObject) borderInfoObjectList.get(i);
+                JSONObject borderInfoObject = (JSONObject) o;
 
-                if (borderInfoObject.get("rangeType").equals("cell")) {//单个单元格
+                if ("cell".equals(borderInfoObject.get("rangeType"))) {//单个单元格
 
                     JSONObject borderValueObject = borderInfoObject.getJSONObject("value");
 
@@ -228,27 +224,27 @@ public class LuckySheetUtil {
                         cell.getCellStyle().setBorderBottom(bordMap.get((int) b.get("style"))); //底部边框
                         cell.getCellStyle().setBottomBorderColor(new XSSFColor(toColor(b.getString("color"))));//底部边框颜色
                     }
-                } else if (borderInfoObject.get("rangeType").equals("range")) {//选区
-                    int style_ = borderInfoObject.getInteger("style");
+                } else if ("range".equals(borderInfoObject.get("rangeType"))) {//选区
+                    int style = borderInfoObject.getInteger("style");
 
                     JSONObject rangObject = (JSONObject) ((JSONArray) (borderInfoObject.get("range"))).get(0);
 
                     JSONArray rowList = rangObject.getJSONArray("row");
                     JSONArray columnList = rangObject.getJSONArray("column");
 
-                    for (int row_ = rowList.getInteger(0); row_ < rowList.getInteger(rowList.size() - 1) + 1; row_++) {
-                        for (int col_ = columnList.getInteger(0); col_ < columnList.getInteger(columnList.size() - 1) + 1; col_++) {
-                            XSSFCell cell = sheet.getRow(row_).getCell(col_);
+                    for (int row = rowList.getInteger(0); row < rowList.getInteger(rowList.size() - 1) + 1; row++) {
+                        for (int col = columnList.getInteger(0); col < columnList.getInteger(columnList.size() - 1) + 1; col++) {
+                            XSSFCell cell = sheet.getRow(row).getCell(col);
 
                             Color color = toColor(borderInfoObject.getString("color"));
 
-                            cell.getCellStyle().setBorderLeft(bordMap.get(style_)); //左边框
+                            cell.getCellStyle().setBorderLeft(bordMap.get(style)); //左边框
                             cell.getCellStyle().setLeftBorderColor(new XSSFColor(color));//左边框颜色
-                            cell.getCellStyle().setBorderRight(bordMap.get(style_)); //右边框
+                            cell.getCellStyle().setBorderRight(bordMap.get(style)); //右边框
                             cell.getCellStyle().setRightBorderColor(new XSSFColor(color));//右边框颜色
-                            cell.getCellStyle().setBorderTop(bordMap.get(style_)); //顶部边框
+                            cell.getCellStyle().setBorderTop(bordMap.get(style)); //顶部边框
                             cell.getCellStyle().setTopBorderColor(new XSSFColor(color));//顶部边框颜色
-                            cell.getCellStyle().setBorderBottom(bordMap.get(style_)); //底部边框
+                            cell.getCellStyle().setBorderBottom(bordMap.get(style)); //底部边框
                             cell.getCellStyle().setBottomBorderColor(new XSSFColor(color));//底部边框颜色 }
                         }
                     }
@@ -260,31 +256,31 @@ public class LuckySheetUtil {
     /**
      * 設置值和樣式
      *
-     * @param jsonObjectList
-     * @param borderInfoObjectList
-     * @param sheet
-     * @param workbook
+     * @param jsonObjectList       jsonObjectList
+     * @param borderInfoObjectList borderInfoObjectList
+     * @param sheet                sheet
+     * @param workbook             workbook
      */
     private static void setCellValue(JSONArray jsonObjectList, JSONArray borderInfoObjectList, XSSFSheet
             sheet, XSSFWorkbook workbook) {
         //设置字体大小和颜色
-        Map<Integer, String> fontMap = new HashMap<>();
-        fontMap.put(-1, "Arial");
-        fontMap.put(0, "Times New Roman");
-        fontMap.put(1, "Arial");
-        fontMap.put(2, "Tahoma");
-        fontMap.put(3, "Verdana");
-        fontMap.put(4, "微软雅黑");
-        fontMap.put(5, "宋体");
-        fontMap.put(6, "黑体");
-        fontMap.put(7, "楷体");
-        fontMap.put(8, "仿宋");
-        fontMap.put(9, "新宋体");
-        fontMap.put(10, "华文新魏");
-        fontMap.put(11, "华文行楷");
-        fontMap.put(12, "华文隶书");
+//        Map<Integer, String> fontMap = new HashMap<>();
+//        fontMap.put(-1, "Arial");
+//        fontMap.put(0, "Times New Roman");
+//        fontMap.put(1, "Arial");
+//        fontMap.put(2, "Tahoma");
+//        fontMap.put(3, "Verdana");
+//        fontMap.put(4, "微软雅黑");
+//        fontMap.put(5, "宋体");
+//        fontMap.put(6, "黑体");
+//        fontMap.put(7, "楷体");
+//        fontMap.put(8, "仿宋");
+//        fontMap.put(9, "新宋体");
+//        fontMap.put(10, "华文新魏");
+//        fontMap.put(11, "华文行楷");
+//        fontMap.put(12, "华文隶书");
 
-        //遍歷每一個單元格（先遍歷行，再遍歷列）
+        // 遍歷每一個單元格（先遍歷行，再遍歷列）
         for (int index = 0; index < jsonObjectList.size(); index++) {
 
             XSSFCellStyle style = workbook.createCellStyle();//样式
@@ -292,7 +288,7 @@ public class LuckySheetUtil {
             //獲取單元格
             JSONObject object = jsonObjectList.getJSONObject(index);
             //str_ = 行坐標+列坐標=內容
-            String str_ = (int) object.get("r") + "_" + object.get("c") + "=" + ((JSONObject) object.get("v")).get("v") + "\n";
+            String str = object.get("r") + "_" + object.get("c") + "=" + ((JSONObject) object.get("v")).get("v") + "\n";
             JSONObject jsonObjectValue = ((JSONObject) object.get("v"));//獲取單元格樣式
             //單元格內容
             String value = "";
@@ -305,13 +301,14 @@ public class LuckySheetUtil {
                 //設置公式 注意：luckysheet与Java的公式可能存在不匹配问题，例如js的Int(data)
                 if (jsonObjectValue != null && jsonObjectValue.get("f") != null) {//如果有公式，设置公式
                     value = jsonObjectValue.getString("f");
-                    cell.setCellFormula(value.substring(1, value.length()));//不需要=符号,例：INT(12.3)
+                    cell.setCellFormula(value.substring(1));//不需要=符号,例：INT(12.3)
                 }
                 //合并单元格与填充单元格颜色
+                assert jsonObjectValue != null;
                 setMergeAndColorByObject(jsonObjectValue, sheet, style);
                 //填充值
                 cell.setCellValue(value);
-                XSSFRow row = sheet.getRow((int) object.get("r"));
+                sheet.getRow((int) object.get("r"));
 
                 //设置垂直水平对齐方式
                 int vt = jsonObjectValue.getInteger("vt") == null ? 1 : jsonObjectValue.getInteger("vt");//垂直对齐	 0 中间、1 上、2下
@@ -357,19 +354,19 @@ public class LuckySheetUtil {
                     font.setBold(true);//粗体显示
                 }
                 //是否斜體
-                font.setItalic(it == 1 ? true : false);//斜体
+                font.setItalic(it == 1);//斜体
 
                 style.setFont(font);
                 style.setWrapText(true);//设置自动换行
                 cell.setCellStyle(style);
 
             } else {
-                System.out.println("错误的=" + index + ">>>" + str_);
+                System.out.println("错误的=" + index + ">>>" + str);
             }
 
         }
         //设置边框
-        setBorder(borderInfoObjectList, workbook, sheet);
+        setBorder(borderInfoObjectList, sheet);
 
     }
 }
