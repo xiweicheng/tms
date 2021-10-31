@@ -75,7 +75,7 @@ public class ApiController extends BaseController {
         String status = JsonPath.read(reqBody, "$.build.status");
         String phase = JsonPath.read(reqBody, "$.build.phase");
         long timestamp = JsonPath.read(reqBody, "$.build.timestamp");
-        String fullUrl = "";
+        String fullUrl;
         try {
             fullUrl = JsonPath.read(reqBody, "$.build.full_url");
         } catch (Exception e) {

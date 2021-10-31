@@ -23,8 +23,6 @@ import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
 import com.lhjz.portal.util.WebUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,8 +48,6 @@ public class ChannelController extends BaseController {
     public static final String CHANNEL_MSG_START = "## ~频道消息播报~\n> {~";
     public static final String CHANNEL_MSG_END = "} 被**添加到**该频道!";
     public static final String ERR_NO_AUTH = "权限不足！";
-
-    static Logger logger = LoggerFactory.getLogger(ChannelController.class);
 
     @Autowired
     ChannelRepository channelRepository;

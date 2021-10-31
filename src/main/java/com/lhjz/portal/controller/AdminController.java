@@ -238,7 +238,6 @@ public class AdminController extends BaseController {
 
     @RequestMapping("dynamic")
     public String dynamic(Model model, @RequestParam(value = "id", required = false) Long id,
-                          @RequestParam(value = "search", required = false) String search,
                           @PageableDefault(sort = {"createDate"}, direction = Direction.DESC) Pageable pageable) {
 
         if (StringUtil.isNotEmpty(id)) {
@@ -302,7 +301,8 @@ public class AdminController extends BaseController {
             project = projectRepository.findOne(projectId);
         }
 
-        if (project != null) { // 存在检索项目
+        // 存在检索项目
+        if (project != null) {
 
             languages = project.getLanguages();
             projectId = project.getId();
@@ -329,8 +329,9 @@ public class AdminController extends BaseController {
                 page = translateRepository.findByProject(project, pageable);
             }
         } else { // 不存在指定检索项目,检索全部项目
-            projectId = Long.valueOf(-1);
-            if (!projects.isEmpty()) { // 如果不存在项目,也不需要检索翻译,因为翻译是关联到项目的
+            projectId = (long) -1;
+            // 如果不存在项目,也不需要检索翻译,因为翻译是关联到项目的
+            if (!projects.isEmpty()) {
                 languages = projects.get(0).getLanguages();
 
                 if (StringUtil.isNotEmpty(id)) {
@@ -371,13 +372,15 @@ public class AdminController extends BaseController {
 
         if (languages != null && project != null && project.getLanguage() != null) {
             for (Language language : languages) {
-                if (language.getId().equals(project.getLanguage().getId())) { // 主语言放在第一个
+                // 主语言放在第一个
+                if (language.getId().equals(project.getLanguage().getId())) {
                     languages2.add(0, language);
                 } else {
                     languages2.add(language);
                 }
             }
         } else {
+            assert languages != null;
             languages2.addAll(languages);
         }
 
@@ -409,7 +412,7 @@ public class AdminController extends BaseController {
         }
 
         Set<Language> languages = null;
-        Project project = null;
+        Project project;
         if (projectId != null) {
             project = projectRepository.findOne(projectId);
             if (project != null) {
@@ -422,11 +425,9 @@ public class AdminController extends BaseController {
                 }
             }
         } else {
-            if (!projects.isEmpty()) {
-                project = projects.get(0);
-                projectId = projects.get(0).getId();
-                languages = projects.get(0).getLanguages();
-            }
+            project = projects.get(0);
+            projectId = projects.get(0).getId();
+            languages = projects.get(0).getLanguages();
         }
 
         List<Language> languages2 = new ArrayList<>();
@@ -489,6 +490,7 @@ public class AdminController extends BaseController {
         } else {
             Map<String, Object> mailSettings = JsonUtil.json2Object(setting.getContent(), Map.class);
 
+            assert mailSettings != null;
             mailSettings.put("password", "");
 
             model.addAttribute("mail", mailSettings);
@@ -500,7 +502,7 @@ public class AdminController extends BaseController {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Object> initMenus(Model model) {
+    private void initMenus(Model model) {
 
         List<String> keys = Lists.newArrayList("chat", "blog", "dynamic", "translate", "_import", "project", "language",
                 USER_STR, "link");
@@ -523,7 +525,6 @@ public class AdminController extends BaseController {
 
             model.addAttribute("menus", menusSettings);
 
-            return menusSettings;
         } else {
             Map<String, Object> menusSettings = new HashMap<>();
 
@@ -533,7 +534,6 @@ public class AdminController extends BaseController {
 
             model.addAttribute("menus", menusSettings);
 
-            return menusSettings;
         }
     }
 

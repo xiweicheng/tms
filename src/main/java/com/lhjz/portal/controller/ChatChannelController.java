@@ -106,6 +106,8 @@ import java.util.stream.Stream;
 @RequestMapping("admin/chat/channel")
 public class ChatChannelController extends BaseController {
 
+    public static final String TAGS = "tags:";
+    public static final String TAG = "tag:";
     static Logger logger = LoggerFactory.getLogger(ChatChannelController.class);
 
     @Value("${tms.chat.channel.upload.path}")
@@ -564,7 +566,7 @@ public class ChatChannelController extends BaseController {
         long cnt = 0;
 
         // 按标签检索
-        if (search.toLowerCase().startsWith("tags:") || search.toLowerCase().startsWith("tag:")) {
+        if (search.toLowerCase().startsWith(TAGS) || search.toLowerCase().startsWith(TAG)) {
             String[] arr = search.split(":", 2);
             if (StringUtil.isNotEmpty(arr[1].trim())) {
                 String[] vals = arr[1].trim().split("\\s+");
