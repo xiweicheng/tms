@@ -34,8 +34,6 @@ import com.lhjz.portal.util.MapUtil;
 import com.lhjz.portal.util.StringUtil;
 import com.lhjz.portal.util.TemplateUtil;
 import com.lhjz.portal.util.WebUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -65,7 +63,7 @@ import java.util.stream.Stream;
 @RequestMapping("admin/chat")
 public class ChatController extends BaseController {
 
-    static Logger logger = LoggerFactory.getLogger(ChatController.class);
+    public static final int INT_50 = 50;
 
     @Autowired
     ChatRepository chatRepository;
@@ -119,16 +117,15 @@ public class ChatController extends BaseController {
         log(Action.Create, Target.Chat, chat2.getId());
 
         final String href = baseURL + dynamicAction + "?id=" + chat2.getId();
-        final String html = contentHtml;
 
         final Mail mail = Mail.instance();
         if (StringUtil.isNotEmpty(usernames) || StringUtil.isNotEmpty(groups)) {
 
-            Map<String, User> atUserMap = new HashMap<String, User>();
+            Map<String, User> atUserMap = new HashMap<>();
 
             if (StringUtil.isNotEmpty(usernames)) {
                 String[] usernameArr = usernames.split(",");
-                Arrays.asList(usernameArr).stream().forEach((username) -> {
+                Arrays.asList(usernameArr).forEach((username) -> {
                     User user = getUser(username);
                     if (user != null) {
                         mail.addUsers(user);
@@ -139,7 +136,6 @@ public class ChatController extends BaseController {
             if (StringUtil.isNotEmpty(groups)) {
                 String[] groupArr = groups.split(",");
                 Arrays.asList(groupArr)
-                        .stream()
                         .forEach(
                                 (group) -> {
                                     List<Group> groupList = groupRepository
@@ -147,7 +143,7 @@ public class ChatController extends BaseController {
                                     if (groupList.size() > 0) {
                                         List<GroupMember> groupMembers = groupMemberRepository
                                                 .findByGroup(groupList.get(0));
-                                        groupMembers.stream().forEach(
+                                        groupMembers.forEach(
                                                 gm -> {
                                                     User user = getUser(gm
                                                             .getUsername());
@@ -162,7 +158,7 @@ public class ChatController extends BaseController {
                                 });
             }
 
-            List<ChatAt> chatAtList = new ArrayList<ChatAt>();
+            List<ChatAt> chatAtList = new ArrayList<>();
             // 保存chatAt关系
             atUserMap.values().forEach((user) -> {
                 ChatAt chatAt = new ChatAt();
@@ -181,7 +177,7 @@ public class ChatController extends BaseController {
                 mailSender.sendHtmlByQueue(
                         String.format("TMS-沟通动态@消息_%s", DateUtil.format(new Date(), DateUtil.FORMAT7)),
                         TemplateUtil.process("templates/mail/mail-dynamic", MapUtil.objArr2Map("user", loginUser,
-                                "date", new Date(), "href", href, "title", "下面的沟通消息中有@到你", "content", html)),
+                                "date", new Date(), "href", href, "title", "下面的沟通消息中有@到你", "content", contentHtml)),
                         getLoginUserName(loginUser), mail.get());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -189,7 +185,7 @@ public class ChatController extends BaseController {
 
         }
 
-        if (Boolean.FALSE.equals(preMore) && chatRepository.countQueryRecent(lastId) <= 50) {
+        if (Boolean.FALSE.equals(preMore) && chatRepository.countQueryRecent(lastId) <= INT_50) {
             List<Chat> chats = chatRepository.queryRecent(lastId);
             return RespBody.succeed(chats);
         }
@@ -223,7 +219,7 @@ public class ChatController extends BaseController {
             return RespBody.failed("您没有权限编辑该消息内容!");
         }
 
-        if (chat.getVersion() != version.longValue()) {
+        if (chat.getVersion() != version) {
             return RespBody.failed("该消息已经被其他人更新,请刷新消息重新编辑提交!");
         }
 
@@ -252,11 +248,11 @@ public class ChatController extends BaseController {
 
         if (StringUtil.isNotEmpty(usernames) || StringUtil.isNotEmpty(groups)) {
 
-            Map<String, User> atUserMap = new HashMap<String, User>();
+            Map<String, User> atUserMap = new HashMap<>();
 
             if (StringUtil.isNotEmpty(usernames)) {
                 String[] usernameArr = usernames.split(",");
-                Arrays.asList(usernameArr).stream().forEach((username) -> {
+                Arrays.asList(usernameArr).forEach((username) -> {
                     User user = getUser(username);
                     if (user != null) {
                         mail.addUsers(user);
@@ -267,7 +263,6 @@ public class ChatController extends BaseController {
             if (StringUtil.isNotEmpty(groups)) {
                 String[] groupArr = groups.split(",");
                 Arrays.asList(groupArr)
-                        .stream()
                         .forEach(
                                 (group) -> {
                                     List<Group> groupList = groupRepository
@@ -275,7 +270,7 @@ public class ChatController extends BaseController {
                                     if (groupList.size() > 0) {
                                         List<GroupMember> groupMembers = groupMemberRepository
                                                 .findByGroup(groupList.get(0));
-                                        groupMembers.stream().forEach(
+                                        groupMembers.forEach(
                                                 gm -> {
                                                     User user = getUser(gm
                                                             .getUsername());
@@ -290,7 +285,7 @@ public class ChatController extends BaseController {
                                 });
             }
 
-            List<ChatAt> chatAtList = new ArrayList<ChatAt>();
+            List<ChatAt> chatAtList = new ArrayList<>();
             // 保存chatAt关系
             atUserMap.values().forEach(
                     (user) -> {
@@ -405,7 +400,7 @@ public class ChatController extends BaseController {
             @PageableDefault(sort = {"createDate"}, direction = Direction.DESC) Pageable pageable) {
 
         Page<Chat> chats = chatRepository.findAll(pageable);
-        chats = new PageImpl<Chat>(CollectionUtil.reverseList(chats
+        chats = new PageImpl<>(CollectionUtil.reverseList(chats
                 .getContent()), pageable, chats.getTotalElements());
 
         return RespBody.succeed(chats);
@@ -463,9 +458,9 @@ public class ChatController extends BaseController {
     @ResponseBody
     public RespBody search(
             @PageableDefault(sort = {"createDate"}, direction = Direction.DESC) Pageable pageable,
-            @RequestParam(value = "search", required = true) String search) {
+            @RequestParam(value = "search") String search) {
 
-        Page<Chat> chats = null;
+        Page<Chat> chats;
 
         if (search.startsWith(SysConstant.FILTER_PRE)) {
             String query = search.substring(SysConstant.FILTER_PRE.length());
@@ -475,9 +470,7 @@ public class ChatController extends BaseController {
             String searchContent = null;
 
             if (querys.length > 0) {
-                Stream.of(querys[0].split("&")).filter((name) -> {
-                    return StringUtil.isNotEmpty(name.trim());
-                }).forEach((name) -> {
+                Stream.of(querys[0].split("&")).filter((name) -> StringUtil.isNotEmpty(name.trim())).forEach((name) -> {
                     User user = getUser(name);
                     if (user != null) {
                         users.add(user);
@@ -525,7 +518,7 @@ public class ChatController extends BaseController {
                 Direction.DESC, "createDate");
 
         Page<Chat> chats = chatRepository.findAll(pageable);
-        chats = new PageImpl<Chat>(CollectionUtil.reverseList(chats
+        chats = new PageImpl<>(CollectionUtil.reverseList(chats
                 .getContent()), pageable, chats.getTotalElements());
 
         return RespBody.succeed(chats);
@@ -561,9 +554,9 @@ public class ChatController extends BaseController {
         }
         String loginUsername = WebUtil.getUsername();
 
-        Chat chat2 = null;
+        Chat chat2;
 
-        String title = "";
+        String title;
         final User loginUser = getLoginUser();
 
         if (VoteType.Zan.name().equalsIgnoreCase(type)) {
@@ -752,7 +745,6 @@ public class ChatController extends BaseController {
     @RequestMapping(value = {"asWiki", "asWiki/unmask"}, method = RequestMethod.POST)
     @ResponseBody
     public RespBody asWiki(@RequestParam("id") Long id,
-                           @RequestParam("baseURL") String baseURL,
                            @RequestParam("title") String title,
                            @RequestParam(value = "privated", required = false) Boolean privated,
                            @RequestParam(value = "labels", required = false) String labels) {
@@ -775,7 +767,7 @@ public class ChatController extends BaseController {
 
         if (StringUtil.isNotEmpty(labels)) {
 
-            List<Label> labelList = new ArrayList<Label>();
+            List<Label> labelList = new ArrayList<>();
 
             String[] labelArr = labels.split(SysConstant.COMMA);
             Stream.of(labelArr).forEach((lbl) -> {
@@ -802,7 +794,6 @@ public class ChatController extends BaseController {
     @RequestMapping(value = {"updateWiki", "updateWiki/unmask"}, method = RequestMethod.POST)
     @ResponseBody
     public RespBody updateWiki(@RequestParam("id") Long id,
-                               @RequestParam("baseURL") String baseURL,
                                @RequestParam("title") String title,
                                @RequestParam(value = "privated", required = false) Boolean privated,
                                @RequestParam(value = "labels", required = false) String labels) {
@@ -836,7 +827,7 @@ public class ChatController extends BaseController {
             labelRepository.delete(labelList2);
             labelRepository.flush();
 
-            List<Label> labelList = new ArrayList<Label>();
+            List<Label> labelList = new ArrayList<>();
 
             String[] labelArr = labels.split(SysConstant.COMMA);
             Stream.of(labelArr).forEach((lbl) -> {
@@ -884,7 +875,6 @@ public class ChatController extends BaseController {
     @RequestMapping(value = {"addLabel", "addLabel/unmask"}, method = RequestMethod.POST)
     @ResponseBody
     public RespBody addLabel(@RequestParam("id") Long id,
-                             @RequestParam("baseURL") String baseURL,
                              @RequestParam("label") String label) {
 
         if (StringUtil.isEmpty(label)) {
@@ -915,8 +905,7 @@ public class ChatController extends BaseController {
 
     @RequestMapping(value = {"deleteLabel", "deleteLabel/unmask"}, method = RequestMethod.POST)
     @ResponseBody
-    public RespBody deleteLabel(@RequestParam("baseURL") String baseURL,
-                                @RequestParam("labelId") Long labelId) {
+    public RespBody deleteLabel(@RequestParam("labelId") Long labelId) {
 
         Label label = labelRepository.findOne(labelId);
 
