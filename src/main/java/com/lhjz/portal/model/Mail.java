@@ -127,7 +127,7 @@ public class Mail {
 	/**
 	 * 添加发邮件用户的邮件地址
 	 * 
-	 * @param objs
+	 * @param mails
 	 * @return
 	 */
 	public Mail add(MailAddr... mails) {

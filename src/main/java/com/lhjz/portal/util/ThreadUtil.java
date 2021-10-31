@@ -43,7 +43,7 @@ public final class ThreadUtil {
     /**
      * 执行线程池任务.
      *
-     * @param command
+     * @param commands
      * @author xiweicheng
      * @creation 2014年4月17日 下午10:52:57
      * @modification 2014年4月17日 下午10:52:57

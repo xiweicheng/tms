@@ -81,7 +81,7 @@ public final class StringUtil {
     /**
      * 裁剪字符串到指定长度.
      *
-     * @param string
+     * @param str
      * @param i
      */
     public static String limitLength(String str, int i) {

@@ -90,7 +90,7 @@ public class JsonUtil {
 	/**
 	 * object to object<T>.
 	 * 
-	 * @param json
+	 * @param object
 	 * @param classOfT
 	 * @return
 	 */

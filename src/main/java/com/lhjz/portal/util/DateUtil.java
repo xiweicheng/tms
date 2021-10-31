@@ -39,7 +39,7 @@ public final class DateUtil {
      * 解析日期字符串.
      *
      * @param date
-     * @param format
+     * @param formats
      * @return
      */
     public static Date parse(String date, String... formats) {
