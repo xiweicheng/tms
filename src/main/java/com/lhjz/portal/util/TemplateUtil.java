@@ -18,14 +18,14 @@ import org.thymeleaf.templateresolver.TemplateResolver;
  */
 public class TemplateUtil {
 
-	public static final TemplateEngine templateEngine;
+	public static final TemplateEngine TEMPLATE_ENGINE;
 
 	private TemplateUtil() {
 	}
 
 	static {
 
-		templateEngine = new TemplateEngine();
+		TEMPLATE_ENGINE = new TemplateEngine();
 
 		TemplateResolver resolver = new ClassLoaderTemplateResolver();
 		resolver.setTemplateMode("LEGACYHTML5");
@@ -33,7 +33,7 @@ public class TemplateUtil {
 		resolver.setSuffix(".html");
 		resolver.setCacheable(false);
 
-		templateEngine.setTemplateResolver(resolver);
+		TEMPLATE_ENGINE.setTemplateResolver(resolver);
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class TemplateUtil {
 	public static String process(String templateName,
 			Map<String, Object> modelMap) {
 
-		return templateEngine.process(templateName,
+		return TEMPLATE_ENGINE.process(templateName,
 				new Context(Locale.getDefault(), modelMap));
 	}
 

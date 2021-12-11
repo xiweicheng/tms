@@ -1,11 +1,5 @@
 package com.lhjz.portal.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -13,10 +7,14 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Predicate;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
 public class JsonUtil {
-
-	private static Logger logger = Logger.getLogger(JsonUtil.class);
 
 	private JsonUtil() {
 	}
@@ -40,7 +38,7 @@ public class JsonUtil {
 			return GSON_1.toJson(object);
 		} catch (Exception e) {
 			e.printStackTrace();
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 		return null;
 	}
@@ -59,7 +57,7 @@ public class JsonUtil {
 			return GSON_2.toJson(jsonElement);
 		} catch (Exception e) {
 			e.printStackTrace();
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 
 		return null;
@@ -75,13 +73,13 @@ public class JsonUtil {
 	public static <T> T json2Object(String json, Class<T> classOfT) {
 
 		try {
-			if (logger.isDebugEnabled()) {
-				logger.debug(json);
+			if (log.isDebugEnabled()) {
+				log.debug(json);
 			}
 			return GSON_1.fromJson(json, classOfT);
 		} catch (Exception e) {
 			e.printStackTrace();
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 
 		return null;
@@ -97,13 +95,13 @@ public class JsonUtil {
 	public static <T> T Obj2Object(Object object, Class<T> classOfT) {
 
 		try {
-			if (logger.isDebugEnabled()) {
-				logger.debug(toJson(object));
+			if (log.isDebugEnabled()) {
+				log.debug(toJson(object));
 			}
 			return GSON_1.fromJson(toJson(object), classOfT);
 		} catch (Exception e) {
 			e.printStackTrace();
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 
 		return null;
@@ -134,7 +132,7 @@ public class JsonUtil {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 
 		return list;
@@ -152,7 +150,7 @@ public class JsonUtil {
 			return jsonParser.parse(jsonObject);
 		} catch (JsonSyntaxException e) {
 			e.printStackTrace();
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 
 		return null;
@@ -169,7 +167,7 @@ public class JsonUtil {
 		try {
 			return JsonPath.read(json, jsonPath, filters);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 			return null;
 		}
 	}

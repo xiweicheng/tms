@@ -5,6 +5,7 @@ package com.lhjz.portal.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,129 +24,142 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lhjz.portal.pojo.Enum.Status;
 
 /**
- * 
  * @author xi
- * 
  * @date 2015年3月28日 下午2:03:20
- * 
  */
 @Entity
 public class TranslateItemHistory implements Serializable, Comparable<TranslateItemHistory> {
 
-	private static final long serialVersionUID = 6527806743802607179L;
+    private static final long serialVersionUID = 6527806743802607179L;
 
-	@Id
-	@GeneratedValue
-	private Long id;
+    @Id
+    @GeneratedValue
+    private Long id;
 
-	@Lob
-	@Column
-	private String itemContent;
+    @Lob
+    @Column
+    private String itemContent;
 
-	private String itemCreator;
+    private String itemCreator;
 
-	private String creator;
+    private String creator;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private Status status = Status.Normal;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.Normal;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date itemCreateDate = new Date();
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date itemCreateDate = new Date();
 
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createDate = new Date();
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createDate = new Date();
 
-	@Version
-	private long version;
+    @Version
+    private long version;
 
-	@JsonIgnore
-	@ManyToOne
-	@JoinColumn(name = "translate_item_id")
-	private TranslateItem translateItem;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "translate_item_id")
+    private TranslateItem translateItem;
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getItemContent() {
-		return itemContent;
-	}
+    public String getItemContent() {
+        return itemContent;
+    }
 
-	public void setItemContent(String itemContent) {
-		this.itemContent = itemContent;
-	}
+    public void setItemContent(String itemContent) {
+        this.itemContent = itemContent;
+    }
 
-	public String getItemCreator() {
-		return itemCreator;
-	}
+    public String getItemCreator() {
+        return itemCreator;
+    }
 
-	public void setItemCreator(String itemCreator) {
-		this.itemCreator = itemCreator;
-	}
+    public void setItemCreator(String itemCreator) {
+        this.itemCreator = itemCreator;
+    }
 
-	public Date getItemCreateDate() {
-		return itemCreateDate;
-	}
+    public Date getItemCreateDate() {
+        return itemCreateDate;
+    }
 
-	public void setItemCreateDate(Date itemCreateDate) {
-		this.itemCreateDate = itemCreateDate;
-	}
+    public void setItemCreateDate(Date itemCreateDate) {
+        this.itemCreateDate = itemCreateDate;
+    }
 
-	public String getCreator() {
-		return creator;
-	}
+    public String getCreator() {
+        return creator;
+    }
 
-	public void setCreator(String creator) {
-		this.creator = creator;
-	}
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
 
-	public Status getStatus() {
-		return status;
-	}
+    public Status getStatus() {
+        return status;
+    }
 
-	public void setStatus(Status status) {
-		this.status = status;
-	}
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
-	public Date getCreateDate() {
-		return createDate;
-	}
+    public Date getCreateDate() {
+        return createDate;
+    }
 
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
 
-	public long getVersion() {
-		return version;
-	}
+    public long getVersion() {
+        return version;
+    }
 
-	public void setVersion(long version) {
-		this.version = version;
-	}
+    public void setVersion(long version) {
+        this.version = version;
+    }
 
-	public TranslateItem getTranslateItem() {
-		return translateItem;
-	}
+    public TranslateItem getTranslateItem() {
+        return translateItem;
+    }
 
-	public void setTranslateItem(TranslateItem translateItem) {
-		this.translateItem = translateItem;
-	}
+    public void setTranslateItem(TranslateItem translateItem) {
+        this.translateItem = translateItem;
+    }
 
-	@Override
-	public String toString() {
-		return "TranslateItemHistory [id=" + id + ", itemContent=" + itemContent + ", itemCreator=" + itemCreator
-				+ ", creator=" + creator + ", status=" + status + ", itemCreateDate=" + itemCreateDate + ", createDate="
-				+ createDate + ", version=" + version + "]";
-	}
+    @Override
+    public String toString() {
+        return "TranslateItemHistory [id=" + id + ", itemContent=" + itemContent + ", itemCreator=" + itemCreator
+                + ", creator=" + creator + ", status=" + status + ", itemCreateDate=" + itemCreateDate + ", createDate="
+                + createDate + ", version=" + version + "]";
+    }
 
-	@Override
-	public int compareTo(TranslateItemHistory o) {
-		return -this.getCreateDate().compareTo(o.getCreateDate());
-	}
+    @Override
+    public int compareTo(TranslateItemHistory o) {
+        return -this.getCreateDate().compareTo(o.getCreateDate());
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TranslateItemHistory that = (TranslateItemHistory) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

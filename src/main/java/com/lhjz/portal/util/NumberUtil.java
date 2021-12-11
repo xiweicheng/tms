@@ -27,7 +27,7 @@ public final class NumberUtil {
      */
     public static final String EMPTY = "";
 
-    public static final Random random = new Random();
+    public static final Random RANDOM = new Random();
 
     private NumberUtil() {
         super();
@@ -285,7 +285,7 @@ public final class NumberUtil {
         StringBuilder sBuffer = new StringBuilder();
 
         for (int i = 0; i < length; i++) {
-            sBuffer.append(random.nextInt(10));
+            sBuffer.append(RANDOM.nextInt(10));
         }
 
         return sBuffer.toString();

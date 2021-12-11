@@ -22,18 +22,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class PropUtil {
 
-	public static final Properties properties;
+	public static final Properties PROPERTIES;
 
 	private PropUtil() {
 	}
 
 	static {
-		properties = new Properties();
+		PROPERTIES = new Properties();
 		InputStream inputStream = null;
 
 		try {
 			inputStream = PropUtil.class.getClassLoader().getResourceAsStream("writable.properties");
-			properties.load(inputStream);
+			PROPERTIES.load(inputStream);
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
 		} finally {
@@ -106,8 +106,8 @@ public final class PropUtil {
 	 * @return
 	 */
 	public static String getValue(String key, String defaultVal) {
-		if (properties.containsKey(key)) {
-			return properties.getProperty(key);
+		if (PROPERTIES.containsKey(key)) {
+			return PROPERTIES.getProperty(key);
 		} else {
 			return defaultVal;
 		}
@@ -140,11 +140,11 @@ public final class PropUtil {
 
 		log.debug("保存配置键值对");
 
-		properties.setProperty(key, val);
+		PROPERTIES.setProperty(key, val);
 
 		try (FileOutputStream fos = new FileOutputStream(
 				new File(PropUtil.class.getResource("/writable.properties").toURI()))) {
-			properties.store(fos, "系统可读写配置");
+			PROPERTIES.store(fos, "系统可读写配置");
 			return true;
 		} catch (URISyntaxException | IOException e) {
 			log.error(e.getMessage(), e);

@@ -1,9 +1,11 @@
 package com.lhjz.portal.component;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.lhjz.portal.model.MailAuthenticator;
+import com.lhjz.portal.model.MailInfo;
+import com.lhjz.portal.util.StringUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -19,14 +21,10 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
-
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import com.lhjz.portal.model.MailAuthenticator;
-import com.lhjz.portal.model.MailInfo;
-import com.lhjz.portal.util.StringUtil;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 邮件发送
@@ -38,9 +36,8 @@ import com.lhjz.portal.util.StringUtil;
  * 
  */
 @Component
+@Slf4j
 public class CustomMailSender {
-
-	static Logger logger = Logger.getLogger(CustomMailSender.class);
 
 	@Value("${lhjz.mail.to.addresses}")
 	private String toAddrArr;
@@ -179,7 +176,7 @@ public class CustomMailSender {
 
 			if (mailInfo.getToAddresses() == null
 					|| mailInfo.getToAddresses().length == 0) {
-				logger.error("邮件发送目标地址不存在！");
+				log.error("邮件发送目标地址不存在！");
 				return false;
 			}
 
@@ -236,9 +233,9 @@ public class CustomMailSender {
 			return true;
 
 		} catch (MessagingException ex) {
-			logger.error("邮件发送失败，Error:" + ex.getMessage(), ex);
+			log.error("邮件发送失败，Error:" + ex.getMessage(), ex);
 		} catch (UnsupportedEncodingException e1) {
-			logger.error("邮件附件设置主题，Error:" + e1.getMessage(), e1);
+			log.error("邮件附件设置主题，Error:" + e1.getMessage(), e1);
 		}
 
 		return false;

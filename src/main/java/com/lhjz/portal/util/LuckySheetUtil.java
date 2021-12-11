@@ -323,6 +323,7 @@ public class LuckySheetUtil {
                     case 2:
                         style.setVerticalAlignment(VerticalAlignment.BOTTOM);
                         break;
+                    default:break;
                 }
                 switch (ht) {
                     case 0:
@@ -334,6 +335,7 @@ public class LuckySheetUtil {
                     case 2:
                         style.setAlignment(HorizontalAlignment.RIGHT);
                         break;
+                    default:break;
                 }
 
                 //设置合并单元格的样式有问题
