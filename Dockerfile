@@ -1,4 +1,5 @@
-FROM tomcat:8.5
+# FROM tomcat:8.5
+FROM tomcat:8.5.73-jdk8
 
 LABEL MAINTAINER="xiweicheng@yeah.net"
 
