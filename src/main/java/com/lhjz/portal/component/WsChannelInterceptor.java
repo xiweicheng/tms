@@ -2,10 +2,12 @@ package com.lhjz.portal.component;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
@@ -53,7 +55,14 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 		String query = String.valueOf(attrsMap.get("query"));
 
 		boolean isWsLock = path.startsWith("/ws-lock");
-		String blogId = isWsLock && StringUtil.isNotEmpty(query) ? query.split("=")[1] : null;
+
+		String[] params = StringUtil.isNotEmpty(query) ? query.split("&") : new String[0];
+		HashMap<String, String> paramsMap = Maps.newHashMap();
+		for (String param : params) {
+			String[] kv = param.split("=");
+			paramsMap.put(kv[0], kv[1]);
+		}
+		String blogId = isWsLock ? paramsMap.get("blogId") : null;
 
 		log.info("post send isWsLock: {}, blogId: {}", isWsLock, blogId);
 
