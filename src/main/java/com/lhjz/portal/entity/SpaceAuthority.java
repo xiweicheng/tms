@@ -58,7 +58,6 @@ public class SpaceAuthority implements Serializable {
 	@JoinColumn(name = "space")
 	private Space space;
 
-	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "channel")
 	private Channel channel;
