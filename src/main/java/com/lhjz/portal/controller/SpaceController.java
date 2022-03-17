@@ -273,6 +273,7 @@ public class SpaceController extends BaseController {
 				sa.setSpace(space);
 				sa.setChannel(ch);
 				list.add(sa);
+				setSpaceAuthorityId(sa);
 			});
 		}
 		Collection<User> userC = new ArrayList<>();
@@ -286,6 +287,7 @@ public class SpaceController extends BaseController {
 				sa.setSpace(space);
 				sa.setUser(user);
 				list.add(sa);
+				setSpaceAuthorityId(sa);
 			});
 		}
 
@@ -304,6 +306,28 @@ public class SpaceController extends BaseController {
 		space.getSpaceAuthorities().removeAll(list);
 
 		return RespBody.succeed(space);
+	}
+
+	/**
+	 * 设置SpaceAuthority id.
+	 * @param space
+	 * @param spaceAuthority
+	 */
+	private void setSpaceAuthorityId(SpaceAuthority spaceAuthority) {
+
+		spaceAuthority.getSpace().getSpaceAuthorities().forEach(sa -> {
+			if (spaceAuthority.getChannel() != null && sa.getChannel() != null
+					&& sa.getChannel().getId().equals(spaceAuthority.getChannel().getId())) {
+				spaceAuthority.setId(sa.getId());
+				return;
+			}
+
+			if (spaceAuthority.getUser() != null && sa.getUser() != null
+					&& sa.getUser().getUsername().equals(spaceAuthority.getUser().getUsername())) {
+				spaceAuthority.setId(sa.getId());
+				return;
+			}
+		});
 	}
 
 	@RequestMapping(value = "dir/create", method = RequestMethod.POST)
