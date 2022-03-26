@@ -56,6 +56,7 @@ public class File implements Serializable {
 	@GeneratedValue
 	private Long id;
 
+	@Column(length = 100)
 	private String uuid;
 
 	@NotBlank

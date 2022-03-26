@@ -52,6 +52,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -355,7 +356,7 @@ public class UserController extends BaseController {
     @RequestMapping(value = "update2", method = RequestMethod.POST)
     @ResponseBody
     @Secured({"ROLE_USER"})
-    public RespBody update2(HttpServletRequest request, @Valid UserForm userForm, BindingResult bindingResult) {
+    public RespBody update2(Principal principal, @Valid UserForm userForm, BindingResult bindingResult) {
 
         if (WebUtil.isRememberMeAuthenticated()) {
             return RespBody.failed("因为当前是通过[记住我]登录,为了安全需要,请退出重新登录再尝试修改用户信息!");
@@ -366,16 +367,16 @@ public class UserController extends BaseController {
                     .collect(Collectors.joining("<br/>")));
         }
 
-        if (!isSuperOrCreator(WebUtil.getUsername()) && !WebUtil.getUsername().equals(userForm.getUsername())) {
-            logger.error("权限不足!");
-            return RespBody.failed("权限不足!");
-        }
-
         User user = userRepository.findOne(userForm.getUsername());
 
         if (user == null) {
             logger.error("更新用户不存在! ID: {}", userForm.getUsername());
             return RespBody.failed("更新用户不存在!");
+        }
+
+        if (!isSuperOrCreator(user.getCreator()) && !WebUtil.getUsername().equals(userForm.getUsername())) {
+            logger.error("权限不足!");
+            return RespBody.failed("权限不足!");
         }
 
         if (Boolean.TRUE.equals(user.getLocked()) && !isSuper()) {
