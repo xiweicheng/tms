@@ -13,6 +13,8 @@ import com.lhjz.portal.pojo.Enum.Status;
 import com.lhjz.portal.repository.SettingRepository;
 import com.lhjz.portal.util.JsonUtil;
 import com.lhjz.portal.util.StringUtil;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,16 +113,16 @@ public class SettingController extends BaseController {
 			@RequestParam("username") String username, @RequestParam("password") String password,
 			@RequestParam(value = "addr", required = false) String addr) {
 
-		if (StringUtil.isEmpty(host)) {
-			return RespBody.failed("主机不能为空");
+		if (StringUtil.isEmpty(host) || !Jsoup.isValid(host, Safelist.basic())) {
+			return RespBody.failed("主机为空或存在非法字符！");
 		}
 
-		if (StringUtil.isEmpty(username)) {
-			return RespBody.failed("用户名不能为空");
+		if (StringUtil.isEmpty(username) || !Jsoup.isValid(username, Safelist.basic())) {
+			return RespBody.failed("用户名为空或存在非法字符！");
 		}
 
-		if (StringUtil.isEmpty(password)) {
-			return RespBody.failed("密码不能为空");
+		if (StringUtil.isEmpty(password) || !Jsoup.isValid(password, Safelist.basic())) {
+			return RespBody.failed("密码为空或存在非法字符！");
 		}
 
 		JavaMailSenderImpl sender = mailSender.getMailSender();
