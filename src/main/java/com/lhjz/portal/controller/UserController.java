@@ -356,7 +356,7 @@ public class UserController extends BaseController {
     @RequestMapping(value = "update2", method = RequestMethod.POST)
     @ResponseBody
     @Secured({"ROLE_USER"})
-    public RespBody update2(Principal principal, @Valid UserForm userForm, BindingResult bindingResult) {
+    public RespBody update2(@Valid UserForm userForm, BindingResult bindingResult) {
 
         if (WebUtil.isRememberMeAuthenticated()) {
             return RespBody.failed("因为当前是通过[记住我]登录,为了安全需要,请退出重新登录再尝试修改用户信息!");
