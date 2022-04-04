@@ -38,6 +38,8 @@ public interface ChatStowRepository extends JpaRepository<ChatStow, Long> {
 	
 	List<ChatStow> findByChatChannel(ChatChannel chatChannel);
 
+	List<ChatStow> findByChatDirect(ChatDirect chatDirect);
+
 	ChatStow findOneByChatAndStowUser(Chat chat, User stowUser);
 	
 	ChatStow findOneByChatChannelAndStowUser(ChatChannel chatChannel, User stowUser);
