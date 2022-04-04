@@ -274,6 +274,11 @@ public class ChatDirectController extends BaseController {
             userRepository.flush();
         });
 
+        // 删除收藏
+        List<ChatStow> chatStows = chatStowRepository.findByChatDirect(chatDirect);
+        chatStowRepository.delete(chatStows);
+        chatStowRepository.flush();
+
         fileService.removeFileByAtId(chatDirect.getUuid());
 
         chatDirectRepository.delete(chatDirect);
