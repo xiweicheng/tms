@@ -17,16 +17,20 @@ public class CommonUtil {
 	 * @return
 	 */
 	public static String replaceLinebreak(String winString) {
+
 		if (winString != null) {
 			return winString.replaceAll("\n", "<br/>");
 		}
+
 		return StringUtil.EMPTY;
 	}
 
 	public static Set<String> arr2Set(String... arr) {
+
 		if (arr != null) {
 			return Sets.newHashSet(arr);
 		}
+		
 		return new HashSet<String>();
 	}
 }

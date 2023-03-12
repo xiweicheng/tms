@@ -12,6 +12,9 @@ import com.lhjz.portal.entity.SpaceAuthority;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
 
+/**
+ * 认证工具类
+ */
 public class AuthUtil {
 
 	private AuthUtil() {
