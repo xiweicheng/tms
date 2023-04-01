@@ -21,4 +21,6 @@ public class SysConf {
 
 	private String drawUrl;
 
+	private String excalidrawUrl;
+
 }
