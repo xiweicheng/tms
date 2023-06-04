@@ -681,7 +681,9 @@ public class FreeController extends BaseController {
             uploadMaxFileSize = Integer.valueOf(maxFileSize.replace("Mb", "").replace("MB", ""));
         }
 
-        SysConfigInfo sysConfigInfo = SysConfigInfo.builder().fileViewUrl(env.getProperty("tms.file.online.view.url"))
+        SysConfigInfo sysConfigInfo = SysConfigInfo.builder()
+                .fileViewUrl(env.getProperty("tms.file.online.view.url"))
+                .fileViewEncodePreviewUrl(env.getProperty("tms.file.online.view.encode.preview-url", Boolean.class, false))
                 .userRegister(!env.getProperty("tms.user.register.off", Boolean.class))
                 .uploadMaxFileSize(uploadMaxFileSize).build();
 

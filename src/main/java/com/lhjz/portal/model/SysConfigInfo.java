@@ -19,6 +19,9 @@ public class SysConfigInfo {
 
 	// 文件预览服务地址
 	String fileViewUrl;
+
+	// 预览文件的访问地址是否使用base64编码预处理
+	Boolean fileViewEncodePreviewUrl;
 	
 	// 是否允许用户注册
 	Boolean userRegister;
