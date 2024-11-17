@@ -52,6 +52,7 @@ import com.lhjz.portal.util.TemplateUtil;
 import com.lhjz.portal.util.ValidateUtil;
 import com.lhjz.portal.util.WebUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -768,10 +769,18 @@ public class ChatChannelController extends BaseController {
 
     @RequestMapping(value = "getStows", method = RequestMethod.GET)
     @ResponseBody
-    public RespBody getStows(@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
+    public RespBody getStows(@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable,
+                             @RequestParam(value = "search", required = false) String search) {
 
-        Page<ChatStow> chatStows = chatStowRepository.findByChatIsNullAndStowUserAndStatus(getLoginUser(),
-                Status.New, pageable);
+        Page<ChatStow> chatStows = null;
+
+        if (StringUtils.isEmpty(search)) {
+            chatStows = chatStowRepository.findByChatIsNullAndStowUserAndStatus(getLoginUser(),
+                    Status.New, pageable);
+        } else {
+            chatStows = chatStowRepository.queryChatStows(getLoginUser(),
+                    Status.New, search, pageable);
+        }
 
         chatStows.forEach(this::reduceChatStow);
 
@@ -805,10 +814,18 @@ public class ChatChannelController extends BaseController {
 
     @RequestMapping(value = "getAts", method = RequestMethod.GET)
     @ResponseBody
-    public RespBody getAts(@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
+    public RespBody getAts(@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable,
+                           @RequestParam(value = "search", required = false) String search) {
 
-        Page<ChatAt> chatAts = chatAtRepository.findByChatChannelNotNullAndAtUserAndStatus(getLoginUser(), Status.New,
-                pageable);
+        Page<ChatAt> chatAts = null;
+
+        if (StringUtils.isEmpty(search)) {
+            chatAts = chatAtRepository.findByChatChannelNotNullAndAtUserAndStatus(getLoginUser(), Status.New,
+                    pageable);
+        } else {
+            chatAts = chatAtRepository.queryChatAts(getLoginUser(), Status.New, search,
+                    pageable);
+        }
 
         chatAts.forEach(this::reduceChatAt);
 
@@ -1393,7 +1410,7 @@ public class ChatChannelController extends BaseController {
 
     @GetMapping("pin/list")
     @ResponseBody
-    public RespBody listPin(@RequestParam("cid") Long cid,
+    public RespBody listPin(@RequestParam("cid") Long cid, @RequestParam(value = "search", required = false) String search,
                             @PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
 
         Channel channel = channelRepository.findOne(cid);
@@ -1402,7 +1419,13 @@ public class ChatChannelController extends BaseController {
             return RespBody.failed("权限不足!");
         }
 
-        Page<ChatPin> chatPinsPage = chatPinRepository.findByChannel(channel, pageable);
+        Page<ChatPin> chatPinsPage = null;
+
+        if (StringUtils.isEmpty(search)) {
+            chatPinsPage = chatPinRepository.findByChannel(channel, pageable);
+        } else {
+            chatPinsPage = chatPinRepository.queryChatPins(channel, search, pageable);
+        }
 
         return RespBody.succeed(chatPinsPage);
 

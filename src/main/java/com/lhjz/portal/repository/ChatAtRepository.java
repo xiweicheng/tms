@@ -3,22 +3,21 @@
  */
 package com.lhjz.portal.repository;
 
-import java.util.List;
-
-import javax.transaction.Transactional;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-
 import com.lhjz.portal.entity.Chat;
 import com.lhjz.portal.entity.ChatAt;
 import com.lhjz.portal.entity.ChatChannel;
 import com.lhjz.portal.entity.ChatReply;
 import com.lhjz.portal.entity.security.User;
 import com.lhjz.portal.pojo.Enum.Status;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import javax.transaction.Transactional;
+import java.util.List;
 
 /**
  * 
@@ -34,6 +33,16 @@ public interface ChatAtRepository extends JpaRepository<ChatAt, Long> {
 	
 	Page<ChatAt> findByChatChannelNotNullAndAtUserAndStatus(User user, Status status,
 			Pageable pageable);
+
+	@Query("SELECT ca FROM ChatAt ca " +
+			"LEFT JOIN ca.chatChannel cc " +  // 使用实体属性而非列名
+			"LEFT JOIN ca.chatDirect cd " +   // 使用实体属性而非列名
+			"LEFT JOIN ca.chatReply cr " +     // 使用实体属性而非列名
+			"WHERE ca.chatChannel IS NOT NULL AND ca.atUser = :user AND ca.status = :status AND " +
+			"((ca.chatReply IS NULL AND LOWER(cc.content) LIKE LOWER(CONCAT('%', :content, '%'))) OR " +
+			"LOWER(cd.content) LIKE LOWER(CONCAT('%', :content, '%')) OR " +
+			"LOWER(cr.content) LIKE LOWER(CONCAT('%', :content, '%')))")
+	Page<ChatAt> queryChatAts(@Param("user") User user, @Param("status") Status status, @Param("content") String content, Pageable pageable);
 
 	List<ChatAt> findByChat(Chat chat);
 	
