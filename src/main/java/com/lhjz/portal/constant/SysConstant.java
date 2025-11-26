@@ -4,7 +4,7 @@
 package com.lhjz.portal.constant;
 
 /**
- * 
+ *  系统常量类，用于定义系统中使用的各种常量字符串
  * 
  * @creation 2013-9-18 上午11:06:26
  * @modification 2013-9-18 上午11:06:26
@@ -13,21 +13,13 @@ package com.lhjz.portal.constant;
  * @version 1.0
  * 
  */
-/**
- * 
- * 
- * @creation 2014年1月3日 上午11:07:58
- * @modification 2014年1月3日 上午11:07:58
- * @company Canzs
- * @author xiweicheng
- * @version 1.0
- * 
- */
 public final class SysConstant {
 
+	// 私有构造方法，防止实例化
 	private SysConstant() {
 	}
 
+	// 空字符串常量
 	public static final String EMPTY = "";
 
 	/** UNDERLINE [String] 下划线 字符串 */
