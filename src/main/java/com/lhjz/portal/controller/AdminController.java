@@ -71,55 +71,65 @@ import java.util.TreeSet;
 @RequestMapping("admin")
 public class AdminController extends BaseController {
 
+    // 日志记录器
     static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
-    public static final String USERS = "users";
-    public static final String GROUPS = "groups";
-    public static final String LOGIN_USER = "loginUser";
-    public static final String PROJECTS = "projects";
-    public static final String LANGUAGES = "languages";
-    public static final String USER_STR = "user";
-    public static final String LABELS = "labels";
-    public static final String CHATS = "chats";
-    public static final String LOGS = "logs";
-    public static final String ENTER_METHOD = "Enter method...";
+
+
+    // 常量定义
+    public static final String USERS = "users";           // 用户列表
+    public static final String GROUPS = "groups";         // 用户组
+    public static final String LOGIN_USER = "loginUser";   // 登录用户
+    public static final String PROJECTS = "projects";     // 项目列表
+    public static final String LANGUAGES = "languages";   // 语言列表
+    public static final String USER_STR = "user";         // 用户字符串标识
+    public static final String LABELS = "labels";         // 标签列表
+    public static final String CHATS = "chats";           // 聊天记录
+    public static final String LOGS = "logs";             // 日志记录
+    public static final String ENTER_METHOD = "Enter method..."; // 方法进入标识
+
+    // 自动注入的Repository和服务
+    @Autowired
+    FileRepository fileRepository;           // 文件仓库
 
     @Autowired
-    FileRepository fileRepository;
+    ProjectRepository projectRepository;     // 项目仓库
 
     @Autowired
-    ProjectRepository projectRepository;
+    LanguageRepository languageRepository;   // 语言仓库
 
     @Autowired
-    LanguageRepository languageRepository;
+    TranslateRepository translateRepository; // 翻译仓库
 
     @Autowired
-    TranslateRepository translateRepository;
+    LabelRepository labelRepository;         // 标签仓库
 
     @Autowired
-    LabelRepository labelRepository;
+    ChatRepository chatRepository;           // 聊天仓库
 
     @Autowired
-    ChatRepository chatRepository;
+    GroupRepository groupRepository;         // 用户组仓库
 
     @Autowired
-    GroupRepository groupRepository;
+    SettingRepository settingRepository;     // 设置仓库
 
     @Autowired
-    SettingRepository settingRepository;
+    ChannelRepository channelRepository;     // 频道仓库
 
     @Autowired
-    ChannelRepository channelRepository;
+    BlogRepository blogRepository;           // 博客仓库
 
     @Autowired
-    BlogRepository blogRepository;
+    MailSender mailSender;                  // 邮件发送器
 
     @Autowired
-    MailSender mailSender;
+    SysConf sysConf;                         // 系统配置
 
-    @Autowired
-    SysConf sysConf;
-
+    /**
+     * 登录页面
+     * @param model 模型
+     * @return 登录页面视图
+     */
     @RequestMapping("login")
     public String login(Model model) {
 
@@ -130,15 +140,25 @@ public class AdminController extends BaseController {
         return "admin/login";
     }
 
+    /**
+     * 健康检查接口
+     * @return 响应体
+     */
     @RequestMapping("health")
     @ResponseBody
     public RespBody health() {
         return RespBody.succeed();
     }
 
+    /**
+     * 管理首页
+     * @param model 模型
+     * @return 首页视图
+     */
     @RequestMapping()
     public String home(Model model) {
 
+        // 添加各种统计数据到模型
         model.addAttribute("cntProject", projectRepository.count());
         model.addAttribute("cntUser", userRepository.count());
         model.addAttribute("cntLanguage", languageRepository.count());
@@ -152,11 +172,17 @@ public class AdminController extends BaseController {
         return "admin/index";
     }
 
+    /**
+     * 用户管理页面
+     * @param model 模型
+     * @return 用户管理视图
+     */
     @RequestMapping(USER_STR)
     public String user(Model model) {
 
         logger.debug(ENTER_METHOD);
 
+        // 获取所有用户并转换为UserInfo列表
         List<User> users = userRepository.findAll();
         List<UserInfo> userInfos = new ArrayList<>();
         for (User user : users) {
@@ -171,6 +197,7 @@ public class AdminController extends BaseController {
             userInfo.setLoginCount(user.getLoginCount());
             userInfo.setLoginRemoteAddress(user.getLoginRemoteAddress());
 
+            // 设置用户权限
             Set<String> authorities = new HashSet<>();
             for (Authority authority : user.getAuthorities()) {
                 authorities.add(authority.getId().getAuthority());
@@ -181,8 +208,10 @@ public class AdminController extends BaseController {
             userInfos.add(userInfo);
         }
 
+        // 获取所有用户组
         List<Group> groups = groupRepository.findAll();
 
+        // 添加数据到模型
         model.addAttribute(USERS, userInfos);
         model.addAttribute(GROUPS, groups);
         model.addAttribute(LOGIN_USER, getLoginUser());
@@ -192,17 +221,24 @@ public class AdminController extends BaseController {
         return "admin/user";
     }
 
+    /**
+     * 项目管理页面
+     * @param model 模型
+     * @return 项目管理视图
+     */
     @RequestMapping("project")
     public String project(Model model) {
 
         logger.debug(ENTER_METHOD);
 
+        // 获取项目、语言和用户列表
         List<Project> projects = projectRepository.findAll();
 
         List<Language> languages = languageRepository.findAll();
 
         List<User> users = userRepository.findAll();
 
+        // 添加数据到模型
         model.addAttribute(PROJECTS, projects);
         model.addAttribute(LANGUAGES, languages);
         model.addAttribute(USERS, users);
@@ -213,13 +249,20 @@ public class AdminController extends BaseController {
         return "admin/project";
     }
 
+    /**
+     * 语言管理页面
+     * @param model 模型
+     * @return 语言管理视图
+     */
     @RequestMapping("language")
     public String language(Model model) {
 
         logger.debug(ENTER_METHOD);
 
+        // 获取语言列表
         List<Language> languages = languageRepository.findAll();
 
+        // 添加数据到模型
         model.addAttribute(LANGUAGES, languages);
         model.addAttribute(USER_STR, getLoginUser());
 
@@ -228,6 +271,11 @@ public class AdminController extends BaseController {
         return "admin/language";
     }
 
+    /**
+     * 反馈页面
+     * @param model 模型
+     * @return 反馈页面视图
+     */
     @RequestMapping("feedback")
     public String feedback(Model model) {
 
@@ -236,6 +284,13 @@ public class AdminController extends BaseController {
         return "admin/feedback";
     }
 
+    /**
+     * 动态页面
+     * @param model 模型
+     * @param id 分页ID
+     * @param pageable 分页参数
+     * @return 动态页面视图
+     */
     @RequestMapping("dynamic")
     public String dynamic(Model model, @RequestParam(value = "id", required = false) Long id,
                           @PageableDefault(sort = {"createDate"}, direction = Direction.DESC) Pageable pageable) {
