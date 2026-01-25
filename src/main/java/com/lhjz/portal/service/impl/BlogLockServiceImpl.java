@@ -22,19 +22,29 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xi
- *
+ * 博客锁服务实现类，提供博客的锁定、解锁和相关检查功能
+ * 使用注解标记为Spring服务类，并启用日志功能
  */
 @Slf4j
 @Service
 //@Transactional
 public class BlogLockServiceImpl implements BlogLockService {
 
+    /**
+     * 自动注入用户仓库，用于用户相关操作
+     */
 	@Autowired
 	UserRepository userRepository;
 
+    /**
+     * 自动注入博客仓库，用于博客相关操作
+     */
 	@Autowired
 	BlogRepository blogRepository;
 
+    /**
+     * 自动注入缓存管理器，用于检查锁状态
+     */
 	@Autowired
 	CacheManager cacheManager;
 

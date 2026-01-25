@@ -38,6 +38,9 @@ import com.lhjz.portal.util.WebUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * 文件服务实现类
+ * 提供文件上传、删除、列表查询等功能
+ *
  * @author xi
  *
  */
@@ -46,31 +49,50 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileServiceImpl implements FileService {
 
+	// 文件路径分隔符
 	public static final String SPLIT = "/";
+	// 自动注入环境配置对象
 	@Autowired
 	Environment env;
 
+	// 自动注入文件仓储对象
 	@Autowired
 	FileRepository fileRepository;
 
+	/**
+	 * 上传图片方法
+	 *
+	 * @param request HTTP请求对象
+	 * @param file 上传的图片文件
+	 * @return 文件实体对象
+	 * @throws BizException 业务异常
+	 */
 	@Override
 	public com.lhjz.portal.entity.File uploadImg(HttpServletRequest request, MultipartFile file) throws BizException {
 
+		// 获取真实路径
 		String realPath = WebUtil.getRealPath(request);
+		// 获取关联ID
 		String atId = request.getParameter("atId");
 
+		// 获取原始文件名
 		String originalFileName = file.getOriginalFilename();
+		// 获取文件扩展名
 		int lIndex = originalFileName.lastIndexOf(".");
 		String type = lIndex == -1 ? SysConstant.EMPTY : originalFileName.substring(lIndex);
 
+		// 生成UUID作为文件名
 		String uuid = UUID.randomUUID().toString();
 
+		// 组合UUID和扩展名生成新的文件名
 		String uuidName = StringUtil.replace("{?1}{?2}", uuid, type);
 
 		String path2 = null;
 		FileType fileType = null;
 
+		// 从配置中获取图片存储路径
 		String storePath = env.getProperty("lhjz.upload.img.store.path");
+		// 获取不同尺寸图片的配置
 		int sizeOriginal = env.getProperty("lhjz.upload.img.scale.size.original", Integer.class);
 		int sizeLarge = env.getProperty("lhjz.upload.img.scale.size.large", Integer.class);
 		int sizeHuge = env.getProperty("lhjz.upload.img.scale.size.huge", Integer.class);
