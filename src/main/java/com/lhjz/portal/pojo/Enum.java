@@ -93,7 +93,7 @@ public class Enum {
     }
 
     public enum Editor {
-        Markdown, Html, Mind, Excel, Sheet;
+        Markdown, Html, Mind, Excel, Sheet, Excalidraw;
     }
 
     public enum LinkType {

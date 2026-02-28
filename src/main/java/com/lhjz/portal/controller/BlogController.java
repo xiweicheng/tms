@@ -1626,7 +1626,7 @@ public class BlogController extends BaseController {
         File filePdf = null;
         File exportFile = null;
 
-        boolean matchType = "mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type);
+        boolean matchType = "mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type) || "excalidraw".equalsIgnoreCase(type);
 
         if (matchType) {
             String exportFileName = blog.getId() + "_" + blogUpdateDate + "." + type;
@@ -1809,7 +1809,7 @@ public class BlogController extends BaseController {
         File filePdf = null;
         File exportFile = null;
 
-        boolean matchType = "mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type);
+        boolean matchType = "mind".equalsIgnoreCase(type) || "table".equalsIgnoreCase(type) || "sheet".equalsIgnoreCase(type) || "excalidraw".equalsIgnoreCase(type);
 
         if (matchType) {
             String exportFileName = comment.getId() + "_" + commentUpdateDate + "." + type;
