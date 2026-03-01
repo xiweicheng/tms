@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta content='tms,chat,wiki,translation,blog,markdown,group,team,teamwork,聊天,沟通,知识库,博文,国际化翻译,团队协作' name='Keywords'>
+    <meta content='TMS是免费开源的团队协作(团队沟通,博文知识库,国际化翻译i18n)web系统(响应式界面设计,移动端适配).' name='Description'>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <title>TMS博文</title>
+    <link href="cdn/toastr.min.css" rel="stylesheet" type="text/css" />
+    <link href="cdn/jquery.modal.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .blocker {
+            z-index: 99;
+        }
+
+        div#editor {
+            width: 100%;
+            position: relative;
+            height: 100vh;
+        }
+
+        .excalidraw-container {
+            height: calc(100% - 70px);
+            overflow: auto;
+        }
+
+        .readonly .excalidraw-container {
+            height: 100%;
+        }
+
+        #excalidraw-container {
+            height: 100%;
+            position: relative;
+        }
+
+        /* 隐藏只读模式下的帮助按钮 */
+        .readonly .layer-ui__wrapper__footer-right {
+            display: none !important;
+        }
+
+        #toast-container {
+            z-index: 9999999999 !important;
+        }
+
+        .topbar {
+            padding: 16px;
+            height: 38px;
+        }
+
+        .readonly .topbar {
+            display: none;
+        }
+
+        .topbar>input {
+            width: 400px;
+            font-size: 26px;
+            box-sizing: border-box;
+            outline: 0;
+            border: 0;
+            box-shadow: 0px 1px 0px 0px #dddddd;
+            padding-right: 80px;
+        }
+
+        .topbar>button {
+            font-size: 12px;
+        }
+
+        button.btn {
+            color: #fff;
+            background: #2185d0;
+            padding: .5rem 1rem;
+            display: inline-block;
+            border-radius: 4px;
+            transition-duration: .25s;
+            border: none;
+            font-size: 14px;
+        }
+
+        button.btn:hover {
+            background: #1678c2;
+        }
+
+        #saveFrm .row {
+            padding-bottom: 8px;
+        }
+
+        #saveFrm label {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #saveFrm select {
+            background: #fafdfe;
+            height: 28px;
+            width: 440px;
+            margin-top: 3px;
+            line-height: 28px;
+            border: 1px solid #9bc0dd;
+            -moz-border-radius: 2px;
+            -webkit-border-radius: 2px;
+        }
+
+        @media only screen and (max-width: 767px) {
+            .topbar>input {
+                width: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="editor" class="readonly">
+        <div class="topbar">
+            <input id="title" type="text" placeholder="标题">
+            <button class="button -blue btn" id="save">保存</button>
+            <span id="msg" style="color: red; padding-left: 16px;"></span>
+        </div>
+        <div class="excalidraw-container">
+            <div id="excalidraw-container"></div>
+        </div>
+    </div>
+    <!-- Modal HTML embedded directly into document -->
+    <div id="saveModal" class="modal">
+        <div id="saveFrm" style="padding-top: 16px;">
+            <div class="row">
+                <label>选择空间</label>
+                <select name="space"></select>
+            </div>
+            <div class="row">
+                <label>选择分类</label>
+                <select name="dir"></select>
+            </div>
+            <div class="row">
+                <input id="privated" type="checkbox">
+                <label for="privated">私有博文（不公开）</label>
+            </div>
+            <div class="row" style="padding-top: 16px;">
+                <button class="btnOk btn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置EXCALIDRAW_ASSET_PATH以确保字体正确加载 -->
+    <script>
+        // 设置资源路径，用于加载字体
+        window.EXCALIDRAW_ASSET_PATH = "https://esm.sh/@excalidraw/excalidraw@0.18.0/dist/prod/";
+    </script>
+
+    <!-- Excalidraw样式 -->
+    <link rel="stylesheet" href="https://esm.sh/@excalidraw/excalidraw@0.18.0/dist/prod/index.css" />
+
+    <!-- Include jQuery lib. -->
+    <script type="text/javascript" src="cdn/jquery.min.js"></script>
+    <script type="text/javascript" src="cdn/toastr.min.js"></script>
+    <script type="text/javascript" src="cdn/url.min.js"></script>
+    <script type="text/javascript" src="cdn/jquery.modal.min.js"></script>
+    <script type="text/javascript" src="cdn/lodash.core.min.js"></script>
+
+    <!-- Import maps用于管理依赖版本 -->
+    <script type="importmap">
+        {
+            "imports": {
+                "react": "https://esm.sh/react@19.0.0",
+                "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
+                "react-dom": "https://esm.sh/react-dom@19.0.0"
+            }
+        }
+    </script>
+
+    <!-- 使用ESM模块加载Excalidraw -->
+    <script type="module">
+        // 导入必要的依赖
+        import React from "https://esm.sh/react@19.0.0";
+        import ReactDOM from "https://esm.sh/react-dom@19.0.0";
+        import ReactDOMClient from "https://esm.sh/react-dom@19.0.0/client";
+        import * as ExcalidrawLib from "https://esm.sh/@excalidraw/excalidraw@0.18.0/dist/prod/index.js?external=react,react-dom";
+
+        console.log('所有依赖加载完成');
+        console.log('React:', typeof React);
+        console.log('ReactDOM:', typeof ReactDOM);
+        console.log('ReactDOMClient:', typeof ReactDOMClient);
+        console.log('ExcalidrawLib:', typeof ExcalidrawLib);
+        console.log('Excalidraw:', typeof ExcalidrawLib.Excalidraw);
+        console.log('createRoot:', typeof ReactDOMClient.createRoot);
+
+        let excalidrawRef = null;
+        let currentElements = [];
+        let currentAppState = null;
+
+        try {
+            // 获取容器
+            const container = document.getElementById('excalidraw-container');
+
+            // 使用React 18+推荐的createRoot方法
+            const root = ReactDOMClient.createRoot(container);
+
+            window.initExcalidraw = function (initialData, readonly = false) {
+
+                console.log('初始化Excalidraw', { initialData, readonly });
+
+                // debugger;
+
+                window.changeCount = initialData ? 0 : -1;
+
+                // 确保 initialData 和 appState 结构完整
+                if (initialData) {
+                    if (!initialData.appState) {
+                        initialData.appState = {};
+                    }
+                    // 确保 collaborators 始终是数组类型
+                    if (!Array.isArray(initialData.appState.collaborators)) {
+                        initialData.appState.collaborators = [];
+                    }
+                }
+
+                // 渲染Excalidraw组件
+                root.render(
+                    React.createElement(ExcalidrawLib.Excalidraw, {
+                        excalidrawAPI: (ref) => {
+                            // debugger;
+                            excalidrawRef = ref;
+                        },
+                        initialData: initialData || {
+                            elements: [],
+                            appState: {
+                                viewBackgroundColor: "#ffffff",
+                                gridSize: null,
+                                collaborators: []  // 确保 collaborators 是数组类型
+                            }
+                        },
+                        langCode: "zh-CN",
+                        isCollaborating: readonly,
+                        viewModeEnabled: readonly,
+                        onChange: (elements, appState) => {
+                            // debugger;
+                            window.changeCount++;
+                            currentElements = elements;
+                            currentAppState = appState;
+                            console.log('画布更新:', {
+                                elementsCount: elements.length,
+                                appState: appState
+                            }, window.changeCount);
+                        },
+                        onCollabButtonClick: () => {
+                            console.log('协作按钮点击');
+                        }
+                    })
+                );
+
+            }
+
+            console.log('Excalidraw v0.18.0 初始化成功！');
+
+            // 暴露获取数据的方法
+            window.getExcalidrawData = () => {
+                // 确保返回完整的数据结构
+                const data = {
+                    elements: currentElements || [],
+                    appState: currentAppState || {}
+                };
+
+                // 确保appState包含所有必要属性
+                if (!data.appState.viewBackgroundColor) {
+                    data.appState.viewBackgroundColor = "#ffffff";
+                }
+                if (data.appState.gridSize === undefined) {
+                    data.appState.gridSize = null;
+                }
+                if (!Array.isArray(data.appState.collaborators)) {
+                    data.appState.collaborators = [];
+                }
+
+                return data;
+            };
+
+            window.loadExcalidrawData = (data) => {
+                // debugger;
+                if (excalidrawRef && data) {
+                    // 确保 collaborators 是数组类型
+                    if (!data.appState) {
+                        data.appState = {};
+                    }
+                    if (!Array.isArray(data.appState.collaborators)) {
+                        data.appState.collaborators = [];
+                    }
+                    excalidrawRef.updateScene(data);
+                }
+            };
+
+
+
+        } catch (error) {
+            console.error('Excalidraw 初始化失败:', error);
+            console.error('错误堆栈:', error.stack);
+
+            // 显示错误信息
+            const container = document.getElementById('excalidraw-container');
+            container.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h2>Excalidraw 加载失败</h2>
+                    <p>请检查浏览器控制台获取详细错误信息。</p>
+                    <pre style="text-align: left; background: #f0f0f0; padding: 10px; margin: 10px auto; width: 80%; overflow: auto;">${error.message}</pre>
+                </div>
+            `;
+        }
+    </script>
+
+    <!-- 保存功能脚本 -->
+    <script>
+        $(function () {
+
+            var isComment = typeof url('?comment') !== 'undefined';
+            var id = url('?id');
+            var cid = url('?cid');
+            var spaceId = url('?spaceId');
+            var dirId = url('?dirId');
+            var pid = url('?pid');
+
+            var readonly = typeof url('?readonly') !== 'undefined';
+            !readonly && $('#editor').removeClass('readonly');
+
+            var blog = null;
+            var comment = null;
+
+            // toastr弹出消息提示插件全局配置设置
+            toastr.options.positionClass = 'toast-bottom-center';
+            toastr.options.preventDuplicates = true;
+
+            if (isComment) { // comment
+
+                $('#title').hide();
+
+                if (cid) {
+                    var isFree = typeof url('?free') !== 'undefined';
+
+                    if (isFree) {
+                        $.get('/free/blog/comment/' + cid, {}, function (data) {
+                            if (data.success) {
+                                comment = data.data;
+
+                                window.initExcalidraw(JSON.parse(data.data.content), readonly);
+                            } else {
+                                toastr.error(data.data);
+                            }
+                        });
+                    } else {
+                        $.get('/admin/blog/comment/get', {
+                            cid: cid
+                        }, function (data) {
+                            if (data.success) {
+                                comment = data.data;
+
+                                window.initExcalidraw(JSON.parse(data.data.content), readonly);
+                            } else {
+                                toastr.error(data.data);
+                            }
+                        });
+                    }
+                } else {
+                    window.initExcalidraw();
+                }
+
+                $('#save').click(function (event) {
+
+                    var content = JSON.stringify(window.getExcalidrawData());
+
+                    if (!content || !$.trim(content)) {
+                        toastr && toastr.error('博文评论内容不能为空！');
+                        return;
+                    }
+
+                    if (comment == null) {
+                        $.post('/admin/blog/comment/create', {
+                            basePath: window.location.protocol + '//' + window.location.host + '/page/index.html',
+                            id: id,
+                            editor: 'Excalidraw',
+                            content: content
+                        }, function (data, textStatus, xhr) {
+                            if (data.success) {
+                                comment = data.data;
+                                window.changeCount = 0; // 重置变更计数
+                                toastr && toastr.success('博文评论保存成功！');
+                                (window.parent && window.parent.postMessage) && (window.parent.postMessage({
+                                    action: 'created',
+                                    source: 'comment',
+                                    comment: data.data,
+                                    editor: 'excalidraw'
+                                }, window.location.origin));
+                            } else {
+                                toastr && toastr.error(data.data);
+                            }
+                        }).fail(function () {
+                            toastr && toastr.error('网络传输错误！');
+                        });
+                    } else {
+                        $.post('/admin/blog/comment/update', {
+                            basePath: window.location.protocol + '//' + window.location.host + '/page/index.html',
+                            id: id,
+                            cid: cid,
+                            version: comment.version,
+                            content: content
+                        }, function (data, textStatus, xhr) {
+                            if (data.success) {
+                                comment = data.data;
+                                window.changeCount = 0; // 重置变更计数
+                                toastr && toastr.success('博文评论保存成功！');
+                                (window.parent && window.parent.postMessage) && (window.parent.postMessage({
+                                    action: 'updated',
+                                    source: 'comment',
+                                    comment: data.data,
+                                    editor: 'excalidraw'
+                                }, window.location.origin));
+                            } else {
+                                toastr && toastr.error(data.data);
+                            }
+                        }).fail(function () {
+                            toastr && toastr.error('网络传输错误！');
+                        });
+                    }
+                });
+
+                window.addEventListener && window.addEventListener('message', (evt) => {
+                    if (evt.origin != window.location.origin) return;
+                    if (evt.data.source != 'blogClose') return;
+
+                    if (evt.data.action == 'isUpdated') {
+                        // 统一判断逻辑：使用changeCount判断内容是否变更，提高效率
+                        const contentChanged = window.changeCount > 1;
+                        updated = contentChanged;
+
+                        (window.parent && window.parent.postMessage) && (window.parent.postMessage({
+                            action: 'isUpdated',
+                            source: 'blogCloseAck',
+                            item: evt.data.item,
+                            updated: updated
+                        }, window.location.origin));
+                    }
+                }, false);
+
+            } else { // blog
+
+                if (id) {
+                    if (typeof url('?free') === 'undefined') {
+                        $.get('/admin/blog/get', {
+                            id: id,
+                            inc: false
+                        }, function (data) {
+                            if (data.success) {
+                                if (typeof url('?copy') === 'undefined') { // edit
+                                    blog = data.data;
+                                    $('#title').val(data.data.title);
+                                } else {
+                                    $('#title').val(data.data.title + ' (副本)');
+                                }
+                                window.initExcalidraw(JSON.parse(data.data.content), readonly);
+                            } else {
+                                toastr.error(data.data);
+                            }
+                        });
+                    } else {
+                        var shareId = url('?shareId');
+                        if (shareId && shareId != '') {
+                            $.get('/free/blog/share/' + shareId, {
+                                _: new Date().getTime(),
+                                inc: false
+                            }, function (data) {
+                                if (data.success) {
+                                    if (typeof url('?copy') === 'undefined') { // edit
+                                        blog = data.data;
+                                        $('#title').val(data.data.title);
+                                    } else {
+                                        $('#title').val(data.data.title + ' (副本)');
+                                    }
+
+                                    window.initExcalidraw(JSON.parse(data.data.content), readonly);
+                                } else {
+                                    toastr.error(data.data);
+                                }
+                            });
+                        } else {
+                            $.get('/free/home/blog/' + id, {
+                                _: new Date().getTime(),
+                                inc: false
+                            }, function (data) {
+                                if (data.success) {
+                                    if (typeof url('?copy') === 'undefined') { // edit
+                                        blog = data.data.blog;
+                                        $('#title').val(data.data.blog.title);
+                                    } else {
+                                        $('#title').val(data.data.blog.title + ' (副本)');
+                                    }
+
+                                    window.initExcalidraw(JSON.parse(data.data.blog.content), readonly);
+                                } else {
+                                    toastr.error(data.data);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    window.initExcalidraw();
+                }
+
+                // 博文保存选择，空间 + 分类
+                var spaces = [];
+
+                $('#saveFrm select[name="space"]').change(function (event) {
+                    var sid = $(this).val();
+                    $('#saveFrm select[name="dir"]').empty().append($('<option/>').text('(不指定分类)').attr('value', ''));
+
+                    if (sid !== '') {
+                        $.each(spaces, function (index, space) {
+                            if (space.id == sid) {
+                                window._ && (space.dirs = _.sortBy(space.dirs, 'name'));
+                                $.each(space.dirs, function (index, dir) {
+                                    if (dir.status != 'Deleted') {
+                                        $('#saveFrm select[name="dir"]').append($('<option/>').text(dir.name).attr('value', dir.id));
+                                    }
+                                });
+
+                                var did = localStorage && localStorage.getItem('tms-blog-excalidraw-dir');
+                                if (_.some(space.dirs, { id: +did })) {
+                                    $('#saveFrm select[name="dir"]').val(did);
+                                }
+
+                                return false;
+                            }
+                        });
+                    }
+                });
+
+                window.addEventListener && window.addEventListener('message', (evt) => {
+
+                    // debugger;
+                    if (evt.origin != window.location.origin) return;
+                    if (evt.data.source != 'blogClose') return;
+
+                    if (evt.data.action == 'isUpdated') {
+                        var updated = false;
+                        var title = $('#title').val();
+
+                        // 统一判断逻辑：标题或内容任一变动即视为已更新
+                        const titleChanged = blog ? blog.title !== title : !!$.trim(title);
+                        const contentChanged = window.changeCount > 1;
+                        updated = titleChanged || contentChanged;
+
+                        (window.parent && window.parent.postMessage) && (window.parent.postMessage({
+                            action: 'isUpdated',
+                            source: 'blogCloseAck',
+                            item: evt.data.item,
+                            updated: updated
+                        }, window.location.origin));
+                    }
+                }, false);
+
+                $('#save').click(function (event) {
+                    var title = $('#title').val();
+                    var content = JSON.stringify(window.getExcalidrawData());
+
+                    if (!title || !$.trim(title)) {
+                        toastr && toastr.error('博文标题不能为空！');
+                        return;
+                    }
+
+                    if (!content || !$.trim(content)) {
+                        toastr && toastr.error('博文内容不能为空！');
+                        return;
+                    }
+
+                    if (blog == null) {
+                        if (spaceId || pid) {
+                            createBlog(spaceId, dirId, pid);
+                        } else {
+                            $.get('/admin/space/listMy', function (data) {
+                                if (data.success) {
+                                    spaces = data.data;
+                                    $('#saveFrm select[name="space"]').empty().append($('<option/>').text('(不指定空间)').attr('value', ''));
+                                    $('#saveFrm select[name="dir"]').empty().append($('<option/>').text('(不指定分类)').attr('value', ''));
+
+                                    window._ && (spaces = _.sortBy(spaces, 'name'));
+                                    $.each(spaces, function (index, space) {
+                                        $('#saveFrm select[name="space"]').append($('<option/>').text(space.name).attr('value', space.id));
+                                    });
+
+                                    var sid = localStorage && localStorage.getItem('tms-blog-excalidraw-space');
+                                    if (_.some(spaces, { id: +sid })) {
+                                        $('#saveFrm select[name="space"]').val(sid);
+                                        $('#saveFrm select[name="space"]').change();
+                                    }
+
+                                    var privated = localStorage && localStorage.getItem('tms-blog-excalidraw-privated');
+                                    $('#privated').prop("checked", privated == 'true');
+
+                                    $('#saveModal').modal({
+                                        fadeDuration: 200,
+                                        clickClose: false
+                                    });
+                                }
+                            });
+                        }
+                    } else {
+                        $.post('/admin/blog/update', {
+                            url: window.location.protocol + '//' + window.location.host + '/page/index.html',
+                            id: blog.id,
+                            version: blog.version,
+                            title: title,
+                            content: content
+                        }, function (data, textStatus, xhr) {
+                            if (data.success) {
+                                blog = data.data;
+                                window.changeCount = 0;
+                                toastr && toastr.success('博文更新成功！');
+                                (window.parent && window.parent.postMessage) && (window.parent.postMessage({
+                                    action: 'updated',
+                                    autoFollow: true,
+                                    source: 'blog',
+                                    blog: data.data
+                                }, window.location.origin));
+                            } else {
+                                toastr && toastr.error(data.data);
+                            }
+                        }).fail(function () {
+                            toastr && toastr.error('网络传输错误！');
+                        });
+                    }
+                });
+
+                $('#saveFrm .btnOk').click(function (event) {
+                    createBlog();
+                });
+            }
+
+            function createBlog(spaceId, dirId, pid) {
+                var title = $('#title').val();
+                var content = JSON.stringify(window.getExcalidrawData());
+
+                if (!title || !$.trim(title)) {
+                    toastr && toastr.error('博文标题不能为空！');
+                    return;
+                }
+
+                if (!content || !$.trim(content)) {
+                    toastr && toastr.error('博文内容不能为空！');
+                    return;
+                }
+
+                if (blog == null) {
+                    if (!spaceId && !pid) {
+                        $.modal.close();
+                        localStorage && localStorage.setItem('tms-blog-excalidraw-space', $('#saveFrm select[name="space"]').val());
+                        localStorage && localStorage.setItem('tms-blog-excalidraw-dir', $('#saveFrm select[name="dir"]').val());
+                        localStorage && localStorage.setItem('tms-blog-excalidraw-privated', $('#privated').prop("checked"));
+                    }
+
+                    $.post('/admin/blog/create', {
+                        url: window.location.protocol + '//' + window.location.host + '/page/index.html',
+                        spaceId: spaceId ? spaceId : $('#saveFrm select[name="space"]').val(),
+                        dirId: dirId ? dirId : (spaceId ? '' : $('#saveFrm select[name="dir"]').val()),
+                        pid: pid ? pid : '',
+                        title: title,
+                        content: content,
+                        editor: 'Excalidraw',
+                        privated: spaceId ? false : $('#privated').prop("checked"),
+                        contentHtml: content
+                    }, function (data, textStatus, xhr) {
+                        if (data.success) {
+                            blog = data.data;
+                            toastr && toastr.success('博文保存成功！');
+                            (window.parent && window.parent.postMessage) && (window.parent.postMessage({
+                                action: 'created',
+                                source: 'blog',
+                                blog: data.data,
+                                editor: 'excalidraw'
+                            }, window.location.origin));
+                        } else {
+                            toastr && toastr.error(data.data);
+                        }
+                    }).fail(function () {
+                        toastr && toastr.error('网络传输错误！');
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
