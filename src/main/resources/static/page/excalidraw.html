@@ -54,6 +54,7 @@
         .readonly .App-menu_top {
             display: none !important;
         }
+
         .readonly .App-bottom-bar {
             display: none !important;
         }
@@ -63,8 +64,18 @@
         }
 
         .topbar {
-            padding: 16px;
-            height: 38px;
+            padding: 8px 16px;
+            background: white;
+            color: #333;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            height: auto;
+            min-height: 50px;
+            box-sizing: border-box;
+            border-bottom: 1px solid #e0e0e0;
         }
 
         .readonly .topbar {
@@ -73,53 +84,199 @@
 
         .topbar>input {
             width: 400px;
-            font-size: 26px;
+            max-width: 60%;
+            font-size: 18px;
+            padding: 8px 12px;
             box-sizing: border-box;
-            outline: 0;
-            border: 0;
-            box-shadow: 0px 1px 0px 0px #dddddd;
-            padding-right: 80px;
+            outline: none;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: white;
+            box-shadow: none;
+            transition: all 0.2s ease;
+            font-weight: 400;
+            color: #333;
+        }
+
+        .topbar>input:focus {
+            border-color: #1678c2;
+            box-shadow: 0 0 0 2px rgba(22, 120, 194, 0.2);
+            transform: none;
         }
 
         .topbar>button {
-            font-size: 12px;
+            font-size: 14px;
         }
 
         button.btn {
-            color: #fff;
+            color: white;
             background: #2185d0;
-            padding: .5rem 1rem;
-            display: inline-block;
+            padding: 8px 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
             border-radius: 4px;
-            transition-duration: .25s;
+            transition: all 0.2s ease;
             border: none;
             font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: none;
+            text-transform: none;
+            letter-spacing: normal;
         }
 
         button.btn:hover {
             background: #1678c2;
+            transform: none;
+            box-shadow: none;
+        }
+
+        button.btn:active {
+            transform: none;
+            box-shadow: none;
+            background: #1a689e;
+        }
+
+        @media only screen and (max-width: 767px) {
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                padding: 8px;
+            }
+
+            .topbar>input {
+                max-width: 100%;
+                font-size: 16px;
+            }
+
+            button.btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+
+        /* 导入按钮样式 */
+        #import {
+            color: white;
+            background: #00897b;
+            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: none;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        #import:hover {
+            background: #00695c;
+        }
+
+        #import:active {
+            background: #004d40;
+        }
+
+        @media only screen and (max-width: 767px) {
+            button.btn,
+            #import {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+
+        /* 保存弹框样式优化 */
+        #saveModal {
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 90%;
+            margin: 0 auto;
+            overflow: visible;
+            z-index: 10000;
+        }
+
+        /* 确保关闭按钮显示正常 */
+        #saveModal .modal-close {
+            z-index: 10001;
+        }
+
+        #saveFrm {
+            padding: 20px;
         }
 
         #saveFrm .row {
-            padding-bottom: 8px;
+            margin-bottom: 16px;
         }
 
+        /* 正常标签样式（块级显示） */
         #saveFrm label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
         }
 
+        /* 复选框行特殊处理 */
+        #saveFrm .row:nth-child(3) {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* 复选框标签样式（行内显示） */
+        #saveFrm .row:nth-child(3) label {
+            display: inline;
+            margin-bottom: 0;
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
         #saveFrm select {
-            background: #fafdfe;
-            height: 28px;
-            width: 440px;
-            margin-top: 3px;
-            line-height: 28px;
-            border: 1px solid #9bc0dd;
-            -moz-border-radius: 2px;
-            -webkit-border-radius: 2px;
+            width: 100%;
+            height: 40px;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: white;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        #saveFrm select:focus {
+            border-color: #1678c2;
+            box-shadow: 0 0 0 2px rgba(22, 120, 194, 0.2);
+        }
+
+        #saveFrm input[type="checkbox"] {
+            cursor: pointer;
+            margin: 0;
+        }
+
+        #saveFrm .row:last-child {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        #saveFrm .btnOk {
+            font-size: 14px;
+            padding: 8px 24px;
         }
 
         @media only screen and (max-width: 767px) {
@@ -135,7 +292,10 @@
         <div class="topbar">
             <input id="title" type="text" placeholder="标题">
             <button class="button -blue btn" id="save">保存</button>
-            <span id="msg" style="color: red; padding-left: 16px;"></span>
+            <div style="display: inline-block;">
+                <input type="file" accept=".excalidraw" id="files" style="display:none" onchange="importHandler();" />
+                <input type="button" id="import" value="导入" />
+            </div>
         </div>
         <div class="excalidraw-container">
             <div id="excalidraw-container"></div>
@@ -197,6 +357,8 @@
         import ReactDOMClient from "https://esm.sh/react-dom@19.0.0/client";
         import * as ExcalidrawLib from "https://esm.sh/@excalidraw/excalidraw@0.18.0/dist/prod/index.js?external=react,react-dom";
 
+        // debugger;
+
         console.log('所有依赖加载完成');
         console.log('React:', typeof React);
         console.log('ReactDOM:', typeof ReactDOM);
@@ -208,6 +370,7 @@
         let excalidrawRef = null;
         let currentElements = [];
         let currentAppState = null;
+        let currentFiles = {};
 
         try {
             // 获取容器
@@ -233,6 +396,10 @@
                     if (!Array.isArray(initialData.appState.collaborators)) {
                         initialData.appState.collaborators = [];
                     }
+                    // 初始化files数据
+                    currentFiles = initialData.files || {};
+                } else {
+                    currentFiles = {};
                 }
 
                 // 渲染Excalidraw组件
@@ -241,6 +408,11 @@
                         excalidrawAPI: (ref) => {
                             // debugger;
                             excalidrawRef = ref;
+                            console.log('初始化excalidrawAPI');
+                            // 初始化后，确保files数据被正确添加
+                            // if (initialData && initialData.files && typeof ref.addFiles === 'function') {
+                            //     ref.addFiles(initialData.files);
+                            // }
                         },
                         initialData: initialData || {
                             elements: [],
@@ -248,19 +420,22 @@
                                 viewBackgroundColor: "#ffffff",
                                 gridSize: null,
                                 collaborators: []  // 确保 collaborators 是数组类型
-                            }
+                            },
+                            files: {}
                         },
                         langCode: "zh-CN",
                         isCollaborating: readonly,
                         viewModeEnabled: readonly,
-                        onChange: (elements, appState) => {
+                        onChange: (elements, appState, files) => {
                             // debugger;
                             window.changeCount++;
                             currentElements = elements;
                             currentAppState = appState;
+                            currentFiles = files || {};
                             console.log('画布更新:', {
                                 elementsCount: elements.length,
-                                appState: appState
+                                appState: appState,
+                                filesCount: Object.keys(files || {}).length
                             }, window.changeCount);
                         },
                         onCollabButtonClick: () => {
@@ -278,7 +453,8 @@
                 // 确保返回完整的数据结构
                 const data = {
                     elements: currentElements || [],
-                    appState: currentAppState || {}
+                    appState: currentAppState || {},
+                    files: currentFiles || {}
                 };
 
                 // 确保appState包含所有必要属性
@@ -295,6 +471,68 @@
                 return data;
             };
 
+            /**
+             * Excalidraw PNG导出方法
+             * @param {Object} options 导出选项
+             * @param {number} options.exportPadding 导出边距，默认10
+             * @param {string} options.mimeType 导出格式，默认image/png
+             * @param {number} options.quality 导出质量，0-1之间，默认0.92
+             * @param {string} options.filename 导出文件名，默认excalidraw.png
+             * @returns {Promise<Blob>} 返回PNG Blob对象
+             */
+            window.exportExcalidrawToPng = async (options = {}) => {
+                if (!excalidrawRef) {
+                    throw new Error('Excalidraw 实例未初始化');
+                }
+
+                const {
+                    exportPadding = 10,
+                    mimeType = 'image/png',
+                    quality = 0.92,
+                    filename = 'excalidraw.png',
+                    download = true
+                } = options;
+
+                try {
+                    const elements = excalidrawRef.getSceneElements();
+                    const appState = excalidrawRef.getAppState();
+
+                    // 调用 exportToBlob 生成 PNG blob，包含 files 数据以确保图片正确导出
+                    const blob = await ExcalidrawLib.exportToBlob({
+                        elements,
+                        appState,
+                        files: currentFiles,
+                        exportPadding,
+                        mimeType,
+                        quality,
+                    });
+
+                    // 如果需要下载，则创建下载链接
+                    if (download) {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+
+                        toastr.success('PNG导出成功！', '', {
+                            positionClass: 'toast-top-center'
+                        });
+                    }
+
+                    return blob;
+                } catch (error) {
+                    console.error('导出PNG失败:', error);
+                    toastr.error('导出PNG失败，请检查控制台获取详细信息。', '', {
+                        positionClass: 'toast-top-center'
+                    });
+                    throw error;
+                }
+            };
+
             window.loadExcalidrawData = (data) => {
                 // debugger;
                 if (excalidrawRef && data) {
@@ -305,6 +543,15 @@
                     if (!Array.isArray(data.appState.collaborators)) {
                         data.appState.collaborators = [];
                     }
+                    // 确保 files 数据被正确处理和保存
+                    if (data.files) {
+                        currentFiles = data.files;
+                        // 使用 addFiles 方法添加文件数据到 Excalidraw 实例
+                        if (typeof excalidrawRef.addFiles === 'function') {
+                            excalidrawRef.addFiles(data.files);
+                        }
+                    }
+                    // 更新场景
                     excalidrawRef.updateScene(data);
                 }
             };
@@ -329,7 +576,38 @@
 
     <!-- 保存功能脚本 -->
     <script>
+        // 导入功能处理函数
+        function importHandler() {
+            var selectedFile = document.getElementById("files").files[0]; // 获取读取的File对象
+            var name = selectedFile.name; // 读取选中文件的文件名
+
+            var reader = new FileReader(); // 这里是核心！！！读取操作就是由它完成的。
+            reader.readAsText(selectedFile); // 读取文件的内容
+
+            reader.onload = function () {
+                try {
+                    // 设置标题，去掉文件扩展名
+                    $('#title').val(name.replace('.excalidraw', ''));
+                    // 初始化Excalidraw数据
+                    window.loadExcalidrawData(JSON.parse(this.result));
+                    // 显示成功提示
+                    toastr.success('白板导入成功！', '', {
+                        positionClass: 'toast-top-center'
+                    });
+                } catch (err) {
+                    console.error('导入失败:', err);
+                    toastr.error('导入失败，请检查文件格式是否正确！', '', {
+                        positionClass: 'toast-top-center'
+                    });
+                }
+            };
+        }
+
         $(function () {
+            // 为导入按钮添加点击事件，触发文件选择对话框
+            $('#import').click(function () {
+                $('#files').click();
+            });
 
             var isComment = typeof url('?comment') !== 'undefined';
             var id = url('?id');
@@ -443,7 +721,7 @@
 
                 window.addEventListener && window.addEventListener('message', (evt) => {
                     if (evt.origin != window.location.origin) return;
-                    if (evt.data.source != 'blogClose') return;
+                    if (evt.data.source != 'blogClose' && evt.data.source != 'commentExcalidraw') return;
 
                     if (evt.data.action == 'isUpdated') {
                         // 统一判断逻辑：使用changeCount判断内容是否变更，提高效率
@@ -456,6 +734,11 @@
                             item: evt.data.item,
                             updated: updated
                         }, window.location.origin));
+                    } else if (evt.data.action == 'excalidrawExport') {
+                        if (evt.data.source == 'commentExcalidraw') {
+                            if (evt.data.item.id != comment.id) return;
+                            window.exportExcalidrawToPng({filename: comment.id + '.png'});
+                        }
                     }
                 }, false);
 
@@ -555,7 +838,7 @@
 
                     // debugger;
                     if (evt.origin != window.location.origin) return;
-                    if (evt.data.source != 'blogClose') return;
+                    if (evt.data.source != 'blogClose' && evt.data.source != 'blogExcalidraw') return;
 
                     if (evt.data.action == 'isUpdated') {
                         var updated = false;
@@ -572,6 +855,11 @@
                             item: evt.data.item,
                             updated: updated
                         }, window.location.origin));
+                    } else if (evt.data.action == 'excalidrawExport') {
+                        if (evt.data.source == 'blogExcalidraw') {
+                            if (evt.data.item.id != blog.id) return;
+                            window.exportExcalidrawToPng({filename: blog.title + '-' + blog.id + '.png'});
+                        }
                     }
                 }, false);
 

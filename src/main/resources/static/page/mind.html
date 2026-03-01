@@ -46,8 +46,18 @@
         }
 
         .topbar {
-            padding: 16px;
-            height: 38px;
+            padding: 8px 16px;
+            background: white;
+            color: #333;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            height: auto;
+            min-height: 50px;
+            box-sizing: border-box;
+            border-bottom: 1px solid #e0e0e0;
         }
 
         .readonly .topbar {
@@ -56,74 +66,195 @@
 
         .topbar>input {
             width: 400px;
-            font-size: 26px;
+            max-width: 60%;
+            font-size: 18px;
+            padding: 8px 12px;
             box-sizing: border-box;
-            outline: 0;
-            border: 0;
-            box-shadow: 0px 1px 0px 0px #dddddd;
-            padding-right: 80px;
+            outline: none;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: white;
+            box-shadow: none;
+            transition: all 0.2s ease;
+            font-weight: 400;
+            color: #333;
+        }
+
+        .topbar>input:focus {
+            border-color: #1678c2;
+            box-shadow: 0 0 0 2px rgba(22, 120, 194, 0.2);
+            transform: none;
         }
 
         .topbar>button {
-            font-size: 12px;
+            font-size: 14px;
         }
 
         button.btn {
-            color: #fff;
+            color: white;
             background: #2185d0;
-            padding: .5rem 1rem;
-            display: inline-block;
+            padding: 8px 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
             border-radius: 4px;
-            transition-duration: .25s;
+            transition: all 0.2s ease;
             border: none;
             font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: none;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        button.btn:hover {
+            background: #1678c2;
+            transform: none;
+            box-shadow: none;
+        }
+
+        button.btn:active {
+            transform: none;
+            box-shadow: none;
+            background: #1a689e;
         }
 
         #import {
-            color: #fff;
-            background: #00aaff;
-            padding: .25rem .5rem;
-            display: inline-block;
+            color: white;
+            background: #00897b;
+            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
             border-radius: 4px;
-            transition-duration: .25s;
+            transition: all 0.2s ease;
             border: none;
             font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: none;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        #import:hover {
+            background: #00695c;
+        }
+
+        #import:active {
+            background: #004d40;
         }
 
         @media only screen and (max-width: 767px) {
-            .topbar>input {
-                width: 250px;
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                padding: 8px;
             }
-
+            
+            .topbar>input {
+                max-width: 100%;
+                font-size: 16px;
+            }
+            
+            button.btn,
+            #import {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
             #import {
                 display: none;
             }
         }
 
-        button.btn:hover {
-            background: #1678c2;
+        /* 保存弹框样式优化 */
+        #saveModal {
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 90%;
+            margin: 0 auto;
+            overflow: visible;
+            z-index: 10000;
+        }
+
+        /* 确保关闭按钮显示正常 */
+        #saveModal .modal-close {
+            z-index: 10001;
+        }
+
+        #saveFrm {
+            padding: 20px;
         }
 
         #saveFrm .row {
-            padding-bottom: 8px;
+            margin-bottom: 16px;
         }
 
+        /* 正常标签样式（块级显示） */
         #saveFrm label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
         }
 
+        /* 复选框行特殊处理 */
+        #saveFrm .row:nth-child(3) {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* 复选框标签样式（行内显示） */
+        #saveFrm .row:nth-child(3) label {
+            display: inline;
+            margin-bottom: 0;
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
         #saveFrm select {
-            background: #fafdfe;
-            height: 28px;
-            width: 440px;
-            margin-top: 3px;
-            line-height: 28px;
-            border: 1px solid #9bc0dd;
-            -moz-border-radius: 2px;
-            -webkit-border-radius: 2px;
+            width: 100%;
+            height: 40px;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: white;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        #saveFrm select:focus {
+            border-color: #1678c2;
+            box-shadow: 0 0 0 2px rgba(22, 120, 194, 0.2);
+        }
+
+        #saveFrm input[type="checkbox"] {
+            cursor: pointer;
+            margin: 0;
+        }
+
+        #saveFrm .row:last-child {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        #saveFrm .btnOk {
+            font-size: 14px;
+            padding: 8px 24px;
         }
 
     </style>
@@ -134,7 +265,6 @@
         <div class="topbar">
             <input id="title" type="text" placeholder="标题">
             <button class="button -blue btn" id="save">保存</button>
-            <span id="msg" style="color: red; padding-left: 16px;"></span>
             <div style="display: inline-block;">
                 <input type="file" accept=".mind" id="files" style="display:none" onchange="importHandler();" />
                 <input type="button" id="import" value="导入" />
