@@ -1,0 +1,67 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Excalidraw Global Method Test</title><style>body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            /* display: flex; */
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .test-area {
+            width: 100%;
+            height: 500px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        h2 {
+            margin-top: 0;
+        }</style></head><body><h1>Excalidraw 全局方法测试</h1><div><h2>使用说明：</h2><p>1. 页面加载后，将自动在两个容器中分别挂载 Excalidraw 实例</p><p>2. 左侧：编辑模式（viewModeEnabled = false）</p><p>3. 右侧：查看模式（viewModeEnabled = true）</p></div><div class="container"><div><h2>编辑模式</h2><div id="excalidraw-editor" class="test-area"></div></div><div><h2>查看模式</h2><div id="excalidraw-viewer" class="test-area"></div></div></div><div><h2>手动挂载示例：</h2><button onclick="mountEditor()">挂载编辑模式</button> <button onclick="mountViewer()">挂载查看模式</button><div id="manual-test" class="test-area"></div></div><script>// 页面加载后自动挂载
+        window.addEventListener('load', () => {
+            console.log('页面加载完成，开始挂载 Excalidraw...');
+
+            // 挂载编辑模式实例
+            const editorRoot = window.mountExcalidraw('excalidraw-editor', {
+                viewModeEnabled: false
+            });
+
+            // 挂载查看模式实例
+            const viewerRoot = window.mountExcalidraw('excalidraw-viewer', {
+                viewModeEnabled: true
+            });
+
+            window.editorRoot = editorRoot;
+            window.viewerRoot = viewerRoot;
+            console.log('挂载完成：', { editorRoot, viewerRoot });
+        });
+
+        // 手动挂载示例函数
+        function mountEditor() {
+            window.mountExcalidraw('manual-test', {
+                viewModeEnabled: false
+            });
+        }
+
+        function mountViewer() {
+            window.mountExcalidraw('manual-test', {
+                viewModeEnabled: true
+            });
+        }</script><script defer="defer" src="bundle.js"></script></body></html>
