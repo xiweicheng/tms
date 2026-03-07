@@ -59,6 +59,10 @@
             display: none !important;
         }
 
+        .readonly .sidebar--docked {
+            display: none !important;
+        }
+
         #toast-container {
             z-index: 9999999999 !important;
         }
@@ -479,12 +483,12 @@
                     window.loadExcalidrawData(JSON.parse(this.result));
                     // 显示成功提示
                     toastr.success('白板导入成功！', '', {
-                        positionClass: 'toast-top-center'
+                        positionClass: 'toast-bottom-center'
                     });
                 } catch (err) {
                     console.error('导入失败:', err);
                     toastr.error('导入失败，请检查文件格式是否正确！', '', {
-                        positionClass: 'toast-top-center'
+                        positionClass: 'toast-bottom-center'
                     });
                 }
             };
@@ -551,7 +555,7 @@
                     }
                 } else {
                     window.excalidraw = window.mountExcalidraw('excalidraw-container', {
-                        viewModeEnabled: readonly
+                        viewModeEnabled: readonly, updateCount: -1
                     });
                 }
 
@@ -708,7 +712,7 @@
                     }
                 } else {
                     window.excalidraw = window.mountExcalidraw('excalidraw-container', {
-                        viewModeEnabled: readonly
+                        viewModeEnabled: readonly, updateCount: -1
                     });
                 }
 

@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunktest_excalidraw=self.webpackChunktest_excalidraw||[]).push([[3798],{3798(e,a,s){s.r(a),s.d(a,{default:()=>t.W,en:()=>t.en,kaa:()=>t.U});var t=s(596);s(3087)}}]);

@@ -1,0 +1,5 @@
+/*!
+   * Wait for document loaded before starting the execution
+   */
+
+/*! Check if previously processed */
