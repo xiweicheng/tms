@@ -425,7 +425,6 @@
             };
 
             window.loadExcalidrawData = (data) => {
-                // debugger;
                 if (window.excalidraw && data) {
                     // 确保 collaborators 是数组类型
                     if (!data.appState) {
@@ -746,7 +745,6 @@
 
                 window.addEventListener && window.addEventListener('message', (evt) => {
 
-                    // debugger;
                     if (evt.origin != window.location.origin) return;
                     if (evt.data.source != 'blogClose' && evt.data.source != 'blogExcalidraw') return;
 
