@@ -819,7 +819,7 @@
                         content: content,
                         editor: 'Mind',
                         privated: spaceId ? false : $('#privated').prop("checked"),
-                        contentHtml: content
+                        contentHtml: ''
                     }, function (data, textStatus, xhr) {
                         if (data.success) {
                             blog = data.data;

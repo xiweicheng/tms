@@ -895,7 +895,7 @@
                         content: content,
                         editor: 'Sheet',
                         privated: spaceId ? false : $('#privated').prop("checked"),
-                        contentHtml: content
+                        contentHtml: ''
                     }, function (data, textStatus, xhr) {
                         if (data.success) {
                             blog = data.data;
