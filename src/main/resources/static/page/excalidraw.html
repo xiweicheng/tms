@@ -145,20 +145,51 @@
 
         @media only screen and (max-width: 767px) {
             .topbar {
-                flex-direction: column;
-                align-items: stretch;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
                 gap: 8px;
-                padding: 8px;
+                padding: 4px 8px;
+                flex-wrap: nowrap;
             }
 
             .topbar>input {
-                max-width: 100%;
-                font-size: 16px;
+                flex: 1;
+                min-width: 0;
+                width: auto;
+                max-width: none;
+                font-size: 14px;
+                padding: 6px 8px;
             }
 
             button.btn {
-                padding: 8px 16px;
-                font-size: 14px;
+                padding: 6px 16px;
+                font-size: 12px;
+                white-space: nowrap;
+                height: 30px;
+                box-sizing: border-box;
+                min-width: 60px;
+                text-align: center;
+            }
+
+            #import {
+                background: #00897b;
+            }
+
+            #import:hover {
+                background: #00695c;
+            }
+
+            #import:active {
+                background: #004d40;
+            }
+
+            .topbar > div {
+                white-space: nowrap;
+                display: flex;
+                align-items: center;
+                margin: 0;
+                padding: 0;
             }
         }
 
@@ -188,15 +219,6 @@
 
         #import:active {
             background: #004d40;
-        }
-
-        @media only screen and (max-width: 767px) {
-
-            button.btn,
-            #import {
-                padding: 8px 16px;
-                font-size: 14px;
-            }
         }
 
         /* 保存弹框样式优化 */
@@ -297,10 +319,8 @@
         <div class="topbar">
             <input id="title" type="text" placeholder="标题">
             <button class="button -blue btn" id="save">保存</button>
-            <div style="display: inline-block;">
-                <input type="file" accept=".excalidraw" id="files" style="display:none" onchange="importHandler();" />
-                <input type="button" id="import" value="导入" />
-            </div>
+            <input type="file" accept=".excalidraw" id="files" style="display:none" onchange="importHandler();" />
+            <button id="import" class="btn">导入</button>
         </div>
         <div class="excalidraw-container">
             <div id="excalidraw-container"></div>
@@ -321,7 +341,7 @@
                 <input id="privated" type="checkbox">
                 <label for="privated">私有博文（不公开）</label>
             </div>
-            <div class="row" style="padding-top: 16px;">
+            <div class="row" style="padding-top: 16px; text-align: center;">
                 <button class="btnOk btn">确定</button>
             </div>
         </div>
