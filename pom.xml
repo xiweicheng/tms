@@ -214,7 +214,7 @@
 		<dependency>
 			<groupId>ognl</groupId>
 			<artifactId>ognl</artifactId>
-			<version>3.3.2</version>
+			<version>3.1.29</version>
 		</dependency>
 	</dependencies>
 	<build>
