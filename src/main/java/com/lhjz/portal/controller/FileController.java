@@ -118,7 +118,7 @@ public class FileController extends BaseController {
                     .collect(Collectors.joining("<br/>")));
         }
 
-        com.lhjz.portal.entity.File file = fileRepository.findOne(fileForm.getId());
+        com.lhjz.portal.entity.File file = fileRepository.findById(fileForm.getId()).orElse(null);
         if (file.getStatus() == Status.Bultin) {
             return RespBody.failed("内置文件，不能修改！");
         }
@@ -143,7 +143,7 @@ public class FileController extends BaseController {
     @ResponseBody
     public RespBody delete(@RequestParam(value = "id") Long id) {
 
-        com.lhjz.portal.entity.File file = fileRepository.findOne(id);
+        com.lhjz.portal.entity.File file = fileRepository.findById(id).orElse(null);
         if (file.getStatus() == Status.Bultin) {
             return RespBody.failed("内置文件，不能删除！");
         }
@@ -151,7 +151,7 @@ public class FileController extends BaseController {
             return RespBody.failed("没有该文件的删除权限！");
         }
 
-        fileRepository.delete(id);
+        fileRepository.deleteById(id);
 
         log(Action.Delete, Target.File, id);
 

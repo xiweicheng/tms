@@ -52,7 +52,7 @@ public class ChannelServiceImpl implements ChannelService {
      */
 	@Override
 	public void joinAll(String username) {
-		this.joinAll(userRepository.findOne(username));
+		this.joinAll(userRepository.findById(username).orElse(null));
 	}
 
     /**
@@ -64,7 +64,7 @@ public class ChannelServiceImpl implements ChannelService {
 	@Override
 	public Channel createAsSuper(String name, String title) {
 		// 获取超级管理员用户
-		User user = userRepository.findOne(superUsername);
+		User user = userRepository.findById(superUsername).orElse(null);
 		if (user == null) {
 			return null;
 		}

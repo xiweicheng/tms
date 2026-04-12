@@ -8,7 +8,7 @@ import com.lhjz.portal.component.core.MailQueue;
 import com.lhjz.portal.component.core.model.MailItem;
 import com.lhjz.portal.model.MailAddr;
 import com.lhjz.portal.util.StringUtil;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2015年6月14日 上午10:31:32
  */
 @Component("myMailSender")
-@Log4j
+@Slf4j
 public class MailSender {
 
     @Autowired

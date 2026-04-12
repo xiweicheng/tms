@@ -71,7 +71,7 @@ public class UserTaskController extends BaseController {
 
         User loginUser = getLoginUser();
 
-        List<ChatDirect> chatDirects = chatDirectRepository.queryByUserAndLabel(loginUser.getUsername(), label, pageable.getOffset(),
+        List<ChatDirect> chatDirects = chatDirectRepository.queryByUserAndLabel(loginUser.getUsername(), label, (int) pageable.getOffset(),
                 pageable.getPageSize());
         long count = chatDirectRepository.countByUserAndLabel(loginUser.getUsername(), label);
 
@@ -84,7 +84,7 @@ public class UserTaskController extends BaseController {
     public RespBody updateStatus(@RequestParam("from") String from, @RequestParam("to") String to,
                                  @RequestParam("id") Long id, @RequestParam(value = "all", defaultValue = "false") Boolean all) {
 
-        ChatDirect chatDirect = chatDirectRepository.findOne(id);
+        ChatDirect chatDirect = chatDirectRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatDirect)) {
             return RespBody.failed("权限不足！");
@@ -104,7 +104,7 @@ public class UserTaskController extends BaseController {
                 for (User user : voters) {
                     user.getVoterChatLabels().remove(chatLabelFrom);
                 }
-                userRepository.save(voters);
+                userRepository.saveAll(voters);
                 userRepository.flush();
 
                 voters.clear();
@@ -195,7 +195,7 @@ public class UserTaskController extends BaseController {
     @PostMapping("label/remove")
     public RespBody removeLabel(@RequestParam("id") Long id) {
 
-        ChatLabel chatLabel = chatLabelRepository.findOne(id);
+        ChatLabel chatLabel = chatLabelRepository.findById(id).orElse(null);
 
         User loginUser = getLoginUser();
 
@@ -227,7 +227,7 @@ public class UserTaskController extends BaseController {
     @PostMapping("remove")
     public RespBody remove(@RequestParam("id") Long id, @RequestParam("label") String label) {
 
-        ChatDirect chatDirect = chatDirectRepository.findOne(id);
+        ChatDirect chatDirect = chatDirectRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(chatDirect.getCreator())) {
             return RespBody.failed("权限不足！");
@@ -246,7 +246,7 @@ public class UserTaskController extends BaseController {
 
             logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", chatLabel.getName());
 
-            userRepository.save(voters);
+            userRepository.saveAll(voters);
             userRepository.flush();
 
             chatLabel.setStatus(Status.Deleted);

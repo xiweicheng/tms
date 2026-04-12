@@ -93,7 +93,7 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 
 				wsLockSend(WsLockPayload.builder().cmd(com.lhjz.portal.model.WsLockPayload.Cmd.LOCK).locker(username)
 						.blogId(Long.valueOf(blogId)).sessionId(sha.getSessionId())
-						.name(userRepository.findOne(username).getName()).build());
+						.name(userRepository.findById(username).orElse(null).getName()).build());
 			} else {
 				wsSend(Cmd.ON, username, sha.getSessionId());
 				cacheManager.getCache(SysConstant.ONLINE_USERS).put(username + "@" + sha.getSessionId(), new Date());

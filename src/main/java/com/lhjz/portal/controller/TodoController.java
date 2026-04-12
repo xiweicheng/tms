@@ -109,7 +109,7 @@ public class TodoController extends BaseController {
                            @RequestParam(value = "status", required = false) Status status,
                            @RequestParam(value = "content", required = false) String content) {
 
-        Todo todo = todoRepository.findOne(id);
+        Todo todo = todoRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(todo.getCreator())) {
             return RespBody.failed("权限不足！");
@@ -156,7 +156,7 @@ public class TodoController extends BaseController {
     @ResponseBody
     public RespBody delete(@PathVariable("id") Long id) {
 
-        Todo todo = todoRepository.findOne(id);
+        Todo todo = todoRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(todo.getCreator())) {
             return RespBody.failed("权限不足！");
@@ -173,7 +173,7 @@ public class TodoController extends BaseController {
     @ResponseBody
     public RespBody get(@PathVariable("id") Long id) {
 
-        Todo todo = todoRepository.findOne(id);
+        Todo todo = todoRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(todo.getCreator())) {
             return RespBody.failed("权限不足！");
@@ -193,7 +193,7 @@ public class TodoController extends BaseController {
         TodoSortItem[] sortItems = JsonUtil.json2Object(todoSortForm.getItems(), TodoSortItem[].class);
 
         Stream.of(sortItems).forEach(item -> {
-            Todo todo = todoRepository.findOne(item.getId());
+            Todo todo = todoRepository.findById(item.getId()).orElse(null);
             if (item.getSort() != null && !item.getSort().equals(todo.getSortIndex())) {
                 todo.setSortIndex(item.getSort());
                 todoRepository.saveAndFlush(todo);

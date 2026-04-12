@@ -51,7 +51,7 @@ public class BlogLockServiceImpl implements BlogLockService {
 	@Override
 	public Boolean lockBy(String username, Long blogId) {
 
-		Blog blog = blogRepository.findOne(blogId);
+		Blog blog = blogRepository.findById(blogId).orElse(null);
 
 		if (blog == null) {
 			return false;
@@ -65,7 +65,7 @@ public class BlogLockServiceImpl implements BlogLockService {
 				blog.setLockDate(new Date());
 			}
 		} else {
-			blog.setLocker(userRepository.findOne(username));
+			blog.setLocker(userRepository.findById(username).orElse(null));
 			blog.setLockDate(new Date());
 		}
 
@@ -79,7 +79,7 @@ public class BlogLockServiceImpl implements BlogLockService {
 
 		log.info("unlockBy: {} {}", username, blogId);
 
-		Blog blog = blogRepository.findOne(blogId);
+		Blog blog = blogRepository.findById(blogId).orElse(null);
 
 		if (blog == null) {
 			return false;
@@ -104,7 +104,7 @@ public class BlogLockServiceImpl implements BlogLockService {
 	@Override
 	public Boolean isLock(Long blogId) {
 
-		Blog blog = blogRepository.findOne(blogId);
+		Blog blog = blogRepository.findById(blogId).orElse(null);
 
 		return blog != null && blog.getLocker() != null;
 	}
@@ -112,20 +112,20 @@ public class BlogLockServiceImpl implements BlogLockService {
 	@Override
 	public Boolean isLockBy(String username, Long blogId) {
 
-		Blog blog = blogRepository.findOne(blogId);
+		Blog blog = blogRepository.findById(blogId).orElse(null);
 
 		return blog != null && blog.getLocker() != null && blog.getLocker().getUsername().equals(username);
 	}
 
 	@Override
 	public Boolean lockForce(String username, Long blogId) {
-		Blog blog = blogRepository.findOne(blogId);
+		Blog blog = blogRepository.findById(blogId).orElse(null);
 
 		if (blog == null) {
 			return false;
 		}
 
-		blog.setLocker(userRepository.findOne(username));
+		blog.setLocker(userRepository.findById(username).orElse(null));
 		blog.setLockDate(new Date());
 
 		blogRepository.updateLock(blog.getLocker(), blog.getLockDate(), blogId);
@@ -135,7 +135,7 @@ public class BlogLockServiceImpl implements BlogLockService {
 
 	@Override
 	public Boolean unlockForce(Long blogId) {
-		Blog blog = blogRepository.findOne(blogId);
+		Blog blog = blogRepository.findById(blogId).orElse(null);
 
 		if (blog == null) {
 			return false;
@@ -156,7 +156,7 @@ public class BlogLockServiceImpl implements BlogLockService {
 	@Override
 	public Boolean isRealLock(Long blogId) {
 
-		Blog blog = blogRepository.findOne(blogId);
+		Blog blog = blogRepository.findById(blogId).orElse(null);
 
 		if (blog == null) {
 			return false;

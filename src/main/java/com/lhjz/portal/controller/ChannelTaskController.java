@@ -76,13 +76,13 @@ public class ChannelTaskController extends BaseController {
     @GetMapping("listBy")
     public RespBody listBy(@PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable,
                            @RequestParam("label") String label, @RequestParam("cid") Long cid) {
-        Channel channel = channelRepository.findOne(cid);
+        Channel channel = channelRepository.findById(cid).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(channel)) {
             return RespBody.failed("权限不足！");
         }
 
-        List<ChatChannel> chatChannels = chatChannelRepository.queryByChannelAndLabel(cid, label, pageable.getOffset(),
+        List<ChatChannel> chatChannels = chatChannelRepository.queryByChannelAndLabel(cid, label, (int) pageable.getOffset(),
                 pageable.getPageSize());
         long count = chatChannelRepository.countByChannelAndLabel(cid, label);
 
@@ -102,7 +102,7 @@ public class ChannelTaskController extends BaseController {
     public RespBody updateStatus(@RequestParam("from") String from, @RequestParam("to") String to,
                                  @RequestParam("id") Long id, @RequestParam(value = "all", defaultValue = "false") Boolean all) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("权限不足！");
@@ -122,7 +122,7 @@ public class ChannelTaskController extends BaseController {
                 for (User user : voters) {
                     user.getVoterChatLabels().remove(chatLabelFrom);
                 }
-                userRepository.save(voters);
+                userRepository.saveAll(voters);
                 userRepository.flush();
 
                 voters.clear();
@@ -220,7 +220,7 @@ public class ChannelTaskController extends BaseController {
     @PostMapping("label/remove")
     public RespBody removeLabel(@RequestParam("id") Long id) {
 
-        ChatLabel chatLabel = chatLabelRepository.findOne(id);
+        ChatLabel chatLabel = chatLabelRepository.findById(id).orElse(null);
 
         User loginUser = getLoginUser();
 
@@ -253,7 +253,7 @@ public class ChannelTaskController extends BaseController {
     @PostMapping("remove")
     public RespBody remove(@RequestParam("id") Long id, @RequestParam("label") String label) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(chatChannel.getChannel().getCreator())) {
             return RespBody.failed("权限不足！");
@@ -272,7 +272,7 @@ public class ChannelTaskController extends BaseController {
 
             logWithProperties(Action.Vote, Target.ChatLabel, chatLabel.getId(), "name", chatLabel.getName());
 
-            userRepository.save(voters);
+            userRepository.saveAll(voters);
             userRepository.flush();
 
             chatLabel.setStatus(Status.Deleted);

@@ -34,7 +34,7 @@ import com.lhjz.portal.repository.CommentRepository;
 import com.lhjz.portal.util.HtmlUtil;
 import com.lhjz.portal.util.StringUtil;
 
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -44,7 +44,7 @@ import lombok.extern.log4j.Log4j;
  * 
  */
 @Component
-@Log4j
+@Slf4j
 public class AsyncTask {
 
 	@Autowired
@@ -74,7 +74,7 @@ public class AsyncTask {
 			if (StringUtils.isNotEmpty(summary)) {
 				content = content + "\n" + summary;
 
-				ChatChannel chatChannel = chatChannelRepository.findOne(id);
+				ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
 				if (chatChannel != null) {
 					chatChannel.setContent(content);
@@ -97,7 +97,7 @@ public class AsyncTask {
 			if (StringUtils.isNotEmpty(summary)) {
 				content = content + "\n" + summary;
 
-				Comment comment = commentRepository.findOne(id);
+				Comment comment = commentRepository.findById(id).orElse(null);
 
 				if (comment != null) {
 					comment.setContent(content);
@@ -122,7 +122,7 @@ public class AsyncTask {
 			if (StringUtils.isNotEmpty(summary)) {
 				content = content + "\n" + summary;
 
-				ChatReply chatReply = chatReplyRepository.findOne(id);
+				ChatReply chatReply = chatReplyRepository.findById(id).orElse(null);
 
 				if (chatReply != null) {
 					chatReply.setContent(content);
@@ -157,7 +157,7 @@ public class AsyncTask {
 			if (StringUtils.isNotEmpty(summary)) {
 				content = content + "\n" + summary;
 
-				ChatDirect chatDirect = chatDirectRepository.findOne(id);
+				ChatDirect chatDirect = chatDirectRepository.findById(id).orElse(null);
 
 				if (chatDirect != null) {
 					chatDirect.setContent(content);

@@ -181,7 +181,7 @@ public class ChatChannelController extends BaseController {
             return RespBody.failed("提交内容不能为空!");
         }
 
-        Channel channel = channelRepository.findOne(channelId);
+        Channel channel = channelRepository.findById(channelId).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(channel)) {
             return RespBody.failed("权限不足!");
@@ -231,7 +231,7 @@ public class ChatChannelController extends BaseController {
                 chatAtList.add(chatAt);
             });
 
-            chatAtRepository.save(chatAtList);
+            chatAtRepository.saveAll(chatAtList);
             chatAtRepository.flush();
 
             // @消息 ws 通知
@@ -271,7 +271,7 @@ public class ChatChannelController extends BaseController {
                            @RequestParam("channelId") Long channelId,
                            @PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
 
-        Channel channel = channelRepository.findOne(channelId);
+        Channel channel = channelRepository.findById(channelId).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(channel)) {
             return RespBody.failed("权限不足!");
@@ -286,7 +286,7 @@ public class ChatChannelController extends BaseController {
                 page--;
             }
 
-            pageable = new PageRequest(page > -1 ? (int) page : 0, limit, Direction.DESC, "id");
+            pageable = PageRequest.of(page > -1 ? (int) page : 0, limit, Direction.DESC, "id");
         }
 
         Page<ChatChannel> page = chatChannelRepository.findByChannel(channel, pageable);
@@ -345,7 +345,7 @@ public class ChatChannelController extends BaseController {
             return RespBody.failed("更新内容不能为空!");
         }
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         boolean isOpenEdit = Boolean.TRUE.equals(chatChannel.getOpenEdit());
 
@@ -431,7 +431,7 @@ public class ChatChannelController extends BaseController {
                     chatAtList.add(chatAt2);
                 }
             });
-            chatAtRepository.save(chatAtList);
+            chatAtRepository.saveAll(chatAtList);
             chatAtRepository.flush();
 
             // @消息 ws 通知
@@ -458,31 +458,31 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody delete(@RequestParam("id") Long id) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(chatChannel.getCreator().getUsername())) {
             return RespBody.failed("您没有权限删除该频道消息内容!");
         }
 
         List<ChatAt> chatAts = chatAtRepository.findByChatChannel(chatChannel);
-        chatAtRepository.delete(chatAts);
-        chatAtRepository.flush();
+		chatAtRepository.deleteAll(chatAts);
+		chatAtRepository.flush();
 
-        List<ChatStow> chatStows = chatStowRepository.findByChatChannel(chatChannel);
-        chatStowRepository.delete(chatStows);
-        chatStowRepository.flush();
+		List<ChatStow> chatStows = chatStowRepository.findByChatChannel(chatChannel);
+		chatStowRepository.deleteAll(chatStows);
+		chatStowRepository.flush();
 
-        List<ChatLabel> chatLabels = chatChannel.getChatLabels();
-        chatLabels.forEach(cl -> {
-            Set<User> voters = cl.getVoters();
-            voters.forEach(voter -> voter.getVoterChatLabels().remove(cl));
-            userRepository.save(voters);
-            userRepository.flush();
-        });
+		List<ChatLabel> chatLabels = chatChannel.getChatLabels();
+		chatLabels.forEach(cl -> {
+			Set<User> voters = cl.getVoters();
+			voters.forEach(voter -> voter.getVoterChatLabels().remove(cl));
+			userRepository.saveAll(voters);
+			userRepository.flush();
+		});
 
-        fileService.removeFileByAtId(chatChannel.getUuid());
+		fileService.removeFileByAtId(chatChannel.getUuid());
 
-        chatChannelRepository.delete(id);
+		chatChannelRepository.deleteById(id);
 
         chatMsg.put(chatChannel, Action.Delete, ChatMsgType.Content, null, null, null);
         wsSend(chatChannel, null);
@@ -496,7 +496,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody get(@RequestParam("id") Long id) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("您没有权限查看该频道消息内容!");
@@ -509,7 +509,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody latest(@RequestParam("id") Long id, @RequestParam("channelId") Long channelId) {
 
-        Channel channel = channelRepository.findOne(channelId);
+        Channel channel = channelRepository.findById(channelId).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(channel)) {
             return RespBody.failed("权限不足!");
@@ -529,7 +529,7 @@ public class ChatChannelController extends BaseController {
         long count;
         List<ChatChannel> chats;
 
-        Channel channel = channelRepository.findOne(channelId);
+        Channel channel = channelRepository.findById(channelId).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(channel)) {
             return RespBody.failed("权限不足!");
@@ -557,7 +557,7 @@ public class ChatChannelController extends BaseController {
             return RespBody.failed("检索条件不能为空!");
         }
 
-        Channel channel = channelRepository.findOne(channelId);
+        Channel channel = channelRepository.findById(channelId).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(channel)) {
             return RespBody.failed("权限不足!");
@@ -577,8 +577,8 @@ public class ChatChannelController extends BaseController {
                 if (vals.length > 1) {
                     condi = vals[1];
                 }
-                chats = chatChannelRepository.queryAboutMeByTag(channel, tag, "%" + condi + "%", pageable.getOffset(),
-                        pageable.getPageSize());
+                chats = chatChannelRepository.queryAboutMeByTag(channel, tag, "%" + condi + "%", (int) pageable.getOffset(),
+						pageable.getPageSize());
                 cnt = chatChannelRepository.countAboutMeByTag(channel, tag, "%" + condi + "%");
             }
         } else if (search.toLowerCase().startsWith("from:")) {
@@ -676,7 +676,7 @@ public class ChatChannelController extends BaseController {
             }
         } else {
             String searchVal = "%" + search + "%";
-            chats = chatChannelRepository.queryAboutMe(channel, searchVal, pageable.getOffset(), pageable.getPageSize());
+            chats = chatChannelRepository.queryAboutMe(channel, searchVal, (int) pageable.getOffset(), pageable.getPageSize());
             cnt = chatChannelRepository.countAboutMe(channel, searchVal);
         }
 
@@ -691,7 +691,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody stow(@RequestParam("id") Long id, @RequestParam(value = "rid", required = false) Long rid) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (chatChannel == null) {
             return RespBody.failed("收藏频道消息不存在,可能已经被删除!");
@@ -707,7 +707,7 @@ public class ChatChannelController extends BaseController {
         if (rid == null) {
             chatStow = chatStowRepository.findOneByChatChannelAndStowUser(chatChannel, loginUser);
         } else {
-            chatReply = chatReplyRepository.findOne(rid);
+            chatReply = chatReplyRepository.findById(rid).orElse(null);
             chatStow = chatStowRepository.findOneByChatChannelAndChatReplyAndStowUser(chatChannel, chatReply,
                     loginUser);
         }
@@ -730,7 +730,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody isMyStow(@RequestParam("id") Long id) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (chatChannel == null) {
             return RespBody.failed("频道消息不存在,可能已经被删除!");
@@ -756,13 +756,13 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody removeStow(@RequestParam("id") Long id) {
 
-        ChatStow stow = chatStowRepository.findOne(id);
+        ChatStow stow = chatStowRepository.findById(id).orElse(null);
 
-        if (!isSuperOrCreator(stow.getCreator().getUsername())) {
-            return RespBody.failed("权限不足!");
-        }
+		if (!isSuperOrCreator(stow.getCreator().getUsername())) {
+			return RespBody.failed("权限不足!");
+		}
 
-        chatStowRepository.delete(id);
+		chatStowRepository.deleteById(id);
 
         return RespBody.succeed(id);
     }
@@ -844,7 +844,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody markAsReaded(@RequestParam("chatAtId") Long chatAtId) {
 
-        ChatAt chatAt = chatAtRepository.findOne(chatAtId);
+        ChatAt chatAt = chatAtRepository.findById(chatAtId).orElse(null);
         if (chatAt == null) {
             return RespBody.failed("@消息不存在,可能已经被删除!");
         }
@@ -863,7 +863,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody markAsReadedByChat(@RequestParam("chatId") Long chatId) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(chatId);
+        ChatChannel chatChannel = chatChannelRepository.findById(chatId).orElse(null);
         if (chatChannel == null) {
             return RespBody.failed("@頻道消息不存在,可能已经被删除!");
         }
@@ -890,7 +890,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody openEdit(@RequestParam("id") Long id, @RequestParam("open") Boolean open) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (chatChannel == null) {
             return RespBody.failed("操作频道消息不存在,可能已经被删除!");
@@ -932,7 +932,7 @@ public class ChatChannelController extends BaseController {
                          @RequestParam("contentHtml") String contentHtml,
                          @RequestParam(value = "type", required = false) String type) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
         if (chatChannel == null) {
             return RespBody.failed("投票频道消息不存在!");
         }
@@ -1027,7 +1027,7 @@ public class ChatChannelController extends BaseController {
 
         logger.debug("download chatChannel md2html start...");
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (chatChannel == null) {
             return RespBody.failed("下载频道消息不存在!");
@@ -1066,7 +1066,7 @@ public class ChatChannelController extends BaseController {
 
         logger.debug("download channel chat start...");
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (chatChannel == null) {
             try {
@@ -1178,7 +1178,7 @@ public class ChatChannelController extends BaseController {
                           @RequestParam(value = "channels", required = false) String channels,
                           @RequestParam(value = "mails", required = false) String mails) {
 
-        ChatChannel chatChannel2 = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel2 = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel2)) {
             return RespBody.failed("您没有权限分享该沟通消息!");
@@ -1261,7 +1261,7 @@ public class ChatChannelController extends BaseController {
             return RespBody.failed("标签内容不能超过15个字符!");
         }
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (chatChannel == null) {
             return RespBody.failed("标签关联频道消息不存在!");
@@ -1382,7 +1382,7 @@ public class ChatChannelController extends BaseController {
     public RespBody togglePin(@RequestParam("id") Long id,
                               @RequestParam(value = "pin", defaultValue = "false") Boolean pin) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("权限不足!");
@@ -1413,7 +1413,7 @@ public class ChatChannelController extends BaseController {
     public RespBody listPin(@RequestParam("cid") Long cid, @RequestParam(value = "search", required = false) String search,
                             @PageableDefault(sort = {"id"}, direction = Direction.DESC) Pageable pageable) {
 
-        Channel channel = channelRepository.findOne(cid);
+        Channel channel = channelRepository.findById(cid).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(channel)) {
             return RespBody.failed("权限不足!");
@@ -1439,7 +1439,7 @@ public class ChatChannelController extends BaseController {
                              @RequestParam(value = "uuid", required = false) String uuid, @RequestParam("content") String content,
                              @RequestParam("contentHtml") String contentHtml, @RequestParam("id") Long id) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("权限不足!");
@@ -1518,7 +1518,7 @@ public class ChatChannelController extends BaseController {
                 }
             });
 
-            chatAtRepository.save(chatAtList);
+            chatAtRepository.saveAll(chatAtList);
             chatAtRepository.flush();
 
             // @消息 ws 通知
@@ -1548,7 +1548,7 @@ public class ChatChannelController extends BaseController {
                                 @RequestParam(value = "usernames", required = false) String usernames,
                                 @RequestParam("content") String content, @RequestParam("diff") String diff, @RequestParam("rid") Long rid) {
 
-        ChatReply chatReply = chatReplyRepository.findOne(rid);
+        ChatReply chatReply = chatReplyRepository.findById(rid).orElse(null);
 
         if (!isSuperOrCreator(chatReply.getCreator())) {
             return RespBody.failed("权限不足!");
@@ -1613,7 +1613,7 @@ public class ChatChannelController extends BaseController {
                 }
             });
 
-            chatAtRepository.save(chatAtList);
+            chatAtRepository.saveAll(chatAtList);
             chatAtRepository.flush();
 
             // @消息 ws 通知
@@ -1641,14 +1641,14 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody removeReply(@RequestParam("rid") Long rid) {
 
-        ChatReply chatReply = chatReplyRepository.findOne(rid);
+        ChatReply chatReply = chatReplyRepository.findById(rid).orElse(null);
 
         if (!isSuperOrCreator(chatReply.getCreator())) {
             return RespBody.failed("权限不足!");
         }
 
         List<ChatAt> chatAts = chatAtRepository.findByChatReply(chatReply);
-        chatAtRepository.delete(chatAts);
+        chatAtRepository.deleteAll(chatAts);
         chatAtRepository.flush();
 
         fileService.removeFileByAtId(chatReply.getUuid());
@@ -1672,7 +1672,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody listReply(@RequestParam("id") Long id) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("权限不足!");
@@ -1689,7 +1689,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody getReply(@RequestParam("rid") Long rid) {
 
-        ChatReply chatReply = chatReplyRepository.findOne(rid);
+        ChatReply chatReply = chatReplyRepository.findById(rid).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatReply.getChatChannel())) {
             return RespBody.failed("权限不足!");
@@ -1703,7 +1703,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody pollReply(@RequestParam("id") Long id, @RequestParam(value = "rid", required = false) Long rid) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("权限不足!");
@@ -1727,7 +1727,7 @@ public class ChatChannelController extends BaseController {
     public RespBody checkChanged(@RequestParam("id") Long id, @RequestParam("version") Long version,
                                  @RequestParam("rcnt") Long cnt) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("权限不足!");
@@ -1744,7 +1744,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody addFollower(@RequestParam("id") Long id) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("权限不足!");
@@ -1770,7 +1770,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody removeFollower(@RequestParam("id") Long id) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("权限不足!");
@@ -1789,7 +1789,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody listFollower(@RequestParam("id") Long id) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("权限不足!");
@@ -1824,7 +1824,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody addNotice(@RequestParam("id") Long id) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("权限不足！");
@@ -1835,7 +1835,7 @@ public class ChatChannelController extends BaseController {
 
         chatChannels.forEach(cc -> cc.setNotice(null));
 
-        chatChannelRepository.save(chatChannels);
+        chatChannelRepository.saveAll(chatChannels);
         chatChannelRepository.flush();
 
         chatChannel.setNotice(true);
@@ -1856,7 +1856,7 @@ public class ChatChannelController extends BaseController {
     @ResponseBody
     public RespBody removeNotice(@RequestParam("id") Long id) {
 
-        ChatChannel chatChannel = chatChannelRepository.findOne(id);
+        ChatChannel chatChannel = chatChannelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(chatChannel)) {
             return RespBody.failed("权限不足！");

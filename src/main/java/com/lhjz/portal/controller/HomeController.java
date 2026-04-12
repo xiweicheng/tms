@@ -98,7 +98,7 @@ public class HomeController extends BaseController {
 	@GetMapping("blog/{id}")
 	public RespBody getBlog(@PathVariable("id") Long id) {
 
-		Blog blog = blogRepository.findOne(id);
+		Blog blog = blogRepository.findById(id).orElse(null);
 
 		if (blog == null || Status.Deleted.equals(blog.getStatus()) || !Boolean.TRUE.equals(blog.getOpened())) {
 			return RespBody.failed("博文不存在或者权限不足!");
@@ -143,7 +143,7 @@ public class HomeController extends BaseController {
 	@GetMapping("blog/list/by/pid")
 	public RespBody listBlogsByPid(@RequestParam("id") Long id) {
 
-		Blog blog = blogRepository.findOne(id);
+		Blog blog = blogRepository.findById(id).orElse(null);
 		if (blog == null || !Boolean.TRUE.equals(blog.getOpened())) {
 			return RespBody.failed("权限不足！");
 		}
@@ -198,7 +198,7 @@ public class HomeController extends BaseController {
 	public RespBody listBlogComments(@PathVariable("id") Long id,
 			@PageableDefault(sort = { "id" }, direction = Direction.ASC) Pageable pageable) {
 
-		Blog blog = blogRepository.findOne(id);
+		Blog blog = blogRepository.findById(id).orElse(null);
 
 		if (Status.Deleted.equals(blog.getStatus()) || !Boolean.TRUE.equals(blog.getOpened())) {
 			return RespBody.failed("博文不存在或者权限不足!");

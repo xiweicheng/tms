@@ -118,7 +118,7 @@ public class TranslateController extends BaseController {
                     .collect(Collectors.joining("<br/>")));
         }
 
-        final Project project = projectRepository.findOne(projectId);
+        final Project project = projectRepository.findById(projectId).orElse(null);
 
         if (translateRepository.findByKeyAndProject(translateForm.getKey(),
                 project).size() > 0) {
@@ -226,7 +226,7 @@ public class TranslateController extends BaseController {
                            TranslateItemForm translateItemForm,
                            @RequestParam("baseURL") String baseURL) {
 
-        TranslateItem translateItem = translateItemRepository.findOne(id);
+        TranslateItem translateItem = translateItemRepository.findById(id).orElse(null);
 
         String oldContent;
 
@@ -350,7 +350,7 @@ public class TranslateController extends BaseController {
                     .collect(Collectors.joining("<br/>")));
         }
 
-        final Translate translate = translateRepository.findOne(id);
+        final Translate translate = translateRepository.findById(id).orElse(null);
 
         if (translate != null) {
 
@@ -403,7 +403,7 @@ public class TranslateController extends BaseController {
             }
 
             if (addLabels.size() > 0) {
-                List<Label> save = labelRepository.save(addLabels);
+                List<Label> save = labelRepository.saveAll(addLabels);
                 labels.addAll(save);
             }
 
@@ -533,7 +533,7 @@ public class TranslateController extends BaseController {
                               @RequestParam("baseURL") String baseURL,
                               @RequestParam("key") String key) {
 
-        final Translate translate = translateRepository.findOne(id);
+        final Translate translate = translateRepository.findById(id).orElse(null);
 
         if (translate != null) {
 
@@ -592,7 +592,7 @@ public class TranslateController extends BaseController {
     public RespBody delete(@RequestParam("id") Long id,
                            @RequestParam("baseURL") String baseURL) {
 
-        final Translate translate = translateRepository.findOne(id);
+        final Translate translate = translateRepository.findById(id).orElse(null);
 
         if (translate == null) {
             return RespBody.failed("删除翻译不存在!");
@@ -609,10 +609,10 @@ public class TranslateController extends BaseController {
             user.getWatcherTranslates().remove(translate);
         }
 
-        userRepository.save(watchers);
+        userRepository.saveAll(watchers);
         userRepository.flush();
 
-        translateRepository.delete(id);
+        translateRepository.deleteById(id);
         translateRepository.flush();
 
         log(Action.Delete, Target.Translate, id, translate);
@@ -645,7 +645,7 @@ public class TranslateController extends BaseController {
     public RespBody deleteTag(@RequestParam("id") Long id,
                               @RequestParam("baseURL") String baseURL) {
 
-        Label label = labelRepository.findOne(id);
+        Label label = labelRepository.findById(id).orElse(null);
 
         if (label == null) {
             return RespBody.failed("删除标签不存在!");
@@ -676,13 +676,13 @@ public class TranslateController extends BaseController {
                                   @RequestParam("username") String username,
                                   @RequestParam("baseURL") String baseURL) {
 
-        User user = userRepository.findOne(username);
+        User user = userRepository.findById(username).orElse(null);
 
         if (user == null) {
             return RespBody.failed("删除关注者不存在!");
         }
 
-        final Translate translate = translateRepository.findOne(id);
+        final Translate translate = translateRepository.findById(id).orElse(null);
 
         user.getWatcherTranslates().remove(translate);
 
@@ -733,7 +733,7 @@ public class TranslateController extends BaseController {
             return RespBody.failed("标签内容不能为空!");
         }
 
-        Translate translate = translateRepository.findOne(id);
+        Translate translate = translateRepository.findById(id).orElse(null);
 
         Label label2 = labelRepository
                 .findOneByNameAndTranslate(tag, translate);
@@ -773,9 +773,9 @@ public class TranslateController extends BaseController {
             return RespBody.failed("添加关注者不能为空!");
         }
 
-        final Translate translate = translateRepository.findOne(id);
+        final Translate translate = translateRepository.findById(id).orElse(null);
 
-        User user = userRepository.findOne(username);
+        User user = userRepository.findById(username).orElse(null);
 
         if (user == null) {
             return RespBody.failed("添加关注者不存在!");
@@ -834,7 +834,7 @@ public class TranslateController extends BaseController {
     public RespBody get(@RequestParam("projectId") Long projectId,
                         @PageableDefault Pageable pageable) {
 
-        Project project = projectRepository.findOne(projectId);
+        Project project = projectRepository.findById(projectId).orElse(null);
 
         if (project == null) {
             logger.error("项目不存在! ID: {}", projectId);
@@ -852,7 +852,7 @@ public class TranslateController extends BaseController {
     @Secured({"ROLE_SUPER", "ROLE_ADMIN", "ROLE_USER"})
     public RespBody getById(@RequestParam("id") Long id) {
 
-        Translate translate = translateRepository.findOne(id);
+        Translate translate = translateRepository.findById(id).orElse(null);
 
         if (translate == null) {
             logger.error("翻译不存在! ID: {}", id);
@@ -930,7 +930,7 @@ public class TranslateController extends BaseController {
             file2.setPath(storePath + sizeOriginal + SPLIT);
             file2.setUuid(UUID.randomUUID().toString());
 
-            Translate translate = translateRepository.findOne(id);
+            Translate translate = translateRepository.findById(id).orElse(null);
             file2.getFileTranslates().add(translate);
 
             com.lhjz.portal.entity.File file = fileRepository
@@ -952,7 +952,7 @@ public class TranslateController extends BaseController {
     @Secured({"ROLE_SUPER", "ROLE_ADMIN", "ROLE_USER"})
     public RespBody deleteFile(@RequestParam("fileId") Long fileId) {
 
-        com.lhjz.portal.entity.File file = fileRepository.findOne(fileId);
+        com.lhjz.portal.entity.File file = fileRepository.findById(fileId).orElse(null);
 
         if (file == null) {
             return RespBody.failed("删除文件不存在!");

@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 import com.lhjz.portal.component.core.MailQueue;
 import com.lhjz.portal.component.core.model.MailItem;
 
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
-@Log4j
+@Slf4j
 public class MailQueueImpl implements MailQueue {
 
 	ConcurrentLinkedQueue<MailItem> mailQueue = new ConcurrentLinkedQueue<MailItem>();

@@ -234,7 +234,7 @@ public class FileServiceImpl implements FileService {
 	public List<com.lhjz.portal.entity.File> listImg() throws BizException {
 
 		return fileRepository.findTop40ByTypeAndStatusNot(FileType.Image, Status.Deleted,
-				new Sort(Direction.DESC, "id"));
+				Sort.by(Sort.Order.desc("id")));
 	}
 
 	@Override

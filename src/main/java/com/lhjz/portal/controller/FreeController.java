@@ -230,7 +230,7 @@ public class FreeController extends BaseController {
             return RespBody.failed("用户名必须是3到50位小写字母和数字组合,并且以字母开头!");
         }
 
-        User user = userRepository.findOne(username);
+        User user = userRepository.findById(username).orElse(null);
         if (user != null || "all".equalsIgnoreCase(username)) {
             return RespBody.failed("用户名已经存在!");
         }
@@ -338,7 +338,7 @@ public class FreeController extends BaseController {
             return RespBody.failed("发送消息目的频道不存在!");
         }
 
-        User user2 = userRepository.findOne(user);
+        User user2 = userRepository.findById(user).orElse(null);
         if (user2 == null) {
             return RespBody.failed("用户不存在不存在!");
         }
@@ -450,7 +450,7 @@ public class FreeController extends BaseController {
             return RespBody.failed("发送消息目的频道不存在!");
         }
 
-        User user2 = userRepository.findOne(user);
+        User user2 = userRepository.findById(user).orElse(null);
         if (user2 == null) {
             return RespBody.failed("用户不存在不存在!");
         }
@@ -653,13 +653,13 @@ public class FreeController extends BaseController {
     @ResponseBody
     public RespBody getComment(@PathVariable("id") Long id) {
 
-        Comment comment = commentRepository.findOne(id);
+        Comment comment = commentRepository.findById(id).orElse(null);
 
         if (comment == null) {
             return RespBody.failed("评论不存在！");
         }
 
-        Blog blog = blogRepository.findOne(Long.valueOf(comment.getTargetId()));
+        Blog blog = blogRepository.findById(Long.valueOf(comment.getTargetId())).orElse(null);
 
         if (blog != null && (Boolean.TRUE.equals(blog.getOpened())
                 || StringUtil.isNotEmpty(blog.getShareId()))) {

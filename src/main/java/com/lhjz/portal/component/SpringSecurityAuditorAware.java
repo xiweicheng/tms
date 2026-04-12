@@ -2,6 +2,7 @@ package com.lhjz.portal.component;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.AuditorAware;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import com.lhjz.portal.entity.security.User;
@@ -17,13 +18,13 @@ public class SpringSecurityAuditorAware implements AuditorAware<User> {
 	UserRepository userRepository;
 
 	@Override
-	public User getCurrentAuditor() {
+	public Optional<User> getCurrentAuditor() {
 
 		String username = ThreadUtil.getCurrentAuditor();
 
 		username = StringUtil.isEmpty(username) ? WebUtil.getUsername() : username;
 
-		return userRepository.findOne(username);
+		return userRepository.findById(username);
 
 	}
 

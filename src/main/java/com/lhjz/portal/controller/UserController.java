@@ -103,7 +103,7 @@ public class UserController extends BaseController {
 
         String username = StringUtils.trim(userForm.getUsername());
 
-        if (userRepository.exists(username)) {
+        if (userRepository.existsById(username)) {
             logger.error("添加用户已经存在, ID: {}", username);
             return RespBody.failed("添加用户已经存在!");
         }
@@ -278,7 +278,7 @@ public class UserController extends BaseController {
                     .collect(Collectors.joining("<br/>")));
         }
 
-        User user = userRepository.findOne(userForm.getUsername());
+        User user = userRepository.findById(userForm.getUsername()).orElse(null);
 
         if (user == null) {
             logger.error("更新用户不存在! ID: {}", userForm.getUsername());
@@ -318,7 +318,7 @@ public class UserController extends BaseController {
             authorities.stream().forEach(auth ->
                     auth.setUser(null)
             );
-            authorityRepository.delete(authorities);
+            authorityRepository.deleteAll(authorities);
             authorityRepository.flush();
 
             user.getAuthorities().clear();
@@ -367,7 +367,7 @@ public class UserController extends BaseController {
                     .collect(Collectors.joining("<br/>")));
         }
 
-        User user = userRepository.findOne(userForm.getUsername());
+        User user = userRepository.findById(userForm.getUsername()).orElse(null);
 
         if (user == null) {
             logger.error("更新用户不存在! ID: {}", userForm.getUsername());
@@ -421,7 +421,7 @@ public class UserController extends BaseController {
             return RespBody.failed("因为当前是通过[记住我]登录,为了安全需要,请退出重新登录再尝试删除用户信息!");
         }
 
-        User user = userRepository.findOne(username);
+        User user = userRepository.findById(username).orElse(null);
 
         if (user == null) {
             logger.error("删除用户不存在! ID: {}", username);
@@ -448,7 +448,7 @@ public class UserController extends BaseController {
     @Secured({"ROLE_ADMIN", "ROLE_USER"})
     public RespBody get(@RequestParam("username") String username) {
 
-        User user = userRepository.findOne(username);
+        User user = userRepository.findById(username).orElse(null);
 
         if (user == null) {
             logger.error("查询用户不存在! ID: {}", username);
@@ -585,7 +585,7 @@ public class UserController extends BaseController {
     @Secured({"ROLE_ADMIN", "ROLE_USER"})
     public RespBody groupMemembers(@RequestParam("groupId") Long groupId) {
 
-        Group group = groupRepository.findOne(groupId);
+        Group group = groupRepository.findById(groupId).orElse(null);
 
         if (group == null) {
             logger.error("用户组不存在! ID: {}", groupId);
@@ -627,7 +627,7 @@ public class UserController extends BaseController {
     @Secured({"ROLE_ADMIN", "ROLE_USER"})
     public RespBody updateGroup(@RequestParam("groupId") Long groupId, @RequestParam("groupName") String groupName) {
 
-        Group group = groupRepository.findOne(groupId);
+        Group group = groupRepository.findById(groupId).orElse(null);
 
         if (group == null) {
             logger.error("用户组不存在! ID: {}", groupId);
@@ -650,7 +650,7 @@ public class UserController extends BaseController {
     @Secured({"ROLE_ADMIN", "ROLE_USER"})
     public RespBody deleteGroup(@RequestParam("groupId") Long groupId) {
 
-        Group group = groupRepository.findOne(groupId);
+        Group group = groupRepository.findById(groupId).orElse(null);
 
         if (group == null) {
             logger.error("用户组不存在! ID: {}", groupId);
@@ -674,7 +674,7 @@ public class UserController extends BaseController {
     public RespBody addGroupMembers(@RequestParam("groupId") Long groupId,
                                     @RequestParam("usernames") String usernames) {
 
-        Group group = groupRepository.findOne(groupId);
+        Group group = groupRepository.findById(groupId).orElse(null);
 
         if (group == null) {
             logger.error("用户组不存在! ID: {}", groupId);
@@ -697,7 +697,7 @@ public class UserController extends BaseController {
             }
         });
 
-        List<GroupMember> groupMembers2 = groupMemberRepository.save(groupMembers);
+        List<GroupMember> groupMembers2 = groupMemberRepository.saveAll(groupMembers);
         groupMemberRepository.flush();
 
         return RespBody.succeed(groupMembers2);
@@ -709,7 +709,7 @@ public class UserController extends BaseController {
     public RespBody deleteGroupMembers(@RequestParam("groupId") Long groupId,
                                        @RequestParam("usernames") String usernames) {
 
-        Group group = groupRepository.findOne(groupId);
+        Group group = groupRepository.findById(groupId).orElse(null);
 
         if (group == null) {
             logger.error("用户组不存在! ID: {}", groupId);
@@ -736,7 +736,7 @@ public class UserController extends BaseController {
     public RespBody updateGroupMembers(@RequestParam("groupId") Long groupId,
                                        @RequestParam("usernames") String usernames) {
 
-        Group group = groupRepository.findOne(groupId);
+        Group group = groupRepository.findById(groupId).orElse(null);
 
         if (group == null) {
             logger.error("用户组不存在! ID: {}", groupId);
@@ -764,7 +764,7 @@ public class UserController extends BaseController {
             }
         });
 
-        List<GroupMember> groupMembers3 = groupMemberRepository.save(groupMembers);
+        List<GroupMember> groupMembers3 = groupMemberRepository.saveAll(groupMembers);
         groupMemberRepository.flush();
 
         return RespBody.succeed(groupMembers3);
@@ -790,7 +790,7 @@ public class UserController extends BaseController {
                     .collect(Collectors.joining("<br/>")));
         }
 
-        User user = userRepository.findOne(userExtraForm.getUsername());
+        User user = userRepository.findById(userExtraForm.getUsername()).orElse(null);
 
         if (userExtraForm.getPhone() != null) {
             user.setPhone(userExtraForm.getPhone());

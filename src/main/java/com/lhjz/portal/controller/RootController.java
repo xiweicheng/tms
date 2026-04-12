@@ -106,7 +106,7 @@ public class RootController extends BaseController {
 				page--;
 			}
 
-			pageable = new PageRequest(page > -1 ? (int) page : 0, size, Direction.DESC, "createDate");
+			pageable = PageRequest.of(page > -1 ? (int) page : 0, size, Direction.DESC, "createDate");
 			chats = isLogin ? chatRepository.findByType(ChatType.Wiki, pageable)
 					: chatRepository.findByTypeAndPrivated(ChatType.Wiki, false, pageable);
 		} else if (StringUtil.isNotEmpty(search)) {
@@ -232,7 +232,7 @@ public class RootController extends BaseController {
 			@RequestParam("contentHtml") String contentHtml,
 			@RequestParam(value = "type", required = false) String type) {
 
-		Chat chat = chatRepository.findOne(id);
+		Chat chat = chatRepository.findById(id).orElse(null);
 		if (chat == null) {
 			return RespBody.failed("投票博文不存在!");
 		}
