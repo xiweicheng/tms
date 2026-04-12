@@ -210,6 +210,12 @@
 			<artifactId>mammoth</artifactId>
 			<version>1.4.0</version>
 		</dependency>
+		<!-- Add OGNL dependency to fix NoClassDefFoundError -->
+		<dependency>
+			<groupId>ognl</groupId>
+			<artifactId>ognl</artifactId>
+			<version>3.3.2</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
