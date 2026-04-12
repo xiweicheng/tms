@@ -168,7 +168,7 @@
                         <!--/*/
                             <tr th:each="t : ${page.content}" th:attr="data-id=${t.id}">
                                 <td th:if="${projectId == -1}" th:title="${t.project.description}" th:text="${t.project.name}">project.name</td>
-                                <td
+                                <td>
                                     <div th:title="${t.key}" class="ui fluid transparent input input-key">
                                       <input type="text" th:value="${t.key}" placeholder="">
                                     </div>
