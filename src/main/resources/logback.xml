@@ -51,9 +51,11 @@
 			<!-- <logger name="org.hibernate.SQL" level="DEBUG" /> -->
 			
 			<springProfile name="dev">
-				<logger name="com.lhjz.portal" level="DEBUG" />
-				<!-- <logger name="org.springframework.security" level="DEBUG" /> -->
-				<!-- <logger name="org.hibernate.SQL" level="DEBUG" /> -->
+				<logger name="com.lhjz.portal" level="INFO" />
+				<logger name="org.springframework" level="WARN" />
+				<logger name="org.hibernate" level="WARN" />
+				<logger name="org.apache" level="WARN" />
+				<logger name="javax.servlet" level="WARN" />
 			</springProfile>
 			<springProfile name="prod,prod-pg">
 				<logger name="com.lhjz.portal" level="INFO" />
