@@ -7,11 +7,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Entity
 public class OauthCode implements Serializable {
 
 	@Id
-	@GeneratedValue
+    @GeneratedValue(strategy = IDENTITY)
 	private Long id;
 
 	private static final long serialVersionUID = 2072255024118911470L;

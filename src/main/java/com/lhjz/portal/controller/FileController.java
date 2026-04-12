@@ -331,7 +331,7 @@ public class FileController extends BaseController {
 
             com.lhjz.portal.entity.File file = fileRepository.save(file2);
 
-            log(Action.Upload, Target.File, file2.getId());
+            log(Action.Upload, Target.File, file.getId());
 
             return RespBody.succeed(file);
         } catch (Exception e) {

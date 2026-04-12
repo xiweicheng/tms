@@ -7,13 +7,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Entity
 public class OauthRefreshToken implements Serializable {
 
 	private static final long serialVersionUID = -5919370650444204314L;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = IDENTITY)
 	private Long id;
 
 	private String tokenId;

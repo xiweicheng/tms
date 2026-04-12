@@ -12,6 +12,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -43,7 +44,7 @@ public class BlogAuthority implements Serializable {
 	private static final long serialVersionUID = -3361551146650650081L;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@JsonIgnore

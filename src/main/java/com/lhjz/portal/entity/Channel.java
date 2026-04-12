@@ -14,6 +14,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -59,7 +60,7 @@ public class Channel implements Serializable {
 	private static final long serialVersionUID = 1864577736341309316L;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Pattern(regexp = "^[a-z][a-z0-9_\\-]{2,49}$", message = "频道名称必须是3到50位小写字母数字_-组合,并且以字母开头!")
