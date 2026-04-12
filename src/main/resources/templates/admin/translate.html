@@ -93,9 +93,9 @@
                         <i class="dropdown icon"></i>
                         <div class="default text">项目</div>
                         <div class="menu">
-                            <a class="item" th:href="@{/admin/translate(projectId=${'-1'}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:title="${'全部项目'}" data-value="-1">全部项目</a>
+                            <a class="item" th:href="@{/admin/translate(projectId=${'-1'}, creator=${param.creator != null ? param.creator[0] : ''}, status=${param.status != null ? param.status[0] : ''}, languageId=${param.languageId != null ? param.languageId[0] : ''}, search=${param.search != null ? param.search[0] : ''})}" th:title="${'全部项目'}" data-value="-1">全部项目</a>
                             <!--/*/
-                            <a th:each="p : ${projects}" class="item" th:href="@{/admin/translate(projectId=${p.id}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:title="${p.description}" th:attr="data-value=${p.id}" th:text="${p.name}">STEP</a>
+                            <a th:each="p : ${projects}" class="item" th:href="@{/admin/translate(projectId=${p.id}, creator=${param.creator != null ? param.creator[0] : ''}, status=${param.status != null ? param.status[0] : ''}, languageId=${param.languageId != null ? param.languageId[0] : ''}, search=${param.search != null ? param.search[0] : ''})}" th:title="${p.description}" th:attr="data-value=${p.id}" th:text="${p.name}">STEP</a>
                             /*/-->
                             <!--/*-->
                             <a class="item" data-value="1">STEP</a>
@@ -107,8 +107,8 @@
                     <div class="ui primary compact button btn-add">添加</div>
                     <div class="ui label">筛选:</div>
                     <div class="ui compact basic buttons">
-                        <div class="ui floating dropdown search button dd-creators" th:style="${(param.containsKey('creator') and (not #strings.isEmpty(param.creator[0]))) ? 'background: rgba(0,0,0,.05) !important;' : ''}" th:title="翻译创建者">
-                            <input type="hidden" th:value="${param.containsKey('creator') ? param.creator[0] : ''}" />
+                        <div class="ui floating dropdown search button dd-creators" th:style="${(param.creator != null and (not #strings.isEmpty(param.creator[0]))) ? 'background: rgba(0,0,0,.05) !important;' : ''}" th:title="翻译创建者">
+                            <input type="hidden" th:value="${param.creator != null ? param.creator[0] : ''}" />
                             <span class="text">创建者</span>
                             <div class="menu">
                                 <a th:href="@{/admin/translate(projectId=${projectId}, creator=${user.username})}" class="item" th:title="${user.name != null ? user.name : user.username}" th:attr="data-value=${user.username}" th:utext="${'当前用户'}">当前用户</a>
@@ -119,14 +119,14 @@
                                 <a th:each="u : ${users}" th:if="${u.enabled and (u.username != user.username)}" th:href="@{/admin/translate(projectId=${projectId}, creator=${u.username})}" class="item" th:title="${(not #strings.isEmpty(u.name)) ? u.name : u.username}" th:attr="data-value=${u.username}" th:text="${(not #strings.isEmpty(u.name)) ? u.name : u.username}"></a>
                             </div>
                         </div>
-                        <a title="新创建的" th:href="@{/admin/translate(projectId=${projectId}, status=${'New'})}" th:classappend="${(param.containsKey('status') and (#strings.equals('New', param.status[0]))) ? 'active' : ''}" class="ui button btn-filter-new">新建</a>
-                        <a title="更新过的" th:href="@{/admin/translate(projectId=${projectId}, status=${'Updated'})}" th:classappend="${(param.containsKey('status') and (#strings.equals('Updated', param.status[0]))) ? 'active' : ''}" class="ui button btn-filter-updated">更新</a>
-                        <a title="全部翻译" th:href="@{/admin/translate(projectId=${projectId})}" th:classappend="${((not param.containsKey('creator')) and (not param.containsKey('status')) and (not param.containsKey('languageId')) and (not param.containsKey('search')) and (not param.containsKey('id'))) ? 'active' : ''}" class="ui button btn-filter-all">全部</a>
+                        <a title="新创建的" th:href="@{/admin/translate(projectId=${projectId}, status=${'New'})}" th:classappend="${(param.status != null and (#strings.equals('New', param.status[0]))) ? 'active' : ''}" class="ui button btn-filter-new">新建</a>
+                        <a title="更新过的" th:href="@{/admin/translate(projectId=${projectId}, status=${'Updated'})}" th:classappend="${(param.status != null and (#strings.equals('Updated', param.status[0]))) ? 'active' : ''}" class="ui button btn-filter-updated">更新</a>
+                        <a title="全部翻译" th:href="@{/admin/translate(projectId=${projectId})}" th:classappend="${((param.creator == null) and (param.status == null) and (param.languageId == null) and (param.search == null) and (param.id == null)) ? 'active' : ''}" class="ui button btn-filter-all">全部</a>
                     </div>
                     &nbsp;&nbsp;
                     <!-- <div class="ui label">过滤:</div> -->
                     <div class="ui selection dropdown dd-languages">
-                        <input type="hidden" name="language" th:value="${param.containsKey('languageId') ? param.languageId[0] : ''}" value="1">
+                        <input type="hidden" name="language" th:value="${param.languageId != null ? param.languageId[0] : ''}" value="1">
                         <i class="dropdown icon"></i>
                         <div class="default text">未翻译语言</div>
                         <div class="menu" th:remove="all-but-first">
@@ -139,12 +139,12 @@
                         </div>
                     </div>
                     <!-- <div class="ui icon input inp-search">
-                        <input type="text" th:value="${param.containsKey('search') ? param.search[0] : ''}" placeholder="查找...">
+                        <input type="text" th:value="${param.search != null ? param.search[0] : ''}" placeholder="查找...">
                         <i class="circular search link icon"></i>
                     </div> -->
                     <div class="ui search sh-search" style="float:right;">
                         <div class="ui icon input inp-search">
-                            <input class="prompt" th:value="${param.containsKey('search') ? param.search[0] : ''}" type="text" placeholder="查找...">
+                            <input class="prompt" th:value="${param.search != null ? param.search[0] : ''}" type="text" placeholder="查找...">
                             <i class="search link icon"></i>
                         </div>
                         <div class="results"></div>
@@ -203,8 +203,9 @@
                                                             <div class="metadata">
                                                                 <span class="date timeago" th:title="${#calendars.format(h.itemCreateDate,'yyyy/MM/dd HH:mm:ss')}" th:text="${#calendars.format(h.itemCreateDate,'yyyy/MM/dd HH:mm:ss')}">Today at 5:42PM</span>
                                                             </div>
-                                                        <div class="text " th:text="${h.itemContent} ">
-                                                          How artistic!
+                                                            <div class="text" th:text="${h.itemContent}">
+                                                              How artistic!
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -294,19 +295,19 @@
                     <div class="detail" th:text="${'第' + (page.number + 1) + '页/共' + page.numberOfElements + '条'}">214</div>
                 </div>
                 <div class="ui right floated pagination small menu" th:if="${page.totalPages > 0}">
-                    <a class="item" th:if="${(page.totalPages > 0) and (not page.first)}" th:href="@{/admin/translate(projectId=${projectId}, page=0, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}">首页</a>
-                    <a title="上一页" th:if="${not page.first}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number - 1}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" class="icon item popup">
+                    <a class="item" th:if="${(page.totalPages > 0) and (not page.first)}" th:href="@{/admin/translate(projectId=${projectId}, page=0, size=${page.size}, creator=${param.creator != null ? param.creator[0] : ''}, status=${param.status != null ? param.status[0] : ''}, languageId=${param.languageId != null ? param.languageId[0] : ''}, search=${param.search != null ? param.search[0] : ''})}">首页</a>
+                    <a title="上一页" th:if="${not page.first}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number - 1}, size=${page.size}, creator=${param.creator != null ? param.creator[0] : ''}, status=${param.status != null ? param.status[0] : ''}, languageId=${param.languageId != null ? param.languageId[0] : ''}, search=${param.search != null ? param.search[0] : ''})}" class="icon item popup">
                         <i class="left chevron icon"></i>
                     </a>
-                    <a class="item hide-mobile" th:if="${page.number > 1}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number - 2}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:text="${page.number - 1}"></a>
-                    <a class="item" th:if="${not page.first}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number - 1}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:text="${page.number}"></a>
+                    <a class="item hide-mobile" th:if="${page.number > 1}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number - 2}, size=${page.size}, creator=${param.creator != null ? param.creator[0] : ''}, status=${param.status != null ? param.status[0] : ''}, languageId=${param.languageId != null ? param.languageId[0] : ''}, search=${param.search != null ? param.search[0] : ''})}" th:text="${page.number - 1}"></a>
+                    <a class="item" th:if="${not page.first}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number - 1}, size=${page.size}, creator=${param.creator != null ? param.creator[0] : ''}, status=${param.status != null ? param.status[0] : ''}, languageId=${param.languageId != null ? param.languageId[0] : ''}, search=${param.search != null ? param.search[0] : ''})}" th:text="${page.number}"></a>
                     <a class="item active" th:if="${page.totalPages > 0}" th:href="'javascript:void(0);'" th:text="${page.number + 1}"></a>
-                    <a class="item" th:if="${not page.last}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number + 1}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:text="${page.number + 2}"></a>
-                    <a class="item hide-mobile" th:if="${page.number < page.totalPages - 2}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number + 2}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" th:text="${page.number + 3}"></a>
-                    <a title="下一页" th:if="${not page.last}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number + 1}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}" class="icon item popup">
+                    <a class="item" th:if="${not page.last}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number + 1}, size=${page.size}, creator=${param.creator != null ? param.creator[0] : ''}, status=${param.status != null ? param.status[0] : ''}, languageId=${param.languageId != null ? param.languageId[0] : ''}, search=${param.search != null ? param.search[0] : ''})}" th:text="${page.number + 2}"></a>
+                    <a class="item hide-mobile" th:if="${page.number < page.totalPages - 2}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number + 2}, size=${page.size}, creator=${param.creator != null ? param.creator[0] : ''}, status=${param.status != null ? param.status[0] : ''}, languageId=${param.languageId != null ? param.languageId[0] : ''}, search=${param.search != null ? param.search[0] : ''})}" th:text="${page.number + 3}"></a>
+                    <a title="下一页" th:if="${not page.last}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.number + 1}, size=${page.size}, creator=${param.creator != null ? param.creator[0] : ''}, status=${param.status != null ? param.status[0] : ''}, languageId=${param.languageId != null ? param.languageId[0] : ''}, search=${param.search != null ? param.search[0] : ''})}" class="icon item popup">
                         <i class="right chevron icon"></i>
                     </a>
-                    <a class="item" th:if="${(page.totalPages > 0) and (not page.last)}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.totalPages - 1}, size=${page.size}, creator=${param.containsKey('creator') ? param.creator[0] : ''}, status=${param.containsKey('status') ? param.status[0] : ''}, languageId=${param.containsKey('languageId') ? param.languageId[0] : ''}, search=${param.containsKey('search') ? param.search[0] : ''})}">末页</a>
+                    <a class="item" th:if="${(page.totalPages > 0) and (not page.last)}" th:href="@{/admin/translate(projectId=${projectId}, page=${page.totalPages - 1}, size=${page.size}, creator=${param.creator != null ? param.creator[0] : ''}, status=${param.status != null ? param.status[0] : ''}, languageId=${param.languageId != null ? param.languageId[0] : ''}, search=${param.search != null ? param.search[0] : ''})}">末页</a>
                 </div>
                 <!-- </div> -->
             </div>

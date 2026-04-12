@@ -629,7 +629,7 @@
                         <div class="ui minimal comments" style="display:none;">
                             <h3 class="ui dividing header" style="margin-top: 65px;">沟通</h3>
                             <button th:unless="${chats.last}" class="fluid ui basic button btn-chat-more" th:text="${'加载更多(' + (chats.totalElements - (chats.number + 1) * chats.size) + ')'}">加载更多</button>
-                            <div class="animated bounceInLeft comment" th:each="c : ${chats}" th:classappend="${(param.containsKey('id') and #strings.equals(param.id[0], c.id)) ? 'marked' : ''}" th:attr="data-id=${c.id}, data-version=${c.version}">
+                            <div class="animated bounceInLeft comment" th:each="c : ${chats}" th:classappend="${(param.id != null and #strings.equals(param.id[0], c.id)) ? 'marked' : ''}" th:attr="data-id=${c.id}, data-version=${c.version}">
                                 <a class="avatar ui mini circular image" th:attr="data-value=${c.creator.username}" style="width: 35px; height: 35px; font-size: 35px; background-color: rgba(150, 178, 183, 0.4); text-align: center;">
                                     <span style="display: inline-block; height: 35px; line-height: 35px; vertical-align: top;" th:if="${not #strings.isEmpty(c.creator.name)}" th:text="${#strings.toUpperCase(#strings.substring(c.creator.name,#strings.length(c.creator.name) - 1,#strings.length(c.creator.name)))}">管理员</span>
                                     <img th:if="${#strings.isEmpty(c.creator.name)}" th:src="@{/image/head.png}" src="../../static/image/head.png">
@@ -660,7 +660,7 @@
                                                 <div class="edit item" title="Alt+双击" th:if="${#authorization.expression('hasRole(''ROLE_SUPER'')') or (c.creator.username == user.username) or (c.openEdit != null and c.openEdit)}">编辑</div>
                                                 <div class="delete item" th:if="${#authorization.expression('hasRole(''ROLE_SUPER'')') or (c.creator.username == user.username)}">删除</div>
                                                 <div class="item btn-read" title="Ctrl+双击">阅读</div>
-                                                <div class="item btn-wiki" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') or (c.creator.username == user.username)}" th:if="${#strings.toString(c.type) != 'Wiki'}">转博</div>
+                                                <div class="item btn-wiki" th:if="${(#authorization.expression('hasRole(''ROLE_ADMIN'')') or (c.creator.username == user.username)) and (#strings.toString(c.type) != 'Wiki')}">转博</div>
                                                 <div class="item btn-jira">转JIRA</div>
                                                 <div class="item btn-openEdit" th:if="${#authorization.expression('hasRole(''ROLE_SUPER'')') or (c.creator.username == user.username)}" th:attr="data-value=${c.openEdit}" th:text="${(c.openEdit != null and c.openEdit) ? '关闭协作' : '开启协作'}">开启协作</div>
                                                 <div class="item btn-copy" th:attr="data-clipboard-text=${c.content}">复制</div>
@@ -772,7 +772,7 @@
                         <div class="chat-search">
                             <div class="ui search">
                                 <div class="ui circular icon button btn-search" title="沟通消息检索">
-                                    <input style="display: none;" class="prompt" th:value="${param.containsKey('search') ? param.search[0] : ''}" type="text" placeholder="查找...">
+                                    <input style="display: none;" class="prompt" th:value="${param.search != null ? param.search[0] : ''}" type="text" placeholder="查找...">
                                     <i class="search link icon"></i>
                                 </div>
                                 <div class="results"></div>
