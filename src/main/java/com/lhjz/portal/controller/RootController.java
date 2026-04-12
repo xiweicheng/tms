@@ -84,7 +84,7 @@ public class RootController extends BaseController {
 	@Value("${lhjz.mail.to.addresses}")
 	private String toAddrArr;
 
-	@RequestMapping()
+	@RequestMapping("/")
 	public String index() {
 		return "forward:index.html";
 	}
