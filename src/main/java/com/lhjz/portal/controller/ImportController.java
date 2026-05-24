@@ -121,8 +121,8 @@ public class ImportController extends BaseController {
 			@RequestParam(value = "observers", required = false) String observers,
 			@RequestParam("content") String content) {
 
-		final Project project = projectRepository.findOne(projectId);
-		Language language2 = languageRepository.findOne(languageId);
+		final Project project = projectRepository.findById(projectId).orElse(null);
+        Language language2 = languageRepository.findById(languageId).orElse(null);
 
 		Map<String, String> kvMaps = new HashMap<>();
 		if (type == 1) {// JSON
@@ -256,7 +256,7 @@ public class ImportController extends BaseController {
 			}
 		}
 
-		translateItemRepository.save(translateItems2);
+		translateItemRepository.saveAll(translateItems2);
 		translateItemRepository.flush();
 
 		// 更新翻译标签
@@ -286,14 +286,14 @@ public class ImportController extends BaseController {
 		Mail mail2 = Mail.instance();
 
 		if (lblUpdated.size() > 0) {
-			labelRepository.save(lblUpdated);
+			labelRepository.saveAll(lblUpdated);
 			labelRepository.flush();
 
 			mail2.addHref("更新", baseURL, translateAction, projectId,
 					updateLabel);
 		}
 
-		translateRepository.save(translates3);
+		translateRepository.saveAll(translates3);
 		translateRepository.flush();
 
 		// 只有新建的会打标签
@@ -302,7 +302,7 @@ public class ImportController extends BaseController {
 			lbls = labels.split(",");
 		}
 
-		List<Translate> translates = translateRepository.save(translates2);
+		List<Translate> translates = translateRepository.saveAll(translates2);
 		translateRepository.flush();
 
 		// 新建的翻译打标签
@@ -333,7 +333,7 @@ public class ImportController extends BaseController {
 
 				labels2.add(label2);
 			}
-			labelRepository.save(labels2);
+			labelRepository.saveAll(labels2);
 			labelRepository.flush();
 
 			translate.getLabels().addAll(labels2);
@@ -343,11 +343,11 @@ public class ImportController extends BaseController {
 			log(Action.Create, Target.Translate, translate.getId());
 		}
 
-		translateRepository.save(translates2);
+		translateRepository.saveAll(translates2);
 		translateRepository.flush();
 
 		if (lblNew.size() > 0) {
-			labelRepository.save(lblNew);
+			labelRepository.saveAll(lblNew);
 			labelRepository.flush();
 
 			mail2.addHref("新增", baseURL, translateAction, projectId, newLabel);
@@ -389,7 +389,7 @@ public class ImportController extends BaseController {
 			@RequestParam("languageId") Long languageId,
 			@RequestParam("type") Long type) {
 
-		Project project = projectRepository.findOne(projectId);
+		Project project = projectRepository.findById(projectId).orElse(null);
 		Set<Translate> translates = project.getTranslates();
 
 		Map<String, String> map = new HashMap<String, String>();

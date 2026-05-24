@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
-import org.thymeleaf.templateresolver.TemplateResolver;
 
 /**
  * Template工具类.
@@ -27,8 +27,8 @@ public class TemplateUtil {
 
 		TEMPLATE_ENGINE = new TemplateEngine();
 
-		TemplateResolver resolver = new ClassLoaderTemplateResolver();
-		resolver.setTemplateMode("LEGACYHTML5");
+		ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+		resolver.setTemplateMode(TemplateMode.HTML);
 		resolver.setCharacterEncoding("UTF-8");
 		resolver.setSuffix(".html");
 		resolver.setCacheable(false);

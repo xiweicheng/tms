@@ -115,7 +115,7 @@ public class SpaceHomeController extends BaseController {
 	@GetMapping("blog/{id}")
 	public RespBody getBlog(@PathVariable("id") Long id) {
 
-		Blog blog = blogRepository.findOne(id);
+		Blog blog = blogRepository.findById(id).orElse(null);
 
 		if (blog == null || Status.Deleted.equals(blog.getStatus()) || !Boolean.TRUE.equals(blog.getOpened())) {
 			return RespBody.failed("博文不存在或者权限不足!");

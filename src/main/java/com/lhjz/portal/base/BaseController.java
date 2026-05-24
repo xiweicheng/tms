@@ -62,11 +62,11 @@ public abstract class BaseController {
 	}
 
 	protected User getLoginUser() {
-		return userRepository.findOne(WebUtil.getUsername());
+		return userRepository.findById(WebUtil.getUsername()).orElse(null);
 	}
 
 	protected User getUser(String username) {
-		return userRepository.findOne(username);
+		return userRepository.findById(username).orElse(null);
 	}
 
 	protected Log logWithProperties(Action action, Target target,

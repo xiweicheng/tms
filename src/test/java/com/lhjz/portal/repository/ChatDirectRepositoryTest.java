@@ -27,7 +27,7 @@ public class ChatDirectRepositoryTest extends AbstractTestNGSpringContextTests {
 	@Test
 	public void save() {
 		ChatDirect cd = new ChatDirect();
-		cd.setChatTo(userRepository.findOne("admin"));
+		cd.setChatTo(userRepository.findById("admin").orElse(null));
 		cd.setContent("test..........");
 
 		chatDirectRepository.saveAndFlush(cd);
@@ -37,7 +37,7 @@ public class ChatDirectRepositoryTest extends AbstractTestNGSpringContextTests {
 	@Test
 	public void queryChatDirect() {
 		List<ChatDirect> chats = chatDirectRepository.queryChatDirect(
-				userRepository.findOne("admin"), userRepository.findOne("test"),
+				userRepository.findById("admin").orElse(null), userRepository.findById("test").orElse(null),
 				0, 10);
 		System.out.println(chats.size());
 	}
@@ -46,14 +46,15 @@ public class ChatDirectRepositoryTest extends AbstractTestNGSpringContextTests {
 	public void queryAboutMe() {
 
 		List<ChatDirect> list = chatDirectRepository.queryAboutMe(
-				userRepository.findOne("test"), "%df%",
+				userRepository.findById("test").orElse(null), "%df%",
 				0, 5);
 
 		System.out.println(list.size());
 
 		long cnt = chatDirectRepository
-				.countAboutMe(userRepository.findOne("test"), "%df%");
+				.countAboutMe(userRepository.findById("test").orElse(null), "%df%");
 
 		System.out.println(cnt);
+
 	}
 }

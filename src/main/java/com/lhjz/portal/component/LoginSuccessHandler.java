@@ -33,7 +33,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
 
 		UserDetails uds = (UserDetails) authentication.getPrincipal();
 
-		User loginUser = userRepository.findOne(uds.getUsername());
+		User loginUser = userRepository.findById(uds.getUsername()).orElse(null);
 		if (loginUser != null) {
 			loginUser.setLastLoginDate(new Date());
 			loginUser.setLoginRemoteAddress(WebUtil.getIpAddr(request));

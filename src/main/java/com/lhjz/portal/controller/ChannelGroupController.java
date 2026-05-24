@@ -66,7 +66,7 @@ public class ChannelGroupController extends BaseController {
             return RespBody.failed("标识不能为空!");
         }
 
-        Channel channel = channelRepository.findOne(channelId);
+        Channel channel = channelRepository.findById(channelId).orElse(null);
 
         if (!isSuperOrCreator(channel.getCreator())) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -87,7 +87,7 @@ public class ChannelGroupController extends BaseController {
     @ResponseBody
     public RespBody listBy(@RequestParam("channelId") Long channelId) {
 
-        Channel channel = channelRepository.findOne(channelId);
+        Channel channel = channelRepository.findById(channelId).orElse(null);
 
         if (channel == null) {
             return RespBody.failed("频道不存在!");
@@ -106,7 +106,7 @@ public class ChannelGroupController extends BaseController {
     @ResponseBody
     public RespBody get(@RequestParam("id") Long id) {
 
-        ChannelGroup channelGroup = channelGroupRepository.findOne(id);
+        ChannelGroup channelGroup = channelGroupRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(channelGroup.getCreator()) && !isChannelMember(channelGroup.getChannel())) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -120,7 +120,7 @@ public class ChannelGroupController extends BaseController {
     public RespBody update(@RequestParam("id") Long id, @RequestParam(value = "title", required = false) String title,
                            @RequestParam(value = "name", required = false) String name) {
 
-        ChannelGroup channelGroup = channelGroupRepository.findOne(id);
+        ChannelGroup channelGroup = channelGroupRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(channelGroup.getCreator())) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -156,7 +156,7 @@ public class ChannelGroupController extends BaseController {
     @ResponseBody
     public RespBody delete(@RequestParam("id") Long id) {
 
-        ChannelGroup channelGroup = channelGroupRepository.findOne(id);
+        ChannelGroup channelGroup = channelGroupRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(channelGroup.getCreator().getUsername())) {
             return RespBody.failed("您没有权限删除该频道组!");
@@ -173,7 +173,7 @@ public class ChannelGroupController extends BaseController {
     @ResponseBody
     public RespBody addMember(@RequestParam("id") Long id, @RequestParam("members") String members) {
 
-        ChannelGroup channelGroup = channelGroupRepository.findOne(id);
+        ChannelGroup channelGroup = channelGroupRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(channelGroup.getCreator().getUsername())) {
             return RespBody.failed("您没有权限添加成员到该频道组!");
@@ -182,7 +182,7 @@ public class ChannelGroupController extends BaseController {
         String[] ms = members.split(",");
 
         Stream.of(ms).forEach(m -> {
-            User user = userRepository.findOne(m);
+            User user = userRepository.findById(m).orElse(null);
             if (user != null && !channelGroup.getMembers().contains(user)) {
                 user.getJoinChannelGroups().add(channelGroup);
                 userRepository.saveAndFlush(user);
@@ -205,7 +205,7 @@ public class ChannelGroupController extends BaseController {
     @ResponseBody
     public RespBody removeMember(@RequestParam("id") Long id, @RequestParam("members") String members) {
 
-        ChannelGroup channelGroup = channelGroupRepository.findOne(id);
+        ChannelGroup channelGroup = channelGroupRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(channelGroup.getCreator().getUsername())) {
             return RespBody.failed("您没有权限从该频道组移除成员!");
@@ -214,7 +214,7 @@ public class ChannelGroupController extends BaseController {
         String[] ms = members.split(",");
 
         Stream.of(ms).forEach(m -> {
-            User user = userRepository.findOne(m);
+            User user = userRepository.findById(m).orElse(null);
             if (user != null) {
                 user.getJoinChannelGroups().remove(channelGroup);
                 userRepository.saveAndFlush(user);
@@ -237,7 +237,7 @@ public class ChannelGroupController extends BaseController {
     @ResponseBody
     public RespBody join(@RequestParam("id") Long id) {
 
-        ChannelGroup channelGroup = channelGroupRepository.findOne(id);
+        ChannelGroup channelGroup = channelGroupRepository.findById(id).orElse(null);
 
         final User loginUser = getLoginUser();
         if (!channelGroup.getMembers().contains(loginUser) && isChannelMember(channelGroup.getChannel())) {
@@ -261,7 +261,7 @@ public class ChannelGroupController extends BaseController {
     @ResponseBody
     public RespBody leave(@RequestParam("id") Long id) {
 
-        ChannelGroup channelGroup = channelGroupRepository.findOne(id);
+        ChannelGroup channelGroup = channelGroupRepository.findById(id).orElse(null);
 
         final User loginUser = getLoginUser();
 

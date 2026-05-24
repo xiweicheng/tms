@@ -48,12 +48,20 @@
 			<!-- <logger name="org.springframework.ui" level="OFF" /> -->
 			<!-- <logger name="org.springframework.core" level="OFF" /> -->
 			<!-- <logger name="org.springframework.orm" level="INFO" /> -->
-			<!-- <logger name="org.hibernate.SQL" level="DEBUG" /> -->
+			<logger name="org.hibernate.SQL" level="OFF" />
+			<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="OFF" />
+			<logger name="org.hibernate.type.descriptor.sql.BasicExtractor" level="OFF" />
+			<logger name="org.hibernate.engine.QueryParameters" level="OFF" />
+			<logger name="org.hibernate.engine.query.spi.HQLQueryPlan" level="OFF" />
+			<logger name="org.hibernate.hql.internal.ast.QueryTranslatorImpl" level="OFF" />
+			<logger name="org.hibernate.loader.Loader" level="OFF" />
 			
 			<springProfile name="dev">
-				<logger name="com.lhjz.portal" level="DEBUG" />
-				<!-- <logger name="org.springframework.security" level="DEBUG" /> -->
-				<!-- <logger name="org.hibernate.SQL" level="DEBUG" /> -->
+				<logger name="com.lhjz.portal" level="INFO" />
+				<logger name="org.springframework" level="WARN" />
+				<logger name="org.hibernate" level="WARN" />
+				<logger name="org.apache" level="WARN" />
+				<logger name="javax.servlet" level="WARN" />
 			</springProfile>
 			<springProfile name="prod,prod-pg">
 				<logger name="com.lhjz.portal" level="INFO" />

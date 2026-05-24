@@ -93,7 +93,7 @@ public class ScheduleController extends BaseController {
 		schedule.setPlace(scheduleForm.getPlace());
 
 		if (scheduleForm.getChannelId() != null) {
-			schedule.setChannel(channelRepository.findOne(scheduleForm.getChannelId()));
+			schedule.setChannel(channelRepository.findById(scheduleForm.getChannelId()).orElse(null));
 		}
 
 		schedule.setStartDate(scheduleForm.getStartDate());
@@ -116,7 +116,7 @@ public class ScheduleController extends BaseController {
 		String[] actors = scheduleForm.getActors().split(",");
 		List<String> names = new ArrayList<>();
 		Stream.of(actors).forEach((actor) -> {
-			User user = userRepository.findOne(actor);
+			User user = userRepository.findById(actor).orElse(null);
 			user.getActSchedules().add(schedule2);
 
 			User user2 = userRepository.saveAndFlush(user);
@@ -165,7 +165,7 @@ public class ScheduleController extends BaseController {
 	@ResponseBody
 	public RespBody get(@RequestParam("id") Long id) {
 
-		Schedule schedule = scheduleRepository.findOne(id);
+		Schedule schedule = scheduleRepository.findById(id).orElse(null);
 
 		return RespBody.succeed(schedule);
 	}
@@ -179,7 +179,7 @@ public class ScheduleController extends BaseController {
 			@RequestParam(value = "priority", required = false) String priority,
 			@RequestParam(value = "privated", required = false) Boolean privated) {
 
-		Schedule schedule = scheduleRepository.findOne(id);
+		Schedule schedule = scheduleRepository.findById(id).orElse(null);
 
 		if (!isSuperOrCreator(schedule.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限修改该计划!");
@@ -253,7 +253,7 @@ public class ScheduleController extends BaseController {
 			@RequestParam(value = "startDate", required = false) Date startDate,
 			@RequestParam(value = "endDate", required = false) Date endDate) {
 
-		Schedule schedule = scheduleRepository.findOne(id);
+		Schedule schedule = scheduleRepository.findById(id).orElse(null);
 
 		if (!isSuperOrCreator(schedule.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限修改该计划!");
@@ -326,7 +326,7 @@ public class ScheduleController extends BaseController {
 			@RequestParam(value = "startDate", required = false) Date startDate,
 			@RequestParam(value = "endDate", required = false) Date endDate) {
 
-		Schedule schedule = scheduleRepository.findOne(id);
+		Schedule schedule = scheduleRepository.findById(id).orElse(null);
 
 		if (!isSuperOrCreator(schedule.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限修改该计划!");
@@ -383,7 +383,7 @@ public class ScheduleController extends BaseController {
 	public RespBody updateRemind(@RequestParam("basePath") final String basePath, @RequestParam("id") Long id,
 			@RequestParam(value = "remind", required = false) Long remind) {
 
-		Schedule schedule = scheduleRepository.findOne(id);
+		Schedule schedule = scheduleRepository.findById(id).orElse(null);
 
 		if (!isSuperOrCreator(schedule.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限修改该计划!");
@@ -409,7 +409,7 @@ public class ScheduleController extends BaseController {
 	public RespBody addActors(@RequestParam("basePath") final String basePath, @RequestParam("id") Long id,
 			@RequestParam("actors") String actors) {
 
-		Schedule schedule = scheduleRepository.findOne(id);
+		Schedule schedule = scheduleRepository.findById(id).orElse(null);
 
 		if (!isSuperOrCreator(schedule.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限修改该计划!");
@@ -422,7 +422,7 @@ public class ScheduleController extends BaseController {
 
 		final Mail mail = Mail.instance();
 		Stream.of(actors.split(",")).forEach((actor) -> {
-			User user = userRepository.findOne(actor);
+			User user = userRepository.findById(actor).orElse(null);
 
 			user.getActSchedules().add(schedule);
 
@@ -471,7 +471,7 @@ public class ScheduleController extends BaseController {
 	public RespBody removeActors(@RequestParam("basePath") final String basePath, @RequestParam("id") Long id,
 			@RequestParam("actors") String actors) {
 
-		Schedule schedule = scheduleRepository.findOne(id);
+		Schedule schedule = scheduleRepository.findById(id).orElse(null);
 
 		if (!isSuperOrCreator(schedule.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限修改该计划!");
@@ -479,7 +479,7 @@ public class ScheduleController extends BaseController {
 
 		final Mail mail = Mail.instance();
 		Stream.of(actors.split(",")).forEach((actor) -> {
-			User user = userRepository.findOne(actor);
+			User user = userRepository.findById(actor).orElse(null);
 
 			user.getActSchedules().remove(schedule);
 
@@ -524,7 +524,7 @@ public class ScheduleController extends BaseController {
 	@ResponseBody
 	public RespBody delete(@RequestParam("basePath") final String basePath, @RequestParam("id") Long id) {
 
-		Schedule schedule = scheduleRepository.findOne(id);
+		Schedule schedule = scheduleRepository.findById(id).orElse(null);
 
 		if (!isSuperOrCreator(schedule.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限删除该计划!");

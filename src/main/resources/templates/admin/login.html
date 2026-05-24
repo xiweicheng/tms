@@ -69,13 +69,13 @@
                 <div class="field">
                     <div class="ui left icon input">
                         <i class="user icon"></i>
-                        <input type="text" th:value="${param.containsKey('username') ? param.username[0] : ''}" id="username" name="username" placeholder="用户名" />
+                        <input type="text" th:value="${param.username != null ? param.username[0] : ''}" id="username" name="username" placeholder="用户名" />
                     </div>
                 </div>
                 <div class="field">
                     <div class="ui left icon input">
                         <i class="lock icon"></i>
-                        <input type="password" th:value="${param.containsKey('password') ? param.password[0] : ''}" id="password" name="password" placeholder="密码" />
+                        <input type="password" th:value="${param.password != null ? param.password[0] : ''}" id="password" name="password" placeholder="密码" />
                     </div>
                 </div>
                 <div class="field">

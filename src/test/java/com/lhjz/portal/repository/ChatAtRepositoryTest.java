@@ -19,7 +19,7 @@ public class ChatAtRepositoryTest extends AbstractTestNGSpringContextTests {
 	@Test
 	public void markAllAsReaded() {
 		int cnt = chatAtRepository
-				.markChatAllAsReaded(userRepository.findOne("test"));
+				.markChatAllAsReaded(userRepository.findById("test").orElse(null));
 
 		System.out.println(cnt);
 	}

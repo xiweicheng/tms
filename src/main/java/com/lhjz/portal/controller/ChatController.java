@@ -170,7 +170,7 @@ public class ChatController extends BaseController {
                 chatAtList.add(chatAt);
             });
 
-            chatAtRepository.save(chatAtList);
+            chatAtRepository.saveAll(chatAtList);
             chatAtRepository.flush();
 
             try {
@@ -211,7 +211,7 @@ public class ChatController extends BaseController {
         }
 
         final User loginUser = getLoginUser();
-        Chat chat = chatRepository.findOne(id);
+        Chat chat = chatRepository.findById(id).orElse(null);
 
         boolean isOpenEdit = Boolean.TRUE.equals(chat.getOpenEdit());
 
@@ -304,7 +304,7 @@ public class ChatController extends BaseController {
                             chatAtList.add(chatAt2);
                         }
                     });
-            chatAtRepository.save(chatAtList);
+            chatAtRepository.saveAll(chatAtList);
             chatAtRepository.flush();
 
             try {
@@ -326,7 +326,7 @@ public class ChatController extends BaseController {
     @ResponseBody
     public RespBody delete(@RequestParam("id") Long id) {
 
-        Chat chat = chatRepository.findOne(id);
+        Chat chat = chatRepository.findById(id).orElse(null);
         if (chat == null) {
             return RespBody.failed("删除聊天内容不存在!");
         }
@@ -336,15 +336,15 @@ public class ChatController extends BaseController {
         }
 
         List<ChatAt> chatAts = chatAtRepository.findByChat(chat);
-        chatAtRepository.delete(chatAts);
-        chatAtRepository.flush();
+		chatAtRepository.deleteAll(chatAts);
+		chatAtRepository.flush();
 
-        List<ChatStow> chatStows = chatStowRepository.findByChat(chat);
-        chatStowRepository.delete(chatStows);
-        chatStowRepository.flush();
+		List<ChatStow> chatStows = chatStowRepository.findByChat(chat);
+		chatStowRepository.deleteAll(chatStows);
+		chatStowRepository.flush();
 
-        chatRepository.delete(chat);
-        chatRepository.flush();
+		chatRepository.delete(chat);
+		chatRepository.flush();
 
         log(Action.Delete, Target.Chat, chat.getId(), chat);
 
@@ -355,7 +355,7 @@ public class ChatController extends BaseController {
     @ResponseBody
     public RespBody get(@RequestParam("id") Long id) {
 
-        Chat chat = chatRepository.findOne(id);
+        Chat chat = chatRepository.findById(id).orElse(null);
         if (chat == null) {
             return RespBody.failed("获取聊天内容不存在!");
         }
@@ -514,8 +514,8 @@ public class ChatController extends BaseController {
             page--;
         }
 
-        pageable = new PageRequest(page > -1 ? (int) page : 0, size,
-                Direction.DESC, "createDate");
+        pageable = PageRequest.of(page > -1 ? (int) page : 0, size,
+					Direction.DESC, "createDate");
 
         Page<Chat> chats = chatRepository.findAll(pageable);
         chats = new PageImpl<>(CollectionUtil.reverseList(chats
@@ -548,7 +548,7 @@ public class ChatController extends BaseController {
                          @RequestParam("contentHtml") String contentHtml,
                          @RequestParam(value = "type", required = false) String type) {
 
-        Chat chat = chatRepository.findOne(id);
+        Chat chat = chatRepository.findById(id).orElse(null);
         if (chat == null) {
             return RespBody.failed("投票聊天内容不存在!");
         }
@@ -633,7 +633,7 @@ public class ChatController extends BaseController {
     @ResponseBody
     public RespBody markAsReaded(@RequestParam("chatAtId") Long chatAtId) {
 
-        ChatAt chatAt = chatAtRepository.findOne(chatAtId);
+        ChatAt chatAt = chatAtRepository.findById(chatAtId).orElse(null);
         if (chatAt == null) {
             return RespBody.failed("@消息不存在,可能已经被删除!");
         }
@@ -647,7 +647,7 @@ public class ChatController extends BaseController {
     @ResponseBody
     public RespBody markAsReadedByChat(@RequestParam("chatId") Long chatId) {
 
-        Chat chat = chatRepository.findOne(chatId);
+        Chat chat = chatRepository.findById(chatId).orElse(null);
         if (chat == null) {
             return RespBody.failed("@消息不存在,可能已经被删除!");
         }
@@ -671,7 +671,7 @@ public class ChatController extends BaseController {
     @ResponseBody
     public RespBody stow(@RequestParam("id") Long id) {
 
-        Chat chat = chatRepository.findOne(id);
+        Chat chat = chatRepository.findById(id).orElse(null);
 
         if (chat == null) {
             return RespBody.failed("收藏消息不存在,可能已经被删除!");
@@ -698,7 +698,7 @@ public class ChatController extends BaseController {
     @ResponseBody
     public RespBody removeStow(@RequestParam("id") Long id) {
 
-        chatStowRepository.delete(id);
+        chatStowRepository.deleteById(id);
 
         return RespBody.succeed(id);
     }
@@ -730,7 +730,7 @@ public class ChatController extends BaseController {
     public RespBody openEdit(@RequestParam("id") Long id,
                              @RequestParam("open") Boolean open) {
 
-        Chat chat = chatRepository.findOne(id);
+        Chat chat = chatRepository.findById(id).orElse(null);
 
         if (chat == null) {
             return RespBody.failed("操作消息不存在,可能已经被删除!");
@@ -753,7 +753,7 @@ public class ChatController extends BaseController {
             return RespBody.failed("标题不能为空!");
         }
 
-        Chat chat = chatRepository.findOne(id);
+        Chat chat = chatRepository.findById(id).orElse(null);
 
         if (chat == null) {
             return RespBody.failed("聊天内容不存在!");
@@ -781,7 +781,7 @@ public class ChatController extends BaseController {
                 labelList.add(label);
             });
 
-            labelRepository.save(labelList);
+            labelRepository.saveAll(labelList);
             labelRepository.flush();
         }
 
@@ -802,7 +802,7 @@ public class ChatController extends BaseController {
             return RespBody.failed("标题不能为空!");
         }
 
-        Chat chat = chatRepository.findOne(id);
+        Chat chat = chatRepository.findById(id).orElse(null);
 
         if (chat == null) {
             return RespBody.failed("聊天内容不存在!");
@@ -824,7 +824,7 @@ public class ChatController extends BaseController {
         if (StringUtil.isNotEmpty(labels)) {
 
             List<Label> labelList2 = labelRepository.findByChat(chat2);
-            labelRepository.delete(labelList2);
+            labelRepository.deleteAll(labelList2);
             labelRepository.flush();
 
             List<Label> labelList = new ArrayList<>();
@@ -841,7 +841,7 @@ public class ChatController extends BaseController {
                 labelList.add(label);
             });
 
-            labelRepository.save(labelList);
+            labelRepository.saveAll(labelList);
             labelRepository.flush();
         }
 
@@ -855,7 +855,7 @@ public class ChatController extends BaseController {
     @ResponseBody
     public RespBody deleteWiki(@RequestParam("id") Long id) {
 
-        Chat chat = chatRepository.findOne(id);
+        Chat chat = chatRepository.findById(id).orElse(null);
 
         if (chat == null) {
             return RespBody.failed("博文不存在!");
@@ -881,7 +881,7 @@ public class ChatController extends BaseController {
             return RespBody.failed("标签不能为空!");
         }
 
-        Chat chat = chatRepository.findOne(id);
+        Chat chat = chatRepository.findById(id).orElse(null);
 
         if (chat == null) {
             return RespBody.failed("聊天内容不存在!");
@@ -907,13 +907,13 @@ public class ChatController extends BaseController {
     @ResponseBody
     public RespBody deleteLabel(@RequestParam("labelId") Long labelId) {
 
-        Label label = labelRepository.findOne(labelId);
+        Label label = labelRepository.findById(labelId).orElse(null);
 
-        if (!isSuperOrCreator(label.getCreator())) {
-            return RespBody.failed("您没有权限删除该标签!");
-        }
+		if (!isSuperOrCreator(label.getCreator())) {
+			return RespBody.failed("您没有权限删除该标签!");
+		}
 
-        labelRepository.delete(labelId);
+		labelRepository.deleteById(labelId);
 
         log(Action.Delete, Target.Label, labelId);
 

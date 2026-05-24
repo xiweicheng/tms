@@ -101,7 +101,7 @@ public class SpaceController extends BaseController {
 	@ResponseBody
 	public RespBody get(@RequestParam("id") Long id) {
 
-		Space space = spaceRepository.findOne(id);
+		Space space = spaceRepository.findById(id).orElse(null);
 
 		if (!AuthUtil.hasSpaceAuth(space)) {
 			return RespBody.failed("没有权限查看该空间!");
@@ -117,7 +117,7 @@ public class SpaceController extends BaseController {
 			@RequestParam(value = "opened", required = false) Boolean opened,
 			@RequestParam(value = "privated", required = false) Boolean privated) {
 
-		Space space = spaceRepository.findOne(id);
+		Space space = spaceRepository.findById(id).orElse(null);
 
 		if (!isSuperOrCreator(space.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限编辑该空间!");
@@ -151,7 +151,7 @@ public class SpaceController extends BaseController {
 	@ResponseBody
 	public RespBody delete(@RequestParam("id") Long id) {
 
-		Space space = spaceRepository.findOne(id);
+		Space space = spaceRepository.findById(id).orElse(null);
 
 		if (!isSuperOrCreator(space.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限删除该空间!");
@@ -196,7 +196,7 @@ public class SpaceController extends BaseController {
 	@RequestMapping(value = "auth/get", method = RequestMethod.GET)
 	@ResponseBody
 	public RespBody getAuth(@RequestParam("id") Long id) {
-		Space space = spaceRepository.findOne(id);
+		Space space = spaceRepository.findById(id).orElse(null);
 		if (!AuthUtil.hasSpaceAuth(space)) {
 			return RespBody.failed("没有权限查看该空间权限!");
 		}
@@ -208,7 +208,7 @@ public class SpaceController extends BaseController {
 	public RespBody addAuth(@RequestParam("id") Long id,
 			@RequestParam(value = "channels", required = false) String channels,
 			@RequestParam(value = "users", required = false) String users) {
-		Space space = spaceRepository.findOne(id);
+		Space space = spaceRepository.findById(id).orElse(null);
 		if (!isSuperOrCreator(space.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限为该空间添加权限!");
 		}
@@ -217,7 +217,7 @@ public class SpaceController extends BaseController {
 
 		if (StringUtil.isNotEmpty(channels)) {
 			Stream.of(channels.split(",")).forEach(c -> {
-				Channel channel = channelRepository.findOne(Long.valueOf(c));
+				Channel channel = channelRepository.findById(Long.valueOf(c)).orElse(null);
 
 				if (channel != null) {
 					SpaceAuthority spaceAuthority = new SpaceAuthority();
@@ -231,7 +231,7 @@ public class SpaceController extends BaseController {
 
 		if (StringUtil.isNotEmpty(users)) {
 			Stream.of(users.split(",")).forEach(u -> {
-				User user = userRepository.findOne(u);
+				User user = userRepository.findById(u).orElse(null);
 				if (user != null) {
 					SpaceAuthority spaceAuthority = new SpaceAuthority();
 					spaceAuthority.setSpace(space);
@@ -242,7 +242,7 @@ public class SpaceController extends BaseController {
 			});
 		}
 
-		List<SpaceAuthority> list = spaceAuthorityRepository.save(spaceAuthorities);
+		List<SpaceAuthority> list = spaceAuthorityRepository.saveAll(spaceAuthorities);
 		spaceAuthorityRepository.flush();
 
 		space.getSpaceAuthorities().addAll(list);
@@ -255,7 +255,7 @@ public class SpaceController extends BaseController {
 	public RespBody removeAuth(@RequestParam("id") Long id,
 			@RequestParam(value = "channels", required = false) String channels,
 			@RequestParam(value = "users", required = false) String users) {
-		Space space = spaceRepository.findOne(id);
+		Space space = spaceRepository.findById(id).orElse(null);
 		if (!isSuperOrCreator(space.getCreator().getUsername())) {
 			return RespBody.failed("您没有权限为该空间移除权限!");
 		}
@@ -334,7 +334,7 @@ public class SpaceController extends BaseController {
 	@ResponseBody
 	public RespBody createDir(@RequestParam("sid") Long sid, @RequestParam("name") String name) {
 
-		Space space = spaceRepository.findOne(sid);
+		Space space = spaceRepository.findById(sid).orElse(null);
 
 		if (space == null) {
 			return RespBody.failed("对应空间不存在！");
@@ -363,7 +363,7 @@ public class SpaceController extends BaseController {
 	@ResponseBody
 	public RespBody updateDir(@RequestParam("id") Long id, @RequestParam("name") String name) {
 
-		Dir dir = dirRepository.findOne(id);
+		Dir dir = dirRepository.findById(id).orElse(null);
 
 		if (dir == null) {
 			return RespBody.failed("对应分类不存在！");
@@ -391,7 +391,7 @@ public class SpaceController extends BaseController {
 	@ResponseBody
 	public RespBody deleteDir(@RequestParam("id") Long id) {
 
-		Dir dir = dirRepository.findOne(id);
+		Dir dir = dirRepository.findById(id).orElse(null);
 
 		if (dir == null) {
 			return RespBody.failed("对应分类不存在！");
@@ -412,7 +412,7 @@ public class SpaceController extends BaseController {
 	public RespBody updateChannel(@RequestParam("id") Long id,
 			@RequestParam(value = "cid", required = false) Long cid) {
 
-		Space space = spaceRepository.findOne(id);
+		Space space = spaceRepository.findById(id).orElse(null);
 
 		if (space == null) {
 			return RespBody.failed("空间不存在！");
@@ -425,7 +425,7 @@ public class SpaceController extends BaseController {
 		Channel channel = null;
 
 		if (cid != null) {
-			channel = channelRepository.findOne(cid);
+			channel = channelRepository.findById(cid).orElse(null);
 
 			if (!AuthUtil.hasChannelAuth(channel)) {
 				return RespBody.failed("频道权限不足！");

@@ -31,7 +31,7 @@ public class BlogRepositoryTest extends AbstractTestNGSpringContextTests {
 	
 //	@Test
 	public void findByStatusNotAndTags_nameIn() {
-		List<Blog> page = blogRepository.findByStatusNotAndTags_nameIn(Status.Deleted, Arrays.asList("linux", "java", "tms"), new Sort(Direction.DESC, "updateDate"));
+		List<Blog> page = blogRepository.findByStatusNotAndTags_nameIn(Status.Deleted, Arrays.asList("linux", "java", "tms"), Sort.by(Direction.DESC, "updateDate"));
 		System.out.println(page.size());
 	}
 }

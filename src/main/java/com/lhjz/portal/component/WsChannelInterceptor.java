@@ -64,7 +64,7 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 		}
 		String blogId = isWsLock ? paramsMap.get("blogId") : null;
 
-		log.info("post send isWsLock: {}, blogId: {}", isWsLock, blogId);
+		log.debug("post send isWsLock: {}, blogId: {}", isWsLock, blogId);
 
 		StompHeaderAccessor sha = StompHeaderAccessor.wrap(message);
 
@@ -80,7 +80,7 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 		}
 
 		//判断客户端的连接状态  
-		log.info("post send cmd: {} username: {}", sha.getCommand().name(), username);
+		log.debug("post send cmd: {} username: {}", sha.getCommand().name(), username);
 
 		switch (sha.getCommand()) {
 		case CONNECT:
@@ -93,7 +93,7 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
 
 				wsLockSend(WsLockPayload.builder().cmd(com.lhjz.portal.model.WsLockPayload.Cmd.LOCK).locker(username)
 						.blogId(Long.valueOf(blogId)).sessionId(sha.getSessionId())
-						.name(userRepository.findOne(username).getName()).build());
+						.name(userRepository.findById(username).orElse(null).getName()).build());
 			} else {
 				wsSend(Cmd.ON, username, sha.getSessionId());
 				cacheManager.getCache(SysConstant.ONLINE_USERS).put(username + "@" + sha.getSessionId(), new Date());

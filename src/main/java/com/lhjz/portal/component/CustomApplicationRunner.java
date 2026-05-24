@@ -113,7 +113,7 @@ public class CustomApplicationRunner implements ApplicationRunner {
 	private void initSuperUser() {
 
 		// check super exists or not
-		if (userRepository.findOne(superUser.getUsername()) != null) {
+		if (userRepository.findById(superUser.getUsername()).orElse(null) != null) {
 			return;
 		}
 
@@ -136,7 +136,7 @@ public class CustomApplicationRunner implements ApplicationRunner {
 					return authority;
 				}).collect(Collectors.toList());
 
-		authorityRepository.save(authorities);
+		authorityRepository.saveAll(authorities);
 		authorityRepository.flush();
 	}
 

@@ -127,7 +127,7 @@ public class ChannelController extends BaseController {
     @ResponseBody
     public RespBody get(@RequestParam("id") Long id) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         return RespBody.succeed(channel);
     }
@@ -138,7 +138,7 @@ public class ChannelController extends BaseController {
                            @RequestParam(value = "desc", required = false) String desc,
                            @RequestParam(value = "privated", required = false) Boolean privated) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(channel.getCreator().getUsername())) {
             return RespBody.failed("您没有权限编辑该频道!");
@@ -163,7 +163,7 @@ public class ChannelController extends BaseController {
     @ResponseBody
     public RespBody delete(@RequestParam("id") Long id) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(channel.getCreator().getUsername())) {
             return RespBody.failed("您没有权限删除该频道!");
@@ -185,7 +185,7 @@ public class ChannelController extends BaseController {
     public RespBody addMember(@RequestParam("id") Long id, @RequestParam("members") String members,
                               @RequestParam("baseUrl") String baseUrl, @RequestParam("path") String path) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         if (Boolean.TRUE.equals(channel.getPrivated()) && !isSuperOrCreator(channel.getCreator().getUsername())) {
             return RespBody.failed("您没有权限添加成员到该频道!");
@@ -195,7 +195,7 @@ public class ChannelController extends BaseController {
         final Mail mail = Mail.instance();
 
         Stream.of(ms).forEach(m -> {
-            User user = userRepository.findOne(m);
+            User user = userRepository.findById(m).orElse(null);
             if (user != null && !channel.getMembers().contains(user)) {
                 user.getJoinChannels().add(channel);
                 userRepository.saveAndFlush(user);
@@ -233,7 +233,7 @@ public class ChannelController extends BaseController {
     @ResponseBody
     public RespBody removeMember(@RequestParam("id") Long id, @RequestParam("members") String members) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(channel.getCreator().getUsername())) {
             return RespBody.failed("您没有权限从该频道移除成员!");
@@ -242,7 +242,7 @@ public class ChannelController extends BaseController {
         String[] ms = members.split(",");
 
         Stream.of(ms).forEach(m -> {
-            User user = userRepository.findOne(m);
+            User user = userRepository.findById(m).orElse(null);
             if (user != null && !channel.getOwner().getUsername().equals(user.getUsername())) {
                 user.getJoinChannels().remove(channel);
                 userRepository.saveAndFlush(user);
@@ -275,7 +275,7 @@ public class ChannelController extends BaseController {
     @ResponseBody
     public RespBody listPinBy(@RequestParam("id") Long id) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.isChannelMember(channel)) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -301,7 +301,7 @@ public class ChannelController extends BaseController {
     @ResponseBody
     public RespBody join(@RequestParam("id") Long id) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         if (Boolean.TRUE.equals(channel.getPrivated())) {
             return RespBody.failed("非公开频道,没有加入权限!");
@@ -328,7 +328,7 @@ public class ChannelController extends BaseController {
     @ResponseBody
     public RespBody leave(@RequestParam("id") Long id) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         final User loginUser = getLoginUser();
 
@@ -377,7 +377,7 @@ public class ChannelController extends BaseController {
     @ResponseBody
     public RespBody subscribe(@RequestParam("id") Long id) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         if (!isMember(channel)) {
             return RespBody.failed("非频道成员,无订阅权限!");
@@ -401,7 +401,7 @@ public class ChannelController extends BaseController {
     @ResponseBody
     public RespBody unsubscribe(@RequestParam("id") Long id) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         final User loginUser = getLoginUser();
 
@@ -419,7 +419,7 @@ public class ChannelController extends BaseController {
     @ResponseBody
     public RespBody listNotice(@RequestParam("id") Long id) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(channel)) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -435,7 +435,7 @@ public class ChannelController extends BaseController {
     @ResponseBody
     public RespBody topNotice(@RequestParam("id") Long id) {
 
-        Channel channel = channelRepository.findOne(id);
+        Channel channel = channelRepository.findById(id).orElse(null);
 
         if (!AuthUtil.hasChannelAuth(channel)) {
             return RespBody.failed(ERR_NO_AUTH);

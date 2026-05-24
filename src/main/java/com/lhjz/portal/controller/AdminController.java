@@ -303,13 +303,13 @@ public class AdminController extends BaseController {
                 page--;
             }
 
-            pageable = new PageRequest(page > -1 ? (int) page : 0, size, Direction.DESC, "createDate");
+            pageable = PageRequest.of(page > -1 ? (int) page : 0, size, Direction.DESC, "createDate");
         }
 
         Page<Chat> chats = chatRepository.findAll(pageable);
         chats = new PageImpl<>(CollectionUtil.reverseList(chats.getContent()), pageable, chats.getTotalElements());
 
-        Page<Log> logs = logRepository.findByTarget(Target.Translate, new PageRequest(0, 15, Direction.DESC, "id"));
+        Page<Log> logs = logRepository.findByTarget(Target.Translate, PageRequest.of(0, 15, Direction.DESC, "id"));
 
         List<User> users = userRepository.findAll();
         Collections.sort(users);
@@ -353,7 +353,7 @@ public class AdminController extends BaseController {
         Project project = null;
         org.springframework.data.domain.Page<Translate> page = null;
         if (projectId != null && projectId != -1) {
-            project = projectRepository.findOne(projectId);
+            project = projectRepository.findById(projectId).orElse(null);
         }
 
         // 存在检索项目
@@ -368,14 +368,14 @@ public class AdminController extends BaseController {
                 page = translateRepository.findByProjectAndCreator(project, creator, pageable);
             } else if (StringUtil.isNotEmpty(status)) {
                 if (Status.valueOf(status).equals(Status.Updated)) {
-                    pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), Direction.DESC,
+                    pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Direction.DESC,
                             "updateDate");
                 }
                 page = translateRepository.findByProjectAndStatus(project, Status.valueOf(status), pageable);
             } else if (StringUtil.isNotEmpty(languageId)) {
                 long total = translateRepository.countUnTranslatedByProject(languageId, projectId);
                 List<Translate> unTranslates = translateRepository.queryUnTranslatedByProject(languageId, projectId,
-                        pageable.getOffset(), pageable.getPageSize());
+                        (int) pageable.getOffset(), pageable.getPageSize());
                 page = new PageImpl<>(unTranslates, pageable, total);
             } else if (StringUtil.isNotEmpty(search)) {
                 String like = "%" + search + "%";
@@ -395,14 +395,14 @@ public class AdminController extends BaseController {
                     page = translateRepository.findByCreator(creator, pageable);
                 } else if (StringUtil.isNotEmpty(status)) {
                     if (Status.valueOf(status).equals(Status.Updated)) {
-                        pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), Direction.DESC,
+                        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Direction.DESC,
                                 "updateDate");
                     }
                     page = translateRepository.findByStatus(Status.valueOf(status), pageable);
                 } else if (StringUtil.isNotEmpty(languageId)) {
                     long total = translateRepository.countUnTranslated(languageId);
                     List<Translate> unTranslates = translateRepository.queryUnTranslated(languageId,
-                            pageable.getOffset(), pageable.getPageSize());
+                            (int) pageable.getOffset(), pageable.getPageSize());
                     page = new PageImpl<>(unTranslates, pageable, total);
                 } else if (StringUtil.isNotEmpty(search)) {
                     String like = "%" + search + "%";
@@ -469,7 +469,7 @@ public class AdminController extends BaseController {
         Set<Language> languages = null;
         Project project;
         if (projectId != null) {
-            project = projectRepository.findOne(projectId);
+            project = projectRepository.findById(projectId).orElse(null);
             if (project != null) {
                 languages = project.getLanguages();
             } else {

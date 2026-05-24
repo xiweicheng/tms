@@ -248,7 +248,7 @@ public class BlogController extends BaseController {
         }
 
         if (spaceId != null) {
-            Space space = spaceRepository.findOne(spaceId);
+            Space space = spaceRepository.findById(spaceId).orElse(null);
             if (space == null) {
                 return RespBody.failed("指定空间不存在!");
             }
@@ -256,7 +256,7 @@ public class BlogController extends BaseController {
         }
 
         if (dirId != null) {
-            Dir dir = dirRepository.findOne(dirId);
+            Dir dir = dirRepository.findById(dirId).orElse(null);
             if (dir == null) {
                 return RespBody.failed("指定分类不存在!");
             }
@@ -443,7 +443,7 @@ public class BlogController extends BaseController {
             return RespBody.failed("更新内容不能为空!");
         }
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         boolean isOpenEdit = Boolean.TRUE.equals(blog.getOpenEdit());
 
@@ -584,7 +584,7 @@ public class BlogController extends BaseController {
             return RespBody.failed("更新内容不能为空!");
         }
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(blog.getCreator().getUsername())) {
             return RespBody.failed(FAIL_MSG_NO_AUTH_EDIT_BLOG);
@@ -619,7 +619,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody delete(@RequestParam("id") Long id) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(blog.getCreator().getUsername())) {
             return RespBody.failed("您没有权限删除该博文!");
@@ -662,7 +662,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody get(@RequestParam("id") Long id, @RequestParam(value = "inc", defaultValue = "true") Boolean inc) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (blog == null || Status.Deleted.equals(blog.getStatus())) {
             return RespBody.failed("博文不存在或者已经被删除!");
@@ -777,7 +777,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody openEdit(@RequestParam("id") Long id, @RequestParam("open") Boolean open) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (blog == null) {
             return RespBody.failed("博文消息不存在,可能已经被删除!");
@@ -830,7 +830,7 @@ public class BlogController extends BaseController {
                          @RequestParam("contentHtml") String contentHtml,
                          @RequestParam(value = "type", required = false) String type) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (blog == null) {
             return RespBody.failed("投票博文消息不存在!");
         }
@@ -897,7 +897,7 @@ public class BlogController extends BaseController {
                                 @RequestParam("contentHtml") String contentHtml,
                                 @RequestParam(value = "type", required = false) String type) {
 
-        Comment comment = commentRepository.findOne(cid);
+        Comment comment = commentRepository.findById(cid).orElse(null);
         if (comment == null) {
             return RespBody.failed("投票博文评论不存在!");
         }
@@ -982,7 +982,7 @@ public class BlogController extends BaseController {
                           @RequestParam(value = "channels", required = false) String channels,
                           @RequestParam(value = "mails", required = false) String mails) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (!hasAuth(blog)) {
             return RespBody.failed("您没有权限分享该博文!");
@@ -1068,7 +1068,7 @@ public class BlogController extends BaseController {
                                  @RequestParam(value = "channels", required = false) String channels,
                                  @RequestParam(value = "mails", required = false) String mails) {
 
-        Comment comment = commentRepository.findOne(id);
+        Comment comment = commentRepository.findById(id).orElse(null);
 
         final User loginUser = getLoginUser();
 
@@ -1176,7 +1176,7 @@ public class BlogController extends BaseController {
 
         final String href = basePath + BLOG_PATH + id + CID + comment2.getId();
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         Mail mail = Mail.instance();
         mail.addUsers(Collections.singletonList(blog.getCreator()), loginUser);
@@ -1257,7 +1257,7 @@ public class BlogController extends BaseController {
                                   @RequestParam(value = "diff", required = false) String diff,
                                   @RequestParam(value = "users", required = false) String users) {
 
-        Comment comment = commentRepository.findOne(cid);
+        Comment comment = commentRepository.findById(cid).orElse(null);
 
         if (comment == null) {
             return RespBody.failed("修改博文评论不存在,可能已经被删除!");
@@ -1286,7 +1286,7 @@ public class BlogController extends BaseController {
 
         final String href = basePath + BLOG_PATH + id + CID + comment2.getId();
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         Mail mail = Mail.instance();
         mail.addUsers(Collections.singletonList(blog.getCreator()), loginUser);
@@ -1357,7 +1357,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody removeComment(@RequestParam("cid") Long cid) {
 
-        Comment comment = commentRepository.findOne(cid);
+        Comment comment = commentRepository.findById(cid).orElse(null);
         if (comment != null) {
 
             if (!isSuperOrCreator(comment.getCreator().getUsername())) {
@@ -1379,7 +1379,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody getComment(@RequestParam("cid") Long cid) {
 
-        Comment comment = commentRepository.findOne(cid);
+        Comment comment = commentRepository.findById(cid).orElse(null);
 
         if (!hasAuth(Long.valueOf(comment.getTargetId()))) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -1394,16 +1394,16 @@ public class BlogController extends BaseController {
                                 @RequestParam(value = "did", required = false) Long did,
                                 @RequestParam(value = "pid", required = false) Long pid) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(blog.getCreator().getUsername()) && (blog.getSpace() == null
                 || (!blog.getSpace().getCreator().getUsername().equals(WebUtil.getUsername())))) {
             return RespBody.failed("您没有权限修改该博文从属空间!");
         }
 
-        Space space = sid != null ? spaceRepository.findOne(sid) : null;
+        Space space = sid != null ? spaceRepository.findById(sid).orElse(null) : null;
 
-        Dir dir = did != null ? dirRepository.findOne(did) : null;
+        Dir dir = did != null ? dirRepository.findById(did).orElse(null) : null;
 
         blogRepository.updateSpaceAndDirAndPid(space, dir, pid, id);
 
@@ -1429,7 +1429,7 @@ public class BlogController extends BaseController {
 
         em.detach(blog);
 
-        return RespBody.succeed(blogRepository.findOne(id));
+        return RespBody.succeed(blogRepository.findById(id).orElse(null));
     }
 
     private void updateSpaceAndDir(Space space, Dir dir, Long id) {
@@ -1446,7 +1446,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody updatePrivated(@RequestParam("id") Long id, @RequestParam("privated") Boolean privated) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(blog.getCreator().getUsername())) {
             return RespBody.failed("您没有权限修改该博文可见性!");
@@ -1458,14 +1458,14 @@ public class BlogController extends BaseController {
 
         em.detach(blog);
 
-        return RespBody.succeed(blogRepository.findOne(id));
+        return RespBody.succeed(blogRepository.findById(id).orElse(null));
     }
 
     @RequestMapping(value = "file/permission/update", method = RequestMethod.POST)
     @ResponseBody
     public RespBody updateFilePermission(@RequestParam("id") Long id, @RequestParam("readonly") Boolean readonly) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(blog.getCreator().getUsername())) {
             return RespBody.failed("您没有权限修改该博文文件附件权限!");
@@ -1477,14 +1477,14 @@ public class BlogController extends BaseController {
 
         em.detach(blog);
 
-        return RespBody.succeed(blogRepository.findOne(id));
+        return RespBody.succeed(blogRepository.findById(id).orElse(null));
     }
 
     @RequestMapping(value = "opened/update", method = RequestMethod.POST)
     @ResponseBody
     public RespBody updateOpened(@RequestParam("id") Long id, @RequestParam("opened") Boolean opened) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(blog.getCreator().getUsername())) {
             return RespBody.failed("您没有权限修改该博文的可见性!");
@@ -1496,14 +1496,14 @@ public class BlogController extends BaseController {
 
         em.detach(blog);
 
-        return RespBody.succeed(blogRepository.findOne(id));
+        return RespBody.succeed(blogRepository.findById(id).orElse(null));
     }
 
     @RequestMapping(value = "history/list", method = RequestMethod.GET)
     @ResponseBody
     public RespBody listHistory(@RequestParam("id") Long id) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (!hasAuth(blog)) {
             return RespBody.failed("您没有权限查看该博文历史列表!");
@@ -1518,7 +1518,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody getHistory(@RequestParam("hid") Long hid) {
 
-        BlogHistory blogHistory = blogHistoryRepository.findOne(hid);
+        BlogHistory blogHistory = blogHistoryRepository.findById(hid).orElse(null);
         Blog blog = blogHistory.getBlog();
 
         if (!hasAuth(blog)) {
@@ -1532,7 +1532,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody removeHistory(@RequestParam("hid") Long hid) {
 
-        BlogHistory blogHistory = blogHistoryRepository.findOne(hid);
+        BlogHistory blogHistory = blogHistoryRepository.findById(hid).orElse(null);
         Blog blog = blogHistory.getBlog();
 
         if (!isSuperOrCreator(blog.getCreator().getUsername())) {
@@ -1550,7 +1550,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody restoreHistory(@RequestParam("hid") Long hid) {
 
-        BlogHistory blogHistory = blogHistoryRepository.findOne(hid);
+        BlogHistory blogHistory = blogHistoryRepository.findById(hid).orElse(null);
         Blog blog = blogHistory.getBlog();
 
         if (!hasAuth(blog)) {
@@ -1593,7 +1593,7 @@ public class BlogController extends BaseController {
 
         logger.debug("download blog start...");
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (blog == null) {
             try {
                 response.sendError(404, "下载博文不存在!");
@@ -1774,7 +1774,7 @@ public class BlogController extends BaseController {
 
         logger.debug("download blog comment start...");
 
-        Comment comment = commentRepository.findOne(id);
+        Comment comment = commentRepository.findById(id).orElse(null);
         if (comment == null) {
             try {
                 response.sendError(404, "下载博文评论不存在!");
@@ -1785,7 +1785,7 @@ public class BlogController extends BaseController {
             }
         }
 
-        Blog blog = blogRepository.findOne(Long.valueOf(comment.getTargetId()));
+        Blog blog = blogRepository.findById(Long.valueOf(comment.getTargetId())).orElse(null);
 
         if (!hasAuth(blog)) {
             try {
@@ -1955,7 +1955,7 @@ public class BlogController extends BaseController {
 
         logger.debug("download blog md2html start...");
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (blog == null) {
             return RespBody.failed("下载博文不存在!");
         }
@@ -1994,13 +1994,13 @@ public class BlogController extends BaseController {
 
         logger.debug("download blog comment md2html start...");
 
-        Comment comment = commentRepository.findOne(id);
+        Comment comment = commentRepository.findById(id).orElse(null);
 
         if (comment == null) {
             return RespBody.failed("下载博文评论不存在!");
         }
 
-        Blog blog = blogRepository.findOne(Long.valueOf(comment.getTargetId()));
+        Blog blog = blogRepository.findById(Long.valueOf(comment.getTargetId())).orElse(null);
 
         if (!hasAuth(blog)) {
             return RespBody.failed("您没有权限下载该博文评论!");
@@ -2048,7 +2048,7 @@ public class BlogController extends BaseController {
             return false;
         }
 
-        Blog b = blogRepository.findOne(id);
+        Blog b = blogRepository.findById(id).orElse(null);
 
         if (b == null) {
             return false;
@@ -2162,7 +2162,7 @@ public class BlogController extends BaseController {
     @RequestMapping(value = "auth/get", method = RequestMethod.GET)
     @ResponseBody
     public RespBody getAuth(@RequestParam("id") Long id) {
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (!hasAuth(blog)) {
             return RespBody.failed("您没有权限查看该博文权限!");
         }
@@ -2174,7 +2174,7 @@ public class BlogController extends BaseController {
     public RespBody addAuth(@RequestParam("id") Long id,
                             @RequestParam(value = "channels", required = false) String channels,
                             @RequestParam(value = "users", required = false) String users) {
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (!isSuperOrCreator(blog.getCreator().getUsername())) {
             return RespBody.failed("您没有权限为该博文添加权限!");
         }
@@ -2183,7 +2183,7 @@ public class BlogController extends BaseController {
 
         if (StringUtil.isNotEmpty(channels)) {
             Stream.of(channels.split(",")).forEach(c -> {
-                Channel channel = channelRepository.findOne(Long.valueOf(c));
+                Channel channel = channelRepository.findById(Long.valueOf(c)).orElse(null);
 
                 if (channel != null) {
                     BlogAuthority blogAuthority = new BlogAuthority();
@@ -2197,7 +2197,7 @@ public class BlogController extends BaseController {
 
         if (StringUtil.isNotEmpty(users)) {
             Stream.of(users.split(",")).forEach(u -> {
-                User user = userRepository.findOne(u);
+                User user = userRepository.findById(u).orElse(null);
                 if (user != null) {
                     BlogAuthority blogAuthority = new BlogAuthority();
                     blogAuthority.setBlog(blog);
@@ -2208,7 +2208,7 @@ public class BlogController extends BaseController {
             });
         }
 
-        List<BlogAuthority> list = blogAuthorityRepository.save(blogAuthorities);
+        List<BlogAuthority> list = blogAuthorityRepository.saveAll(blogAuthorities);
         blogAuthorityRepository.flush();
 
         blog.getBlogAuthorities().addAll(list);
@@ -2221,7 +2221,7 @@ public class BlogController extends BaseController {
     public RespBody removeAuth(@RequestParam("id") Long id,
                                @RequestParam(value = "channels", required = false) String channels,
                                @RequestParam(value = "users", required = false) String users) {
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (!isSuperOrCreator(blog.getCreator().getUsername())) {
             return RespBody.failed("您没有权限为该博文移除权限!");
         }
@@ -2274,7 +2274,7 @@ public class BlogController extends BaseController {
     @RequestMapping(value = "stow/add", method = RequestMethod.POST)
     @ResponseBody
     public RespBody addStow(@RequestParam("id") Long id) {
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (!hasAuth(blog)) {
             return RespBody.failed("您没有权限收藏该博文!");
         }
@@ -2312,7 +2312,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody removeStow(@RequestParam("sid") Long sid) {
 
-        BlogStow blogStow = blogStowRepository.findOne(sid);
+        BlogStow blogStow = blogStowRepository.findById(sid).orElse(null);
 
         if (blogStow == null) {
             return RespBody.failed("该博文收藏记录不存在!");
@@ -2348,7 +2348,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody getStow(@RequestParam("id") Long id) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (!hasAuth(blog)) {
             return RespBody.failed("您没有权限操作该博文!");
         }
@@ -2363,7 +2363,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody listStow(@RequestParam("id") Long id) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (!hasAuth(blog)) {
             return RespBody.failed("您没有权限操作该博文!");
         }
@@ -2377,7 +2377,7 @@ public class BlogController extends BaseController {
     @RequestMapping(value = "follower/add", method = RequestMethod.POST)
     @ResponseBody
     public RespBody addFollower(@RequestParam("id") Long id) {
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (!hasAuth(blog)) {
             return RespBody.failed("您没有权限关注该博文!");
         }
@@ -2415,7 +2415,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody removeFollower(@RequestParam("fid") Long fid) {
 
-        BlogFollower blogFollower = blogFollowerRepository.findOne(fid);
+        BlogFollower blogFollower = blogFollowerRepository.findById(fid).orElse(null);
 
         if (blogFollower == null) {
             return RespBody.failed("该博文关注记录不存在!");
@@ -2450,7 +2450,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody getFollower(@RequestParam("id") Long id) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (!hasAuth(blog)) {
             return RespBody.failed("您没有权限操作该博文!");
         }
@@ -2465,7 +2465,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody listFollower(@RequestParam("id") Long id) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (!hasAuth(blog)) {
             return RespBody.failed("您没有权限操作该博文!");
         }
@@ -2480,7 +2480,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody poll(@RequestParam("id") Long id) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         if (!hasAuth(blog)) {
             return RespBody.failed("您没有权限操作该博文!");
         }
@@ -2507,11 +2507,11 @@ public class BlogController extends BaseController {
 
             String targetId = lg.getTargetId();
             if (Target.Blog.equals(lg.getTarget())) {
-                Blog blog = blogRepository.findOne(Long.valueOf(targetId));
+                Blog blog = blogRepository.findById(Long.valueOf(targetId)).orElse(null);
                 return hasAuthWithDeleted(blog);
             } else if (Target.Comment.equals(lg.getTarget())) {
-                Comment comment = commentRepository.findOne(Long.valueOf(targetId));
-                Blog blog = blogRepository.findOne(Long.valueOf(comment.getTargetId()));
+                Comment comment = commentRepository.findById(Long.valueOf(targetId)).orElse(null);
+                Blog blog = blogRepository.findById(Long.valueOf(comment.getTargetId())).orElse(null);
                 return hasAuthWithDeleted(blog);
             }
 
@@ -2545,11 +2545,11 @@ public class BlogController extends BaseController {
 
             String targetId = lg.getTargetId();
             if (Target.Blog.equals(lg.getTarget())) {
-                Blog blog = blogRepository.findOne(Long.valueOf(targetId));
+                Blog blog = blogRepository.findById(Long.valueOf(targetId)).orElse(null);
                 return hasAuthWithDeleted(blog);
             } else if (Target.Comment.equals(lg.getTarget())) {
-                Comment comment = commentRepository.findOne(Long.valueOf(targetId));
-                Blog blog = blogRepository.findOne(Long.valueOf(comment.getTargetId()));
+                Comment comment = commentRepository.findById(Long.valueOf(targetId)).orElse(null);
+                Blog blog = blogRepository.findById(Long.valueOf(comment.getTargetId())).orElse(null);
                 return hasAuthWithDeleted(blog);
             }
 
@@ -2574,7 +2574,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody addTag(@RequestParam("id") Long id, @RequestParam("tags") String tags) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         boolean isOpenEdit = Boolean.TRUE.equals(blog.getOpenEdit());
         if (!isSuperOrCreator(blog.getCreator().getUsername()) && !isOpenEdit) {
             return RespBody.failed("您没有权限为该博文添加标签!");
@@ -2608,7 +2608,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody removeTag(@RequestParam("id") Long id, @RequestParam("tags") String tags) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
         boolean isOpenEdit = Boolean.TRUE.equals(blog.getOpenEdit());
         if (!isSuperOrCreator(blog.getCreator().getUsername()) && !isOpenEdit) {
             return RespBody.failed("您没有权限移除该博文的标签!");
@@ -2646,7 +2646,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody updateDir(@RequestParam("id") Long id, @RequestParam(value = "did", required = false) Long did) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (blog == null) {
             return RespBody.failed("对应博文不存在！");
@@ -2658,7 +2658,7 @@ public class BlogController extends BaseController {
 
         Dir dir = null;
         if (did != null) {
-            dir = dirRepository.findOne(did);
+            dir = dirRepository.findById(did).orElse(null);
 
             if (dir == null) {
                 return RespBody.failed("对应分类不存在！");
@@ -2686,7 +2686,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody deleteNews(@RequestParam("id") Long id) {
 
-        BlogNews news = blogNewsRepository.findOne(id);
+        BlogNews news = blogNewsRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(news.getTo())) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -2707,7 +2707,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody createShare(@RequestParam("id") Long id) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(blog.getCreator())) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -2732,7 +2732,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody removeShare(@RequestParam("id") Long id) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(blog.getCreator())) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -2756,7 +2756,7 @@ public class BlogController extends BaseController {
     public RespBody updateTpl(@RequestParam("id") Long id, @RequestParam("tpl") Integer tpl,
                               @RequestParam(value = "desc", required = false) String desc) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (!isSuperOrCreator(blog.getCreator())) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -2790,7 +2790,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody incTplHotCnt(@RequestParam("id") Long id) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (blog == null || Status.Deleted.equals(blog.getStatus())) {
             return RespBody.failed("博文不存在或者已经被删除!");
@@ -2817,7 +2817,7 @@ public class BlogController extends BaseController {
 
         blogHistories.forEach(item -> {
             if (item.getEditor() == null) {
-                Blog blog = blogRepository.findOne(item.getBlog().getId());
+                Blog blog = blogRepository.findById(item.getBlog().getId()).orElse(null);
                 if (blog != null) {
                     item.setEditor(blog.getEditor() != null ? blog.getEditor() : Editor.Markdown);
                     blogHistoryRepository.saveAndFlush(item);
@@ -2844,7 +2844,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody toggelCommentLabel(@RequestParam("cid") Long cid, @RequestParam("name") String name) {
 
-        Comment comment = commentRepository.findOne(cid);
+        Comment comment = commentRepository.findById(cid).orElse(null);
 
         if (!hasAuth(Long.valueOf(comment.getTargetId()))) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -2892,7 +2892,7 @@ public class BlogController extends BaseController {
 
         assert sortItems != null;
         Stream.of(sortItems).forEach(item -> {
-            Blog blog = blogRepository.findOne(item.getId());
+            Blog blog = blogRepository.findById(item.getId()).orElse(null);
             if (blog.getSpace() == null || AuthUtil.hasSpaceAuth(blog.getSpace())
                     && item.getSort() != null && !item.getSort().equals(blog.getSort())) {
                 blog.setSort(item.getSort());
@@ -2915,7 +2915,7 @@ public class BlogController extends BaseController {
 
         assert sortItems != null;
         Stream.of(sortItems).forEach(item -> {
-            Dir dir = dirRepository.findOne(item.getId());
+            Dir dir = dirRepository.findById(item.getId()).orElse(null);
             if (AuthUtil.hasSpaceAuth(dir.getSpace())
                     && item.getSort() != null && !item.getSort().equals(dir.getSort())) {
                 dir.setSort(item.getSort());
@@ -2938,7 +2938,7 @@ public class BlogController extends BaseController {
 
         assert sortItems != null;
         Stream.of(sortItems).forEach(item -> {
-            Space space = spaceRepository.findOne(item.getId());
+            Space space = spaceRepository.findById(item.getId()).orElse(null);
             if (isSuperOrCreator(space.getCreator())
                     && item.getSort() != null && !item.getSort().equals(space.getSort())) {
                 space.setSort(item.getSort());
@@ -2961,7 +2961,7 @@ public class BlogController extends BaseController {
     public RespBody listByPid(@RequestParam("pid") Long pid,
                               @SortDefault(value = "id", direction = Direction.DESC) Sort sort) {
 
-        Blog blog = blogRepository.findOne(pid);
+        Blog blog = blogRepository.findById(pid).orElse(null);
 
         if (!hasAuth(blog)) {
             return RespBody.failed(ERR_NO_AUTH);
@@ -3021,7 +3021,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody updateHasChild(@RequestParam("id") Long id) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (blog == null) {
             return RespBody.failed("对应博文不存在！");
@@ -3042,7 +3042,7 @@ public class BlogController extends BaseController {
     @ResponseBody
     public RespBody updatePid(@RequestParam("id") Long id, @RequestParam(value = "pid", required = false) Long pid) {
 
-        Blog blog = blogRepository.findOne(id);
+        Blog blog = blogRepository.findById(id).orElse(null);
 
         if (blog == null) {
             return RespBody.failed("对应博文不存在！");
@@ -3053,7 +3053,7 @@ public class BlogController extends BaseController {
         }
 
         if (pid != null) {
-            Blog blogP = blogRepository.findOne(pid);
+            Blog blogP = blogRepository.findById(pid).orElse(null);
             if (blogP == null) {
                 return RespBody.failed("对应博文不存在！");
             }

@@ -9,13 +9,15 @@ import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Entity
 public class OauthApprovals implements Serializable {
 
 	private static final long serialVersionUID = -2506015946074440618L;
 
 	@Id
-	@GeneratedValue
+    @GeneratedValue(strategy = IDENTITY)
 	private Long id;
 
 	private String userId;

@@ -160,7 +160,7 @@ public class ChatDirectController extends BaseController {
             return RespBody.failed("提交内容不能为空!");
         }
 
-        final User chatToUser = userRepository.findOne(chatTo);
+        final User chatToUser = userRepository.findById(chatTo).orElse(null);
 
         if (chatToUser == null) {
             return RespBody.failed("聊天对象不存在!");
@@ -206,7 +206,7 @@ public class ChatDirectController extends BaseController {
             return RespBody.failed("更新内容不能为空!");
         }
 
-        final ChatDirect chatDirect = chatDirectRepository.findOne(id);
+        final ChatDirect chatDirect = chatDirectRepository.findById(id).orElse(null);
 
         if (chatDirect == null) {
             return RespBody.failed("更新内容不存在!");
@@ -253,7 +253,7 @@ public class ChatDirectController extends BaseController {
     @ResponseBody
     public RespBody delete(@RequestParam("id") Long id) {
 
-        ChatDirect chatDirect = chatDirectRepository.findOne(id);
+        ChatDirect chatDirect = chatDirectRepository.findById(id).orElse(null);
 
         if (chatDirect == null) {
             return RespBody.failed("删除内容不存在!");
@@ -270,13 +270,13 @@ public class ChatDirectController extends BaseController {
         chatLabels.forEach(cl -> {
             Set<User> voters = cl.getVoters();
             voters.forEach(voter -> voter.getVoterChatLabels().remove(cl));
-            userRepository.save(voters);
+            userRepository.saveAll(voters);
             userRepository.flush();
         });
 
         // 删除收藏
         List<ChatStow> chatStows = chatStowRepository.findByChatDirect(chatDirect);
-        chatStowRepository.delete(chatStows);
+        chatStowRepository.deleteAll(chatStows);
         chatStowRepository.flush();
 
         fileService.removeFileByAtId(chatDirect.getUuid());
@@ -302,7 +302,7 @@ public class ChatDirectController extends BaseController {
     @ResponseBody
     public RespBody get(@RequestParam("id") Long id) {
 
-        ChatDirect chatDirect = chatDirectRepository.findOne(id);
+        ChatDirect chatDirect = chatDirectRepository.findById(id).orElse(null);
 
         if (isNoCreatorOrChatter(chatDirect)) {
             return RespBody.failed("没有权限查看该私聊消息!");
@@ -317,7 +317,7 @@ public class ChatDirectController extends BaseController {
                          @PageableDefault(sort = {"createDate"}, direction = Direction.DESC) Pageable pageable,
                          @RequestParam("chatTo") String chatTo) {
 
-        User chatToUser = userRepository.findOne(chatTo);
+        User chatToUser = userRepository.findById(chatTo).orElse(null);
 
         if (chatToUser == null) {
             return RespBody.failed("聊天对象不存在!");
@@ -335,7 +335,7 @@ public class ChatDirectController extends BaseController {
                 page--;
             }
 
-            pageable = new PageRequest(page > -1 ? (int) page : 0, limit, Direction.DESC, "createDate");
+            pageable = PageRequest.of(page > -1 ? (int) page : 0, limit, Direction.DESC, "createDate");
             start = pageable.getOffset();
         }
 
@@ -352,7 +352,7 @@ public class ChatDirectController extends BaseController {
     @ResponseBody
     public RespBody latest(@RequestParam("id") Long id, @RequestParam("chatTo") String chatTo) {
 
-        User chatToUser = userRepository.findOne(chatTo);
+        User chatToUser = userRepository.findById(chatTo).orElse(null);
 
         if (chatToUser == null) {
             return RespBody.failed("聊天对象不存在!");
@@ -368,7 +368,7 @@ public class ChatDirectController extends BaseController {
     public RespBody more(@RequestParam("start") Long start, @RequestParam("last") Boolean last,
                          @RequestParam("size") Integer size, @RequestParam("chatTo") String chatTo) {
 
-        User chatToUser = userRepository.findOne(chatTo);
+        User chatToUser = userRepository.findById(chatTo).orElse(null);
 
         if (chatToUser == null) {
             return RespBody.failed("聊天对象不存在!");
@@ -406,13 +406,13 @@ public class ChatDirectController extends BaseController {
             String[] arr = search.split(":", 2);
             if (StringUtil.isNotEmpty(arr[1].trim())) {
                 String[] tags = arr[1].trim().split("\\s+");
-                chats = chatDirectRepository.queryAboutMeByTags(loginUser, Arrays.asList(tags), pageable.getOffset(),
+                chats = chatDirectRepository.queryAboutMeByTags(loginUser, Arrays.asList(tags), (int) pageable.getOffset(),
                         pageable.getPageSize());
                 cnt = chatDirectRepository.countAboutMeByTags(loginUser, Arrays.asList(tags));
             }
         } else {
             String searchVal = "%" + search + "%";
-            chats = chatDirectRepository.queryAboutMe(loginUser, searchVal, pageable.getOffset(), pageable.getPageSize());
+            chats = chatDirectRepository.queryAboutMe(loginUser, searchVal, (int) pageable.getOffset(), pageable.getPageSize());
             cnt = chatDirectRepository.countAboutMe(loginUser, searchVal);
         }
 
@@ -428,7 +428,7 @@ public class ChatDirectController extends BaseController {
 
         logger.debug("download chatDirect md2html start...");
 
-        ChatDirect chatDirect = chatDirectRepository.findOne(id);
+        ChatDirect chatDirect = chatDirectRepository.findById(id).orElse(null);
 
         if (chatDirect == null) {
             return RespBody.failed("下载私聊消息不存在!");
@@ -467,7 +467,7 @@ public class ChatDirectController extends BaseController {
 
         logger.debug("download direct chat start...");
 
-        ChatDirect chatDirect = chatDirectRepository.findOne(id);
+        ChatDirect chatDirect = chatDirectRepository.findById(id).orElse(null);
 
         if (chatDirect == null) {
             try {
@@ -596,7 +596,7 @@ public class ChatDirectController extends BaseController {
                           @RequestParam(value = "channels", required = false) String channels,
                           @RequestParam(value = "mails", required = false) String mails) {
 
-        ChatDirect chatDirect2 = chatDirectRepository.findOne(id);
+        ChatDirect chatDirect2 = chatDirectRepository.findById(id).orElse(null);
 
         if (hasNoAuth(chatDirect2)) {
             return RespBody.failed("您没有权限分享该沟通消息!");
@@ -685,7 +685,7 @@ public class ChatDirectController extends BaseController {
             return RespBody.failed("标签内容不能超过15个字符!");
         }
 
-        ChatDirect chatDirect = chatDirectRepository.findOne(id);
+        ChatDirect chatDirect = chatDirectRepository.findById(id).orElse(null);
 
         if (chatDirect == null) {
             return RespBody.failed("标签关联私聊消息不存在!");
@@ -791,7 +791,7 @@ public class ChatDirectController extends BaseController {
     @ResponseBody
     public RespBody stow(@RequestParam("id") Long id) {
 
-        ChatDirect chatDirect = chatDirectRepository.findOne(id);
+        ChatDirect chatDirect = chatDirectRepository.findById(id).orElse(null);
 
         if (chatDirect == null) {
             return RespBody.failed("收藏私聊消息不存在,可能已经被删除!");
@@ -830,7 +830,7 @@ public class ChatDirectController extends BaseController {
     @ResponseBody
     public RespBody isMyStow(@RequestParam("id") Long id) {
 
-        ChatDirect chatDirect = chatDirectRepository.findOne(id);
+        ChatDirect chatDirect = chatDirectRepository.findById(id).orElse(null);
 
         if (chatDirect == null) {
             return RespBody.failed("私聊消息不存在,可能已经被删除!");

@@ -111,7 +111,7 @@ public class LanguageController extends BaseController {
 		Language language3 = languageRepository
 				.findOneByName(languageForm.getName());
 
-		Language language = languageRepository.findOne(id);
+		Language language = languageRepository.findById(id).orElse(null);
 		language.setDescription(languageForm.getDesc());
 
 		String msg = null;
@@ -139,7 +139,7 @@ public class LanguageController extends BaseController {
 			return RespBody.failed("因为当前是通过[记住我]登录,为了安全需要,请退出重新登录再尝试删除语言!");
 		}
 
-		Language language = languageRepository.findOne(id);
+		Language language = languageRepository.findById(id).orElse(null);
 
 		if (language == null) {
 			return RespBody.failed("删除语言不存在！");
@@ -167,7 +167,7 @@ public class LanguageController extends BaseController {
 	@Secured({ "ROLE_SUPER", "ROLE_ADMIN" })
 	public RespBody get(@RequestParam("id") Long id) {
 
-		Language language = languageRepository.findOne(id);
+		Language language = languageRepository.findById(id).orElse(null);
 
 		if (language == null) {
 			return RespBody.failed("获取语言不存在！");

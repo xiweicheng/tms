@@ -76,7 +76,7 @@ public class LinkController extends BaseController {
 		Link link2 = linkRepository.saveAndFlush(link);
 
 		if (channelId != null) {
-			Channel channel = channelRepository.findOne(channelId);
+			Channel channel = channelRepository.findById(channelId).orElse(null);
 			if (channel != null) {
 				ChatChannel chatChannel = new ChatChannel();
 				chatChannel.setChannel(channel);
@@ -105,8 +105,8 @@ public class LinkController extends BaseController {
 
 		List<Link> links = linkRepository.findByTypeAndStatus(LinkType.valueOf(type), Status.New);
 
-		links = links.stream().filter(l -> AuthUtil.isChannelMember(channelRepository.findOne(l.getChannelId())))
-				.collect(Collectors.toList());
+		links = links.stream().filter(l -> AuthUtil.isChannelMember(channelRepository.findById(l.getChannelId()).orElse(null)))
+                .collect(Collectors.toList());
 
 		return RespBody.succeed(links);
 	}
@@ -124,7 +124,7 @@ public class LinkController extends BaseController {
 	@ResponseBody
 	public RespBody get(@RequestParam("id") Long id) {
 
-		return RespBody.succeed(linkRepository.findOne(id));
+		return RespBody.succeed(linkRepository.findById(id).orElse(null));
 	}
 
 	@RequestMapping(value = "update", method = RequestMethod.POST)
@@ -140,7 +140,7 @@ public class LinkController extends BaseController {
 			return RespBody.failed("标题名称不能为空!");
 		}
 
-		Link link = linkRepository.findOne(id);
+		Link link = linkRepository.findById(id).orElse(null);
 
 		String hrefOld = link.getHref();
 		String titleOld = link.getTitle();
@@ -153,7 +153,7 @@ public class LinkController extends BaseController {
 		Long channelId = link2.getChannelId();
 
 		if (channelId != null) {
-			Channel channel = channelRepository.findOne(channelId);
+			Channel channel = channelRepository.findById(channelId).orElse(null);
 			if (channel != null) {
 				ChatChannel chatChannel = new ChatChannel();
 				chatChannel.setChannel(channel);
@@ -172,18 +172,18 @@ public class LinkController extends BaseController {
 	@ResponseBody
 	public RespBody delete(@RequestParam("id") Long id) {
 
-		Link link = linkRepository.findOne(id);
+		Link link = linkRepository.findById(id).orElse(null);
 
 		if (link == null) {
 			return RespBody.failed("删除频道外链不存在!");
 		}
 
-		linkRepository.delete(id);
+		linkRepository.deleteById(id);
 
 		Long channelId = link.getChannelId();
 		if (channelId != null) {
 
-			Channel channel = channelRepository.findOne(channelId);
+			Channel channel = channelRepository.findById(channelId).orElse(null);
 			if (channel != null) {
 				ChatChannel chatChannel = new ChatChannel();
 				chatChannel.setChannel(channel);

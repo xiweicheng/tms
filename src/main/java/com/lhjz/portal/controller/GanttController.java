@@ -61,7 +61,7 @@ public class GanttController extends BaseController {
 			return RespBody.failed("内容不能为空!");
 		}
 
-		Channel channel = channelRepository.findOne(cid);
+		Channel channel = channelRepository.findById(cid).orElse(null);
 		if (channel == null) {
 			return RespBody.failed("频道不存在!");
 		}
@@ -85,7 +85,7 @@ public class GanttController extends BaseController {
 	public RespBody search(@PageableDefault(sort = { "id" }, direction = Direction.DESC) Pageable pageable,
 			@RequestParam("cid") Long cid, String search) {
 
-		Channel channel = channelRepository.findOne(cid);
+		Channel channel = channelRepository.findById(cid).orElse(null);
 		if (channel == null) {
 			return RespBody.failed("频道不存在!");
 		}
@@ -107,7 +107,7 @@ public class GanttController extends BaseController {
 			@RequestParam(value = "privated", defaultValue = "false") Boolean privated,
 			@RequestParam(value = "content", required = false) String content) {
 
-		Gantt gantt = ganttRepository.findOne(id);
+		Gantt gantt = ganttRepository.findById(id).orElse(null);
 
 		if (gantt == null) {
 			return RespBody.failed("甘特图不存在!");
@@ -154,7 +154,7 @@ public class GanttController extends BaseController {
 	@ResponseBody
 	public RespBody delete(@PathVariable("id") Long id) {
 
-		Gantt gantt = ganttRepository.findOne(id);
+		Gantt gantt = ganttRepository.findById(id).orElse(null);
 
 		if (gantt == null) {
 			return RespBody.failed("甘特图不存在!");
@@ -175,7 +175,7 @@ public class GanttController extends BaseController {
 	@ResponseBody
 	public RespBody get(@PathVariable("id") Long id) {
 
-		Gantt gantt = ganttRepository.findOne(id);
+		Gantt gantt = ganttRepository.findById(id).orElse(null);
 
 		if (gantt == null) {
 			return RespBody.failed("甘特图不存在!");
