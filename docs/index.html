@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TMS · Teamwork Management System</title>
+<meta name="description" content="TMS 是一款基于频道模式的团队沟通协作系统，集成轻量级任务看板、团队博文 Wiki 与 i18n 国际化翻译管理的响应式 Web 开源平台。" />
+<style>
+:root{
+  --bg:#0b1020;
+  --bg2:#111834;
+  --card:#161f3f;
+  --card2:#1c2750;
+  --text:#e8ecf8;
+  --muted:#9aa6c8;
+  --brand:#5b8cff;
+  --brand2:#7a5cff;
+  --accent:#26d6c9;
+  --accent2:#ff9f6b;
+  --line:rgba(255,255,255,.08);
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:radial-gradient(1200px 700px at 80% -10%,rgba(122,92,255,.25),transparent 60%),
+             radial-gradient(900px 600px at -10% 10%,rgba(91,140,255,.22),transparent 55%),
+             var(--bg);
+  color:var(--text);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+
+/* ===== Nav ===== */
+header.nav{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:saturate(160%) blur(14px);
+  background:rgba(11,16,32,.7);
+  border-bottom:1px solid var(--line);
+}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:66px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:19px;letter-spacing:.4px}
+.logo{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  box-shadow:0 6px 22px rgba(91,140,255,.4);font-weight:900;color:#fff;
+}
+.nav ul{display:flex;list-style:none;gap:26px}
+.nav ul a{color:var(--muted);font-size:14.5px;transition:.2s}
+.nav ul a:hover{color:var(--text)}
+.nav .actions{display:flex;gap:12px;align-items:center}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 18px;border-radius:12px;font-size:14px;font-weight:600;
+  border:1px solid var(--line);transition:.2s;cursor:pointer;
+  background:transparent;color:var(--text);
+}
+.btn:hover{border-color:rgba(255,255,255,.25);transform:translateY(-1px)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  border-color:transparent;color:#fff;
+  box-shadow:0 8px 26px rgba(91,140,255,.36);
+}
+.btn-ghost{background:rgba(255,255,255,.04)}
+@media(max-width:820px){.nav ul{display:none}}
+
+/* ===== Hero ===== */
+.hero{padding:90px 0 60px;text-align:center;position:relative}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:999px;font-size:13px;color:var(--accent);
+  background:rgba(38,214,201,.1);border:1px solid rgba(38,214,201,.25);
+  margin-bottom:24px;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(38,214,201,.18)}
+.hero h1{
+  font-size:clamp(38px,6vw,68px);line-height:1.08;font-weight:900;
+  letter-spacing:-1px;margin-bottom:20px;
+}
+.hero h1 .grad{
+  background:linear-gradient(120deg,var(--brand),var(--accent) 55%,var(--accent2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero p.lead{font-size:clamp(16px,2.2vw,21px);color:var(--muted);max-width:760px;margin:0 auto 36px}
+.hero .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.hero .stats{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;margin-top:54px}
+.stat{text-align:center}
+.stat .num{font-size:34px;font-weight:800;background:linear-gradient(120deg,var(--brand),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat .label{font-size:13px;color:var(--muted);margin-top:4px}
+
+/* floating preview */
+.preview{
+  margin:50px auto 0;max-width:1040px;border-radius:20px;overflow:hidden;
+  border:1px solid var(--line);
+  box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04) inset;
+  background:var(--card);
+}
+.preview img{width:100%}
+.preview .bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.2)}
+.preview .bar i{width:11px;height:11px;border-radius:50%;display:inline-block}
+.preview .bar i:nth-child(1){background:#ff5f57}
+.preview .bar i:nth-child(2){background:#febc2e}
+.preview .bar i:nth-child(3){background:#28c840}
+
+/* ===== Section ===== */
+.section{padding:90px 0}
+.section .head{text-align:center;margin-bottom:56px}
+.section .kicker{color:var(--accent);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.section h2{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.5px;margin-bottom:16px}
+.section .sub{color:var(--muted);max-width:680px;margin:0 auto;font-size:17px}
+
+/* ===== Features ===== */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:920px){.features{grid-template-columns:1fr}}
+.card{
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:28px;transition:.25s;position:relative;overflow:hidden;
+}
+.card:hover{transform:translateY(-4px);border-color:rgba(91,140,255,.4);box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.card .ic{
+  width:50px;height:50px;border-radius:14px;display:grid;place-items:center;font-size:24px;margin-bottom:18px;
+  background:linear-gradient(135deg,rgba(91,140,255,.2),rgba(122,92,255,.2));
+  border:1px solid var(--line);
+}
+.card h3{font-size:19px;font-weight:700;margin-bottom:10px}
+.card p{color:var(--muted);font-size:14.5px}
+.card .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.card .tags span{font-size:12px;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--line);padding:4px 10px;border-radius:999px}
+
+/* ===== Big feature blocks ===== */
+.feature-block{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;margin-bottom:80px}
+.feature-block.flip .text{order:2}
+@media(max-width:920px){.feature-block{grid-template-columns:1fr}.feature-block.flip .text{order:0}}
+.feature-block .text h3{font-size:28px;font-weight:800;margin-bottom:14px}
+.feature-block .text p{color:var(--muted);font-size:16px;margin-bottom:22px}
+.feature-block ul{list-style:none}
+.feature-block ul li{position:relative;padding-left:26px;margin-bottom:11px;color:var(--muted);font-size:14.5px}
+.feature-block ul li::before{
+  content:"";position:absolute;left:0;top:7px;width:14px;height:14px;border-radius:4px;
+  background:linear-gradient(135deg,var(--brand),var(--accent));
+}
+.feature-block .shot{
+  border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);
+  box-shadow:0 24px 60px rgba(0,0,0,.45);background:var(--card);
+}
+.feature-block .shot img{width:100%}
+
+/* ===== Screenshots gallery ===== */
+.gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+@media(max-width:720px){.gallery{grid-template-columns:1fr}}
+.shot{border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:var(--card);transition:.25s}
+.shot:hover{transform:translateY(-3px);border-color:rgba(91,140,255,.4)}
+.shot img{width:100%;aspect-ratio:16/10;object-fit:cover;background:#0a1020}
+.shot .cap{padding:14px 18px;font-size:14px;color:var(--muted)}
+.shot .cap b{color:var(--text);display:block;margin-bottom:3px;font-size:15px}
+
+/* ===== Tech stack ===== */
+.tech{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.tech span{
+  padding:10px 18px;border-radius:12px;font-size:14px;color:var(--muted);
+  background:rgba(255,255,255,.04);border:1px solid var(--line);transition:.2s;
+}
+.tech span:hover{color:var(--text);border-color:rgba(91,140,255,.4)}
+
+/* ===== CTA ===== */
+.cta-band{
+  margin:40px 0 90px;text-align:center;padding:70px 30px;border-radius:28px;
+  background:linear-gradient(135deg,rgba(91,140,255,.16),rgba(122,92,255,.16));
+  border:1px solid var(--line);
+}
+.cta-band h2{font-size:clamp(26px,4vw,40px);font-weight:800;margin-bottom:14px}
+.cta-band p{color:var(--muted);margin-bottom:30px;font-size:17px}
+.cta-band .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* ===== Footer ===== */
+footer{border-top:1px solid var(--line);padding:50px 0 40px;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+footer .cols{display:flex;gap:60px;flex-wrap:wrap}
+footer h4{color:var(--text);font-size:14px;margin-bottom:14px;font-weight:700}
+footer ul{list-style:none}
+footer ul li{margin-bottom:9px}
+footer ul a:hover{color:var(--brand)}
+footer .copy{text-align:center;margin-top:34px;color:var(--muted);opacity:.7;font-size:13px}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- ===== Nav ===== -->
+<header class="nav">
+  <div class="wrap">
+    <a href="#top" class="brand">
+      <span class="logo">T</span>
+      <span>TMS</span>
+    </a>
+    <ul>
+      <li><a href="#features">功能</a></li>
+      <li><a href="#modules">模块</a></li>
+      <li><a href="#screenshots">截图</a></li>
+      <li><a href="#tech">技术栈</a></li>
+      <li><a href="#docs">文档</a></li>
+    </ul>
+    <div class="actions">
+      <a class="btn btn-ghost" href="https://gitee.com/xiweicheng/tms" target="_blank" rel="noopener">Gitee</a>
+      <a class="btn btn-primary" href="https://github.com/xiweicheng/tms" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="badge"><span class="dot"></span> 开源 · MIT License · 数据自托管</span>
+    <h1>把团队的 <span class="grad">沟通、知识、翻译</span><br/>收进同一个工作台</h1>
+    <p class="lead">TMS (Teamwork Management System) 是一款基于频道模式的团队协作平台，集成轻量级任务看板、团队博文 Wiki 与 i18n 国际化翻译管理，响应式设计，开箱即用。</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#docs">快速开始</a>
+      <a class="btn btn-ghost" href="#screenshots">查看截图</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="num">3 合 1</div><div class="label">沟通 + Wiki + 翻译</div></div>
+      <div class="stat"><div class="num">6 种</div><div class="label">博文创作形态</div></div>
+      <div class="stat"><div class="num">3 种</div><div class="label">部署方式</div></div>
+      <div class="stat"><div class="num">2 种</div><div class="label">数据库支持</div></div>
+    </div>
+
+    <div class="preview reveal">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <img src="img/tcsc1.jpg" alt="TMS 主界面" />
+    </div>
+  </div>
+</section>
+
+<!-- ===== Core Features ===== -->
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="head reveal">
+      <div class="kicker">核心能力</div>
+      <h2>一个平台，覆盖团队协作全场景</h2>
+      <p class="sub">无需在 Slack、Confluence、翻译工具之间来回切换，TMS 把三件事整合到同一上下文。</p>
+    </div>
+    <div class="features">
+      <div class="card reveal">
+        <div class="ic">💬</div>
+        <h3>频道化实时沟通</h3>
+        <p>基于 WebSocket / STOMP 的实时通讯，频道沟通、一对一私聊、二级话题，消息秒级触达。</p>
+        <div class="tags"><span>@ 提及</span><span>富文本</span><span>固定消息</span><span>桌面通知</span></div>
+      </div>
+      <div class="card reveal">
+        <div class="ic">📚</div>
+        <h3>团队博文 Wiki</h3>
+        <p>Markdown、富文本、电子表格、思维导图、白板、画图，六种形态自由创作，五级嵌套构建知识树。</p>
+        <div class="tags"><span>版本历史</span><span>多人协同</span><span>权限隔离</span><span>多格式导出</span></div>
+      </div>
+      <div class="card reveal">
+        <div class="ic">🌐</div>
+        <h3>i18n 翻译管理</h3>
+        <p>专业的多语言翻译项目管理，条目级编辑、历史追溯、批量导入导出，把翻译工程化。</p>
+        <div class="tags"><span>多语言</span><span>导入导出</span><span>版本历史</span><span>条目管理</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Module deep dive ===== -->
+<section class="section" id="modules" style="padding-top:30px">
+  <div class="wrap">
+
+    <div class="feature-block">
+      <div class="text reveal">
+        <h3>频道沟通，让讨论直接落地</h3>
+        <p>类似 Slack / BearyChat 的频道化沟通体验，但把任务、日程、甘特图放在同一上下文里。</p>
+        <ul>
+          <li>频道沟通 + 二级话题，按项目 / 主题划分</li>
+          <li>@ 提及、收藏、标签、固定消息，重要信息不淹没</li>
+          <li>频道任务看板（可拖拽）+ 甘特图，轻量项目管理</li>
+          <li>日程安排与提醒、待办事项、剪贴板 / 拖拽文件上传</li>
+          <li>邮件 + 桌面 + Toastr 多渠道通知，自定义皮肤色调</li>
+        </ul>
+      </div>
+      <div class="shot reveal"><img src="img/tcsc2.jpg" alt="团队沟通" /></div>
+    </div>
+
+    <div class="feature-block flip">
+      <div class="shot reveal"><img src="img/tcsc5.jpg" alt="团队博文 Wiki" /></div>
+      <div class="text reveal">
+        <h3>博文 Wiki，知识沉淀有迹可循</h3>
+        <p>类似精简版 Confluence，但更轻更快，支持六种创作形态与完整协作能力。</p>
+        <ul>
+          <li>Markdown / 富文本 / 电子表格 / 思维导图 / 白板 / 画图</li>
+          <li>博文空间 + 父子五级嵌套 + 目录拖拽排序</li>
+          <li>多人协作编辑（带编辑锁）+ 版本比较与回退</li>
+          <li>权限管理、点赞、分享、游客访问、评论</li>
+          <li>导出 PDF / Markdown / HTML / Excel / PNG</li>
+          <li>WebSocket 实时更新通知 + 全量操作审计</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feature-block">
+      <div class="text reveal">
+        <h3>i18n 翻译管理，工程化你的多语言</h3>
+        <p>把翻译从散落 Excel 升级为集中管理、可追溯、可协作的工程化流程。</p>
+        <ul>
+          <li>翻译项目管理，按产品 / 模块组织</li>
+          <li>多语言并行维护，语言管理</li>
+          <li>条目级编辑 + 历史版本追溯</li>
+          <li>批量导入导出，对接开发流程</li>
+        </ul>
+      </div>
+      <div class="shot reveal"><img src="img/tcsc9.jpg" alt="国际化翻译" /></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== Highlights ===== -->
+<section class="section" style="padding-top:20px">
+  <div class="wrap">
+    <div class="head reveal">
+      <div class="kicker">产品亮点</div>
+      <h2>为什么选择 TMS</h2>
+    </div>
+    <div class="features">
+      <div class="card reveal">
+        <div class="ic">⚡</div>
+        <h3>实时但不喧闹</h3>
+        <p>WebSocket 实时推送，@ 提醒与固定消息让重要信息浮出水面，分级提醒不打扰。</p>
+      </div>
+      <div class="card reveal">
+        <div class="ic">🔗</div>
+        <h3>知识与沟通同源</h3>
+        <p>频道讨论的结论一键沉淀为博文，博文更新实时通知关注者，知识流动起来。</p>
+      </div>
+      <div class="card reveal">
+        <div class="ic">🎨</div>
+        <h3>多形态创作</h3>
+        <p>不止 Markdown：富文本、表格、思维导图、白板、画图，适配不同知识形态。</p>
+      </div>
+      <div class="card reveal">
+        <div class="ic">🔒</div>
+        <h3>权限精细</h3>
+        <p>用户 + 用户组授权，博文级 + 空间级权限，公开 / 私密 / 游客三态可控。</p>
+      </div>
+      <div class="card reveal">
+        <div class="ic">🤝</div>
+        <h3>协同编辑不冲突</h3>
+        <p>基于 WebSocket 的编辑锁避免覆盖，版本历史 + 一键回退，误删可恢复。</p>
+      </div>
+      <div class="card reveal">
+        <div class="ic">📱</div>
+        <h3>响应式 + 自托管</h3>
+        <p>Bootstrap + Vue.js 响应式设计，数据完全自托管，隐私安全掌握在自己手中。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Screenshots ===== -->
+<section class="section" id="screenshots">
+  <div class="wrap">
+    <div class="head reveal">
+      <div class="kicker">界面展示</div>
+      <h2>所见即所得</h2>
+      <p class="sub">TMS 提供现代、清爽的协作界面，桌面与移动端自适应。</p>
+    </div>
+    <div class="gallery">
+      <div class="shot reveal"><img src="img/tcsc1.jpg" alt="着陆页" /><div class="cap"><b>着陆页</b>项目首页与功能入口</div></div>
+      <div class="shot reveal"><img src="img/tcsc2.jpg" alt="沟通模块" /><div class="cap"><b>沟通模块</b>频道化实时讨论</div></div>
+      <div class="shot reveal"><img src="img/tcsc3.jpg" alt="频道详情" /><div class="cap"><b>频道详情</b>消息流与互动</div></div>
+      <div class="shot reveal"><img src="img/tcsc4.jpg" alt="博文编辑" /><div class="cap"><b>博文编辑</b>Markdown 创作</div></div>
+      <div class="shot reveal"><img src="img/tcsc5.jpg" alt="博文列表" /><div class="cap"><b>博文列表</b>知识库浏览</div></div>
+      <div class="shot reveal"><img src="img/tcsc8.jpg" alt="博文空间" /><div class="cap"><b>博文空间</b>权限隔离的组织</div></div>
+      <div class="shot reveal"><img src="img/tcsc9.jpg" alt="翻译管理" /><div class="cap"><b>翻译管理</b>多语言条目</div></div>
+      <div class="shot reveal"><img src="img/tcsc10.png" alt="任务看板" /><div class="cap"><b>任务看板</b>可拖拽管理</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Tech ===== -->
+<section class="section" id="tech">
+  <div class="wrap">
+    <div class="head reveal">
+      <div class="kicker">技术栈</div>
+      <h2>成熟、可靠、可扩展</h2>
+      <p class="sub">基于 Spring Boot 生态，前后端分离，多数据库多云部署。</p>
+    </div>
+    <div class="tech reveal">
+      <span>Java 8</span>
+      <span>Spring Boot 2.4</span>
+      <span>Spring Security</span>
+      <span>Spring Data JPA</span>
+      <span>WebSocket / STOMP</span>
+      <span>Thymeleaf</span>
+      <span>OAuth2</span>
+      <span>Lombok</span>
+      <span>Bootstrap</span>
+      <span>Vue.js</span>
+      <span>MySQL</span>
+      <span>PostgreSQL</span>
+      <span>HikariCP</span>
+      <span>Docker</span>
+      <span>Kubernetes</span>
+      <span>Apache POI</span>
+      <span>Jsoup</span>
+      <span>Fastjson</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="wrap">
+  <div class="cta-band reveal">
+    <h2>现在就开始，把团队协作收进一个工作台</h2>
+    <p>Docker 一键启动，数据自托管，MIT 开源协议。</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/xiweicheng/tms" target="_blank" rel="noopener">在 GitHub 查看</a>
+      <a class="btn btn-ghost" href="#docs">阅读文档</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Docs ===== -->
+<section class="section" id="docs" style="padding-top:10px">
+  <div class="wrap">
+    <div class="head reveal">
+      <div class="kicker">文档与资源</div>
+      <h2>快速上手</h2>
+      <p class="sub">从一行命令到完整部署，文档齐全。</p>
+    </div>
+    <div class="features">
+      <div class="card reveal">
+        <div class="ic">🐳</div>
+        <h3>Docker 一键启动</h3>
+        <p>克隆仓库后 docker-compose up -d 即可，web + db 两个服务自动编排。</p>
+        <div class="tags"><span>docker-compose up -d</span></div>
+      </div>
+      <div class="card reveal">
+        <div class="ic">📖</div>
+        <h3>技术文档</h3>
+        <p>架构、模块、API、安全、实时通讯、数据模型、部署运维一应俱全。</p>
+        <div class="tags"><a href="../TECHNICAL_DOC.md" style="color:var(--brand)">TECHNICAL_DOC.md</a></div>
+      </div>
+      <div class="card reveal">
+        <div class="ic">✨</div>
+        <h3>功能介绍</h3>
+        <p>面向产品与最终用户的功能亮点、使用场景与角色价值。</p>
+        <div class="tags"><a href="../FEATURES.md" style="color:var(--brand)">FEATURES.md</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h4>TMS</h4>
+        <ul>
+          <li><a href="#features">核心功能</a></li>
+          <li><a href="#modules">模块详解</a></li>
+          <li><a href="#screenshots">界面截图</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>资源</h4>
+        <ul>
+          <li><a href="https://github.com/xiweicheng/tms" target="_blank" rel="noopener">GitHub 仓库</a></li>
+          <li><a href="https://gitee.com/xiweicheng/tms" target="_blank" rel="noopener">Gitee 仓库</a></li>
+          <li><a href="https://gitee.com/xiweicheng/tms/wikis" target="_blank" rel="noopener">使用 Wiki</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>部署</h4>
+        <ul>
+          <li>Docker Compose</li>
+          <li>Kubernetes</li>
+          <li>传统 Tomcat</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <h4>关注</h4>
+      <ul>
+        <li>MIT License</li>
+        <li>数据自托管</li>
+      </ul>
+    </div>
+  </div>
+  <div class="copy">© TMS · Teamwork Management System · 基于 MIT 协议开源</div>
+</footer>
+
+<script>
+// scroll reveal
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
