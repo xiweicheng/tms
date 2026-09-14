@@ -1,0 +1,970 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>TMS 技术文档</title><style>:root{--bg:#0b1020;--bg2:#111834;--card:#161f3f;--card2:#1c2750;--text:#e8ecf8;--muted:#9aa6c8;--brand:#5b8cff;--brand2:#7a5cff;--accent:#26d6c9;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+.container{max-width:900px;margin:0 auto;padding:40px 24px 80px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+h1{font-size:34px;font-weight:800;margin-bottom:16px;background:linear-gradient(120deg,var(--brand),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:26px;font-weight:700;margin-top:40px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+h3{font-size:20px;font-weight:600;margin-top:28px;margin-bottom:12px;color:var(--brand)}
+h4{font-size:17px;font-weight:600;margin-top:20px;margin-bottom:8px}
+p{margin-bottom:14px;color:var(--muted)}
+blockquote{border-left:3px solid var(--brand);padding:12px 20px;margin:16px 0;background:rgba(91,140,255,.06);border-radius:0 8px 8px 0}
+blockquote p{color:var(--muted)}
+ul,ol{margin-bottom:14px;padding-left:24px}
+li{margin-bottom:6px;color:var(--muted)}
+strong{color:var(--text)}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th{background:var(--card2);padding:10px 14px;text-align:left;font-weight:600;border:1px solid var(--line);color:var(--text)}
+td{padding:10px 14px;border:1px solid var(--line);color:var(--muted)}
+tr:nth-child(even){background:rgba(255,255,255,.02)}
+code{font-family:'SF Mono',Consolas,'Liberation Mono',Menlo,monospace;background:var(--card2);padding:2px 6px;border-radius:4px;font-size:13px;color:var(--accent)}
+pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;overflow-x:auto;margin:16px 0}
+pre code{background:none;padding:0;color:var(--text);font-size:13px}
+hr{border:none;border-top:1px solid var(--line);margin:32px 0}
+.back{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;font-size:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);margin-bottom:24px;color:var(--muted);transition:.2s}
+.back:hover{color:var(--text);border-color:rgba(91,140,255,.4)}</style></head><body><div class="container"><a class="back" href="index.html">← 返回首页</a><h1>TMS 技术文档 (Technical Documentation)</h1>
+<blockquote>
+<p>TMS (Teamwork Management System) — 基于频道模式的团队沟通协作 + 轻量级任务看板 + 团队博文 Wiki + i18n 国际化翻译管理的响应式 Web 开源平台。</p>
+</blockquote>
+<p>本面向开发者与运维人员，深入解读 TMS 的代码结构、架构设计、核心模块实现、安全机制、实时通讯、数据模型、API 设计、部署运维等关键技术细节，便于二次开发、定制化与维护。</p>
+<hr>
+<h2>1. 项目概览</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>项目名称</td>
+<td>TMS (Teamwork Management System)</td>
+</tr>
+<tr>
+<td>GroupId / ArtifactId</td>
+<td><code>com.lhjz</code> / <code>tms</code></td>
+</tr>
+<tr>
+<td>版本</td>
+<td><code>1.0.0-SNAPSHOT</code></td>
+</tr>
+<tr>
+<td>主类</td>
+<td>Application.java</td>
+</tr>
+<tr>
+<td>打包方式</td>
+<td><code>war</code>（可独立运行也可部署到外部 Tomcat）</td>
+</tr>
+<tr>
+<td>代码仓库</td>
+<td><a href="https://github.com/xiweicheng/tms">GitHub</a> / <a href="https://gitee.com/xiweicheng/tms">Gitee</a></td>
+</tr>
+<tr>
+<td>许可证</td>
+<td>MIT</td>
+</tr>
+</tbody></table>
+<h3>1.1 三大核心功能域</h3>
+<ol>
+<li><strong>团队协作沟通</strong> — 基于 WebSocket 实时通讯，类似 Slack / BearyChat 的频道化沟通。</li>
+<li><strong>团队博文 Wiki</strong> — 类似精简版 Confluence / 蚂蚁笔记，支持 Markdown、富文本、电子表格、思维导图、白板等多种创作方式。</li>
+<li><strong>国际化翻译管理</strong> — 专业的多语言翻译项目管理工具，支持导入导出与版本历史。</li>
+</ol>
+<hr>
+<h2>2. 技术栈</h2>
+<h3>2.1 后端</h3>
+<table>
+<thead>
+<tr>
+<th>技术</th>
+<th>版本</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Java</td>
+<td>1.8</td>
+<td>主开发语言</td>
+</tr>
+<tr>
+<td>Spring Boot</td>
+<td>2.4.13</td>
+<td>应用框架（parent POM）</td>
+</tr>
+<tr>
+<td>Spring Security</td>
+<td>跟随 Boot</td>
+<td>认证授权</td>
+</tr>
+<tr>
+<td>Spring Security OAuth2</td>
+<td>2.4.1</td>
+<td>OAuth2 客户端 / 资源服务</td>
+</tr>
+<tr>
+<td>Spring Data JPA</td>
+<td>跟随 Boot</td>
+<td>数据访问层</td>
+</tr>
+<tr>
+<td>Spring WebSocket (STOMP)</td>
+<td>跟随 Boot</td>
+<td>实时通讯</td>
+</tr>
+<tr>
+<td>Thymeleaf</td>
+<td>跟随 Boot</td>
+<td>服务端模板引擎</td>
+</tr>
+<tr>
+<td>Spring Boot Actuator</td>
+<td>跟随 Boot</td>
+<td>运行时监控</td>
+</tr>
+<tr>
+<td>Lombok</td>
+<td>跟随 Boot</td>
+<td>实体样板代码精简</td>
+</tr>
+<tr>
+<td>Fastjson</td>
+<td>1.2.83</td>
+<td>JSON 序列化</td>
+</tr>
+<tr>
+<td>Gson</td>
+<td>跟随 Boot</td>
+<td>JSON 处理</td>
+</tr>
+<tr>
+<td>markedj</td>
+<td>1.0.9</td>
+<td>Markdown 解析（服务端渲染）</td>
+</tr>
+<tr>
+<td>Apache POI (poi-ooxml)</td>
+<td>3.17</td>
+<td>Excel 导入导出</td>
+</tr>
+<tr>
+<td>OpenCSV</td>
+<td>4.1</td>
+<td>CSV 解析</td>
+</tr>
+<tr>
+<td>Jsoup</td>
+<td>1.15.3</td>
+<td>HTML 解析与清洗</td>
+</tr>
+<tr>
+<td>Mammoth</td>
+<td>1.4.0</td>
+<td>Word (.docx) 文档解析</td>
+</tr>
+<tr>
+<td>Commons IO / BeanUtils / Lang</td>
+<td>2.14.0 / 1.9.4 / 2.6</td>
+<td>通用工具</td>
+</tr>
+<tr>
+<td>Janino</td>
+<td>3.1.7</td>
+<td>运行时表达式编译</td>
+</tr>
+<tr>
+<td>joda-time</td>
+<td>2.10.14</td>
+<td>日期处理</td>
+</tr>
+<tr>
+<td>OGNL</td>
+<td>3.1.29</td>
+<td>表达式求值（修复 NoClassDefFoundError）</td>
+</tr>
+</tbody></table>
+<h3>2.2 前端</h3>
+<p>HTML5 / CSS3 / JavaScript、Bootstrap、Vue.js、Markdown 编辑器、思维导图 / 白板 / 画图 / 在线表格（LuckySheet 等）、FontAwesome 图标。前端工程独立维护后压缩打包进主仓库 <code>src/main/resources/static</code>。</p>
+<h3>2.3 数据库与部署</h3>
+<ul>
+<li><strong>数据库</strong>：MySQL（默认）、PostgreSQL（可选，通过 <code>prod-pg</code> profile 切换）</li>
+<li><strong>连接池</strong>：HikariCP</li>
+<li><strong>部署</strong>：传统 War 包部署到 Tomcat 8.5（<code>Dockerfile</code> 基于 <code>tomcat:8.5.73-jdk8</code>）、Docker Compose、Kubernetes</li>
+</ul>
+<hr>
+<h2>3. 代码结构</h2>
+<p>源码根包：<code>com.lhjz.portal</code>，详见 src/main/java/com/lhjz/portal。</p>
+<pre><code>com.lhjz.portal
+├── Application.java            # Spring Boot 启动类
+├── ServletInitializer.java     # WAR 部署到外部容器时的初始化器
+├── base/                       # 基础设施层
+│   ├── BaseController.java     #   控制器基类（日志、用户、异常处理）
+│   ├── BaseDao.java            #   DAO 基类
+│   └── BaseService.java       #   服务基类
+├── component/                  # 组件层（Spring 组件 / 拦截器 / 处理器）
+│   ├── core/                   #   核心组件抽象（IChatMsg / MailQueue 等）
+│   ├── Ajax*Handler.java       #   Ajax 感知的登录/登出/成功/失败处理器
+│   ├── LoginSuccessHandler.java
+│   ├── SpringSecurityAuditorAware.java  # JPA 审计人填充
+│   ├── TmsUserApprovalHandler.java      # OAuth2 用户授权审批
+│   ├── WsChannelInterceptor.java       # WebSocket 入站通道拦截器
+│   ├── WsHandshakeInterceptor.java     # WebSocket 握手拦截器
+│   ├── AsyncTask.java          #   异步任务执行器
+│   ├── CustomApplicationRunner.java    # 启动后初始化任务
+│   ├── MailSender / CustomMailSender.java  # 邮件发送
+│   └── ...
+├── config/                     # 配置层
+│   ├── SecurityConfig.java     #   Spring Security 安全配置
+│   ├── WsConfig.java           #   WebSocket (STOMP) 配置
+│   ├── BeanConfig.java         #   通用 Bean 配置
+│   ├── DataInitConfig.java     #   数据初始化
+│   └── OAuth2ClientConfig.java #   OAuth2 客户端配置
+├── constant/
+│   └── SysConstant.java        #   系统常量
+├── controller/                 # 表现层（REST 控制器）
+├── entity/                     # JPA 实体（领域模型）
+│   └── security/               #   安全相关实体（User / Authority / Group / OAuth2）
+├── exception/
+│   └── BizException.java       #   业务异常
+├── model/                      # 传输模型 / DTO / Payload
+├── pojo/                       # 表单 / 枚举 / 排序对象
+├── repository/                 # Spring Data JPA 仓储
+├── service/                   # 业务服务层
+│   └── impl/                   #   服务实现（含分布式锁实现等）
+└── util/                       # 工具类（30+ 工具类）
+</code></pre>
+<h3>资源目录</h3>
+<pre><code>src/main/resources/
+├── application*.properties     # 多环境配置
+├── logback.xml                 # 日志配置
+├── messages*.properties        # i18n 消息资源
+├── static/                     # 前端静态资源（前端工程打包产物）
+│   ├── image / img / fonts /
+│   └── page/                   #   前端源码与构建产物
+└── md2pdf/                     # Markdown 转 PDF 的 Node.js 子工程
+    ├── index.js
+    └── package.json
+</code></pre>
+<hr>
+<h2>4. 系统架构</h2>
+<p>TMS 是典型的 Spring Boot 分层 Web 应用，结合 STOMP over WebSocket 实现实时能力。</p>
+<h3>4.1 分层架构</h3>
+<pre><code>┌─────────────────────────────────────────────────────┐
+│  浏览器 / 移动端（Bootstrap + Vue.js 响应式 SPA）    │
+└───────────────┬──────────────────────┬──────────────┘
+        HTTP / HTTPS            WebSocket (STOMP/SockJS)
+                │                      │
+┌───────────────▼──────────────────────▼──────────────┐
+│            表现层 Controller（@RestController）        │
+│   AdminController / ChatController / BlogController   │
+│   TranslateController / TodoController / ...           │
+└───────────────┬──────────────────────────────────────┘
+                │
+┌───────────────▼──────────────────────────────────────┐
+│           业务层 Service（含分布式锁 BlogLock）        │
+│   ChatChannelService / ChannelService / FileService   │
+└───────────────┬──────────────────────────────────────┘
+                │
+┌───────────────▼──────────────────────────────────────┐
+│     数据访问层 Spring Data JPA Repository（30+ 个）    │
+└───────────────┬──────────────────────────────────────┘
+                │
+┌───────────────▼──────────────────────────────────────┐
+│  MySQL / PostgreSQL  (HikariCP 连接池)                  │
+└──────────────────────────────────────────────────────┘
+</code></pre>
+<h3>4.2 启动流程</h3>
+<p>Application.java 使用 <code>@SpringBootApplication</code> 进行组件扫描与自动装配，并注册 <code>OpenEntityManagerInViewFilter</code> 以在视图渲染阶段保持 JPA <code>EntityManager</code> 开放（解决懒加载异常）。生产以 WAR 部署时由 <code>ServletInitializer</code> 完成 Spring Boot servlet 初始化。</p>
+<p>启动后由 CustomApplicationRunner 执行数据初始化等任务（与 DataInitConfig 配合）。</p>
+<hr>
+<h2>5. 安全机制</h2>
+<h3>5.1 Spring Security 配置</h3>
+<p>SecurityConfig.java 是安全核心，采用两套 <code>WebSecurityConfigurerAdapter</code> 链（通过 <code>@Order</code> 区分优先级，仅在 <code>dev / prod / prod-pg</code> profile 下激活）：</p>
+<ul>
+<li><strong>SecurityConfiguration（ORDER=-10，优先）</strong>：保护 <code>/admin/**</code>、<code>/api/**</code>、<code>/ws/**</code>，要求认证；其余静态资源（<code>/admin/css/**</code>、<code>/admin/img/**</code>、<code>/landing/**</code>、<code>/page/**</code> 等）放行。<ul>
+<li>登录页 <code>/admin/login</code>，登录处理 URL <code>/admin/signin</code>，登出 <code>/admin/logout</code>。</li>
+<li>成功 / 失败处理器均为 Ajax 感知（<code>AjaxSimpleUrlAuthenticationFailureHandler</code>、<code>LoginSuccessHandler</code>），便于前后端分离式交互。</li>
+<li>启用 <strong>Remember-Me</strong>，基于 <code>JdbcTokenRepositoryImpl</code> 持久化令牌，有效期 14 天（1209600 秒）。</li>
+<li>关闭 CSRF（前后端通过 token / 同源策略保护）。</li>
+</ul>
+</li>
+<li><strong>SecurityConfiguration2（ORDER=-9）</strong>：对 <code>/</code> 与 <code>/free/**</code> 放行，供公开访问。</li>
+</ul>
+<p>密码编码器 <code>PasswordEncoder</code> 在 BeanConfig 中定义，认证用户来源为 JDBC（<code>auth.jdbcAuthentication().dataSource(...)</code>），用户表为 <code>User</code>、<code>Authority</code>、<code>PersistentLogin</code>。</p>
+<h3>5.2 JPA 审计</h3>
+<p>SpringSecurityAuditorAware 实现 AuditorAware，从 SecurityContext 取当前用户名注入到实体的 <code>@CreatedBy</code> / <code>@LastModifiedBy</code>；配合 <code>@CreatedDate</code> / <code>@LastModifiedDate</code> 与 <code>@EntityListeners(AuditingEntityListener.class)</code> 实现自动审计字段填充（见 Blog.java 等实体）。</p>
+<h3>5.3 OAuth2</h3>
+<p>OAuth2ClientConfig + <code>TmsUserApprovalHandler</code> 提供 OAuth2 客户端与资源服务能力，相关实体位于 <code>entity/security/oauth2/</code>（<code>OauthClientDetails</code>、<code>OauthAccessToken</code>、<code>OauthRefreshToken</code>、<code>OauthCode</code> 等）。</p>
+<h3>5.4 权限模型</h3>
+<ul>
+<li><strong>用户 (User) ↔ 权限 (Authority)</strong>：直接授权。</li>
+<li><strong>用户组 (Group)</strong>：通过 <code>GroupMember</code> 关联用户，通过 <code>GroupAuthority</code> 关联权限，实现基于组的批量授权。</li>
+<li><strong>博文级权限 (BlogAuthority)</strong> 与 <strong>空间级权限 (SpaceAuthority)</strong>：细粒度资源权限，控制博文的可读 / 可编辑、空间的可见性。</li>
+<li>控制器方法级安全通过 <code>@EnableGlobalMethodSecurity(securedEnabled = true)</code> 启用，可使用 <code>@Secured</code> 注解。</li>
+</ul>
+<hr>
+<h2>6. 实时通讯 (WebSocket / STOMP)</h2>
+<h3>6.1 配置</h3>
+<p>WsConfig.java：</p>
+<ul>
+<li>启用简单 Broker，目的地前缀：<code>/channel</code>（频道消息）、<code>/direct</code>（私聊）、<code>/blog</code>（博文动态）。</li>
+<li>应用目的地前缀：<code>/chat</code>（客户端发送消息前缀）。</li>
+<li>STOMP 端点：<code>/ws</code>、<code>/ws-lock</code>，<code>setAllowedOriginPatterns(&quot;*&quot;)</code> 跨域，<code>withSockJS()</code> 提供 SockJS 回退。</li>
+<li>入站通道注册 <code>WsChannelInterceptor</code>，在消息进入业务前做认证 / 鉴权 / 上下文处理。</li>
+</ul>
+<h3>6.2 握手与拦截</h3>
+<ul>
+<li>WsHandshakeInterceptor：握手阶段将 HTTP Session / 安全上下文信息带入 WebSocket Session attributes，供后续消息处理使用。</li>
+<li>WsChannelInterceptor：在 STOMP 消息入站时校验用户身份、做权限检查。</li>
+</ul>
+<h3>6.3 消息抽象</h3>
+<p><code>component/core/</code> 定义消息处理抽象：</p>
+<ul>
+<li><code>IChatMsg</code> / <code>ChatMsgImpl</code> — 频道消息处理实现，将 STOMP 消息持久化并广播。</li>
+<li><code>MailQueue</code> / <code>MailQueueImpl</code> / <code>MailItem</code> — 异步邮件队列，将通知邮件排队发送。</li>
+<li><code>ChatMsgItem</code> — 单条聊天消息的内部表示。</li>
+</ul>
+<p>广播通过 <code>SimpMessagingTemplate.convertAndSend(&quot;/channel/xxx&quot;, payload)</code> 推送，前端订阅对应目的地即可实时接收。</p>
+<hr>
+<h2>7. 数据模型</h2>
+<p>实体位于 entity 包，使用 JPA 注解 + Lombok，统一审计字段。共 30+ 实体，按业务域分组：</p>
+<h3>7.1 安全域</h3>
+<table>
+<thead>
+<tr>
+<th>实体</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>User</td>
+<td>用户，含用户名、密码（加密）、邮箱、头像、在线状态等</td>
+</tr>
+<tr>
+<td>Authority / AuthorityId</td>
+<td>用户直接权限（复合主键）</td>
+</tr>
+<tr>
+<td>Group</td>
+<td>用户组</td>
+</tr>
+<tr>
+<td>GroupAuthority / GroupMember</td>
+<td>组权限 / 组成员</td>
+</tr>
+<tr>
+<td>PersistentLogin</td>
+<td>Remember-Me 持久化令牌</td>
+</tr>
+<tr>
+<td>oauth2/*</td>
+<td>OAuth2 客户端、令牌、授权码、审批</td>
+</tr>
+</tbody></table>
+<h3>7.2 沟通域</h3>
+<table>
+<thead>
+<tr>
+<th>实体</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Channel</td>
+<td>频道</td>
+</tr>
+<tr>
+<td>ChannelGroup</td>
+<td>频道分组</td>
+</tr>
+<tr>
+<td>Chat</td>
+<td>聊天消息基类（内容、类型、时间）</td>
+</tr>
+<tr>
+<td>ChatChannel</td>
+<td>频道消息（关联频道）</td>
+</tr>
+<tr>
+<td>ChatDirect</td>
+<td>一对一私聊</td>
+</tr>
+<tr>
+<td>ChatAt</td>
+<td>@ 提及</td>
+</tr>
+<tr>
+<td>ChatReply</td>
+<td>消息回复（话题二级）</td>
+</tr>
+<tr>
+<td>ChatLabel / Label</td>
+<td>消息标签</td>
+</tr>
+<tr>
+<td>ChatPin</td>
+<td>固定消息</td>
+</tr>
+<tr>
+<td>ChatStow</td>
+<td>收藏消息</td>
+</tr>
+<tr>
+<td>ChatChannelFollower</td>
+<td>频道关注</td>
+</tr>
+</tbody></table>
+<h3>7.3 博文 Wiki 域</h3>
+<table>
+<thead>
+<tr>
+<th>实体</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Blog</td>
+<td>博文，唯一约束 <code>uuid</code>，索引 <code>title / uuid / shareId</code>，支持 <code>BlogType</code>（Markdown / 富文本 / 表格 / 思维导图 / 画图 / 白板）、<code>Editor</code>、<code>Status</code>、父子嵌套、版本号 <code>@Version</code> 乐观锁</td>
+</tr>
+<tr>
+<td>BlogAuthority</td>
+<td>博文权限</td>
+</tr>
+<tr>
+<td>BlogFollower</td>
+<td>博文关注</td>
+</tr>
+<tr>
+<td>BlogHistory</td>
+<td>历史版本（支持比较与回退）</td>
+</tr>
+<tr>
+<td>BlogNews</td>
+<td>博文动态流</td>
+</tr>
+<tr>
+<td>BlogStow</td>
+<td>博文收藏</td>
+</tr>
+<tr>
+<td>Space / SpaceAuthority</td>
+<td>博文空间与空间权限</td>
+</tr>
+<tr>
+<td>Dir</td>
+<td>博文目录（拖拽排序、五级嵌套）</td>
+</tr>
+<tr>
+<td>Tag</td>
+<td>博文标签</td>
+</tr>
+<tr>
+<td>Comment</td>
+<td>评论（含评论投票）</td>
+</tr>
+<tr>
+<td>File</td>
+<td>上传文件实体</td>
+</tr>
+</tbody></table>
+<h3>7.4 任务与日程域</h3>
+<table>
+<thead>
+<tr>
+<th>实体</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Todo</td>
+<td>待办事项</td>
+</tr>
+<tr>
+<td>Schedule</td>
+<td>日程安排与提醒</td>
+</tr>
+<tr>
+<td>Gantt</td>
+<td>甘特图（项目规划）</td>
+</tr>
+<tr>
+<td>Project</td>
+<td>翻译项目 / 业务项目</td>
+</tr>
+<tr>
+<td>Link</td>
+<td>频道外链</td>
+</tr>
+</tbody></table>
+<h3>7.5 i18n 翻译域</h3>
+<table>
+<thead>
+<tr>
+<th>实体</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Translate</td>
+<td>翻译项目</td>
+</tr>
+<tr>
+<td>TranslateItem</td>
+<td>翻译条目</td>
+</tr>
+<tr>
+<td>TranslateItemHistory</td>
+<td>翻译历史</td>
+</tr>
+<tr>
+<td>Language</td>
+<td>语言定义</td>
+</tr>
+</tbody></table>
+<h3>7.6 系统域</h3>
+<table>
+<thead>
+<tr>
+<th>实体</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Log</td>
+<td>操作审计日志（Action + Target + targetId）</td>
+</tr>
+<tr>
+<td>Setting</td>
+<td>系统设置</td>
+</tr>
+<tr>
+<td>Feedback</td>
+<td>用户反馈</td>
+</tr>
+</tbody></table>
+<h3>7.7 审计与日志</h3>
+<p>BaseController 提供 <code>log(Action, Target, targetId, ...)</code> 方法，将关键操作统一写入 <code>Log</code> 实体，形成完整操作变更历史。<code>Action</code> / <code>Target</code> 为枚举（见 <code>pojo/Enum.java</code>），覆盖创建、更新、删除、登录、分享等动作与博文、频道、用户、翻译等目标对象。</p>
+<hr>
+<h2>8. 控制器与 API 设计</h2>
+<p>控制器位于 controller 包，统一继承 <code>BaseController</code>，返回 <code>RespBody</code>（统一响应体）。主要控制器与路由前缀：</p>
+<table>
+<thead>
+<tr>
+<th>控制器</th>
+<th>路由前缀</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AdminController</td>
+<td><code>admin/</code></td>
+<td>后台管理、登录页、健康检查、用户/项目/语言/反馈/动态/翻译/导入/设置管理</td>
+</tr>
+<tr>
+<td>ApiController</td>
+<td><code>api/</code></td>
+<td>第三方集成入口（Jenkins 消息、外部应用消息投递到频道）</td>
+</tr>
+<tr>
+<td>BlogController</td>
+<td><code>admin/blog</code></td>
+<td>博文 CRUD、评论、权限、收藏、关注、历史、导出、投票、分享</td>
+</tr>
+<tr>
+<td>ChatController</td>
+<td><code>admin/chat</code></td>
+<td>聊天消息收发与处理</td>
+</tr>
+<tr>
+<td>ChatChannelController</td>
+<td><code>admin/chat/channel</code></td>
+<td>频道管理</td>
+</tr>
+<tr>
+<td>ChatDirectController</td>
+<td>—</td>
+<td>私聊</td>
+</tr>
+<tr>
+<td>ChatLabelController</td>
+<td>—</td>
+<td>消息标签</td>
+</tr>
+<tr>
+<td>ChannelController</td>
+<td>—</td>
+<td>频道配置</td>
+</tr>
+<tr>
+<td>ChannelGroupController</td>
+<td>—</td>
+<td>频道分组</td>
+</tr>
+<tr>
+<td>ChannelTaskController</td>
+<td>—</td>
+<td>频道任务看板</td>
+</tr>
+<tr>
+<td>TranslateController</td>
+<td><code>admin/translate</code></td>
+<td>翻译项目与条目管理、导入导出、Base64</td>
+</tr>
+<tr>
+<td>LanguageController</td>
+<td>—</td>
+<td>语言管理</td>
+</tr>
+<tr>
+<td>TodoController</td>
+<td><code>admin/todo</code></td>
+<td>待办事项</td>
+</tr>
+<tr>
+<td>ScheduleController</td>
+<td>—</td>
+<td>日程</td>
+</tr>
+<tr>
+<td>GanttController</td>
+<td>—</td>
+<td>甘特图</td>
+</tr>
+<tr>
+<td>SpaceController</td>
+<td>—</td>
+<td>博文空间</td>
+</tr>
+<tr>
+<td>SpaceHomeController</td>
+<td><code>free/space/home</code></td>
+<td>空间公开页</td>
+</tr>
+<tr>
+<td>FileController</td>
+<td>—</td>
+<td>文件上传下载</td>
+</tr>
+<tr>
+<td>ImportController</td>
+<td><code>admin/import</code></td>
+<td>CSV / Excel 导入为 Markdown 表格、导出</td>
+</tr>
+<tr>
+<td>HomeController</td>
+<td><code>free/home</code></td>
+<td>公开博文列表</td>
+</tr>
+<tr>
+<td>RootController</td>
+<td><code>/</code></td>
+<td>根路由、登录注册、公开 wiki</td>
+</tr>
+<tr>
+<td>SettingController</td>
+<td>—</td>
+<td>系统设置</td>
+</tr>
+<tr>
+<td>UserController</td>
+<td>—</td>
+<td>用户管理</td>
+</tr>
+<tr>
+<td>UserTaskController</td>
+<td><code>admin/user/task</code></td>
+<td>用户任务</td>
+</tr>
+<tr>
+<td>Oauth2ResourceController</td>
+<td>—</td>
+<td>OAuth2 资源接口</td>
+</tr>
+<tr>
+<td>FeedbackController</td>
+<td>—</td>
+<td>用户反馈</td>
+</tr>
+</tbody></table>
+<h3>8.1 路由可见性约定</h3>
+<ul>
+<li><code>admin/**</code> — 需登录（受 Security 保护）。</li>
+<li><code>api/**</code> — 受保护，对外集成接口（Jenkins 等）。</li>
+<li><code>ws/**</code> — WebSocket 端点，需认证。</li>
+<li><code>free/**</code> — 公开访问（着陆页、公开博文 / 空间）。</li>
+</ul>
+<h3>8.2 统一响应</h3>
+<p>所有接口统一返回 <code>RespBody</code>（见 model 包），<code>BaseController</code> 内通过 <code>@ExceptionHandler</code> 统一异常处理，把 <code>BizException</code> 等转换为标准 JSON 响应，前端据此做 Toastr 提示。</p>
+<hr>
+<h2>9. 业务服务层</h2>
+<table>
+<thead>
+<tr>
+<th>服务</th>
+<th>接口</th>
+<th>实现</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ChatChannelService</td>
+<td>接口</td>
+<td>impl</td>
+<td>频道消息持久化与广播调度</td>
+</tr>
+<tr>
+<td>ChannelService</td>
+<td>接口</td>
+<td>impl</td>
+<td>频道生命周期管理</td>
+</tr>
+<tr>
+<td>FileService</td>
+<td>接口</td>
+<td>impl</td>
+<td>文件上传 / 下载 / 图片处理</td>
+</tr>
+<tr>
+<td>BlogLockService</td>
+<td>接口</td>
+<td>impl</td>
+<td>多人协作编辑时的分布式锁（基于 WebSocket 锁端点 <code>/ws-lock</code>）</td>
+</tr>
+</tbody></table>
+<h3>9.1 多人协同编辑锁</h3>
+<p>BlogLockServiceImpl 通过 <code>WsLockPayload</code>（model 包）在 <code>/ws-lock</code> 端点上协调多个客户端对同一篇博文的编辑权，避免并发覆盖；锁通过 WebSocket 心跳维持，断开自动释放。</p>
+<hr>
+<h2>10. 工具类</h2>
+<p>util 包提供 30+ 工具类：</p>
+<table>
+<thead>
+<tr>
+<th>类</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AuthUtil</td>
+<td>认证 / 当前用户获取</td>
+</tr>
+<tr>
+<td>DateUtil</td>
+<td>日期与时间（joda-time 封装）</td>
+</tr>
+<tr>
+<td>FileUtil</td>
+<td>文件 IO（基于 commons-io）</td>
+</tr>
+<tr>
+<td>ImageUtil</td>
+<td>图片缩放 / 头像处理</td>
+</tr>
+<tr>
+<td>ExcelUtil</td>
+<td>POI Excel 读写（导入导出）</td>
+</tr>
+<tr>
+<td>HtmlUtil</td>
+<td>Jsoup HTML 清洗 / 转换</td>
+</tr>
+<tr>
+<td>JsonUtil</td>
+<td>Fastjson / Gson 封装</td>
+</tr>
+<tr>
+<td>MapUtil / CollectionUtil</td>
+<td>集合操作</td>
+</tr>
+<tr>
+<td>SqlUtil</td>
+<td>SQL 拼接与防注入</td>
+</tr>
+<tr>
+<td>SHA1 / EncoderUtil</td>
+<td>编码与摘要</td>
+</tr>
+<tr>
+<td>StringUtil</td>
+<td>字符串处理</td>
+</tr>
+<tr>
+<td>TemplateUtil</td>
+<td>FreeMarker 模板渲染（邮件等）</td>
+</tr>
+<tr>
+<td>WebUtil</td>
+<td>Web 请求工具（IP、UA、Referer）</td>
+</tr>
+<tr>
+<td>LuckySheetUtil</td>
+<td>LuckySheet 在线表格数据解析</td>
+</tr>
+<tr>
+<td>ChineseUtil</td>
+<td>中文处理</td>
+</tr>
+<tr>
+<td>ValidateUtil</td>
+<td>校验工具</td>
+</tr>
+<tr>
+<td>ThreadUtil</td>
+<td>线程 / 异步工具</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>11. 配置体系</h2>
+<h3>11.1 多 Profile 配置文件</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>application.properties</td>
+<td>主配置，默认 <code>spring.profiles.active=dev</code>，并 <code>include=tms</code></td>
+</tr>
+<tr>
+<td>application-dev.properties</td>
+<td>开发环境</td>
+</tr>
+<tr>
+<td>application-prod.properties</td>
+<td>生产（MySQL）</td>
+</tr>
+<tr>
+<td>application-prod-pg.properties</td>
+<td>生产（PostgreSQL）</td>
+</tr>
+<tr>
+<td>application-tms.properties</td>
+<td>TMS 业务参数（共用）</td>
+</tr>
+</tbody></table>
+<h3>11.2 关键配置</h3>
+<ul>
+<li>数据源：MySQL <code>jdbc:mysql://localhost:3306/tms</code>，HikariCP（最大池 30、最小空闲 10、连接超时 30s）。</li>
+<li>JPA：<code>ddl-auto=update</code>（自动维护表结构）、<code>show-sql=false</code>。</li>
+<li>服务：<code>server.port=80</code>，<code>context-path=/</code>。</li>
+<li>模板：Thymeleaf <code>cache=false</code>（开发）、<code>mode=HTML</code>。</li>
+<li>监控：Actuator <code>base-path=/manage</code>，默认关闭所有端点（<code>enabled-by-default=false</code>），按需开放。</li>
+<li>邮件：<code>spring.mail.*</code>（默认 163 邮箱）。</li>
+<li>上传：单文件 10MB，单请求 50MB。</li>
+<li>OAuth2：客户端 <code>client-id=tms</code> / <code>client-secret=tms</code>，<code>auto-approve-scopes=.*</code>。</li>
+<li>Jackson：<code>default-property-inclusion=non-null</code>。</li>
+</ul>
+<h3>11.3 国际化资源</h3>
+<ul>
+<li><code>messages.properties</code> / <code>messages_en_US.properties</code> — 系统级 i18n。</li>
+<li><code>spring.messages.basename=messages,views</code>，编码 <code>ISO-8859-1</code>（Spring 默认）。</li>
+</ul>
+<hr>
+<h2>12. 部署与运维</h2>
+<h3>12.1 构建产物</h3>
+<p><code>mvn clean package</code> 产出 <code>target/tms-1.0.0-SNAPSHOT.war</code>。<code>spring-boot-maven-plugin</code> 支持 <code>repackage</code>，war 可独立 <code>java -jar</code> 运行，也可部署到外部 Tomcat（<code>spring-boot-starter-tomcat</code> 为 <code>provided</code>，由容器提供）。</p>
+<h3>12.2 传统部署</h3>
+<pre><code class="language-bash">mvn clean package
+# 将 war 部署到 Tomcat 8.5 webapps/ROOT.war
+</code></pre>
+<p>Dockerfile 即基于 <code>tomcat:8.5.73-jdk8</code>，将 war 复制到 <code>webapps/ROOT.war</code>。</p>
+<h3>12.3 Docker Compose 部署</h3>
+<p>docker-compose.yml 启动两个服务：<code>web</code>（TMS 应用，8090→8080）与 <code>db</code>（MySQL，3307→3306），通过 <code>backend</code> 网络互通。PostgreSQL 版本使用 docker-compose-pg.yml。</p>
+<pre><code class="language-bash">docker-compose up -d
+</code></pre>
+<h3>12.4 Kubernetes 部署</h3>
+<p>k8s/deploy.yaml 定义 <code>Deployment</code>（单副本，含 <code>tms-mysql</code> 与 <code>tms-tomcat</code> 两个容器），k8s/svc.yaml 定义 Service。镜像来自 <code>registry.cn-hangzhou.aliyuncs.com/xiweicheng/tms-*:v1</code>。</p>
+<h3>12.5 部署脚本</h3>
+<table>
+<thead>
+<tr>
+<th>脚本</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>deploy.sh</td>
+<td>MySQL 部署脚本</td>
+</tr>
+<tr>
+<td>deploy-pg.sh</td>
+<td>PostgreSQL 部署脚本</td>
+</tr>
+<tr>
+<td>deploy2local.sh</td>
+<td>本地部署脚本</td>
+</tr>
+<tr>
+<td>src/main/resources/deploy.sh</td>
+<td>容器内部署辅助</td>
+</tr>
+</tbody></table>
+<h3>12.6 数据库初始化</h3>
+<ul>
+<li>MySQL：db/mysql/db.sql + db/mysql/Dockerfile（构建带初始化数据的镜像）。</li>
+<li>PostgreSQL：db/postgres/db.sql + db/postgres/Dockerfile。</li>
+<li>运行时由 <code>ddl-auto=update</code> 维护表结构。</li>
+</ul>
+<h3>12.7 访问地址</h3>
+<ul>
+<li>默认：<code>http://localhost/tms</code>（context-path 已改为 <code>/</code>，直接 <code>http://localhost/</code>）。</li>
+<li>Docker Compose：<code>http://localhost:8090/</code>。</li>
+</ul>
+<hr>
+<h2>13. 监控与日志</h2>
+<ul>
+<li><strong>日志</strong>：logback.xml 配置，输出到 <code>log/tms/tms.log</code>；代码中统一使用 SLF4J。</li>
+<li><strong>运行时监控</strong>：Spring Boot Actuator，端点基路径 <code>/manage</code>，默认关闭，需显式开启（可在生产 profile 中按需 <code>management.endpoints.web.exposure.include=...</code>）。</li>
+<li><strong>操作审计</strong>：<code>Log</code> 实体记录所有关键操作（创建 / 更新 / 删除 / 登录 / 分享等），可追溯。</li>
+</ul>
+<hr>
+<h2>14. Markdown 转 PDF 子工程</h2>
+<p>src/main/resources/md2pdf 是一个独立 Node.js 工程（<code>package.json</code> + <code>index.js</code>），用于将博文 Markdown 渲染为 PDF 导出，与后端 Java 进程协作完成导出能力（博文支持导出 PDF / Markdown / HTML / Excel / PNG）。</p>
+<hr>
+<h2>15. 开发指南</h2>
+<h3>15.1 本地开发</h3>
+<ol>
+<li>克隆仓库，准备 MySQL（或 PostgreSQL）。</li>
+<li>修改 <code>application-dev.properties</code> 数据库连接。</li>
+<li>运行 Application.java 主类（IDE 中直接 Run）。</li>
+<li>访问 <code>http://localhost/</code>。</li>
+</ol>
+<h3>15.2 新增业务模块</h3>
+<ol>
+<li>在 <code>entity/</code> 新增 JPA 实体（继承审计字段）。</li>
+<li>在 <code>repository/</code> 新增 <code>JpaRepository</code> 接口。</li>
+<li>在 <code>service/</code>（+ <code>impl/</code>）新增业务服务。</li>
+<li>在 <code>controller/</code> 新增 <code>@RestController</code>，继承 <code>BaseController</code>，返回 <code>RespBody</code>。</li>
+<li>通过 <code>log(Action, Target, targetId)</code> 记录操作审计。</li>
+<li>通过 <code>SimpMessagingTemplate</code> 推送实时消息到对应 Broker 目的地。</li>
+</ol>
+<h3>15.3 编码规范要点</h3>
+<ul>
+<li>实体统一使用 Lombok <code>@Data</code> / <code>@ToString</code>，避免手写 getter/setter。</li>
+<li>控制器返回统一 <code>RespBody</code>，异常走 <code>BaseController</code> 统一处理。</li>
+<li>实时通讯走 STOMP Broker 目的地，不直接操作 Session。</li>
+<li>文件上传遵循 <code>spring.servlet.multipart.*</code> 限制，通过 <code>FileService</code> 统一处理。</li>
+</ul>
+<hr>
+<h2>16. 测试</h2>
+<ul>
+<li>依赖：<code>spring-boot-starter-test</code>（排除 JUnit 4）、<code>testng</code> 6.8.13、<code>spring-security-test</code>、<code>junit</code>（test scope）。</li>
+<li>测试目录：<code>src/test/</code>，可使用 TestNG 或 JUnit 编写单元 / 集成测试。</li>
+<li><code>json-path</code> 用于对 JSON 响应做断言。</li>
+</ul>
+<hr>
+<h2>17. 已知注意事项</h2>
+<ol>
+<li><strong>第三方依赖版权</strong>：项目使用多个第三方开源依赖，商用前需确认依赖 License（见 README.md 免责声明）。</li>
+<li><strong>Spring Boot 版本</strong>：parent 为 2.4.13（CODE_WIKI 中提及的 1.5.14 为历史版本，以 pom.xml 实际为准）。</li>
+<li><strong>CSRF 关闭</strong>：当前安全配置关闭了 CSRF，生产部署建议在网关层或同源策略下保护，或按需开启。</li>
+<li><strong>ddl-auto=update</strong>：便于开发，生产建议改为 <code>validate</code> 并使用迁移工具（如 Flyway / Liquibase）管理 schema。</li>
+<li><strong>OGNL 依赖</strong>：显式引入 <code>ognl:3.1.29</code> 修复 <code>NoClassDefFoundError</code>。</li>
+<li><strong>Actuator 端点默认关闭</strong>：上线前按需开启健康检查 / 信息端点。</li>
+</ol>
+<hr>
+<h2>18. 总结</h2>
+<p>TMS 是一款功能完整、架构清晰的 Spring Boot 团队协作平台，覆盖沟通、博文 Wiki、i18n 翻译三大场景，具备实时通讯、细粒度权限、多人协同编辑、多格式导出、多数据库与多云部署能力。本技术文档可作为二次开发与运维的参考基线，建议配合 CODE_WIKI.md 与 FEATURES.md 一起阅读。</p>
+</div></body></html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>TMS 功能介绍</title><style>:root{--bg:#0b1020;--bg2:#111834;--card:#161f3f;--card2:#1c2750;--text:#e8ecf8;--muted:#9aa6c8;--brand:#5b8cff;--brand2:#7a5cff;--accent:#26d6c9;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+.container{max-width:900px;margin:0 auto;padding:40px 24px 80px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+h1{font-size:34px;font-weight:800;margin-bottom:16px;background:linear-gradient(120deg,var(--brand),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:26px;font-weight:700;margin-top:40px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+h3{font-size:20px;font-weight:600;margin-top:28px;margin-bottom:12px;color:var(--brand)}
+h4{font-size:17px;font-weight:600;margin-top:20px;margin-bottom:8px}
+p{margin-bottom:14px;color:var(--muted)}
+blockquote{border-left:3px solid var(--brand);padding:12px 20px;margin:16px 0;background:rgba(91,140,255,.06);border-radius:0 8px 8px 0}
+blockquote p{color:var(--muted)}
+ul,ol{margin-bottom:14px;padding-left:24px}
+li{margin-bottom:6px;color:var(--muted)}
+strong{color:var(--text)}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th{background:var(--card2);padding:10px 14px;text-align:left;font-weight:600;border:1px solid var(--line);color:var(--text)}
+td{padding:10px 14px;border:1px solid var(--line);color:var(--muted)}
+tr:nth-child(even){background:rgba(255,255,255,.02)}
+code{font-family:'SF Mono',Consolas,'Liberation Mono',Menlo,monospace;background:var(--card2);padding:2px 6px;border-radius:4px;font-size:13px;color:var(--accent)}
+pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;overflow-x:auto;margin:16px 0}
+pre code{background:none;padding:0;color:var(--text);font-size:13px}
+hr{border:none;border-top:1px solid var(--line);margin:32px 0}
+.back{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;font-size:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);margin-bottom:24px;color:var(--muted);transition:.2s}
+.back:hover{color:var(--text);border-color:rgba(91,140,255,.4)}</style></head><body><div class="container"><a class="back" href="index.html">← 返回首页</a><h1>TMS 功能介绍 (Feature Introduction)</h1>
+<blockquote>
+<p>TMS (Teamwork Management System) — 一站式团队协作平台，集「实时沟通 + 博文 Wiki + 国际化翻译管理」于一体，响应式设计，开箱即用。</p>
+</blockquote>
+<p>面向产品经理、团队负责人、最终用户，介绍 TMS 的功能亮点、使用场景与价值，帮助你快速判断 TMS 是否适合你的团队。</p>
+<hr>
+<h2>1. TMS 是什么</h2>
+<p>TMS 是一款开源的团队协作系统，把团队日常最常用的三件事——<strong>聊天沟通、知识沉淀、多语言翻译</strong>——整合到一个平台，避免在 Slack、Confluence、翻译工具之间来回切换。</p>
+<ul>
+<li><strong>类似 Slack / BearyChat</strong> 的频道化实时沟通</li>
+<li><strong>类似精简版 Confluence / 蚂蚁笔记</strong> 的团队博文 Wiki</li>
+<li><strong>专业的 i18n 国际化翻译项目管理</strong></li>
+</ul>
+<p>一句话定位：<strong>中小团队的一体化协作工作台</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>适用团队</td>
+<td>5 ~ 200 人的产品 / 研发 / 运营 / 翻译团队</td>
+</tr>
+<tr>
+<td>部署方式</td>
+<td>本地、Docker、Kubernetes，全部支持</td>
+</tr>
+<tr>
+<td>数据自主</td>
+<td>全部数据自托管，不依赖第三方 SaaS</td>
+</tr>
+<tr>
+<td>开源协议</td>
+<td>MIT</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. 三大核心功能</h2>
+<h3>2.1 团队协作沟通</h3>
+<p>基于 WebSocket 实时通讯，所有消息秒级触达，支持频道化讨论与一对一私聊。</p>
+<p><strong>功能清单：</strong></p>
+<ul>
+<li>频道沟通（支持二级话题，按项目 / 主题划分）</li>
+<li>一对一私聊</li>
+<li>Markdown 语法支持</li>
+<li>@ 提及消息（精准通知）</li>
+<li>消息收藏与富文本消息目录</li>
+<li>频道外链管理</li>
+<li>频道甘特图（项目规划可视化）</li>
+<li>频道任务看板（可拖拽，轻量项目管理）</li>
+<li>频道固定消息（公告 / 规范置顶）</li>
+<li>日程安排与提醒</li>
+<li>待办事项管理</li>
+<li>消息标记表情与标签（快速反馈与分类）</li>
+<li>剪贴板 / 拖拽文件上传</li>
+<li>从 CSV、Excel 导入 Markdown 表格</li>
+<li>邮件、桌面、Toastr 多渠道通知</li>
+<li>热键支持（高效操作）</li>
+<li>自定义皮肤色调</li>
+<li>自定义频道组</li>
+</ul>
+<p><strong>价值：</strong> 把沟通、任务、日程放在同一频道上下文里，减少上下文切换，让讨论直接落地为待办与计划。</p>
+<h3>2.2 团队博文 Wiki</h3>
+<p>类似精简版 Confluence，但更轻、更快，支持多种创作形态。</p>
+<p><strong>功能清单：</strong></p>
+<ul>
+<li>博文空间（组织管理与权限隔离，按部门 / 项目划分）</li>
+<li>多种创作方式：<ul>
+<li>Markdown</li>
+<li>HTML 富文本</li>
+<li>在线电子表格</li>
+<li>思维导图</li>
+<li>图表工具</li>
+<li>白板</li>
+</ul>
+</li>
+<li>基于模板创建博文（支持私有 / 公开模板）</li>
+<li>博文目录（支持拖拽排序）与标签</li>
+<li>父子级博文（支持五级嵌套，构建知识树）</li>
+<li>博文关注、收藏</li>
+<li>历史版本（版本比较与一键回退）</li>
+<li>博文权限管理、点赞、分享、游客访问</li>
+<li>博文评论功能</li>
+<li>多人协作编辑（需开启协作权限，带编辑锁）</li>
+<li>导出为 PDF、Markdown、HTML、Excel、PNG</li>
+<li>基于 WebSocket 的实时更新通知</li>
+<li>完整的操作变更历史审计</li>
+</ul>
+<p><strong>价值：</strong> 知识不再散落在各处，沉淀为可检索、可追溯、可协作的团队资产。</p>
+<h3>2.3 国际化翻译管理</h3>
+<p>专业的多语言翻译项目管理工具，适合有 i18n 需求的产品团队。</p>
+<p><strong>功能清单：</strong></p>
+<ul>
+<li>翻译项目管理（按产品 / 模块组织）</li>
+<li>翻译语言管理（多语言并行维护）</li>
+<li>翻译导入导出（批量处理）</li>
+<li>翻译内容管理（条目级编辑与历史）</li>
+<li>翻译条目历史版本</li>
+</ul>
+<p><strong>价值：</strong> 把翻译从「散落在 Excel / 代码注释」升级为「集中管理、可追溯、可协作」的工程化流程。</p>
+<hr>
+<h2>3. 其他功能</h2>
+<ul>
+<li><strong>系统设置</strong> — 站点名称、邮件、皮肤等全局配置</li>
+<li><strong>用户管理</strong> — 账号、权限、用户组</li>
+<li><strong>用户反馈</strong> — 收集团队成员意见</li>
+<li><strong>操作审计</strong> — 全量操作日志可追溯</li>
+</ul>
+<hr>
+<h2>4. 功能亮点</h2>
+<h3>4.1 实时，但不喧闹</h3>
+<ul>
+<li>WebSocket + STOMP，消息实时推送，无需刷新。</li>
+<li>@ 提醒、固定消息、标签，让重要信息不被淹没。</li>
+<li>桌面通知 + 邮件通知 + Toastr，分级提醒，不打扰。</li>
+</ul>
+<h3>4.2 知识与沟通同源</h3>
+<ul>
+<li>频道里讨论的结论，一键沉淀为博文。</li>
+<li>博文更新实时通知关注者，知识流动起来。</li>
+<li>博文支持五级嵌套 + 目录拖拽，知识结构清晰。</li>
+</ul>
+<h3>4.3 多形态创作</h3>
+<ul>
+<li>不止 Markdown：富文本、表格、思维导图、白板、画图，适配不同知识形态。</li>
+<li>从 CSV / Excel 导入表格，从 Word（.docx）解析内容。</li>
+<li>一键导出 PDF / Markdown / HTML / Excel / PNG，交付无障碍。</li>
+</ul>
+<h3>4.4 权限精细</h3>
+<ul>
+<li>用户直接授权 + 用户组批量授权。</li>
+<li>博文级权限（可读 / 可编辑）+ 空间级权限。</li>
+<li>公开 / 私密 / 游客访问三态可控。</li>
+</ul>
+<h3>4.5 协同编辑不冲突</h3>
+<ul>
+<li>基于 WebSocket 的编辑锁，多人协作时避免覆盖。</li>
+<li>版本历史 + 一键回退，误删可恢复。</li>
+<li>全量操作审计，谁改了什么一目了然。</li>
+</ul>
+<h3>4.6 响应式，移动端友好</h3>
+<ul>
+<li>Bootstrap + Vue.js 响应式设计，手机 / 平板 / 桌面自适应。</li>
+<li>自定义皮肤色调，契合团队品牌。</li>
+</ul>
+<h3>4.7 部署灵活</h3>
+<ul>
+<li>本地 / Docker Compose / Kubernetes，三种部署任选。</li>
+<li>MySQL / PostgreSQL 双数据库支持。</li>
+<li>数据完全自托管，隐私可控。</li>
+</ul>
+<hr>
+<h2>5. 典型使用场景</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>用法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>研发团队日常协作</td>
+<td>频道讨论需求 → 任务看板拆解 → 博文沉淀设计文档 → 日程跟进里程碑</td>
+</tr>
+<tr>
+<td>产品知识库</td>
+<td>用博文空间按产品线组织 PRD、设计稿、会议纪要，五级目录构建知识树</td>
+</tr>
+<tr>
+<td>多语言产品团队</td>
+<td>翻译项目管理多语言文案，导入导出对接开发流程，历史可追溯</td>
+</tr>
+<tr>
+<td>远程团队沟通</td>
+<td>频道 + 私聊 + 桌面通知，异地协作如在同一办公室</td>
+</tr>
+<tr>
+<td>项目管理</td>
+<td>频道甘特图规划周期，任务看板跟踪进度，待办事项分配到人</td>
+</tr>
+<tr>
+<td>客户支持</td>
+<td>公开博文（游客访问）做帮助文档，内部博文做知识库</td>
+</tr>
+<tr>
+<td>跨部门协作</td>
+<td>用户组授权 + 空间隔离，既共享又互不干扰</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. 角色价值</h2>
+<h3>对团队负责人</h3>
+<ul>
+<li>一个平台覆盖沟通 + 知识 + 翻译，降低工具采购与切换成本。</li>
+<li>操作审计 + 权限隔离，管理省心、合规可控。</li>
+<li>数据自托管，隐私与安全掌握在自己手中。</li>
+</ul>
+<h3>对产品 / 研发</h3>
+<ul>
+<li>讨论即文档，减少重复整理。</li>
+<li>多形态创作，适配 PRD / 设计 / 技术文档不同需求。</li>
+<li>一键导出多格式，交付与评审顺畅。</li>
+</ul>
+<h3>对运营 / 翻译</h3>
+<ul>
+<li>翻译项目集中管理，告别散乱 Excel。</li>
+<li>历史版本可追溯，避免误改。</li>
+<li>多人协作，分工明确。</li>
+</ul>
+<h3>对所有成员</h3>
+<ul>
+<li>实时沟通 + 移动端响应式，随时随地协作。</li>
+<li>@ 提醒 + 待办 + 日程，不遗漏重要事项。</li>
+<li>收藏 + 关注 + 标签，个人知识管理井井有条。</li>
+</ul>
+<hr>
+<h2>7. 与同类产品对比</h2>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>TMS</th>
+<th>通用 IM</th>
+<th>通用 Wiki</th>
+<th>通用翻译工具</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>频道实时沟通</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>任务看板 / 甘特图</td>
+<td>✅（轻量）</td>
+<td>部分</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>多形态博文</td>
+<td>✅（6 种）</td>
+<td>❌</td>
+<td>部分</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>博文版本历史</td>
+<td>✅</td>
+<td>❌</td>
+<td>部分</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>多人协同编辑</td>
+<td>✅（带锁）</td>
+<td>❌</td>
+<td>部分</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>i18n 翻译管理</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>数据自托管</td>
+<td>✅</td>
+<td>视产品</td>
+<td>视产品</td>
+<td>视产品</td>
+</tr>
+<tr>
+<td>一体化（同一平台）</td>
+<td>✅</td>
+<td>单一</td>
+<td>单一</td>
+<td>单一</td>
+</tr>
+</tbody></table>
+<p>TMS 的核心差异点：<strong>把沟通、知识、翻译放在同一个上下文里</strong>，让团队协作不再割裂。</p>
+<hr>
+<h2>8. 快速开始</h2>
+<h3>8.1 Docker 一键启动</h3>
+<pre><code class="language-bash">git clone https://github.com/xiweicheng/tms.git
+cd tms
+docker-compose up -d
+</code></pre>
+<p>访问 <code>http://localhost:8090/</code> 即可使用。</p>
+<h3>8.2 本地开发</h3>
+<p>详见 TECHNICAL_DOC.md 第 15 章。简言之：配好数据库 → 改 <code>application-dev.properties</code> → 运行 <code>Application.java</code> → 访问 <code>http://localhost/</code>。</p>
+<h3>8.3 生产部署</h3>
+<p>支持 Tomcat War 部署、Docker Compose、Kubernetes 三种方式，详见 TECHNICAL_DOC.md 第 12 章。</p>
+<hr>
+<h2>9. 文档与社区</h2>
+<ul>
+<li>README.md — 项目总览与截图</li>
+<li>TECHNICAL_DOC.md — 技术文档（架构 / 模块 / API / 部署）</li>
+<li>CODE_WIKI.md — 代码 Wiki</li>
+<li>UPGRADE_GUIDE.md — 升级指南</li>
+<li>GitHub Pages 着陆页 — 在线介绍页</li>
+<li>仓库：<a href="https://github.com/xiweicheng/tms">GitHub</a> / <a href="https://gitee.com/xiweicheng/tms">Gitee</a></li>
+</ul>
+<hr>
+<h2>10. 许可证与免责</h2>
+<ul>
+<li><strong>开源协议</strong>：MIT License，可自由使用与二次开发。</li>
+<li><strong>免责声明</strong>：项目使用了多个第三方开源依赖，商用前请确认相关依赖的 License 授权，TMS 不承担因第三方依赖版权引发的任何法律责任。</li>
+</ul>
+<hr>
+<p>TMS 把团队的沟通、知识、翻译收进一个工作台，让协作回归简单。如果你正在寻找一个<strong>数据自主、功能一体、部署灵活</strong>的团队协作平台，TMS 值得一试。</p>
+</div></body></html>
