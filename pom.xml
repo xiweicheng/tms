@@ -208,7 +208,7 @@
 		<dependency>
 			<groupId>org.zwobble.mammoth</groupId>
 			<artifactId>mammoth</artifactId>
-			<version>1.4.0</version>
+			<version>1.11.0</version>
 		</dependency>
 		<!-- Add OGNL dependency to fix NoClassDefFoundError -->
 		<dependency>
